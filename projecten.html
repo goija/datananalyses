@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Repositories — goija</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #fafafa;
+      --surface-alt: #f3f3f3;
+      --text: #111111;
+      --muted: #555555;
+      --accent: #A31C1C;
+      --accent-hover: #7d1414;
+      --accent-soft: #fdf2f2;
+      --border: #dcdcdc;
+      --base-font: 19px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: var(--base-font);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3.5rem;
+    }
+
+    /* Topbar */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .back-link:hover,
+    .back-link:focus-visible {
+      text-decoration: underline;
+      outline: none;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    button,
+    select {
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 0.65rem;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible,
+    select:focus-visible {
+      border-color: var(--accent);
+      color: var(--accent);
+      outline: none;
+    }
+
+    button.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    /* Header */
+    header {
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 1.15rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .kicker {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.45rem;
+      font-size: 1.7rem;
+      line-height: 1.2;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 1.25rem;
+    }
+
+    .toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1 1 260px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .search-input:focus {
+      outline: 2px solid var(--accent);
+      border-color: var(--accent);
+    }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    /* Repo-lijst */
+    .repo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .repo-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 4px;
+      padding: 1rem 1.15rem;
+      background: var(--bg);
+      transition: background-color 0.15s ease;
+    }
+
+    .repo-card:hover {
+      background: var(--surface);
+    }
+
+    .repo-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.6rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .repo-name {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .repo-name a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .repo-name a:hover,
+    .repo-name a:focus-visible {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .repo-desc {
+      margin: 0 0 0.85rem;
+      font-size: 0.86rem;
+      color: var(--muted);
+      word-break: break-word;
+    }
+
+    .repo-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.74rem;
+      color: var(--muted);
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.12rem 0.45rem;
+      border-radius: 3px;
+      font-weight: 700;
+      font-size: 0.7rem;
+      letter-spacing: 0.02em;
+      background: var(--surface-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .badge-lang {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: #e8c4c4;
+    }
+
+    .badge-fork {
+      background: #eeeeee;
+      color: var(--muted);
+    }
+
+    .repo-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.55rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .repo-links a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .repo-links a:hover {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
+
+    .error-box,
+    .empty-state {
+      padding: 1.15rem;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      background: var(--surface);
+      font-size: 0.9rem;
+    }
+
+    footer {
+      margin-top: 2.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media print {
+      .topbar,
+      .toolbar,
+      .no-print {
+        display: none !important;
+      }
+
+      body {
+        font-size: 10pt;
+      }
+
+      .repo-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .repo-card {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar no-print">
+      <a href="./index.html" class="back-link">&larr; Terug naar datananalyses</a>
+      <div class="controls" aria-label="Pagina-instellingen">
+        <button type="button" id="font-dec" aria-label="Kleiner lettertype">A-</button>
+        <button type="button" id="font-reset" aria-label="Standaard lettertype">A</button>
+        <button type="button" id="font-inc" aria-label="Groter lettertype">A+</button>
+        <button type="button" id="print-btn">Afdrukken / PDF</button>
+      </div>
+    </div>
+
+    <header>
+      <span class="kicker">GitHub Portaal</span>
+      <h1>Openbare Repositories — goija</h1>
+      <p class="lead">
+        Automatisch gesynchroniseerd overzicht van alle openbare projecten op GitHub. Nieuwe of bijgewerkte repositories verschijnen direct in de lijst.
+      </p>
+    </header>
+
+    <main>
+      <div class="toolbar no-print">
+        <div class="toolbar-row">
+          <input
+            type="search"
+            id="search-input"
+            class="search-input"
+            placeholder="Zoek op naam, omschrijving of taal..."
+            aria-label="Zoek repositories"
+          >
+          <select id="lang-filter" aria-label="Filter op programmeertaal">
+            <option value="all">Alle talen</option>
+          </select>
+          <select id="sort-select" aria-label="Sorteer repositories">
+            <option value="updated">Laatst bijgewerkt</option>
+            <option value="name">Alfabetisch (A–Z)</option>
+          </select>
+          <button type="button" id="refresh-btn">Vernieuwen</button>
+        </div>
+
+        <div class="toolbar-row" role="group" aria-label="Filter op type">
+          <button type="button" class="type-btn active" data-type="all">Alles</button>
+          <button type="button" class="type-btn" data-type="source">Eigen projecten</button>
+          <button type="button" class="type-btn" data-type="fork">Forks</button>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <span id="status" aria-live="polite">Repositories ophalen uit GitHub...</span>
+        <span id="last-updated"></span>
+      </div>
+
+      <div id="repo-grid" class="repo-grid"></div>
+      <div id="empty-state" class="empty-state" hidden>Geen repositories gevonden voor deze selectie.</div>
+    </main>
+
+    <footer>
+      <span>Bron: <a href="https://github.com/goija?tab=repositories" target="_blank" rel="noopener noreferrer">github.com/goija</a></span>
+      <span>Alleen openbare repositories — geen trackers of externe scripts.</span>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      const USERNAME = 'goija';
+      // Voeg hier desgewenst namen van openbare repos toe die je wilt verbergen
+      const EXCLUDE = new Set([]);
+      const CACHE_KEY = `gh_repos_${USERNAME}`;
+      const CACHE_TTL = 5 * 60 * 1000; // 5 minuten
+
+      const gridEl = document.getElementById('repo-grid');
+      const statusEl = document.getElementById('status');
+      const lastUpdatedEl = document.getElementById('last-updated');
+      const emptyEl = document.getElementById('empty-state');
+      const searchInput = document.getElementById('search-input');
+      const langFilter = document.getElementById('lang-filter');
+      const sortSelect = document.getElementById('sort-select');
+      const refreshBtn = document.getElementById('refresh-btn');
+      const typeBtns = Array.from(document.querySelectorAll('.type-btn'));
+
+      let allRepos = [];
+      let activeType = 'all';
+
+      // Lettergrootte-regeling (standaard 19px)
+      let currentFont = 19;
+      const setFont = (px) => {
+        currentFont = Math.min(26, Math.max(15, px));
+        document.documentElement.style.setProperty('--base-font', `${currentFont}px`);
+      };
+      document.getElementById('font-dec').addEventListener('click', () => setFont(currentFont - 2));
+      document.getElementById('font-reset').addEventListener('click', () => setFont(19));
+      document.getElementById('font-inc').addEventListener('click', () => setFont(currentFont + 2));
+      document.getElementById('print-btn').addEventListener('click', () => window.print());
+
+      const formatDate = (iso) => {
+        if (!iso) return '';
+        return new Date(iso).toLocaleDateString('nl-NL', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        });
+      };
+
+      const populateLanguages = (repos) => {
+        const current = langFilter.value;
+        const langs = [...new Set(repos.map((r) => r.language).filter(Boolean))]
+          .sort((a, b) => a.localeCompare(b, 'nl'));
+
+        langFilter.innerHTML = '<option value="all">Alle talen</option>';
+        langs.forEach((lang) => {
+          const opt = document.createElement('option');
+          opt.value = lang;
+          opt.textContent = lang;
+          langFilter.appendChild(opt);
+        });
+
+        if (langs.includes(current)) {
+          langFilter.value = current;
+        }
+      };
+
+      const renderRepos = () => {
+        const query = searchInput.value.trim().toLowerCase();
+        const selectedLang = langFilter.value;
+        const sortBy = sortSelect.value;
+
+        let filtered = allRepos.filter((repo) => {
+          if (activeType === 'source' && repo.fork) return false;
+          if (activeType === 'fork' && !repo.fork) return false;
+          if (selectedLang !== 'all' && repo.language !== selectedLang) return false;
+
+          if (query) {
+            const haystack = `${repo.name} ${repo.description || ''} ${repo.language || ''}`.toLowerCase();
+            if (!haystack.includes(query)) return false;
+          }
+          return true;
+        });
+
+        filtered.sort((a, b) => {
+          if (sortBy === 'name') {
+            return a.name.localeCompare(b.name, 'nl');
+          }
+          return new Date(b.pushed_at || b.updated_at) - new Date(a.pushed_at || a.updated_at);
+        });
+
+        gridEl.innerHTML = '';
+        statusEl.textContent = `${filtered.length} van ${allRepos.length} openbare repositories weergegeven.`;
+        emptyEl.hidden = filtered.length > 0;
+
+        const frag = document.createDocumentFragment();
+        filtered.forEach((repo) => {
+          const card = document.createElement('article');
+          card.className = 'repo-card';
+
+          const topWrap = document.createElement('div');
+
+          const head = document.createElement('div');
+          head.className = 'repo-head';
+
+          const h2 = document.createElement('h2');
+          h2.className = 'repo-name';
+          const titleLink = document.createElement('a');
+          titleLink.href = repo.html_url;
+          titleLink.target = '_blank';
+          titleLink.rel = 'noopener noreferrer';
+          titleLink.textContent = repo.name;
+          h2.appendChild(titleLink);
+          head.appendChild(h2);
+
+          if (repo.fork) {
+            const forkBadge = document.createElement('span');
+            forkBadge.className = 'badge badge-fork';
+            forkBadge.textContent = 'Fork';
+            head.appendChild(forkBadge);
+          }
+
+          topWrap.appendChild(head);
+
+          if (repo.description) {
+            const desc = document.createElement('p');
+            desc.className = 'repo-desc';
+            desc.textContent = repo.description;
+            topWrap.appendChild(desc);
+          }
+
+          const bottomWrap = document.createElement('div');
+
+          const meta = document.createElement('div');
+          meta.className = 'repo-meta';
+
+          if (repo.language) {
+            const langBadge = document.createElement('span');
+            langBadge.className = 'badge badge-lang';
+            langBadge.textContent = repo.language;
+            meta.appendChild(langBadge);
+          }
+
+          if (repo.license && repo.license.spdx_id && repo.license.spdx_id !== 'NOASSERTION') {
+            const licBadge = document.createElement('span');
+            licBadge.className = 'badge';
+            licBadge.textContent = repo.license.spdx_id;
+            meta.appendChild(licBadge);
+          }
+
+          const dateSpan = document.createElement('span');
+          dateSpan.textContent = `Bijgewerkt: ${formatDate(repo.pushed_at || repo.updated_at)}`;
+          meta.appendChild(dateSpan);
+
+          bottomWrap.appendChild(meta);
+
+          const links = document.createElement('div');
+          links.className = 'repo-links';
+
+          const ghLink = document.createElement('a');
+          ghLink.href = repo.html_url;
+          ghLink.target = '_blank';
+          ghLink.rel = 'noopener noreferrer';
+          ghLink.textContent = 'GitHub ↗';
+          links.appendChild(ghLink);
+
+          if (repo.homepage && /^https?:\/\//i.test(repo.homepage.trim())) {
+            const liveLink = document.createElement('a');
+            liveLink.href = repo.homepage.trim();
+            liveLink.target = '_blank';
+            liveLink.rel = 'noopener noreferrer';
+            liveLink.textContent = 'Live site ↗';
+            links.appendChild(liveLink);
+          }
+
+          bottomWrap.appendChild(links);
+
+          card.appendChild(topWrap);
+          card.appendChild(bottomWrap);
+          frag.appendChild(card);
+        });
+
+        gridEl.appendChild(frag);
+      };
+
+      const fetchAllPublicRepos = async () => {
+        const collected = [];
+        let page = 1;
+        while (true) {
+          const url = `https://api.github.com/users/${USERNAME}/repos?type=public&per_page=100&sort=updated&page=${page}`;
+          const res = await fetch(url);
+          if (!res.ok) {
+            throw new Error(`GitHub API gaf status ${res.status}`);
+          }
+          const batch = await res.json();
+          collected.push(...batch);
+          if (batch.length < 100) break;
+          page++;
+        }
+        return collected.filter((r) => !EXCLUDE.has(r.name));
+      };
+
+      const loadRepos = async (forceRefresh = false) => {
+        statusEl.textContent = 'Repositories ophalen uit GitHub...';
+        emptyEl.hidden = true;
+
+        try {
+          if (!forceRefresh) {
+            const cached = sessionStorage.getItem(CACHE_KEY);
+            if (cached) {
+              const { ts, data } = JSON.parse(cached);
+              if (Date.now() - ts < CACHE_TTL) {
+                allRepos = data;
+                lastUpdatedEl.textContent = `Gesynchroniseerd: ${new Date(ts).toLocaleTimeString('nl-NL')}`;
+                populateLanguages(allRepos);
+                renderRepos();
+                return;
+              }
+            }
+          }
+
+          allRepos = await fetchAllPublicRepos();
+          const now = Date.now();
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: now, data: allRepos }));
+          lastUpdatedEl.textContent = `Gesynchroniseerd: ${new Date(now).toLocaleTimeString('nl-NL')}`;
+          populateLanguages(allRepos);
+          renderRepos();
+        } catch (err) {
+          statusEl.textContent = '';
+          gridEl.innerHTML = `
+            <div class="error-box" style="grid-column: 1 / -1;">
+              Kon de repositories niet ophalen (${err.message}).
+              Bekijk het overzicht direct op
+              <a href="https://github.com/${USERNAME}?tab=repositories" target="_blank" rel="noopener noreferrer">GitHub</a>.
+            </div>
+          `;
+        }
+      };
+
+      searchInput.addEventListener('input', renderRepos);
+      langFilter.addEventListener('change', renderRepos);
+      sortSelect.addEventListener('change', renderRepos);
+      refreshBtn.addEventListener('click', () => loadRepos(true));
+
+      typeBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeType = btn.dataset.type;
+          typeBtns.forEach((b) => b.classList.toggle('active', b === btn));
+          renderRepos();
+        });
+      });
+
+      loadRepos();
+    })();
+  </script>
+</body>
+</html>
