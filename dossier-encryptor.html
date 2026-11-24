@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lokaal Dossier Versleutelen — AES-256-GCM</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #fafafa;
+      --surface-alt: #f3f3f3;
+      --text: #111111;
+      --muted: #555555;
+      --accent: #A31C1C;
+      --accent-hover: #7d1414;
+      --accent-soft: #fdf2f2;
+      --border: #dcdcdc;
+      --base-font: 19px;
+    }
+
+    * { box-sizing: border-box; }
+    html { font-size: var(--base-font); }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3.5rem;
+    }
+
+    header {
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 1rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .kicker {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+    }
+
+    h1 { margin: 0.25rem 0 0.5rem; font-size: 1.6rem; line-height: 1.2; }
+    .lead { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+    .warning {
+      background: var(--accent-soft);
+      border: 1px solid #e8c4c4;
+      border-left: 4px solid var(--accent);
+      padding: 0.9rem 1.1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.88rem;
+    }
+
+    .field {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.88rem;
+      margin-bottom: 0.35rem;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.84rem;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    input:focus, textarea:focus {
+      outline: 2px solid var(--accent);
+      border-color: var(--accent);
+    }
+
+    textarea {
+      min-height: 300px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .row input {
+      flex: 1 1 320px;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 0.55rem 0.9rem;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover, button:focus-visible {
+      border-color: var(--accent);
+      color: var(--accent);
+      outline: none;
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .btn-accent:hover, .btn-accent:focus-visible {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      color: #ffffff;
+    }
+
+    .status {
+      margin-top: 1rem;
+      font-size: 0.88rem;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 4px;
+      display: none;
+    }
+
+    .status.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="kicker">Lokale Versleutelingsmodule — Niet uploaden</span>
+      <h1>Versleuteld Dossier Genereren voor Advocaat</h1>
+      <p class="lead">
+        Versleutelt de financiële onderleggers lokaal met <strong>AES-256-GCM</strong> en <strong>PBKDF2-SHA256</strong> (600.000 iteraties). Het geëxporteerde HTML-bestand bevat nul leesbare gegevens zonder jouw gecontroleerde string.
+      </p>
+    </header>
+
+    <div class="warning">
+      <strong>Gebruik:</strong> Bewaar <em>dit</em> bestand uitsluitend lokaal op je eigen pc. Upload alleen het gegenereerde bestand <code>dossier-advocaat.html</code> naar je <strong>Private</strong> GitHub-repository. Deel de gecontroleerde string via een apart kanaal met je advocaat.
+    </div>
+
+    <div class="field">
+      <label for="token-input">1. Gecontroleerde toegangsstring (wachtwoord / sleutel voor advocaat)</label>
+      <div class="row">
+        <input type="text" id="token-input" placeholder="Klik op Genereer of voer een eigen sterke string in...">
+        <button type="button" id="gen-token">Genereer sterke string</button>
+        <button type="button" id="copy-token">Kopieer string</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="watermark-input">2. Toestemmingsvermelding / watermerk (zichtbaar na ontsleuteling)</label>
+      <input
+        type="text"
+        id="watermark-input"
+        value="Vertrouwelijk — U
