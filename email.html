@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-mail &amp; Bewijskrachtige Communicatie</title>
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS & BASISSTIJLEN (Zonder externe CDN's of trackers)
+       ========================================================================== */
+    :root {
+      --bg-page: #ffffff;
+      --bg-card: #f8f9fa;
+      --bg-card-hover: #f1f3f5;
+      --bg-code: #f3f4f6;
+      --text-main: #1a1a1a;
+      --text-muted: #525860;
+      --accent: #8f1d24;          /* Meekrab-rood */
+      --accent-dark: #6f151b;
+      --accent-soft: #fdf2f3;
+      --accent-border: #e6c2c5;
+      --border-light: #e2e5e9;
+      --border-strong: #cbd0d6;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       LAYOUT & CONTAINER
+       ========================================================================== */
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 1.25rem 4rem;
+    }
+
+    /* ==========================================================================
+       HEADER & ACTIEBALK
+       ========================================================================== */
+    .site-header {
+      border-bottom: 2px solid var(--accent);
+      background-color: var(--bg-page);
+      padding: 2rem 0 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1.25rem;
+    }
+
+    .header-title-group {
+      max-width: 720px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.75rem, 3.2vw, 2.4rem);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 1.02rem;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+    }
+
+    /* ==========================================================================
+       KNOPPEN & BADGES
+       ========================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.6rem 1.05rem;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background-color: var(--bg-card-hover);
+      border-color: var(--text-muted);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-dark);
+      border-color: var(--accent-dark);
+      color: #ffffff;
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 999px;
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+    }
+
+    .badge-neutral {
+      background-color: #eceff2;
+      color: var(--text-muted);
+      border-color: var(--border-light);
+    }
+
+    /* ==========================================================================
+       SECTIEKOPPEN
+       ========================================================================== */
+    .section {
+      margin-bottom: 3rem;
+      scroll-margin-top: 1.5rem;
+    }
+
+    .section-header {
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 0.65rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 1.55rem;
+      color: var(--accent);
+      letter-spacing: -0.015em;
+    }
+
+    .section-header p {
+      margin: 0.35rem 0 0;
+      color: var(--text-muted);
+      font-size: 0.96rem;
+    }
+
+    h3 {
+      margin: 2rem 0 0.75rem;
+      font-size: 1.2rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      scroll-margin-top: 1.5rem;
+    }
+
+    h3::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 1.1em;
+      background-color: var(--accent);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    h4 {
+      margin: 0 0 0.5rem;
+      font-size: 1.02rem;
+      color: var(--text-main);
+    }
+
+    /* Highlight-animatie bij scrollen vanuit boomstructuur */
+    @keyframes targetFlash {
+      0% { background-color: var(--accent-soft); }
+      100% { background-color: transparent; }
+    }
+
+    .scroll-highlight {
+      animation: targetFlash 1.4s ease-out;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ==========================================================================
+       1. KOSTENOVERZICHT POSTNL (3 KAARTEN)
+       ========================================================================== */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .pricing-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .pricing-card.featured {
+      background-color: var(--bg-page);
+      border: 2px solid var(--accent);
+      box-shadow: var(--shadow-md);
+    }
+
+    .pricing-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .pricing-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--text-main);
+    }
+
+    .pricing-price {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1.15;
+      margin: 0.4rem 0 0.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .pricing-unit {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .pricing-desc {
+      margin: 0 0 1rem;
+      font-size: 0.93rem;
+      color: var(--text-main);
+    }
+
+    .pricing-list {
+      margin: auto 0 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid var(--border-light);
+      padding-top: 0.85rem;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .pricing-list li {
+      position: relative;
+      padding-left: 1.15rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .pricing-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       2. INTERACTIEVE OVERZICHTSBOOM
+       ========================================================================== */
+    .tree-panel {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1.35rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tree-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .tree-search-wrap {
+      flex: 1 1 240px;
+      max-width: 380px;
+      position: relative;
+    }
+
+    .tree-search {
+      width: 100%;
+      padding: 0.5rem 0.85rem;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+    }
+
+    .tree-search:focus {
+      outline: 2px solid var(--accent-border);
+      border-color: var(--accent);
+    }
+
+    .tree-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tree-root {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .tree-root ul {
+      list-style: none;
+      margin: 0.25rem 0 0.25rem 1.15rem;
+      padding: 0 0 0 0.9rem;
+      border-left: 1px solid var(--border-strong);
+    }
+
+    .tree-item {
+      margin: 0.2rem 0;
+    }
+
+    .tree-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.45rem;
+      border-radius: var(--radius-sm);
+      transition: background-color 0.12s ease;
+    }
+
+    .tree-row:hover {
+      background-color: var(--bg-card-hover);
+    }
+
+    .tree-toggle {
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-strong);
+      border-radius: 4px;
+      background-color: var(--bg-page);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .tree-toggle:hover {
+      background-color: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .tree-dot {
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--border-strong);
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .tree-link {
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.93rem;
+      cursor: pointer;
+    }
+
+    .tree-link:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .tree-link.branch-title {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .tree-link.subbranch-title {
+      font-weight: 600;
+    }
+
+    .tree-item.collapsed > ul {
+      display: none;
+    }
+
+    .tree-item.hidden-by-filter {
+      display: none;
+    }
+
+    .tree-match mark {
+      background-color: #fde2e4;
+      color: var(--accent-dark);
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    .ascii-drawer {
+      margin-top: 1.25rem;
+      border-top: 1px solid var(--border-light);
+      padding-top: 1rem;
+      display: none;
+    }
+
+    .ascii-drawer.open {
+      display: block;
+    }
+
+    /* ==========================================================================
+       KAARTEN, GRIDS & INFORMATIEBLOKKEN
+       ========================================================================== */
+    .cards-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.15rem;
+    }
+
+    .cards-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.15rem;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-accent {
+      border-left: 4px solid var(--accent);
+    }
+
+    .card p {
+      margin: 0 0 0.75rem;
+      font-size: 0.94rem;
+    }
+
+    .card p:last-child {
+      margin-bottom: 0;
+    }
+
+    .card ul {
+      margin: 0.4rem 0 0;
+      padding-left: 1.2rem;
+      font-size: 0.92rem;
+    }
+
+    .card li {
+      margin-bottom: 0.35rem;
+    }
+
+    .callout {
+      background-color: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.2rem;
+      margin: 1.25rem 0;
+      font-size: 0.93rem;
+    }
+
+    .callout strong {
+      color: var(--accent-dark);
+    }
+
+    /* ==========================================================================
+       CODEBLOKKEN & KOPIEERKNOP
+       ========================================================================== */
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+      background-color: var(--bg-code);
+      padding: 0.14rem 0.38rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-light);
+      color: #24292f;
+      word-break: break-word;
+    }
+
+    .code-block-wrap {
+      position: relative;
+      margin: 0.85rem 0;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-code);
+      overflow: hidden;
+    }
+
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.35rem 0.75rem;
+      background-color: #eaedf0;
+      border-bottom: 1px solid var(--border-light);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .copy-btn {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.22rem 0.6rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-strong);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .copy-btn.copied {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    pre {
+      margin: 0;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--text-main);
+    }
+
+    pre code {
+      background: transparent;
+      border: none;
+      padding: 0;
+      font-size: inherit;
+      word-break: normal;
+    }
+
+    /* ==========================================================================
+       TABELLEN
+       ========================================================================== */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-page);
+      box-shadow: var(--shadow-sm);
+      margin: 1rem 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    thead th {
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      font-weight: 700;
+      padding: 0.8rem 0.95rem;
+      border-bottom: 2px solid var(--accent);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 0.8rem 0.95rem;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background-color: #fbfcfd;
+    }
+
+    .record-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--accent);
+      background-color: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       3-STAPPEN TIJDLIJN (POSTNL PROCESKETEN)
+       ========================================================================== */
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.25rem;
+      margin: 1.25rem 0 1.5rem;
+      position: relative;
+    }
+
+    .timeline-step {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-top: 3px solid var(--accent);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: var(--accent);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.88rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .timeline-step h4 {
+      margin: 0 0 0.45rem;
+      font-size: 1rem;
+      color: var(--text-main);
+    }
+
+    .timeline-step p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    .site-footer {
+      border-top: 1px solid var(--border-light);
+      padding-top: 1.5rem;
+      margin-top: 3rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    /* ==========================================================================
+       RESPONSIVE BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 900px) {
+      .pricing-grid,
+      .cards-grid-3,
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+      .cards-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .site-header {
+        padding: 1.4rem 0 1.2rem;
+      }
+      .pricing-card,
+      .card,
+      .tree-panel {
+        padding: 1rem;
+      }
+      .btn {
+        width: 100%;
+      }
+      .tree-controls .btn {
+        width: auto;
+      }
+      .header-actions {
+        width: 100%;
+      }
+    }
+
+    /* ==========================================================================
+       PRINTSTIJLEN (@media print)
+       ========================================================================== */
+    @media print {
+      @page {
+        margin: 14mm;
+        size: A4;
+      }
+
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 10.5pt;
+        line-height: 1.45;
+      }
+
+      .header-actions,
+      .tree-toolbar,
+      .copy-btn,
+      .ascii-drawer {
+        display: none !important;
+      }
+
+      .container {
+        max-width: 100%;
+        padding: 0;
+      }
+
+      .site-header {
+        padding: 0 0 10pt;
+        margin-bottom: 14pt;
+      }
+
+      .pricing-grid,
+      .timeline {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8pt;
+      }
+
+      .cards-grid-2 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8pt;
+      }
+
+      .cards-grid-3 {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8pt;
+      }
+
+      .pricing-card,
+      .card,
+      .timeline-step,
+      .tree-panel,
+      .table-wrap,
+      .code-block-wrap,
+      .callout {
+        box-shadow: none !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .tree-item.collapsed > ul {
+        display: block !important;
+      }
+
+      h2, h3 {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      a {
+        color: #000000 !important;
+        text-decoration: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================================
+       PAGINAHEADER MET TITEL & PRINTKNOP
+       ====================================================================== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-title-group">
+        <span class="eyebrow">Technisch &amp; Juridisch Naslagwerk</span>
+        <h1>E-mail &amp; Bewijskrachtige Communicatie</h1>
+        <p class="subtitle">
+          Volledig overzicht van PostNL-tarieven voor aangetekend mailen, het zelfstandig inrichten van een Linux-mailserver (Postfix, Dovecot, Rspamd) en de juridische bewijskracht van verzendkanalen.
+        </p>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn btn-primary" onclick="window.print()">
+          Print / Opslaan als PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ====================================================================
+         1. KOSTENOVERZICHT POSTNL AANGETEKEND MAILEN (DIRECT ZICHTBAAR)
+         ==================================================================== -->
+    <section id="kosten-postnl" class="section" aria-labelledby="kosten-heading">
+      <div class="section-header">
+        <h2 id="kosten-heading">Kostenoverzicht: PostNL Aangetekend Mailen</h2>
+        <p>Direct overzicht van de actuele tariefmodellen voor aangetekende e-mail bij PostNL, afgezet tegen fysieke aangetekende post.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Kaart 1: Uitgelicht Particulier / Los -->
+        <article class="pricing-card featured">
+          <div class="pricing-top">
+            <h3 class="pricing-title" style="margin:0; font-size:1.05rem;">PostNL Aangetekend Mailen (Particulier / Los)</h3>
+            <span class="badge">Uitgelicht</span>
+          </div>
+          <div class="pricing-price">&euro; 5,45</div>
+          <div class="pricing-unit">per zending &bull; geen abonnement</div>
+          <p class="pricing-desc">
+            Direct per los stuk te gebruiken zonder maandelijkse verplichtingen. Ideaal voor incidentele formele correspondentie en ingebrekestellingen.
+          </p>
+          <ul class="pricing-list">
+            <li>Cryptografische SHA-256 hash van het bestand</li>
+            <li>Onafhankelijk eIDAS-tijdstempel</li>
+            <li>Officieel status- en acceptatiecertificaat (audit-rapport)</li>
+          </ul>
+        </article>
+
+        <!-- Kaart 2: Zakelijk abonnement -->
+        <article class="pricing-card">
+          <div class="pricing-top">
+            <h3 class="pricing-title" style="margin:0; font-size:1.05rem;">PostNL Aangetekend Mailen (Zakelijk)</h3>
+            <span class="badge badge-neutral">Grootverbruik</span>
+          </div>
+          <div class="pricing-price">vanaf &euro; 195,-</div>
+          <div class="pricing-unit">per maand &bull; zakelijk abonnement</div>
+          <p class="pricing-desc">
+            Bedoeld voor professionele kantoren zoals advocatenkantoren, gerechtsdeurwaarders en accountants met hoge maandelijkse volumes.
+          </p>
+          <ul class="pricing-list">
+            <li>Geschikt voor tientallen tot honderden zendingen p/m</li>
+            <li>Koppeling met kantoor- en dossiersoftware mogelijk</li>
+            <li>Voor incidenteel particulier gebruik overbodig</li>
+          </ul>
+        </article>
+
+        <!-- Kaart 3: Fysieke aangetekende brief -->
+        <article class="pricing-card">
+          <div class="pricing-top">
+            <h3 class="pricing-title" style="margin:0; font-size:1.05rem;">Fysieke Aangetekende Brief (PostNL)</h3>
+            <span class="badge badge-neutral">Referentie</span>
+          </div>
+          <div class="pricing-price">ca. &euro; 9,95</div>
+          <div class="pricing-unit">per stuk &bull; fysieke bezorging</div>
+          <p class="pricing-desc">
+            Traditionele aangetekende post met handtekening voor ontvangst op het fysieke adres van de geadresseerde.
+          </p>
+          <ul class="pricing-list">
+            <li>Standaard voor originele papieren stukken &amp; volmachten</li>
+            <li>Bruikbaar bij notaris- en procesdossiers</li>
+            <li>Geen cryptografisch bewijs van de exacte inhoud van de envelop</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         2. INTERACTIEVE OVERZICHTSBOOM
+         ==================================================================== -->
+    <section id="overzichtsboom" class="section" aria-labelledby="boom-heading">
+      <div class="section-header">
+        <h2 id="boom-heading">Interactieve Overzichtsboom</h2>
+        <p>Klik op een knooppunt om direct naar de bijbehorende uitleg op deze pagina te scrollen, of filter op trefwoord.</p>
+      </div>
+
+      <div class="tree-panel">
+        <div class="tree-toolbar">
+          <div class="tree-search-wrap">
+            <input
+              type="search"
+              id="treeSearchInput"
+              class="tree-search"
+              placeholder="Filter boomstructuur (bijv. DKIM, poort 25, eIDAS, Peppol)..."
+              aria-label="Filter boomstructuur"
+            >
+          </div>
+          <div class="tree-controls">
+            <button type="button" class="btn btn-sm" id="btnExpandAll">Alles uitklappen</button>
+            <button type="button" class="btn btn-sm" id="btnCollapseAll">Alles inklappen</button>
+            <button type="button" class="btn btn-sm" id="btnToggleAscii">Toon ASCII-tree</button>
+          </div>
+        </div>
+
+        <!-- Interactieve boom -->
+        <ul class="tree-root" id="interactiveTree">
+          <li class="tree-item">
+            <div class="tree-row">
+              <button type="button" class="tree-toggle" aria-label="In- of uitklappen">&minus;</button>
+              <a href="#kosten-postnl" class="tree-link branch-title">E-mail &amp; Bewijskrachtige Communicatie</a>
+            </div>
+            <ul>
+              <!-- TAK 1: EIGEN LINUX-MAILSERVER -->
+              <li class="tree-item">
+                <div class="tree-row">
+                  <button type="button" class="tree-toggle" aria-label="In- of uitklappen">&minus;</button>
+                  <a href="#deel-1" class="tree-link branch-title">1. Eigen Linux-mailserver (Zelfgehost)</a>
+                </div>
+                <ul>
+                  <li class="tree-item">
+                    <div class="tree-row">
+                      <button type="button" class="tree-toggle" aria-label="In- of uitklappen">&minus;</button>
+                      <a href="#netwerkvoorwaarden" class="tree-link subbranch-title">1.1 Netwerkvoorwaarden</a>
+                    </div>
+                    <ul>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#netwerkvoorwaarden" class="tree-link">Vast IP-adres</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#netwerkvoorwaarden" class="tree-link">Ongeblokkeerde poort 25 (in &amp; uit)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#netwerkvoorwaarden" class="tree-link">Reverse DNS (PTR-record / FCrDNS)</a></div></li>
+                    </ul>
+                  </li>
+                  <li class="tree-item">
+                    <div class="tree-row">
+                      <button type="button" class="tree-toggle" aria-label="In- of uitklappen">&minus;</button>
+                      <a href="#dns-fundament" class="tree-link subbranch-title">1.2 Het DNS-fundament</a>
+                    </div>
+                    <ul>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#dns-fundament" class="tree-link">A / AAAA (mail.voorbeeld.nl &rarr; IP)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#dns-fundament" class="tree-link">MX (inkomende mail &rarr; mail.voorbeeld.nl)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#dns-fundament" class="tree-link">PTR (IP &rarr; mail.voorbeeld.nl)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#dns-fundament" class="tree-link">SPF ("v=spf1 mx -all")</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#dns-fundament" class="tree-link">DKIM (publieke sleutel in TXT)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#dns-fundament" class="tree-link">DMARC (beleid + rapportage)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#dns-fundament" class="tree-link">TLSA / DANE (TLS-certificaat via DNSSEC)</a></div></li>
+                    </ul>
+                  </li>
+                  <li class="tree-item">
+                    <div class="tree-row">
+                      <button type="button" class="tree-toggle" aria-label="In- of uitklappen">&minus;</button>
+                      <a href="#kerncomponenten" class="tree-link subbranch-title">1.3 Kerncomponenten (Debian / Ubuntu)</a>
+                    </div>
+                    <ul>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#comp-certbot" class="tree-link">Certbot / Let's Encrypt (TLS 1.2+ certificaten)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#comp-postfix" class="tree-link">Postfix (MTA - SMTP: poort 25, 465 / 587)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#comp-dovecot" class="tree-link">Dovecot (MDA / IMAP: Maildir, poort 993, LMTP + SASL)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#comp-rspamd" class="tree-link">Rspamd (Milter 127.0.0.1:11332, spamfiltering &amp; DKIM)</a></div></li>
+                    </ul>
+                  </li>
+                  <li class="tree-item">
+                    <div class="tree-row">
+                      <button type="button" class="tree-toggle" aria-label="In- of uitklappen">&minus;</button>
+                      <a href="#beheer-harding" class="tree-link subbranch-title">1.4 Beheer, Harding &amp; Testen</a>
+                    </div>
+                    <ul>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#beheer-harding" class="tree-link">Firewall (nftables / ufw: 25, 465/587, 993)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#beheer-harding" class="tree-link">Fail2ban (brute-force blokkade op mail.log)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#beheer-harding" class="tree-link">Anti-open-relay (smtpd_relay_restrictions)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#beheer-harding" class="tree-link">Testtools (openssl s_client, swaks)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#beheer-harding" class="tree-link">Back-ups (rsync / borg op Maildir)</a></div></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+
+              <!-- TAK 2: FORMELE & AANGETEKENDE VERZENDING -->
+              <li class="tree-item">
+                <div class="tree-row">
+                  <button type="button" class="tree-toggle" aria-label="In- of uitklappen">&minus;</button>
+                  <a href="#deel-2" class="tree-link branch-title">2. Formele &amp; Aangetekende Verzending (Juridische Context)</a>
+                </div>
+                <ul>
+                  <li class="tree-item">
+                    <div class="tree-row">
+                      <button type="button" class="tree-toggle" aria-label="In- of uitklappen">&minus;</button>
+                      <a href="#juridische-basis" class="tree-link subbranch-title">2.1 Juridische Basis</a>
+                    </div>
+                    <ul>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#juridische-basis" class="tree-link">Ontvangsttheorie (art. 3:37 lid 3 BW)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#juridische-basis" class="tree-link">eIDAS-verordening (SHA-256, RFC 3161, non-repudiation)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#juridische-basis" class="tree-link">Vrije bewijswaardering (art. 152 Rv) vs. dwingend bewijs (art. 157 Rv)</a></div></li>
+                    </ul>
+                  </li>
+                  <li class="tree-item">
+                    <div class="tree-row">
+                      <button type="button" class="tree-toggle" aria-label="In- of uitklappen">&minus;</button>
+                      <a href="#postnl-proces" class="tree-link subbranch-title">2.2 PostNL Aangetekend Mailen</a>
+                    </div>
+                    <ul>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#postnl-proces" class="tree-link">Procesketen (Verzendbewijs &rarr; Identificatie &rarr; Acceptatiecertificaat)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#postnl-tarieven-uitleg" class="tree-link">Tariefmodellen (Particulier &euro; 5,45 vs. Zakelijk vanaf &euro; 195,- p/m)</a></div></li>
+                    </ul>
+                  </li>
+                  <li class="tree-item">
+                    <div class="tree-row">
+                      <button type="button" class="tree-toggle" aria-label="In- of uitklappen">&minus;</button>
+                      <a href="#vergelijking-kanalen" class="tree-link subbranch-title">2.3 Vergelijking Verzendkanalen</a>
+                    </div>
+                    <ul>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#vergelijking-kanalen" class="tree-link">Fysieke Aangetekende Brief (PostNL, ca. &euro; 9,95)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#vergelijking-kanalen" class="tree-link">PostNL Aangetekend Mailen (&euro; 5,45 per stuk)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#vergelijking-kanalen" class="tree-link">Peppol via eConnect / BaseNet (AS4, B2B facturen &amp; UBL)</a></div></li>
+                      <li class="tree-item"><div class="tree-row"><span class="tree-dot">&bull;</span><a href="#vergelijking-kanalen" class="tree-link">Eigen Linux-mailserver (VPS/domein, DKIM + RFC 3161)</a></div></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+        <!-- Oorspronkelijke ASCII-tree (inklapbaar) -->
+        <div id="asciiDrawer" class="ascii-drawer">
+          <div class="code-block-wrap">
+            <div class="code-block-header">
+              <span>Oorspronkelijke ASCII-boomstructuur</span>
+              <button type="button" class="copy-btn" data-copy-target="asciiTreeCode">Kopieer</button>
+            </div>
+            <pre><code id="asciiTreeCode">E-mail &amp; Bewijskrachtige Communicatie
+├── 1. Eigen Linux-mailserver (Zelfgehost)
+│   ├── Netwerkvoorwaarden
+│   │   ├── Vast IP-adres
+│   │   ├── Ongeblokkeerde poort 25 (in &amp; uit)
+│   │   └── Reverse DNS (PTR-record / FCrDNS)
+│   ├── DNS-fundament
+│   │   ├── A / AAAA (mail.voorbeeld.nl -&gt; IP)
+│   │   ├── MX (inkomende mail -&gt; mail.voorbeeld.nl)
+│   │   ├── PTR (IP -&gt; mail.voorbeeld.nl)
+│   │   ├── SPF ("v=spf1 mx -all")
+│   │   ├── DKIM (publieke sleutel in TXT)
+│   │   ├── DMARC (beleid + rapportage)
+│   │   └── TLSA / DANE (TLS-certificaat via DNSSEC)
+│   ├── Kerncomponenten (Debian / Ubuntu)
+│   │   ├── Certbot / Let's Encrypt (TLS 1.2+ certificaten)
+│   │   ├── Postfix (MTA - SMTP)
+│   │   │   ├── Poort 25 (server-naar-server)
+│   │   │   └── Poort 465 / 587 (client submission)
+│   │   ├── Dovecot (MDA / IMAP)
+│   │   │   ├── Opslag: Maildir (~/Maildir)
+│   │   │   ├── Poort 993 (IMAPS)
+│   │   │   └── Sockets naar Postfix (LMTP + SASL)
+│   │   └── Rspamd (Milter op 127.0.0.1:11332)
+│   │       ├── Spamfiltering
+│   │       └── DKIM-ondertekening (/var/lib/rspamd/dkim/)
+│   └── Beheer, Harding &amp; Testen
+│       ├── Firewall (nftables / ufw: alleen 25, 465/587, 993)
+│       ├── Fail2ban (brute-force blokkade op mail.log)
+│       ├── Anti-open-relay (smtpd_relay_restrictions)
+│       ├── Testtools (openssl s_client, swaks)
+│       └── Back-ups (rsync / borg op Maildir)
+│
+└── 2. Formele &amp; Aangetekende Verzending (Juridische Context)
+    ├── Juridische Basis
+    │   ├── Ontvangsttheorie (art. 3:37 lid 3 BW)
+    │   └── eIDAS-verordening (tijdstempel, integriteit, non-repudiation)
+    ├── PostNL Aangetekend Mailen
+    │   ├── Procesketen
+    │   │   ├── 1. Verzendbewijs (SHA-256 hash + tijdstempel)
+    │   │   ├── 2. Identificatie / tekenen door ontvanger
+    │   │   └── 3. Status- en acceptatiecertificaat
+    │   └── Tariefmodellen
+    │       ├── Particulier: € 5,45 per zending (losse inzet)
+    │       └── Zakelijk: vanaf € 195,- p/m (grootverbruik / kantoren)
+    └── Vergelijking Verzendkanalen
+        ├── Fysieke Aangetekende Brief (PostNL)
+        │   ├── Kosten: ca. € 9,95
+        │   ├── Bewijs: Handtekening op fysiek adres
+        │   └── Gebruik: Originele documenten, volmachten, notarisdossiers
+        ├── PostNL Aangetekend Mailen
+        │   ├── Kosten: € 5,45 per stuk
+        │   ├── Bewijs: eIDAS audit-rapport + SHA-256 hash
+        │   └── Gebruik: Snelle formele correspondentie / PDF's
+        └── Peppol (eConnect / BaseNet)
+            ├── Kosten: B2B / softwarelicentie
+            ├── Bewijs: Onweerlegbaar (AS4 systeem-tot-systeem)
+            └── Gebruik: Uitsluitend facturen en UBL-orders</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         3. DEEL 1: EIGEN LINUX-MAILSERVER (ZELFGEHOST)
+         ==================================================================== -->
+    <section id="deel-1" class="section" aria-labelledby="deel-1-heading">
+      <div class="section-header">
+        <h2 id="deel-1-heading">Deel 1: Eigen Linux-mailserver (Zelfgehost)</h2>
+        <p>
+          Een betrouwbare Linux-mailserver rust op drie losse, auditeerbare componenten die via lokale sockets communiceren:
+          <strong>Postfix</strong> (MTA), <strong>Dovecot</strong> (MDA/IMAP) en <strong>Rspamd</strong> (spamfiltering &amp; DKIM).
+        </p>
+      </div>
+
+      <!-- 1.1 Netwerkvoorwaarden -->
+      <h3 id="netwerkvoorwaarden">1.1 Netwerkvoorwaarden</h3>
+      <p>Voordat er software wordt geïnstalleerd, moet de netwerklaag aan drie harde voorwaarden voldoen. Ontbreekt een van deze voorwaarden, dan weigeren ontvangende mailservers (zoals Microsoft 365 of Google) je berichten direct.</p>
+
+      <div class="cards-grid-3">
+        <article class="card card-accent">
+          <h4>Vast IP-adres</h4>
+          <p>
+            Een dynamisch IP-adres uit een consumentenreeks staat vrijwel altijd op internationale blokkeerlijsten (zoals Spamhaus PBL). Een eigen mailserver vereist een statisch IPv4-adres (en bij voorkeur ook een vast IPv6-adres) met een schone reputatie, doorgaans via een VPS of zakelijke verbinding.
+          </p>
+        </article>
+        <article class="card card-accent">
+          <h4>Ongeblokkeerde poort 25 (in &amp; uit)</h4>
+          <p>
+            Server-naar-server SMTP-verkeer verloopt altijd over <strong>TCP-poort 25</strong>. Veel consumenten-ISP's en sommige cloudproviders blokkeren <em>uitgaande</em> poort 25 standaard om spambots tegen te gaan. Controleer vooraf of zowel inkomend als uitgaand verkeer op poort 25 is toegestaan.
+          </p>
+        </article>
+        <article class="card card-accent">
+          <h4>Reverse DNS (PTR / FCrDNS)</h4>
+          <p>
+            Het IP-adres van de server moet via een <strong>PTR-record</strong> terugverwijzen naar exact dezelfde hostname als in het A-record (<em>Forward-Confirmed Reverse DNS</em>). Dit stel je in bij de beheerder van het IP-blok (de VPS-provider of ISP), niet bij de domeinregistrar.
+          </p>
+        </article>
+      </div>
+
+      <!-- 1.2 Het DNS-fundament -->
+      <h3 id="dns-fundament">1.2 Het DNS-fundament</h3>
+      <p>Onderstaande DNS-records vormen de authenticatie- en vertrouwensketen van je domein. Zonder geldige SPF-, DKIM- en DMARC-records belandt uitgaande e-mail in de spammap of wordt deze geweigerd.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Record</th>
+              <th>Doel</th>
+              <th>Voorbeeldwaarde</th>
+              <th>Toelichting</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="record-tag">A / AAAA</span></td>
+              <td>Koppelt de mail-hostname aan je server-IP</td>
+              <td><code>mail.voorbeeld.nl. IN A 203.0.113.10</code></td>
+              <td>Wijst de volledige domeinnaam (FQDN) van de mailserver naar het statische IPv4- (A) en eventueel IPv6-adres (AAAA).</td>
+            </tr>
+            <tr>
+              <td><span class="record-tag">MX</span></td>
+              <td>Wijst inkomende mail naar je mailserver</td>
+              <td><code>voorbeeld.nl. IN MX 10 mail.voorbeeld.nl.</code></td>
+              <td>Bepaalt welke server e-mail voor <code>@voorbeeld.nl</code> mag aannemen. Het getal (<code>10</code>) is de prioriteit; lager gaat voor.</td>
+            </tr>
+            <tr>
+              <td><span class="record-tag">PTR (rDNS)</span></td>
+              <td>Koppelt het IP terug aan exact dezelfde hostname</td>
+              <td><code>10.113.0.203.in-addr.arpa. IN PTR mail.voorbeeld.nl.</code></td>
+              <td>Zorgt voor FCrDNS-validatie. Moet exact overeenkomen met de SMTP HELO/EHLO-naam (<code>myhostname</code>) van Postfix.</td>
+            </tr>
+            <tr>
+              <td><span class="record-tag">SPF (TXT)</span></td>
+              <td>Bepaalt welke IP's namens jouw domein mogen zenden</td>
+              <td><code>"v=spf1 mx -all"</code></td>
+              <td>Staat uitsluitend de server(s) uit het MX-record toe en keurt alle andere afzenders strikt af (<code>-all</code>).</td>
+            </tr>
+            <tr>
+              <td><span class="record-tag">DKIM (TXT)</span></td>
+              <td>Publieke sleutel voor handtekeningverificatie</td>
+              <td><code>default._domainkey.voorbeeld.nl. IN TXT "v=DKIM1; k=rsa; p=..."</code></td>
+              <td>Ontvangende servers gebruiken deze publieke sleutel om de cryptografische DKIM-handtekening van Rspamd te verifiëren.</td>
+            </tr>
+            <tr>
+              <td><span class="record-tag">DMARC (TXT)</span></td>
+              <td>Beleid bij falende SPF/DKIM-controles</td>
+              <td><code>_dmarc.voorbeeld.nl. IN TXT "v=DMARC1; p=quarantine; rua=mailto:postmaster@voorbeeld.nl"</code></td>
+              <td>Geeft ontvangers instructies (<code>none</code>, <code>quarantine</code> of <code>reject</code>) en stuurt geaggregeerde rapporten naar <code>rua</code>.</td>
+            </tr>
+            <tr>
+              <td><span class="record-tag">TLSA (DANE)</span></td>
+              <td>Koppelt TLS-certificaat cryptografisch aan DNSSEC</td>
+              <td><code>_25._tcp.mail.voorbeeld.nl. IN TLSA 3 1 1 ...</code></td>
+              <td>Optioneel maar sterk aanbevolen: voorkomt downgrade-aanvallen op STARTTLS door de certificaat-hash via DNSSEC vast te leggen.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 1.3 Kerncomponenten op Debian / Ubuntu -->
+      <h3 id="kerncomponenten">1.3 Kerncomponenten op Debian / Ubuntu</h3>
+      <div class="cards-grid-2">
+        <!-- Certbot / Let's Encrypt -->
+        <article id="comp-certbot" class="card">
+          <h4>1. Certbot / Let's Encrypt (TLS 1.2+ certificaten)</h4>
+          <p>
+            De systeemhostname (FQDN) moet exact gelijk zijn aan het PTR-record. Het TLS-certificaat versleutelt zowel het SMTP-transport (STARTTLS / SMTPS) als de IMAP-verbinding.
+          </p>
+          <div class="code-block-wrap">
+            <div class="code-block-header">
+              <span>Hostname &amp; certificaat aanvragen</span>
+              <button type="button" class="copy-btn" data-copy-target="codeCertbot">Kopieer</button>
+            </div>
+            <pre><code id="codeCertbot">sudo hostnamectl set-hostname mail.voorbeeld.nl
+sudo certbot certonly --standalone -d mail.voorbeeld.nl</code></pre>
+          </div>
+          <p>Certificaten worden opgeslagen onder <code>/etc/letsencrypt/live/mail.voorbeeld.nl/</code> en automatisch vernieuwd via de systemd-timer van Certbot.</p>
+        </article>
+
+        <!-- Postfix -->
+        <article id="comp-postfix" class="card">
+          <h4>2. Postfix (MTA &mdash; SMTP)</h4>
+          <p>
+            Postfix verzorgt het ontvangen en verzenden van e-mail via SMTP. De hoofdinstellingen staan in <code>/etc/postfix/main.cf</code>; de luisterende poorten en services worden beheerd in <code>/etc/postfix/master.cf</code>.
+          </p>
+          <ul>
+            <li><strong>Poort 25 (SMTP):</strong> Uitsluitend server-naar-server verkeer met opportunistische of via DANE afgedwongen STARTTLS.</li>
+            <li><strong>Poort 465 (SMTPS) / 587 (Submission):</strong> Uitgaande mail vanaf je eigen mailclients, verplicht met minimaal TLS 1.2 en SASL-authenticatie.</li>
+          </ul>
+          <div class="code-block-wrap">
+            <div class="code-block-header">
+              <span>/etc/postfix/main.cf (kernparameters)</span>
+              <button type="button" class="copy-btn" data-copy-target="codePostfix">Kopieer</button>
+            </div>
+            <pre><code id="codePostfix">myhostname = mail.voorbeeld.nl
+smtpd_tls_cert_file = /etc/letsencrypt/live/mail.voorbeeld.nl/fullchain.pem
+smtpd_tls_key_file = /etc/letsencrypt/live/mail.voorbeeld.nl/privkey.pem
+smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1</code></pre>
+          </div>
+        </article>
+
+        <!-- Dovecot -->
+        <article id="comp-dovecot" class="card">
+          <h4>3. Dovecot (MDA / IMAP)</h4>
+          <p>
+            Dovecot (<code>dovecot-core</code>, <code>dovecot-imapd</code>, <code>dovecot-lmtpd</code>) beheert de mailboxen en authenticatie. Mail wordt opgeslagen in het robuuste <code>Maildir</code>-formaat (<code>mail_location = maildir:~/Maildir</code>), waarbij elk bericht een los bestand is.
+          </p>
+          <ul>
+            <li><strong>Poort 993 (IMAPS):</strong> Enige open IMAP-poort (impliciete TLS); onversleutelde poort 143 blijft dicht.</li>
+            <li><strong>Lokale Unix-sockets naar Postfix:</strong> Een <strong>LMTP-socket</strong> voor veilige lokale aflevering van binnengekomen mail, en een <strong>SASL-socket</strong> zodat Postfix gebruikersnamen en wachtwoorden via Dovecot verifieert.</li>
+          </ul>
+          <div class="code-block-wrap">
+            <div class="code-block-header">
+              <span>Installatie op Debian / Ubuntu</span>
+              <button type="button" class="copy-btn" data-copy-target="codeDovecot">Kopieer</button>
+            </div>
+            <pre><code id="codeDovecot">sudo apt update &amp;&amp; sudo apt install -y postfix dovecot-core dovecot-imapd dovecot-lmtpd</code></pre>
+          </div>
+        </article>
+
+        <!-- Rspamd -->
+        <article id="comp-rspamd" class="card">
+          <h4>4. Rspamd (Milter &amp; DKIM-ondertekening)</h4>
+          <p>
+            Rspamd fungeert als moderne, snelle spamfilter én verzorgt de cryptografische DKIM-ondertekening van uitgaande berichten. De koppeling met Postfix verloopt via het milter-protocol op localhost.
+          </p>
+          <div class="code-block-wrap">
+            <div class="code-block-header">
+              <span>Milter-koppeling &amp; DKIM-sleutel genereren</span>
+              <button type="button" class="copy-btn" data-copy-target="codeRspamd">Kopieer</button>
+            </div>
+            <pre><code id="codeRspamd"># In /etc/postfix/main.cf:
+smtpd_milters = inet:127.0.0.1:11332
+non_smtpd_milters = inet:127.0.0.1:11332
+
+# DKIM-sleutelpaar aanmaken (2048-bit RSA):
+sudo rspamadm dkim_keygen -s default -d voorbeeld.nl -k /var/lib/rspamd/dkim/voorbeeld.nl.default.key
+sudo chown _rspamd:_rspamd /var/lib/rspamd/dkim/voorbeeld.nl.default.key
+sudo chmod 600 /var/lib/rspamd/dkim/voorbeeld.nl.default.key</code></pre>
+          </div>
+        </article>
+      </div>
+
+      <!-- 1.4 Beheer, Harding & Testen -->
+      <h3 id="beheer-harding">1.4 Beheer, Harding &amp; Testen</h3>
+      <div class="cards-grid-2">
+        <article class="card">
+          <h4>Firewall &amp; Brute-force bescherming</h4>
+          <p>
+            Open in <code>nftables</code> of <code>ufw</code> uitsluitend de strikt noodzakelijke mailpoorten: <strong>25</strong> (SMTP), <strong>465/587</strong> (Submission) en <strong>993</strong> (IMAPS). Schakel daarnaast <strong>Fail2ban</strong> in op <code>/var/log/mail.log</code> (of <code>systemd-journal</code>) om herhaalde mislukte inlogpogingen automatisch op firewall-niveau te blokkeren.
+          </p>
+          <div class="code-block-wrap">
+            <div class="code-block-header">
+              <span>UFW-poorten openen</span>
+              <button type="button" class="copy-btn" data-copy-target="codeUfw">Kopieer</button>
+            </div>
+            <pre><code id="codeUfw">sudo ufw allow 25/tcp
+sudo ufw allow 465/tcp
+sudo ufw allow 587/tcp
+sudo ufw allow 993/tcp</code></pre>
+          </div>
+        </article>
+
+        <article class="card">
+          <h4>Anti-open-relay (Kritieke beveiliging)</h4>
+          <p>
+            Een foutief geconfigureerde relay wordt binnen enkele uren misbruikt door spammers en leidt direct tot blokkering op internationale RBL's. Stel <code>smtpd_relay_restrictions</code> in <code>/etc/postfix/main.cf</code> strikt in:
+          </p>
+          <div class="code-block-wrap">
+            <div class="code-block-header">
+              <span>/etc/postfix/main.cf</span>
+              <button type="button" class="copy-btn" data-copy-target="codeRelay">Kopieer</button>
+            </div>
+            <pre><code id="codeRelay">smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, defer_unauth_destination</code></pre>
+          </div>
+        </article>
+
+        <article class="card">
+          <h4>Testtools (TLS &amp; volledige verzendketen)</h4>
+          <p>
+            Verifieer na configuratie altijd de TLS-handshake op poort 25 en verstuur een proefbericht om SPF-, DKIM- en DMARC-headers bij de ontvanger te controleren.
+          </p>
+          <div class="code-block-wrap">
+            <div class="code-block-header">
+              <span>TLS-handshake &amp; SMTP-test met swaks</span>
+              <button type="button" class="copy-btn" data-copy-target="codeTest">Kopieer</button>
+            </div>
+            <pre><code id="codeTest">openssl s_client -starttls smtp -connect mail.voorbeeld.nl:25
+swaks --to test@extern-domein.nl --from gebruiker@voorbeeld.nl --server mail.voorbeeld.nl --port 587 --tls --auth</code></pre>
+          </div>
+        </article>
+
+        <article class="card">
+          <h4>Back-ups van Maildir</h4>
+          <p>
+            Omdat Dovecot in het <strong>Maildir</strong>-formaat elke e-mail als een los tekstbestand opslaat, kunnen incrementele en versleutelde back-ups worden gedraaid met <code>rsync</code> of <code>borg</code> zonder risico op een corrupte monolithische mailboxdatabase.
+          </p>
+          <div class="code-block-wrap">
+            <div class="code-block-header">
+              <span>Voorbeeld incrementele rsync-back-up</span>
+              <button type="button" class="copy-btn" data-copy-target="codeBackup">Kopieer</button>
+            </div>
+            <pre><code id="codeBackup">rsync -aAXz --delete /home/gebruiker/Maildir/ /mnt/backup/maildir/</code></pre>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         4. DEEL 2: FORMELE & AANGETEKENDE VERZENDING (JURIDISCHE CONTEXT)
+         ==================================================================== -->
+    <section id="deel-2" class="section" aria-labelledby="deel-2-heading">
+      <div class="section-header">
+        <h2 id="deel-2-heading">Deel 2: Formele &amp; Aangetekende Verzending (Juridische Context)</h2>
+        <p>Hoe elektronische verzending juridisch wordt gewaardeerd binnen het Nederlandse civiele recht en de Europese eIDAS-verordening.</p>
+      </div>
+
+      <!-- 2.1 Juridische Basis -->
+      <h3 id="juridische-basis">2.1 Juridische Basis</h3>
+      <div class="cards-grid-2">
+        <article class="card card-accent">
+          <h4>Ontvangsttheorie (art. 3:37 lid 3 BW)</h4>
+          <p>
+            Een tot een bepaalde persoon gerichte verklaring (zoals een ingebrekestelling, opzegging of sommatie) heeft volgens <strong>artikel 3:37 lid 3 BW</strong> pas juridische werking wanneer zij die persoon daadwerkelijk heeft <em>bereikt</em>.
+          </p>
+          <p>
+            De <strong>stelplicht en bewijslast</strong> rusten op de afzender: bij betwisting moet de afzender aantonen dat het bericht op het juiste adres is aangekomen (of dat het niet-bereiken voor risico van de ontvanger komt). Een reguliere e-mail &mdash; zelfs met leesbevestiging &mdash; biedt onvoldoende zekerheid.
+          </p>
+        </article>
+
+        <article class="card card-accent">
+          <h4>eIDAS-verordening (EU nr. 910/2014)</h4>
+          <p>
+            De Europese eIDAS-verordening regelt het juridisch kader voor elektronische vertrouwensdiensten, waaronder elektronische aangetekende bezorging (ERDS/QERDS). De bewijskracht steunt op drie technische pijlers:
+          </p>
+          <ul>
+            <li><strong>Integriteit (SHA-256):</strong> Cryptografische vingerafdruk van het verzonden bestand sluit inhoudelijke wijziging of het "lege envelop"-verweer uit.</li>
+            <li><strong>Gekwalificeerd tijdstempel (RFC 3161):</strong> Legt onweerlegbaar vast op welk exact moment het document is aangeboden en bezorgd.</li>
+            <li><strong>Non-repudiation (onweerlegbaarheid):</strong> Elektronisch zegel (eSeal) over het audit-rapport voorkomt manipulatie achteraf.</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="callout">
+        <strong>Zakelijke noot over bewijskracht (art. 152 Rv vs. art. 157 Rv):</strong>
+        In het civiele procesrecht vallen zowel een fysiek aangetekend postbewijs als een audit-rapport van Aangetekend Mailen in beginsel onder de <strong>vrije bewijswaardering (art. 152 lid 2 Rv)</strong>. De rechter hecht hier in de praktijk zeer hoge waarde aan, maar tegenbewijs blijft vrij. Echt <strong>dwingend bewijs (art. 157 lid 2 Rv)</strong> wordt uitsluitend geleverd door een <em>authentieke akte</em>, zoals een <strong>gerechtsdeurwaardersexploot</strong> (art. 45 e.v. Rv) of een notariële akte.
+      </div>
+
+      <!-- 2.2 PostNL Aangetekend Mailen — Procesketen & Tariefmodellen -->
+      <h3 id="postnl-proces">2.2 PostNL Aangetekend Mailen &mdash; Procesketen &amp; Tariefmodellen</h3>
+      <p>Bij verzending via PostNL Aangetekend Mailen doorloopt elk document een vaste, controleerbare driestaps-keten:</p>
+
+      <div class="timeline">
+        <div class="timeline-step">
+          <div class="step-number">1</div>
+          <h4>Cryptografisch verzendbewijs</h4>
+          <p>
+            Direct na verzending berekent het platform een <strong>SHA-256 hash</strong> van het document en koppelt deze aan een exact tijdstempel. U ontvangt een gewaarmerkt verzendbewijs.
+          </p>
+        </div>
+        <div class="timeline-step">
+          <div class="step-number">2</div>
+          <h4>Identificatie / tekenen ontvanger</h4>
+          <p>
+            De geadresseerde ontvangt een notificatie per e-mail en moet het bericht actief accepteren (tekenen of zich identificeren via het portaal) voordat het document wordt vrijgegeven.
+          </p>
+        </div>
+        <div class="timeline-step">
+          <div class="step-number">3</div>
+          <h4>Status- &amp; acceptatiecertificaat</h4>
+          <p>
+            Zodra het document is geopend (of de termijn is verstreken), genereert het systeem een officieel, verzegeld <strong>audit-rapport</strong> (afhaal-/ontvangstbewijs) voor in uw dossier.
+          </p>
+        </div>
+      </div>
+
+      <div id="postnl-tarieven-uitleg" class="cards-grid-2">
+        <article class="card">
+          <h4>Wanneer volstaat de losse optie (&euro; 5,45 per stuk)?</h4>
+          <p>
+            Voor particulieren, zzp'ers of incidentele formele correspondentie (zoals een ingebrekestelling, het zenden van instructies aan een notaris of advocaat, of het delen van dossierstukken) is de losse optie van <strong>&euro; 5,45 per zending</strong> veruit het meest efficiënt. Er zijn geen vaste maandlasten en u betaalt alleen op de cruciale momenten waarop een audit-rapport nodig is.
+          </p>
+        </article>
+        <article class="card">
+          <h4>Wanneer is het zakelijke abonnement (vanaf &euro; 195,- p/m) zinvol?</h4>
+          <p>
+            Het zakelijke abonnement vanaf <strong>&euro; 195,- per maand</strong> is uitsluitend rendabel voor professionele kantoren (advocatenkantoren, gerechtsdeurwaarders, incassobureaus en accountants) die maandelijks tientallen tot honderden formele sommaties en processtukken geautomatiseerd versturen. Voor incidenteel gebruik weegt dit abonnement niet op tegen losse zendingen.
+          </p>
+        </article>
+      </div>
+
+      <!-- 2.3 Vergelijking Verzendkanalen -->
+      <h3 id="vergelijking-kanalen">2.3 Vergelijking Verzendkanalen</h3>
+      <p>Onderstaande matrix zet de vier belangrijkste verzendkanalen naast elkaar op kosten, juridische en technische bewijswaarde en geschikt toepassingsgebied.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Verzendkanaal</th>
+              <th>Kostenindicatie</th>
+              <th>Bewijswaarde &amp; Techniek</th>
+              <th>Geschikt voor / Aandachtspunten</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Fysieke Aangetekende Brief (PostNL)</strong></td>
+              <td>ca. &euro; 9,95 per stuk</td>
+              <td><strong>Zeer hoog (ontvangst):</strong> Handtekening voor ontvangst op fysiek adres of aantoonbaar afhaalbericht. Geen inhoudsbewijs van de envelop.</td>
+              <td>Originele papieren documenten, getekende volmachten, opdrachtbevestigingen en notarisdossiers.</td>
+            </tr>
+            <tr>
+              <td><strong>PostNL Aangetekend Mailen</strong></td>
+              <td>&euro; 5,45 per stuk (los)<br><span style="color:var(--text-muted); font-size:0.84rem;">of vanaf &euro; 195,- p/m (zakelijk)</span></td>
+              <td><strong>Zeer hoog (inhoud &amp; ontvangst):</strong> eIDAS audit-rapport met SHA-256 hash, tijdstempel en acceptatielog.</td>
+              <td>Snelle officiële brieven en PDF's direct naar e-mailadres wederpartij. Let op negeerrisico indien ontvanger de portaallink niet opent.</td>
+            </tr>
+            <tr>
+              <td><strong>Peppol (via eConnect / BaseNet)</strong></td>
+              <td>B2B / softwarelicentie</td>
+              <td><strong>Onweerlegbaar (AS4):</strong> Versleutelde systeem-tot-systeem transactie met mTLS/PKI en automatische ontvangstbevestiging (MDN).</td>
+              <td>Uitsluitend gestructureerde elektronische facturen en UBL-orders tussen boekhoud- of ERP-pakketten. Niet geschikt voor vrije correspondentie.</td>
+            </tr>
+            <tr>
+              <td><strong>Eigen Linux-mailserver (Postfix / Dovecot / Rspamd)</strong></td>
+              <td>Beheerkosten VPS &amp; domein (ca. &euro; 5&ndash;&euro; 15 p/m)</td>
+              <td><strong>Hoog op integriteit, beperkt op ontvangst:</strong> Sterke eigen integriteit via DKIM-handtekening, SHA-256 en extern RFC 3161 tijdstempel.</td>
+              <td>Volledige eigen regie over dagelijkse zakelijke mail en archieven. Mist echter een onafhankelijke derde partij voor sluitend lees- of openingsbewijs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         FOOTER
+         ==================================================================== -->
+    <footer class="site-footer">
+      <div>E-mail &amp; Bewijskrachtige Communicatie &mdash; Zelfstandig HTML5-naslagwerk (geen externe afhankelijkheden).</div>
+      <div>Gebruik de knop rechtsboven om dit document direct af te drukken of als PDF op te slaan.</div>
+    </footer>
+  </main>
+
+  <!-- ======================================================================
+       VANILLA JAVASCRIPT: BOOMSTRUCTUUR, FILTER, SMOOTH SCROLL & KOPIEERKNOP
+       ====================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* --------------------------------------------------------------------
+         1. KOPIËREN NAAR KLEMBORD (Zonder alert(), met execCommand-fallback)
+         -------------------------------------------------------------------- */
+      function copyTextToClipboard(text) {
+        try {
+          var textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.top = '-9999px';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          textarea.setSelectionRange(0, textarea.value.length);
+          var ok = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          return ok;
+        } catch (err) {
+          return false;
+        }
+      }
+
+      var copyButtons = document.querySelectorAll('.copy-btn');
+      copyButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var targetId = btn.getAttribute('data-copy-target');
+          var codeEl = document.getElementById(targetId);
+          if (!codeEl) return;
+
+          var text = codeEl.textContent || '';
+          var success = copyTextToClipboard(text);
+          var originalLabel = btn.textContent;
+
+          btn.textContent = success ? 'Gekopieerd!' : 'Kopiëren mislukt';
+          if (success) {
+            btn.classList.add('copied');
+          }
+
+          window.setTimeout(function () {
+            btn.textContent = originalLabel;
+            btn.classList.remove('copied');
+          }, 1600);
+        });
+      });
+
+      /* --------------------------------------------------------------------
+         2. INTERACTIEVE OVERZICHTSBOOM: IN- EN UITKLAPPEN
+         -------------------------------------------------------------------- */
+      var treeRoot = document.getElementById('interactiveTree');
+      var toggles = treeRoot ? treeRoot.querySelectorAll('.tree-toggle') : [];
+
+      function setItemCollapsed(li, collapsed) {
+        if (!li) return;
+        var btn = li.querySelector(':scope > .tree-row > .tree-toggle');
+        if (collapsed) {
+          li.classList.add('collapsed');
+          if (btn) btn.innerHTML = '+';
+        } else {
+          li.classList.remove('collapsed');
+          if (btn) btn.innerHTML = '&minus;';
+        }
+      }
+
+      toggles.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var li = btn.closest('.tree-item');
+          var isCollapsed = li.classList.contains('collapsed');
+          setItemCollapsed(li, !isCollapsed);
+        });
+      });
+
+      var btnExpandAll = document.getElementById('btnExpandAll');
+      var btnCollapseAll = document.getElementById('btnCollapseAll');
+
+      if (btnExpandAll && treeRoot) {
+        btnExpandAll.addEventListener('click', function () {
+          treeRoot.querySelectorAll('.tree-item').forEach(function (li) {
+            if (li.querySelector(':scope > ul')) {
+              setItemCollapsed(li, false);
+            }
+          });
+        });
+      }
+
+      if (btnCollapseAll && treeRoot) {
+        btnCollapseAll.addEventListener('click', function () {
+          var items = treeRoot.querySelectorAll('.tree-item');
+          items.forEach(function (li, index) {
+            // Houd de root-knoop open zodat beide hoofdtakken zichtbaar blijven
+            if (index > 0 && li.querySelector(':scope > ul')) {
+              setItemCollapsed(li, true);
+            }
+          });
+        });
+      }
+
+      /* --------------------------------------------------------------------
+         3. ASCII-TREE TONEN / VERBERGEN
+         -------------------------------------------------------------------- */
+      var btnToggleAscii = document.getElementById('btnToggleAscii');
+      var asciiDrawer = document.getElementById('asciiDrawer');
+
+      if (btnToggleAscii && asciiDrawer) {
+        btnToggleAscii.addEventListener('click', function () {
+          var isOpen = asciiDrawer.classList.toggle('open');
+          btnToggleAscii.textContent = isOpen ? 'Verberg ASCII-tree' : 'Toon ASCII-tree';
+        });
+      }
+
+      /* --------------------------------------------------------------------
+         4. SOEPEL SCROLLEN + VISUELE HIGHLIGHT VAN DOELSECTIE
+         -------------------------------------------------------------------- */
+      if (treeRoot) {
+        treeRoot.querySelectorAll('a.tree-link').forEach(function (link) {
+          link.addEventListener('click', function (e) {
+            var href = link.getAttribute('href');
+            if (!href || href.charAt(0) !== '#') return;
+            var target = document.querySelector(href);
+            if (!target) return;
+
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            target.classList.remove('scroll-highlight');
+            // Reflow forceren zodat animatie opnieuw kan spelen
+            void target.offsetWidth;
+            target.classList.add('scroll-highlight');
+          });
+        });
+      }
+
+      /* --------------------------------------------------------------------
+         5. ZOEK- & FILTERFUNCTIE VOOR DE BOOMSTRUCTUUR
+         -------------------------------------------------------------------- */
+      var searchInput = document.getElementById('treeSearchInput');
+
+      if (searchInput && treeRoot) {
+        // Sla originele linkteksten op om veilig te markeren
+        var allLinks = treeRoot.querySelectorAll('a.tree-link');
+        allLinks.forEach(function (a) {
+          a.setAttribute('data-original-text', a.textContent);
+        });
+
+        function escapeRegExp(str) {
+          return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function filterNode(li, query) {
+          var link = li.querySelector(':scope > .tree-row > a.tree-link');
+          var origText = link ? link.getAttribute('data-original-text') : '';
+          var childList = li.querySelector(':scope > ul');
+          var childMatched = false;
+
+          if (childList) {
+            var children = childList.querySelectorAll(':scope > .tree-item');
+            children.forEach(function (childLi) {
+              if (filterNode(childLi, query)) {
+                childMatched = true;
+              }
+            });
+          }
+
+          var selfMatched = query === '' || origText.toLowerCase().indexOf(query) !== -1;
+
+          if (link) {
+            if (query !== '' && selfMatched) {
+              var regex = new RegExp('(' + escapeRegExp(query) + ')', 'gi');
+              link.innerHTML = origText.replace(regex, '<mark>$1</mark>');
+              link.classList.add('tree-match');
+            } else {
+              link.textContent = origText;
+              link.classList.remove('tree-match');
+            }
+          }
+
+          var visible = selfMatched || childMatched;
+          li.classList.toggle('hidden-by-filter', !visible);
+
+          if (query !== '' && childMatched && childList) {
+            setItemCollapsed(li, false);
+          }
+
+          return visible;
+        }
+
+        searchInput.addEventListener('input', function () {
+          var q = searchInput.value.trim().toLowerCase();
+          var topItems = treeRoot.querySelectorAll(':scope > .tree-item');
+          topItems.forEach(function (li) {
+            filterNode(li, q);
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
