@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profielbeschrijvingen: W3C CLA, TADHack &amp; Telecomecosysteem</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #fafafa;
+      --surface-alt: #f3f3f3;
+      --text: #111111;
+      --muted: #555555;
+      --accent: #A31C1C;
+      --accent-hover: #7d1414;
+      --accent-soft: #fdf2f2;
+      --border: #dcdcdc;
+      --base-font: 19px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: var(--base-font);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    .container {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3.5rem;
+    }
+
+    /* Topbar */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .back-link:hover,
+    .back-link:focus-visible {
+      text-decoration: underline;
+      outline: none;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 0.65rem;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: var(--accent);
+      color: var(--accent);
+      outline: none;
+    }
+
+    button.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    /* Header */
+    header {
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .kicker {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.6rem;
+      font-size: 1.7rem;
+      line-height: 1.2;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    /* Inhoudsopgave */
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1.75rem;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .toc-title {
+      margin: 0 0 0.6rem;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 1.35rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 0.3rem 1.5rem;
+    }
+
+    .toc a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.88rem;
+    }
+
+    .toc a:hover,
+    .toc a:focus-visible {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    /* Filter- en zoekbalk */
+    .toolbar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .search-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1 1 260px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .search-input:focus {
+      outline: 2px solid var(--accent);
+      border-color: var(--accent);
+    }
+
+    .count-status {
+      font-size: 0.82rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* Profielkaarten */
+    .profiles {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .profile-card {
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 4px;
+      background: var(--bg);
+      padding: 1.4rem 1.5rem;
+      scroll-margin-top: 1.25rem;
+    }
+
+    .profile-card[hidden] {
+      display: none;
+    }
+
+    .profile-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .profile-head h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      line-height: 1.25;
+      color: var(--text);
+    }
+
+    .profile-subtitle {
+      margin: 0.25rem 0 0;
+      font-size: 0.92rem;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 3px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid #e8c4c4;
+      flex-shrink: 0;
+    }
+
+    .profile-card h3 {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--accent);
+      margin: 1.15rem 0 0.45rem;
+    }
+
+    .profile-card p {
+      margin: 0 0 0.85rem;
+    }
+
+    .profile-card ul {
+      margin: 0 0 0.85rem;
+      padding-left: 1.25rem;
+    }
+
+    .profile-card li {
+      margin-bottom: 0.45rem;
+    }
+
+    .profile-card li:last-child {
+      margin-bottom: 0;
+    }
+
+    .ref-list {
+      list-style: none;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.25rem;
+    }
+
+    .ref-list a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .ref-list a:hover,
+    .ref-list a:focus-visible {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
+
+    /* Onderlinge samenhang */
+    .synthesis {
+      margin-top: 2.5rem;
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 4px 4px 0;
+      scroll-margin-top: 1.25rem;
+    }
+
+    .synthesis h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.3rem;
+      color: var(--text);
+    }
+
+    .chain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.85rem;
+      margin-top: 1.1rem;
+    }
+
+    .chain-step {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.85rem 1rem;
+      font-size: 0.88rem;
+    }
+
+    .chain-step strong {
+      display: block;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .empty-state {
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 4px;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media print {
+      .topbar,
+      .toolbar,
+      .toc,
+      .no-print {
+        display: none !important;
+      }
+
+      body {
+        font-size: 10.5pt;
+        line-height: 1.45;
+      }
+
+      .container {
+        max-width: 100%;
+        padding: 0;
+      }
+
+      .profile-card {
+        display: block !important;
+        break-inside: avoid;
+        margin-bottom: 1rem;
+      }
+
+      .synthesis {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar no-print">
+      <a href="./index.html" class="back-link">&larr; Terug naar overzicht</a>
+      <div class="controls" aria-label="Pagina-instellingen">
+        <button type="button" id="font-dec" aria-label="Kleiner lettertype">A-</button>
+        <button type="button" id="font-reset" aria-label="Standaard lettertype">A</button>
+        <button type="button" id="font-inc" aria-label="Groter lettertype">A+</button>
+        <button type="button" id="print-btn">Afdrukken / PDF</button>
+      </div>
+    </div>
+
+    <header>
+      <span class="kicker">Open Standaarden &amp; Programmeerbare Telecom</span>
+      <h1>Profielbeschrijvingen: W3C CLA, TADHack &amp; Gerelateerde Technologieën en Personen</h1>
+      <p class="lead">
+        Overzicht van het <strong>W3C Community Contributor License Agreement (CLA)</strong> kader, <strong>TADHack</strong>, vijf gerelateerde technologieën en drie sleutelpersoonlijkheden, bezien vanuit open standaarden, programmeerbare telecom en intellectueel eigendom.
+      </p>
+    </header>
+
+    <nav class="toc no-print" aria-label="Inhoudsopgave">
+      <p class="toc-title">Inhoudsopgave</p>
+      <ol>
+        <li><a href="#profiel-1">W3C Community CLA</a></li>
+        <li><a href="#profiel-2">TADHack</a></li>
+        <li><a href="#profiel-3">WebRTC</a></li>
+        <li><a href="#profiel-4">vCon (Virtualized Conversation)</a></li>
+        <li><a href="#profiel-5">Jambonz</a></li>
+        <li><a href="#profiel-6">Asterisk</a></li>
+        <li><a href="#profiel-7">SignalWire</a></li>
+        <li><a href="#profiel-8">Alan Quayle</a></li>
+        <li><a href="#profiel-9">Rianne Goijarts</a></li>
+        <li><a href="#profiel-10">Sean DuBois</a></li>
+        <li><a href="#samenhang">Onderlinge samenhang</a></li>
+      </ol>
+    </nav>
+
+    <div class="toolbar no-print" aria-label="Filter en zoek profielen">
+      <div class="filter-row" role="group" aria-label="Filter op categorie">
+        <button type="button" class="filter-btn active" data-category="all">Alles (10)</button>
+        <button type="button" class="filter-btn" data-category="standaard">Standaarden &amp; Juridisch (3)</button>
+        <button type="button" class="filter-btn" data-category="ecosysteem">Ecosysteem (1)</button>
+        <button type="button" class="filter-btn" data-category="infrastructuur">Infrastructuur &amp; CPaaS (3)</button>
+        <button type="button" class="filter-btn" data-category="personen">Personen (3)</button>
+      </div>
+      <div class="search-row">
+        <input
+          type="search"
+          id="search-input"
+          class="search-input"
+          placeholder="Zoek op naam, protocol, licentie of trefwoord..."
+          aria-label="Zoek in profielen"
+        >
+        <span id="count-status" class="count-status" aria-live="polite">10 van 10 profielen zichtbaar</span>
+      </div>
+    </div>
+
+    <main>
+      <div class="profiles" id="profiles-container">
+
+        <!-- 1. W3C CLA -->
+        <article class="profile-card" id="profiel-1" data-category="standaard">
+          <div class="profile-head">
+            <div>
+              <h2>1. W3C Community Contributor License Agreement (CLA)</h2>
+              <p class="profile-subtitle">De juridische en octrooirechtelijke basis voor open standaarden</p>
+            </div>
+            <span class="badge">Standaarden &amp; Juridisch</span>
+          </div>
+
+          <h3>Rol &amp; Functie</h3>
+          <p>
+            De W3C CLA vormt het formele juridische kader voor de ontwikkeling en vastlegging van wereldwijde webstandaarden en protocollen (zoals WebRTC en communicatie-standaarden zoals vCon). Het mechanisme is ontworpen om open standaarden te beschermen tegen patentclaims en commerciële monopolievorming.
+          </p>
+
+          <h3>Kernkenmerken</h3>
+          <ul>
+            <li><strong>Royalty-Free (RF) Verplichtingen:</strong> Deelnemers committeren zich eraan dat essentiële octrooiclaims (<em>Essential Claims</em>) kosteloos ter beschikking worden gesteld voor de implementatie van de standaard.</li>
+            <li><strong>Wederkerige Licenties:</strong> Voorkomt dat grote technologie- of telecompartijen achteraf licentiekosten of patenten eisen op basisprotocollen.</li>
+            <li><strong>Vendor Lock-in Preventie:</strong> Garandeert dat de onderliggende protocolarchitectuur onafhankelijk, transparant en vrij te implementeren blijft door elke softwareleverancier of kantoor.</li>
+          </ul>
+
+          <h3>Verwijzingen</h3>
+          <ul class="ref-list">
+            <li><a href="https://www.w3.org" target="_blank" rel="noopener noreferrer">W3C (w3.org) &rarr;</a></li>
+          </ul>
+        </article>
+
+        <!-- 2. TADHack -->
+        <article class="profile-card" id="profiel-2" data-category="ecosysteem">
+          <div class="profile-head">
+            <div>
+              <h2>2. TADHack (Telecom Application Development Hackathon)</h2>
+              <p class="profile-subtitle">De kraamkamer voor experimentele telecom- en conversational applicaties</p>
+            </div>
+            <span class="badge">Ecosysteem</span>
+          </div>
+
+          <h3>Rol &amp; Functie</h3>
+          <p>
+            TADHack is het wereldwijde open innovatie-ecosysteem en hackathon-platform voor programmeerbare telecom, API's, CPaaS (Communication Platform as a Service) en real-time communicatietechnologie (WebRTC). Het brengt ontwikkelaars, analisten en techneuten samen om praktijkgerichte oplossingen te bouwen. Sinds 2014 is TADHack de grootste en langstlopende hackathon gericht op programmeerbare communicatie, met meer dan 11.000 registraties, meer dan 1.000 pitches, ruim $250k aan prijzengeld en meerdere startups die uit TADHack-hacks zijn voortgekomen (waaronder Talkdesk).
+          </p>
+
+          <h3>Kernkenmerken</h3>
+          <ul>
+            <li><strong>Snelle Prototyping:</strong> Biedt een flexibele, experimentele omgeving om in korte tijd prototypes te bouwen met behulp van open-source tools en telecom-API's (zoals Jambonz, Asterisk en SignalWire).</li>
+            <li><strong>Conversational &amp; Real-time Focus:</strong> Stimuleert innovatie op het snijvlak van spraak, SMS, chatbots en gestructureerde data-containers (zoals vCon).</li>
+            <li><strong>Open Ecosysteem:</strong> Bevordert een cultuur van samenwerking en kennisdeling die dient als vliegwiel om ideeën om te zetten in robuuste, interoperabele toepassingen voor de markt.</li>
+          </ul>
+
+          <h3>Verwijzingen</h3>
+          <ul class="ref-list">
+            <li><a href="https://blog.tadhack.com" target="_blank" rel="noopener noreferrer">Blog @ TADHack &rarr;</a></li>
+            <li><a href="https://blog.tadsummit.com" target="_blank" rel="noopener noreferrer">TADSummit &rarr;</a></li>
+          </ul>
+        </article>
+
+        <!-- 3. WebRTC -->
+        <article class="profile-card" id="profiel-3" data-category="standaard">
+          <div class="profile-head">
+            <div>
+              <h2>3. WebRTC (Web Real-Time Communication)</h2>
+              <p class="profile-subtitle">De open standaard voor real-time communicatie in de browser</p>
+            </div>
+            <span class="badge">Standaarden &amp; Juridisch</span>
+          </div>
+
+          <h3>Rol &amp; Functie</h3>
+          <p>
+            WebRTC is een open standaard, oorspronkelijk ontwikkeld bij Google en gestandaardiseerd via het W3C en de IETF, die audio-, video- en dataverbinding mogelijk maakt tussen browsers en applicaties zonder plugins of propriëtaire software. Het vormt de technologische ruggengraat van moderne browsergebaseerde communicatie en sluit direct aan bij de royalty-free licentiefilosofie van het W3C CLA-kader.
+          </p>
+
+          <h3>Kernkenmerken</h3>
+          <ul>
+            <li><strong>Plugin-vrije Communicatie:</strong> Maakt peer-to-peer audio, video en data-uitwisseling mogelijk via native browser-API's.</li>
+            <li><strong>Open Standaardisatie:</strong> Gespecificeerd door het W3C (API's) en de IETF (protocollen zoals ICE, DTLS, SRTP), met royalty-free patentverplichtingen voor contributors.</li>
+            <li><strong>Veilige Media:</strong> Versleuteling (SRTP/DTLS) is verplicht onderdeel van de standaard, wat beveiliging tot een standaardgarantie maakt in plaats van een toevoeging.</li>
+          </ul>
+        </article>
+
+        <!-- 4. vCon -->
+        <article class="profile-card" id="profiel-4" data-category="standaard">
+          <div class="profile-head">
+            <div>
+              <h2>4. vCon (Virtualized Conversation)</h2>
+              <p class="profile-subtitle">De gestandaardiseerde container voor conversatie-data</p>
+            </div>
+            <span class="badge">Standaarden &amp; Juridisch</span>
+          </div>
+
+          <h3>Rol &amp; Functie</h3>
+          <p>
+            vCon is een open standaard (in ontwikkeling binnen de IETF) die conversaties — telefoongesprekken, video-meetings, chats, sms-berichten — vastlegt in een gestructureerd, machine-leesbaar datacontainer-formaat. Het doel is om gespreksgegevens, transcripties, analyse-resultaten en metadata draagbaar en interoperabel te maken, onafhankelijk van de gebruikte communicatieplatforms. vCon is prominent gekoppeld aan TADHack: TADHack Global is (mede) gesponsord door Strolid, Inc., de makers van vCon, en er zijn speciale vCon pre-TADHack-sessies voor ontwikkelaars.
+          </p>
+
+          <h3>Kernkenmerken</h3>
+          <ul>
+            <li><strong>Gestructureerde Container:</strong> Bundelt media, transcripties, analyses en metadata van een conversatie in één consistent JSON-formaat.</li>
+            <li><strong>Draagbaarheid &amp; Interoperabiliteit:</strong> Voorkomt leveranciervariantie door conversatie-data vrij uitwisselbaar te maken tussen platforms, CRM-systemen en analyse-tools.</li>
+            <li><strong>Auditability &amp; Consent:</strong> Ondersteunt het vastleggen van toestemming, identificatie van deelnemers en handtekeningen, wat relevant is voor compliance en privacy (AVG/GDPR).</li>
+          </ul>
+        </article>
+
+        <!-- 5. Jambonz -->
+        <article class="profile-card" id="profiel-5" data-category="infrastructuur">
+          <div class="profile-head">
+            <div>
+              <h2>5. Jambonz</h2>
+              <p class="profile-subtitle">Het open-source platform voor voice- en conversational AI-applicaties</p>
+            </div>
+            <span class="badge">Infrastructuur &amp; CPaaS</span>
+          </div>
+
+          <h3>Rol &amp; Functie</h3>
+          <p>
+            Jambonz is een open-source platform voor het bouwen van spraaktoepassingen en conversational AI, ontwikkeld door Dave Horton. Het positioneert zich als open alternatief voor gesloten CPaaS-API's en koppelt standaardtelefonie (SIP/WebRTC) met moderne LLM- en speech-diensten (STT/TTS). Jambonz is een van de sponsor- en resource-platforms waar ontwikkelaars tijdens TADHack mee bouwen.
+          </p>
+
+          <h3>Kernkenmerken</h3>
+          <ul>
+            <li><strong>Open-source &amp; API-gedreven:</strong> Volledig zelf te hosten en te integreren via REST- en WebSocket-API's, met keuzevrijheid in infrastructuur.</li>
+            <li><strong>LLM-native:</strong> Biedt out-of-the-box integraties met grote AI- en speechdiensten (o.a. OpenAI, Deepgram, ElevenLabs, Google, AWS).</li>
+            <li><strong>Multi-tenancy &amp; Carrier-neutraal:</strong> Ondersteunt meerdere klanten/providers per instantie en verbindt met eigen SIP-trunks zonder lock-in bij een specifieke carrier.</li>
+          </ul>
+        </article>
+
+        <!-- 6. Asterisk -->
+        <article class="profile-card" id="profiel-6" data-category="infrastructuur">
+          <div class="profile-head">
+            <div>
+              <h2>6. Asterisk</h2>
+              <p class="profile-subtitle">De pionier en de facto standaard in open-source telefonie</p>
+            </div>
+            <span class="badge">Infrastructuur &amp; CPaaS</span>
+          </div>
+
+          <h3>Rol &amp; Functie</h3>
+          <p>
+            Asterisk, sinds 1999 ontwikkeld door Digium (nu Sangoma), is het meest gebruikte open-source framework voor het bouwen van telefoon- en communicatiesystemen (PBX, IVR, contactcenters). Het fungeert als de fundamentele bouwsteen van veel commerciële telecomproducten en vormt het bewijs dat open standaarden (zoals SIP) op schaal zakelijk kunnen concurreren met propriëtaire systemen.
+          </p>
+
+          <h3>Kernkenmerken</h3>
+          <ul>
+            <li><strong>Volledige PBX-functionaliteit:</strong> Voicemail, conference bridging, call queues, interactieve voice response (IVR) en call recording uit de doos.</li>
+            <li><strong>Programmeerbare Call Flow:</strong> Configureerbaar via dialplan-logica en uitbreidbaar via interfaces zoals AMI, ARI en AGI voor externe applicatieontwikkeling.</li>
+            <li><strong>Protocol-rijk Ecosysteem:</strong> Ondersteunt SIP, WebRTC en tal van legacy- en moderne codecs en protocollen, en verbindt traditionele telefonie (PSTN) met IP-gebaseerde communicatie.</li>
+          </ul>
+        </article>
+
+        <!-- 7. SignalWire -->
+        <article class="profile-card" id="profiel-7" data-category="infrastructuur">
+          <div class="profile-head">
+            <div>
+              <h2>7. SignalWire</h2>
+              <p class="profile-subtitle">Commercieel CPaaS-ecosysteem gebouwd op open standaarden</p>
+            </div>
+            <span class="badge">Infrastructuur &amp; CPaaS</span>
+          </div>
+
+          <h3>Rol &amp; Functie</h3>
+          <p>
+            SignalWire is een commercieel communicatieplatform, medeopgericht door leden van het oorspronkelijke FreeSWITCH-team, dat API's biedt voor voice, berichtenverkeer, video en AI-agenten. Het onderscheidt zich door open-source wortels (FreeSWITCH) en het SWML-script (SignalWire Markup Language), waarmee ontwikkelaars complexe telecommunicatieworkflows declaratief kunnen definiëren.
+          </p>
+
+          <h3>Kernkenmerken</h3>
+          <ul>
+            <li><strong>Declaratieve Programmatie:</strong> SWML en RELAY maken geavanceerde call flows, realtime mediaverwerking en AI-integraties toegankelijk met minimale code.</li>
+            <li><strong>AI-gedreven Communicatie:</strong> Integreert autonome agenten (spraak-, chat- en multimodale AI) direct in de communicatiestack.</li>
+            <li><strong>Open-wortels, Enterprise-betrouwbaarheid:</strong> Gestoeld op de open-source FreeSWITCH-stack, gecombineerd met een beheerd, schaalbaar cloudplatform.</li>
+          </ul>
+        </article>
+
+        <!-- 8. Alan Quayle -->
+        <article class="profile-card" id="profiel-8" data-category="personen">
+          <div class="profile-head">
+            <div>
+              <h2>8. Alan Quayle</h2>
+              <p class="profile-subtitle">Oprichter van TADHack en TADSummit — de katalysator van het hackathon-ecosysteem</p>
+            </div>
+            <span class="badge">Personen</span>
+          </div>
+
+          <h3>Rol &amp; Functie</h3>
+          <p>
+            Alan Quayle is oprichter en organisator van TADHack, 's werelds grootste telecom-gerichte hackathon (sinds 2014), en van TADSummit, het leidende event voor zakelijk succes met nieuwe communicatiediensten. Via deze initiatieven wil hij de volgende generatie ontwikkelaars en ondernemers in staat stellen telecom en communicatie in te zetten in hun producten. Hij heeft een achtergrond in strategie- en dienstontwikkeling in de telecomsector (o.a. onderzoek voor BT) en publiceert via alanquayle.com en het TADHack-blog. In 2020 ontving hij de SIMCON Award "Empowering the Next Generation" (Simwood/SIMCON).
+          </p>
+
+          <h3>Kernkenmerken</h3>
+          <ul>
+            <li><strong>Ecosysteem-builder:</strong> Bracht tientallen sponsors (o.a. W3C, Matrix, Telestax, Temasys, Vidyo) en 150+ partners, waaronder 16 universiteiten, samen rond TADHack.</li>
+            <li><strong>Talent-ontwikkelaar:</strong> Hielp tientallen ontwikkelaars aan banen, stages en bedrijfsstarten; hacks uit TADHack leidden tot meerdere gelanceerde diensten en startups.</li>
+            <li><strong>Community-first filosofie:</strong> Positioneert TADHack als open, breed en laagdrempelig — voor iedereen, van studenten tot ontwikkelaars zonder telecom-ervaring.</li>
+          </ul>
+
+          <h3>Verwijzingen</h3>
+          <ul class="ref-list">
+            <li><a href="https://alanquayle.com" target="_blank" rel="noopener noreferrer">Persoonlijke website &rarr;</a></li>
+            <li><a href="https://www.linkedin.com/in/alanquayle" target="_blank" rel="noopener noreferrer">LinkedIn &rarr;</a></li>
+            <li><a href="https://blog.tadhack.com/author/admin" target="_blank" rel="noopener noreferrer">Blog @ TADHack (auteur) &rarr;</a></li>
+          </ul>
+        </article>
+
+        <!-- 9. Rianne Goijarts -->
+        <article class="profile-card" id="profiel-9" data-category="personen">
+          <div class="profile-head">
+            <div>
+              <h2>9. Rianne Goijarts</h2>
+              <p class="profile-subtitle">TADHack-deelnemer en winnaar (TADHack Global 2015, Lissabon)</p>
+            </div>
+            <span class="badge">Personen</span>
+          </div>
+
+          <h3>Rol &amp; Functie</h3>
+          <p>
+            Rianne Goijarts (online bekend als @goija) nam deel aan TADHack Global 2015 in Lissabon als lid van team "Note to Self", samen met Steev Goodwin (@MarquisdeGeek). Het team won prijzengeld van sponsors Acision en ApiDaze met een WebRTC-gebaseerde to-do-list-hack — een typisch voorbeeld van de snelle, praktijkgerichte prototyping waar TADHack voor staat. Haar deelname illustreert hoe TADHack internationale deelnemers verbindt rond real-time communicatietechnologie.
+          </p>
+
+          <h3>Kernkenmerken</h3>
+          <ul>
+            <li><strong>TADHack Global 2015-winnaar:</strong> Deel van het winnende team in Lissabon met een WebRTC-hack.</li>
+            <li><strong>Cross-disciplinair teamwerk:</strong> Combineerde krachten met internationale teamgenoten binnen het korte hackathon-format.</li>
+            <li><strong>Voorbeeld van het open ecosysteem:</strong> Laat zien hoe TADHack deelnemers uit allerlei achtergronden samenbrengt rond open telecom-API's.</li>
+          </ul>
+
+          <h3>Verwijzingen</h3>
+          <ul class="ref-list">
+            <li><a href="https://blog.tadhack.com/2015/06/15/tadhack-global-winners" target="_blank" rel="noopener noreferrer">TADHack Global 2015 winnaars (team "Note to Self") &rarr;</a></li>
+          </ul>
+        </article>
+
+        <!-- 10. Sean DuBois -->
+        <article class="profile-card" id="profiel-10" data-category="personen">
+          <div class="profile-head">
+            <div>
+              <h2>10. Sean DuBois</h2>
+              <p class="profile-subtitle">Schepper van Pion — de open-source Go-implementatie van WebRTC</p>
+            </div>
+            <span class="badge">Personen</span>
+          </div>
+
+          <h3>Rol &amp; Functie</h3>
+          <p>
+            Sean DuBois is de maker en lange tijd maintainer van <strong>Pion</strong>, de toonaangevende open-source implementatie van WebRTC in de programmeertaal Go. Pion wordt breed gebruikt in servers, clouds en telecommunicatie-infrastructuur en heeft het bouwen van WebRTC-applicaties buiten de browser enorm vergemakkelijkt. DuBois schreef ook <em>WebRTC for the Curious</em>, een open-source boek over WebRTC, en werkte eerder bij o.a. LiveKit (als Field CTO), Twitch en OpenAI. Zijn werk sluit direct aan bij de open-standaardfilosofie van het W3C CLA-kader: een vrije, royalty-free implementatie van de WebRTC-standaard.
+          </p>
+
+          <h3>Kernkenmerken</h3>
+          <ul>
+            <li><strong>Pion WebRTC:</strong> Volledige WebRTC-implementatie in Go (januari 2018–heden), open source en vrij te gebruiken.</li>
+            <li><strong>Documentator &amp; educator:</strong> Auteur van <em>WebRTC for the Curious</em>, een gratis, open-source naslagwerk dat de standaard toegankelijk maakt.</li>
+            <li><strong>Open-source promotor:</strong> Lange-termijn bijdrager aan open-source communities (o.a. Pion, PHP, GStreamer) en pleitbezorger van zelfsturend leren zonder formele opleiding.</li>
+          </ul>
+
+          <h3>Verwijzingen</h3>
+          <ul class="ref-list">
+            <li><a href="https://github.com/pion/webrtc" target="_blank" rel="noopener noreferrer">Pion WebRTC (GitHub) &rarr;</a></li>
+            <li><a href="https://github.com/sean-der" target="_blank" rel="noopener noreferrer">Sean DuBois (GitHub) &rarr;</a></li>
+            <li><a href="https://www.linkedin.com/in/sean-dubois" target="_blank" rel="noopener noreferrer">LinkedIn &rarr;</a></li>
+          </ul>
+        </article>
+
+      </div>
+
+      <p id="empty-state" class="empty-state" hidden>Geen profielen gevonden die overeenkomen met het filter of de zoekterm.</p>
+
+      <!-- Onderlinge samenhang -->
+      <section class="synthesis" id="samenhang">
+        <h2>Onderlinge samenhang</h2>
+        <p>
+          Deze profielen dekken gezamenlijk de gehele keten van het document: van juridische borging en open protocollen tot infrastructuur, commerciële platforms, experimenteerruimte en de mensen die het ecosysteem dragen.
+        </p>
+
+        <div class="chain-grid">
+          <div class="chain-step">
+            <strong>1. Standaardisatie &amp; Juridisch</strong>
+            W3C CLA, WebRTC en vCon — royalty-free kaders en interoperabele protocollen.
+          </div>
+          <div class="chain-step">
+            <strong>2. Open-source Infrastructuur</strong>
+            Jambonz, Asterisk en Pion — bouwstenen voor spraak, telefonie en media.
+          </div>
+          <div class="chain-step">
+            <strong>3. Commercieel CPaaS</strong>
+            SignalWire — enterprise-platform geworteld in open-source FreeSWITCH.
+          </div>
+          <div class="chain-step">
+            <strong>4. Experimenteeromgeving</strong>
+            TADHack — wereldwijde kraamkamer voor snelle telecom-prototyping.
+          </div>
+          <div class="chain-step">
+            <strong>5. Sleutelpersoonlijkheden</strong>
+            Alan Quayle (oprichter TADHack), Rianne Goijarts (deelnemer &amp; winnaar) en Sean DuBois (bouwer van Pion).
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Onderdeel van <a href="./index.html">goija/datananalyses</a></span>
+      <span>Geen externe scripts, geen trackingcookies.</span>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      // Lettergrootte-regeling (standaard 19px)
+      let currentFont = 19;
+      const setFont = (px) => {
+        currentFont = Math.min(26, Math.max(15, px));
+        document.documentElement.style.setProperty('--base-font', `${currentFont}px`);
+      };
+      document.getElementById('font-dec').addEventListener('click', () => setFont(currentFont - 2));
+      document.getElementById('font-reset').addEventListener('click', () => setFont(19));
+      document.getElementById('font-inc').addEventListener('click', () => setFont(currentFont + 2));
+
+      // Afdrukken
+      document.getElementById('print-btn').addEventListener('click', () => window.print());
+
+      // Filteren en zoeken
+      const cards = Array.from(document.querySelectorAll('.profile-card'));
+      const filterBtns = Array.from(document.querySelectorAll('.filter-btn'));
+      const searchInput = document.getElementById('search-input');
+      const countStatus = document.getElementById('count-status');
+      const emptyState = document.getElementById('empty-state');
+
+      let activeCategory = 'all';
+
+      const applyFilters = () => {
+        const query = searchInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const matchesCategory = activeCategory === 'all' || card.dataset.category === activeCategory;
+          const matchesQuery = !query || card.textContent.toLowerCase().includes(query);
+          const show = matchesCategory && matchesQuery;
+
+          card.hidden = !show;
+          if (show) visibleCount++;
+        });
+
+        countStatus.textContent = `${visibleCount} van ${cards.length} profielen zichtbaar`;
+        emptyState.hidden = visibleCount > 0;
+      };
+
+      filterBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeCategory = btn.dataset.category;
+          filterBtns.forEach((b) => b.classList.toggle('active', b === btn));
+          applyFilters();
+        });
+      });
+
+      searchInput.addEventListener('input', applyFilters);
+    })();
+  </script>
+</body>
+</html>
