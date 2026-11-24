@@ -3,138 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leeslinks & Documentatie Index</title>
+    <title>Documentatie - Markdown Interface</title>
     <style>
         :root {
-            --bg-color: #fdfdfd;
-            --text-color: #222222;
+            --bg-color: #ffffff;
+            --sidebar-bg: #f6f8fa;
+            --text-color: #24292e;
             --accent-color: #A31C1C; /* Zeeuws meekrab red */
-            --card-bg: #ffffff;
-            --border-color: #e0e0e0;
-            --hover-bg: #f9f9f9;
+            --border-color: #e14d4d33;
+            --border-main: #e1e4e8;
+            --hover-bg: #eaeef2;
+            --code-bg: #f6f8fa;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg-color: #121212;
-                --text-color: #e0e0e0;
+                --bg-color: #0d1117;
+                --sidebar-bg: #161b22;
+                --text-color: #c9d1d9;
                 --accent-color: #C73E3E;
-                --card-bg: #1e1e1e;
-                --border-color: #2e2e2e;
-                --hover-bg: #262626;
+                --border-color: #30363d;
+                --border-main: #30363d;
+                --hover-bg: #1f6feb22;
+                --code-bg: #161b22;
             }
         }
 
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            line-height: 1.6;
             margin: 0;
-            padding: 2rem 1rem;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        header {
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        h1 {
-            font-size: 1.8rem;
-            margin: 0 0 0.5rem 0;
-            color: var(--accent-color);
-        }
-
-        p.subtitle {
-            margin: 0;
-            opacity: 0.8;
-            font-size: 0.95rem;
-        }
-
-        .links-grid {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .link-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 1.25rem;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+        /* Sidebar / File Tree */
+        sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-main);
             display: flex;
             flex-direction: column;
-            gap: 0.35rem;
+            padding: 1.5rem 1rem;
+            box-sizing: border-box;
         }
 
-        .link-card:hover {
-            border-color: var(--accent-color);
-            background-color: var(--hover-bg);
-            transform: translateY(-2px);
-        }
-
-        .link-title {
-            font-size: 1.15rem;
-            font-weight: 600;
+        .sidebar-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             color: var(--accent-color);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .file-item a {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-        }
-
-        .link-desc {
+            padding: 0.5rem 0.75rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 6px;
             font-size: 0.9rem;
-            opacity: 0.85;
-            margin: 0;
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
+            transition: background-color 0.15s ease, color 0.15s ease;
         }
 
-        footer {
-            margin-top: 3rem;
-            text-align: center;
+        .file-item a:hover, .file-item a.active {
+            background-color: var(--hover-bg);
+            color: var(--accent-color);
+        }
+
+        /* Main Markdown Viewport */
+        main {
+            flex: 1;
+            padding: 2.5rem 3rem;
+            overflow-y: auto;
+            max-width: 900px;
+        }
+
+        .markdown-body {
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .markdown-body h1 {
+            font-size: 2rem;
+            border-bottom: 1px solid var(--border-main);
+            padding-bottom: 0.3rem;
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+
+        .markdown-body h2 {
+            font-size: 1.4rem;
+            border-bottom: 1px solid var(--border-main);
+            padding-bottom: 0.2rem;
+            margin-top: 1.5rem;
+        }
+
+        .markdown-body p {
+            margin: 1rem 0;
+        }
+
+        .markdown-body ul {
+            padding-left: 2rem;
+        }
+
+        .markdown-body code {
+            background-color: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: ui-monospace, monospace;
             font-size: 0.85rem;
-            opacity: 0.6;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1rem;
+            border: 1px solid var(--border-main);
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            background-color: var(--hover-bg);
+            color: var(--accent-color);
+            border: 1px solid var(--border-main);
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+                overflow: auto;
+            }
+            sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-main);
+            }
+            main {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>Leeslinks & Documentatie Index</h1>
-            <p class="subtitle">Centrale navigatiehub voor repository documentatie.</p>
-        </header>
+    <sidebar>
+        <div class="sidebar-title">Bestanden / Repository</div>
+        <ul class="file-list">
+            <li class="file-item">
+                <a href="./IAB%20TCF-koppeling.md" class="active">📄 IAB TCF-koppeling.md</a>
+            </li>
+            <li class="file-item">
+                <a href="./OpenAI.md">📄 OpenAI.md</a>
+            </li>
+        </ul>
+    </sidebar>
 
-        <main class="links-grid">
-            <a href="./IAB%20TCF-koppeling.md" class="link-card">
-                <span class="link-title">🔗 IAB TCF-koppeling</span>
-                <p class="link-desc">Documentatie over de IAB Transparency and Consent Framework (TCF) koppeling en samenwerking met TCF Partners BV.</p>
-            </a>
+    <main>
+        <div class="markdown-body">
+            <span class="badge">Markdown Preview Interface</span>
+            <h1>IAB TCF-koppeling.md</h1>
+            <p>Welkom in de markdown-interface. Hieronder staat de navigatie en structuur voor de gekoppelde documentatie.</p>
+            
+            <h2>Overzicht</h2>
+            <ul>
+                <li><strong>Bestand:</strong> <code>IAB TCF-koppeling.md</code></li>
+                <li><strong>Doel:</strong> Documentatie rondom de IAB Transparency and Consent Framework (TCF) integratie en TCF Partners BV.</li>
+            </ul>
 
-            <a href="./OpenAI.md" class="link-card">
-                <span class="link-title">🔗 OpenAI Documentatie</span>
-                <p class="link-desc">Notities, technische richtlijnen en bugfixes rondom OpenAI-integraties.</p>
-            </a>
-
-            <a href="./README.md" class="link-card">
-                <span class="link-title">🔗 Project Overzicht (README)</span>
-                <p class="link-desc">De hoofdpagina en algemene omschrijving van de repository.</p>
-            </a>
-        </main>
-
-        <footer>
-            Lokale indexpagina &mdash; Geconfigureerd voor snelle navigatie.
-        </footer>
-    </div>
+            <h2>Snelle Links</h2>
+            <p>Gebruik de linker menubalk om te schakelen tussen de beschikbare markdown-documenten in de repository.</p>
+        </div>
+    </main>
 
 </body>
 </html>
