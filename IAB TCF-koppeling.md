@@ -1,5 +1,7 @@
 De inzet van commerciële Consent Management Platforms (zoals Cookiebot of Complianz) met een geactiveerde IAB TCF-koppeling leidt al snel tot spanning met de wettelijke geheimhoudingsplicht (artikel 11a Advocatenwet) en de AVG.
 
+https://tcfpartnersbv.com/partners/
+
 Verbinding met adtech-leveranciers. Dit framework is ontworpen voor uitgevers en advertentienetwerken (Real-Time Bidding). Het maakt de weg vrij om bezoekersgegevens, IP-adressen en surfgedrag te delen met honderden aangesloten externe advertentiepartners (vendors).
 
 Gezamenlijke verwerkingsverantwoordelijkheid. Het Europees Hof van Justitie heeft geoordeeld dat deze TC-strings als persoonsgegevens gelden en dat partijen die dit framework inzetten gezamenlijk verwerkingsverantwoordelijk kunnen zijn voor de verdere verwerking door deze adtech-keten.
