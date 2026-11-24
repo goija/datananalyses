@@ -1,0 +1,1284 @@
+```python
+import os
+
+index_html = """<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datananalyses — Overzicht</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #fafafa;
+      --surface-alt: #f3f3f3;
+      --text: #111111;
+      --muted: #555555;
+      --accent: #A31C1C;
+      --accent-hover: #7d1414;
+      --accent-soft: #fdf2f2;
+      --border: #dcdcdc;
+      --base-font: 19px;
+    }
+
+    * { box-sizing: border-box; }
+    html { font-size: var(--base-font); scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3.5rem;
+    }
+
+    header {
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 1rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    .kicker {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.65rem;
+      line-height: 1.2;
+    }
+
+    header p {
+      margin: 0.35rem 0 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 0.65rem;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: var(--accent);
+      color: var(--accent);
+      outline: none;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      margin: 2rem 0 0.85rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Uitgelichte kernanalyses */
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .featured-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1rem 1.15rem;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 4px;
+      background: var(--surface);
+      text-decoration: none;
+      color: var(--text);
+      transition: background-color 0.15s ease;
+    }
+
+    .featured-card:hover,
+    .featured-card:focus-visible {
+      background: var(--accent-soft);
+      outline: none;
+    }
+
+    .featured-card strong {
+      display: block;
+      font-size: 0.98rem;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+
+    .featured-card span {
+      font-size: 0.84rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1 1 240px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .search-input:focus {
+      outline: 2px solid var(--accent);
+      border-color: var(--accent);
+    }
+
+    .status {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 0 0 0.85rem;
+    }
+
+    .doc-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .doc-item {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .doc-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 0.6rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: background-color 0.15s ease;
+    }
+
+    .doc-link:hover,
+    .doc-link:focus-visible {
+      background-color: var(--surface);
+      outline: none;
+    }
+
+    .doc-link:hover .doc-title,
+    .doc-link:focus-visible .doc-title {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .doc-title {
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .doc-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+    }
+
+    .badge-html {
+      background-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .badge-md {
+      background-color: #eeeeee;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .error-box {
+      padding: 1rem;
+      border-left: 4px solid var(--accent);
+      background-color: var(--surface);
+      font-size: 0.9rem;
+    }
+
+    footer {
+      margin-top: 2.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <span class="kicker">Middleware, Standaarden &amp; Juridische Architectuur</span>
+        <h1>Datananalyses</h1>
+        <p>Automatisch overzicht van analyses en documenten in <strong>goija/datananalyses</strong></p>
+      </div>
+      <div class="controls" aria-label="Tekstgrootte aanpassen">
+        <button type="button" id="font-dec" aria-label="Kleiner lettertype">A-</button>
+        <button type="button" id="font-reset" aria-label="Standaard lettertype">A</button>
+        <button type="button" id="font-inc" aria-label="Groter lettertype">A+</button>
+      </div>
+    </header>
+
+    <main>
+      <section aria-label="Uitgelichte analyses">
+        <h2>Uitgelichte analyses (BaseNet, Peppol &amp; Logius)</h2>
+        <div class="featured-grid">
+          <a href="./peppol-logius-basenet.html" class="featured-card">
+            <strong>Peppol, Logius &amp; BaseNet</strong>
+            <span>Volledige ketenanalyse: 4-partijenmodel, NPa, Digipoort, OIN/SMP, NLCIUS en technische integratie met BaseNet &amp; eConnect inclusief stroomschema.</span>
+          </a>
+          <a href="./basenet-analyse.html" class="featured-card">
+            <strong>BaseNet, BaseGPT &amp; eConnect</strong>
+            <span>Juridische groepsstructuur, openbare onderleggers (ISO 27001, AVG Annex 2), AI-architectuur en interne dossier-audittrail.</span>
+          </a>
+        </div>
+      </section>
+
+      <section aria-label="Alle documenten in repository">
+        <h2>Alle documenten in de repository</h2>
+        <div class="toolbar">
+          <input
+            type="search"
+            id="filter-input"
+            class="search-input"
+            placeholder="Filter documenten op naam..."
+            aria-label="Filter documenten op naam"
+          >
+          <button type="button" id="refresh-btn">Lijst vernieuwen</button>
+        </div>
+
+        <p id="status" class="status" aria-live="polite">Bestanden ophalen uit GitHub...</p>
+
+        <nav aria-label="Repository bestanden">
+          <ul id="repo-links" class="doc-list"></ul>
+        </nav>
+      </section>
+    </main>
+
+    <footer>
+      <span>Bron: <a href="https://github.com/goija/datananalyses" target="_blank" rel="noopener noreferrer">github.com/goija/datananalyses</a></span>
+      <span id="last-updated"></span>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      const OWNER = 'goija';
+      const REPO = 'datananalyses';
+      const EXCLUDE = new Set(['index.html', 'README.md']);
+      const CACHE_KEY = `gh_files_${OWNER}_${REPO}_v2`;
+      const CACHE_TTL = 5 * 60 * 1000;
+
+      const listEl = document.getElementById('repo-links');
+      const statusEl = document.getElementById('status');
+      const filterInput = document.getElementById('filter-input');
+      const refreshBtn = document.getElementById('refresh-btn');
+      const lastUpdatedEl = document.getElementById('last-updated');
+
+      let allFiles = [];
+
+      let currentFont = 19;
+      const setFont = (px) => {
+        currentFont = Math.min(26, Math.max(15, px));
+        document.documentElement.style.setProperty('--base-font', `${currentFont}px`);
+      };
+      document.getElementById('font-dec').addEventListener('click', () => setFont(currentFont - 2));
+      document.getElementById('font-reset').addEventListener('click', () => setFont(19));
+      document.getElementById('font-inc').addEventListener('click', () => setFont(currentFont + 2));
+
+      const formatSize = (bytes) => {
+        if (typeof bytes !== 'number') return '';
+        return bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`;
+      };
+
+      const renderList = (files) => {
+        listEl.innerHTML = '';
+
+        if (files.length === 0) {
+          statusEl.textContent = 'Geen overeenkomende documenten gevonden.';
+          return;
+        }
+
+        statusEl.textContent = `${files.length} document${files.length === 1 ? '' : 'en'} weergegeven.`;
+
+        const fragment = document.createDocumentFragment();
+        files.forEach((file) => {
+          const isHtml = file.name.toLowerCase().endsWith('.html');
+          const cleanName = file.name.replace(/\\.(md|html)$/i, '');
+
+          const li = document.createElement('li');
+          li.className = 'doc-item';
+
+          const a = document.createElement('a');
+          a.className = 'doc-link';
+          a.href = isHtml ? `./${encodeURIComponent(file.name)}` : file.html_url;
+          if (!isHtml) {
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+          }
+
+          const titleSpan = document.createElement('span');
+          titleSpan.className = 'doc-title';
+          titleSpan.textContent = cleanName;
+
+          const metaSpan = document.createElement('span');
+          metaSpan.className = 'doc-meta';
+
+          const sizeSpan = document.createElement('span');
+          sizeSpan.textContent = formatSize(file.size);
+
+          const badge = document.createElement('span');
+          badge.className = `badge ${isHtml ? 'badge-html' : 'badge-md'}`;
+          badge.textContent = isHtml ? 'HTML' : 'MD';
+
+          metaSpan.appendChild(sizeSpan);
+          metaSpan.appendChild(badge);
+
+          a.appendChild(titleSpan);
+          a.appendChild(metaSpan);
+          li.appendChild(a);
+          fragment.appendChild(li);
+        });
+
+        listEl.appendChild(fragment);
+      };
+
+      const applyFilter = () => {
+        const term = filterInput.value.trim().toLowerCase();
+        const filtered = term
+          ? allFiles.filter((f) => f.name.toLowerCase().includes(term))
+          : allFiles;
+        renderList(filtered);
+      };
+
+      const loadFiles = async (forceRefresh = false) => {
+        statusEl.textContent = 'Bestanden ophalen uit GitHub...';
+        listEl.innerHTML = '';
+
+        try {
+          if (!forceRefresh) {
+            const cached = sessionStorage.getItem(CACHE_KEY);
+            if (cached) {
+              const { ts, data } = JSON.parse(cached);
+              if (Date.now() - ts < CACHE_TTL) {
+                allFiles = data;
+                lastUpdatedEl.textContent = `Bijgewerkt: ${new Date(ts).toLocaleTimeString('nl-NL')}`;
+                applyFilter();
+                return;
+              }
+            }
+          }
+
+          const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/`);
+          if (!res.ok) throw new Error(`GitHub API gaf status ${res.status}`);
+
+          const items = await res.json();
+          allFiles = items
+            .filter((item) =>
+              item.type === 'file' &&
+              /\\.(md|html)$/i.test(item.name) &&
+              !EXCLUDE.has(item.name)
+            )
+            .sort((a, b) => a.name.localeCompare(b.name, 'nl'));
+
+          const now = Date.now();
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: now, data: allFiles }));
+          lastUpdatedEl.textContent = `Bijgewerkt: ${new Date(now).toLocaleTimeString('nl-NL')}`;
+          applyFilter();
+        } catch (err) {
+          statusEl.textContent = '';
+          listEl.innerHTML = `
+            <li class="error-box">
+              Kon de bestandenlijst niet laden (${err.message}).
+              Bekijk de bestanden direct op <a href="https://github.com/${OWNER}/${REPO}" target="_blank" rel="noopener noreferrer">GitHub</a>.
+            </li>
+          `;
+        }
+      };
+
+      filterInput.addEventListener('input', applyFilter);
+      refreshBtn.addEventListener('click', () => loadFiles(true));
+
+      loadFiles();
+    })();
+  </script>
+</body>
+</html>
+"""
+
+peppol_html = """<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peppol, Logius &amp; BaseNet — Volledige Ketenanalyse</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #fafafa;
+      --surface-alt: #f3f3f3;
+      --text: #111111;
+      --muted: #555555;
+      --accent: #A31C1C;
+      --accent-hover: #7d1414;
+      --accent-soft: #fdf2f2;
+      --border: #dcdcdc;
+      --base-font: 19px;
+    }
+
+    * { box-sizing: border-box; }
+    html { font-size: var(--base-font); scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3.5rem;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .back-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+
+    .back-link:hover,
+    .back-link:focus-visible {
+      text-decoration: underline;
+      outline: none;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 0.65rem;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: var(--accent);
+      color: var(--accent);
+      outline: none;
+    }
+
+    button.active,
+    .btn-accent {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      color: #ffffff;
+    }
+
+    header {
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .kicker {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.6rem;
+      font-size: 1.7rem;
+      line-height: 1.2;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 2.25rem;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .toc-title {
+      margin: 0 0 0.6rem;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 1.35rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.35rem 1.5rem;
+    }
+
+    .toc a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.88rem;
+    }
+
+    .toc a:hover,
+    .toc a:focus-visible {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    section {
+      margin-bottom: 2.75rem;
+      scroll-margin-top: 1.25rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      line-height: 1.3;
+      margin: 0 0 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 1.2rem 0 0.5rem;
+    }
+
+    p { margin: 0 0 0.9rem; }
+    a { color: var(--accent); }
+    a:hover { color: var(--accent-hover); }
+
+    ul, ol {
+      padding-left: 1.3rem;
+      margin: 0 0 1rem;
+    }
+
+    li { margin-bottom: 0.45rem; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.84em;
+      background: var(--surface-alt);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+
+    /* Schema-container */
+    .diagram-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.15rem;
+      margin: 1.25rem 0;
+      overflow-x: auto;
+    }
+
+    .diagram-caption {
+      margin: 0.75rem 0 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* Kaarten & Callouts */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0 1.25rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 4px;
+      padding: 1.1rem 1.25rem;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    .card p:last-child,
+    .card ul:last-child,
+    .card ol:last-child {
+      margin-bottom: 0;
+    }
+
+    .callout {
+      background: var(--accent-soft);
+      border: 1px solid #e8c4c4;
+      border-left: 4px solid var(--accent);
+      padding: 1rem 1.2rem;
+      border-radius: 0 4px 4px 0;
+      margin: 1.25rem 0;
+      font-size: 0.94rem;
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    /* Tabellen */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin: 1rem 0 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+      background: var(--bg);
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.7rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--surface-alt);
+      font-weight: 700;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--surface); }
+    tbody tr[hidden] { display: none; }
+
+    .badge {
+      display: inline-block;
+      padding: 0.14rem 0.45rem;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid #e8c4c4;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .findings-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .finding-item {
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 4px 4px 0;
+      padding: 1rem 1.2rem;
+      background: var(--bg);
+    }
+
+    .finding-item strong {
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+
+    .section-head-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-head-row h2 {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin: 0;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media print {
+      .topbar, .toc, .toolbar, .no-print { display: none !important; }
+      body { font-size: 10.5pt; line-height: 1.45; }
+      .container { max-width: 100%; padding: 0; }
+      .card, .finding-item, .table-wrap, .diagram-box { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar no-print">
+      <div class="nav-links">
+        <a href="./index.html" class="back-link">&larr; Terug naar overzicht</a>
+        <a href="./basenet-analyse.html" class="back-link">Zie ook: BaseNet-analyse &rarr;</a>
+      </div>
+      <div class="controls" aria-label="Pagina-instellingen">
+        <button type="button" id="font-dec" aria-label="Kleiner lettertype">A-</button>
+        <button type="button" id="font-reset" aria-label="Standaard lettertype">A</button>
+        <button type="button" id="font-inc" aria-label="Groter lettertype">A+</button>
+        <button type="button" id="print-btn">Afdrukken / PDF</button>
+      </div>
+    </div>
+
+    <header>
+      <span class="kicker">E-facturatie, Overheidsinfrastructuur &amp; Praktijksoftware</span>
+      <h1>Peppol, Logius (NPa / Digipoort) &amp; BaseNet in Context</h1>
+      <p class="lead">
+        Volledige technische, juridische en audit-analyse van de elektronische factuur- en gegevensketen tussen praktijksoftware (<strong>BaseNet</strong>), gecertificeerde Access Points (<strong>eConnect</strong>), het <strong>Peppol</strong>-netwerk en <strong>Logius</strong>.
+      </p>
+    </header>
+
+    <nav class="toc no-print" aria-label="Inhoudsopgave">
+      <p class="toc-title">Inhoudsopgave</p>
+      <ol>
+        <li><a href="#stroomschema">1. Technisch stroomschema (4-partijenmodel)</a></li>
+        <li><a href="#peppol-logius">2. Peppol &amp; de dubbelrol van Logius (NPa / Digipoort)</a></li>
+        <li><a href="#routering">3. Routering, identificatie (OIN/KvK) &amp; SMP</a></li>
+        <li><a href="#basenet-context">4. Context met BaseNet &amp; eConnect (audittrail)</a></li>
+        <li><a href="#vergelijking">5. Vergelijkingsmatrix: E-mail PDF vs. Peppol/BaseNet</a></li>
+        <li><a href="#conclusies">6. Juridische &amp; forensische kernpunten</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <!-- SECTIE 1: STROOMSCHEMA -->
+      <section id="stroomschema">
+        <h2>1. Technisch stroomschema: van BaseNet naar Logius / Digipoort</h2>
+        <p>
+          In plaats van losse PDF-bestanden via e-mail te versturen, werkt Peppol met het <strong>4-partijenmodel (Four-Corner Model)</strong>. Onderstaand schema toont exact hoe een declaratie of e-factuur vanuit <strong>BaseNet</strong> via <strong>eConnect</strong> en <strong>Logius</strong> bij de ontvanger terechtkomt.
+        </p>
+
+        <div class="diagram-box" role="img" aria-label="Technisch stroomschema van het Peppol 4-partijenmodel gekoppeld aan BaseNet, eConnect en Logius Digipoort">
+          <svg viewBox="0 0 920 330" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="display:block; max-width:920px; margin:0 auto;">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#A31C1C"/>
+              </marker>
+              <marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#555555"/>
+              </marker>
+            </defs>
+
+            <!-- Achtergrondbanden -->
+            <rect x="10" y="12" width="900" height="306" rx="6" fill="#ffffff" stroke="#dcdcdc" stroke-width="1"/>
+            <text x="26" y="36" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#A31C1C">PEPPOL 4-PARTIJENMODEL IN CONTEXT MET BASENET &amp; LOGIUS</text>
+
+            <!-- SMP & NPa bovenlaag -->
+            <rect x="265" y="52" width="390" height="58" rx="4" fill="#fdf2f2" stroke="#A31C1C" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <text x="460" y="75" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#111111">Logius als Nederlandse Peppolautoriteit (NPa) &amp; SMP</text>
+            <text x="460" y="95" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#555555">Toezicht Access Points • Beheer NLCIUS / EN 16931 • Lookup KVK / BTW / OIN</text>
+
+            <!-- Corner 1 -->
+            <rect x="24" y="155" width="185" height="118" rx="4" fill="#fafafa" stroke="#111111" stroke-width="1.5"/>
+            <rect x="24" y="155" width="185" height="24" rx="3" fill="#A31C1C"/>
+            <text x="116" y="171" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#ffffff">CORNER 1 — VERZENDER</text>
+            <text x="116" y="200" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#111111">BaseNet</text>
+            <text x="116" y="218" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#555555">Advocatenkantoor / Bedrijf</text>
+            <text x="116" y="236" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#555555">Dossier-ID (D-nr) + Uren</text>
+            <text x="116" y="252" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#555555">App Key / Secret + Bedrijfs-ID</text>
+
+            <!-- Corner 2 -->
+            <rect x="252" y="155" width="185" height="118" rx="4" fill="#fafafa" stroke="#111111" stroke-width="1.5"/>
+            <rect x="252" y="155" width="185" height="24" rx="3" fill="#A31C1C"/>
+            <text x="344" y="171" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#ffffff">CORNER 2 — ACCESS POINT</text>
+            <text x="344" y="200" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#111111">eConnect</text>
+            <text x="344" y="218" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#555555">Gecertificeerd Peppol AP</text>
+            <text x="344" y="236" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#555555">Omzetting → UBL / NLCIUS</text>
+            <text x="344" y="252" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#555555">ISO 27001 / ISAE 3402 II</text>
+
+            <!-- Corner 3 -->
+            <rect x="482" y="155" width="185" height="118" rx="4" fill="#fafafa" stroke="#111111" stroke-width="1.5"/>
+            <rect x="482" y="155" width="185" height="24" rx="3" fill="#A31C1C"/>
+            <text x="574" y="171" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#ffffff">CORNER 3 — ACCESS POINT</text>
+            <text x="574" y="200" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#111111">Logius / Digipoort</text>
+            <text x="574" y="218" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#555555">Overheidsknooppunt (B2G)</text>
+            <text x="574" y="236" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#555555">of B2B Access Point ontvanger</text>
+            <text x="574" y="252" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#555555">Validatie EN 16931 / PKI</text>
+
+            <!-- Corner 4 -->
+            <rect x="710" y="155" width="185" height="118" rx="4" fill="#fafafa" stroke="#111111" stroke-width="1.5"/>
+            <rect x="710" y="155" width="185" height="24" rx="3" fill="#A31C1C"/>
+            <text x="802" y="171" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#ffffff">CORNER 4 — ONTVANGER</text>
+            <text x="802" y="200" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#111111">Overheid / Bedrijf</text>
+            <text x="802" y="218" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#555555">Ministerie / Gemeente / ERP</text>
+            <text x="802" y="236" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#555555">Directe inlezing crediteuren</text>
+            <text x="802" y="252" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#555555">Geïdentificeerd op OIN / KVK</text>
+
+            <!-- Pijlen horizontaal -->
+            <line x1="209" y1="214" x2="249" y2="214" stroke="#A31C1C" stroke-width="2.2" marker-end="url(#arrow)"/>
+            <text x="230" y="205" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9.5" font-weight="700" fill="#A31C1C">API</text>
+
+            <line x1="437" y1="214" x2="479" y2="214" stroke="#A31C1C" stroke-width="2.2" marker-end="url(#arrow)"/>
+            <text x="459" y="198" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9.5" font-weight="700" fill="#A31C1C">TLS + PKI</text>
+            <text x="459" y="229" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#555555">Peppol AS4</text>
+
+            <line x1="667" y1="214" x2="707" y2="214" stroke="#A31C1C" stroke-width="2.2" marker-end="url(#arrow)"/>
+            <text x="688" y="205" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9.5" font-weight="700" fill="#A31C1C">UBL</text>
+
+            <!-- Verbindingen SMP/NPa -->
+            <line x1="344" y1="155" x2="344" y2="114" stroke="#555555" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#arrow-muted)"/>
+            <text x="352" y="138" font-family="system-ui, sans-serif" font-size="9.5" fill="#555555">SMP lookup</text>
+
+            <line x1="574" y1="110" x2="574" y2="152" stroke="#555555" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#arrow-muted)"/>
+            <text x="582" y="138" font-family="system-ui, sans-serif" font-size="9.5" fill="#555555">NPa toezicht</text>
+
+            <!-- Onderbalk -->
+            <text x="460" y="300" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#555555">
+              Geen e-mailheaders of losse PDF-bijlagen — volledig geauthenticeerde, machinaal valideerbare XML/UBL-keten met Peppol-bericht-ID.
+            </text>
+          </svg>
+          <p class="diagram-caption">
+            Figuur 1: Gegevensstroom van praktijksoftware (Corner 1: BaseNet) via Peppol Access Point (Corner 2: eConnect) en SMP-routering naar Logius/Digipoort (Corner 3) en de ontvangende overheid of onderneming (Corner 4).
+          </p>
+        </div>
+      </section>
+
+      <!-- SECTIE 2: PEPPOL & LOGIUS -->
+      <section id="peppol-logius">
+        <h2>2. Peppol en de formele dubbelrol van Logius</h2>
+        <p>
+          <strong>Peppol</strong> (<em>Pan-European Public Procurement Online</em>) en <strong>Logius</strong> vormen samen de ruggengraat van beveiligde, gestandaardiseerde e-facturatie in Nederland — zowel voor overheidsopdrachten (<strong>B2G</strong>) als steeds vaker tussen bedrijven onderling (<strong>B2B</strong>).
+        </p>
+
+        <div class="card-grid">
+          <article class="card">
+            <h3>Peppol: het internationale netwerk</h3>
+            <ul>
+              <li><strong>Directe systeemkoppeling:</strong> Wisselt e-facturen, inkooporders en statusberichten rechtstreeks uit tussen ERP- en administratiepakketten.</li>
+              <li><strong>4-partijenmodel:</strong> Verzender (Corner 1) → Access Point verzender (Corner 2) → Access Point ontvanger (Corner 3) → Ontvanger (Corner 4).</li>
+              <li><strong>Gestructureerde data:</strong> Verzending als gestructureerd <code>XML/UBL</code>-bestand in plaats van een ongestructureerde PDF per e-mail.</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3>Logius: Dienst digitale overheid</h3>
+            <ul>
+              <li><strong>Ministerie van BZK:</strong> Baten-lastendienst die de landelijke digitale overheidsinfrastructuur beheert (DigiD, MijnOverheid, eHerkenning, Digipoort).</li>
+              <li><strong>NORA-architectuur:</strong> Borgt binnen de Nederlandse Overheid Referentie Architectuur veilige koppelvlakken, betrouwbare identiteiten en gestandaardiseerde koppelnetwerken.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="callout">
+          <p><strong>De formele dubbelrol van Logius rond Peppol:</strong></p>
+          <ol style="margin-bottom:0;">
+            <li>
+              <strong>Nederlandse Peppolautoriteit (NPa):</strong> Aangewezen door het ministerie van Economische Zaken en Klimaat als officiële toezichthouder op het Peppol-netwerk in Nederland. Logius houdt toezicht op aangesloten Access Points (zoals eConnect en KPN), bewaakt informatiebeveiliging en beheert de nationale standaard <code>NLCIUS</code> (de Nederlandse specificatie op de Europese norm <code>EN 16931</code>).
+            </li>
+            <li>
+              <strong>Knooppunt voor de Rijksoverheid (Digipoort):</strong> Rijksoverheden zijn wettelijk verplicht e-facturen via Peppol te ontvangen. Via Digipoort levert Logius facturen rechtstreeks af bij de juiste ministeries en rijksdiensten.
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- SECTIE 3: ROUTERING & IDENTIFICATIE -->
+      <section id="routering">
+        <h2>3. Routering, identificatiesleutels en transportbeveiliging</h2>
+        <p>
+          In tegenstelling tot e-mailverkeer (waarbij een adres of header kan worden gespooft of gekoppeld aan een persoonlijk e-mailaccount) vertrouwt Peppol op officiële registeridentificatie en cryptografische certificaten:
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Laag</th>
+                <th>Mechanisme</th>
+                <th>Functie in de keten</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Identificatie (B2B)</strong></td>
+                <td><code>KVK-nummer</code> of <code>btw-identificatienummer</code></td>
+                <td>Unieke adressering van ondernemingen en advocatenkantoren zonder afhankelijkheid van e-mailadressen.</td>
+              </tr>
+              <tr>
+                <td><strong>Identificatie (B2G)</strong></td>
+                <td><code>OIN</code> (Organisatie-identificatienummer)</td>
+                <td>Unieke overheidsidentificatie voor ministeries, gemeenten en rijksdiensten binnen Digipoort.</td>
+              </tr>
+              <tr>
+                <td><strong>Adressering &amp; profiel</strong></td>
+                <td><code>SMP</code> (Service Metadata Publisher)</td>
+                <td>Het verzendende Access Point controleert automatisch of de ontvanger geregistreerd is en welke standaarden (<code>Peppol BIS Billing 3.0</code>, <code>NLCIUS</code>, <code>PINT</code>) worden geaccepteerd.</td>
+              </tr>
+              <tr>
+                <td><strong>Beveiliging</strong></td>
+                <td><code>TLS</code> + <code>PKI-certificaten</code></td>
+                <td>Gecodeerde en wederzijds geauthenticeerde overdracht tussen gecertificeerde Access Points; sluit spookfacturen en man-in-the-middle-aanvallen uit.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTIE 4: CONTEXT MET BASENET -->
+      <section id="basenet-context">
+        <h2>4. Volledige integratie in context met BaseNet &amp; eConnect</h2>
+        <p>
+          Wanneer een advocatenkantoor of juridische dienstverlener werkt met <strong>BaseNet</strong> (<em>BaseNet Internet Projects B.V.</em>, Amsterdam, KvK 33282707), grijpt de praktijksoftware als volgt in op het Peppol- en Logius-ecosysteem:
+        </p>
+
+        <div class="card-grid">
+          <article class="card">
+            <h3>1. Configuratie van de koppeling</h3>
+            <ul>
+              <li><strong>Expliciete activatie:</strong> De eConnect-koppeling staat standaard <strong>uit</strong> in BaseNet en moet gericht worden ingeschakeld.</li>
+              <li><strong>API-authenticatie:</strong> Koppeling via <em>Online Betaalsystemen &gt; eConnect accounts</em> met een eigen <strong>App Key</strong>, <strong>Secret</strong> en <strong>Bedrijfs-ID</strong> per juridische entiteit of administratie.</li>
+              <li><strong>Synchronisatie:</strong> Na activatie geldt een initiële synchronisatievertraging van enkele uren voordat facturen zichtbaar zijn.</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3>2. Conversie &amp; certificering</h3>
+            <ul>
+              <li><strong>Formaatconversie:</strong> eConnect vertaalt de BaseNet-factuur automatisch naar <code>UBL</code> / <code>NLCIUS</code> / <code>EN 16931</code> en routeert deze via Peppol naar Logius/Digipoort (B2G) of een ander Access Point (B2B).</li>
+              <li><strong>Compliance eConnect:</strong> ISO 27001 en ISAE 3402 Type II, verwerking binnen EU/EER. <em>(NEN 7510 loopt tot 20 februari 2027 en wordt daarna niet verlengd.)</em></li>
+              <li><strong>Compliance BaseNet:</strong> ISO/IEC 27001:2022/Amd 1:2024 (<code>CERT-000810-TN</code>), eigen servers in Nederlandse datacenters, subverwerkers in Spanje (S.L.U.) en België (bvba).</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3>3. Interne dossier-audittrail</h3>
+            <ul>
+              <li><strong>Spoorcodes:</strong> BaseNet kent elk dossier een doorlopend <code>D-nummer</code> en elk document- of mailitem een <code>I-nummer</code> toe.</li>
+              <li><strong>Volledige herleidbaarheid:</strong> Tijdregels (behandelaar, datum, duur, tariefgroep, activiteit), verschotten, btw-splitsing en betaalstatus zijn direct gekoppeld aan de factuur.</li>
+              <li><strong>Peppol-bericht-ID:</strong> Bij verzending via eConnect levert het Peppol-bericht-ID een onweerlegbaar verzend- en ontvangstbewijs in de audittrail.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- SECTIE 5: VERGELIJKINGSMATRIX -->
+      <section id="vergelijking">
+        <h2>5. Vergelijkingsmatrix: E-mail (PDF) vs. BaseNet + eConnect + Peppol/Logius</h2>
+
+        <div class="toolbar no-print" role="group" aria-label="Filter vergelijkingscriteria">
+          <button type="button" class="filter-btn active" data-focus="all">Alle criteria</button>
+          <button type="button" class="filter-btn" data-focus="beveiliging">Beveiliging &amp; Privacy</button>
+          <button type="button" class="filter-btn" data-focus="audit">Audit &amp; Bewijswaarde</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Criterium</th>
+                <th>Categorie</th>
+                <th>Traditionele e-mail (PDF)</th>
+                <th>BaseNet → eConnect → Peppol / Logius</th>
+              </tr>
+            </thead>
+            <tbody id="compare-body">
+              <tr data-focus="beveiliging">
+                <td><strong>Adressering &amp; headers</strong></td>
+                <td><span class="badge">Beveiliging</span></td>
+                <td>Gebonden aan e-mailadressen en mailheaders; gevoelig voor spoofing, doorsturen of metadata-lekken.</td>
+                <td>Gekoppeld aan geregistreerde organisatie-ID's (<code>KVK</code>, <code>BTW</code>, <code>OIN</code>) via SMP; geen e-mailheaders.</td>
+              </tr>
+              <tr data-focus="beveiliging">
+                <td><strong>Transportbeveiliging</strong></td>
+                <td><span class="badge">Beveiliging</span></td>
+                <td>Opportunistische TLS (afhankelijk van ontvangende mailserver); geen eind-tot-eind-authenticitatie.</td>
+                <td>Verplichte TLS + wederzijdse PKI-certificaten tussen gecertificeerde Access Points onder NPa-toezicht.</td>
+              </tr>
+              <tr data-focus="audit">
+                <td><strong>Datastructuur &amp; validatie</strong></td>
+                <td><span class="badge">Audit</span></td>
+                <td>Ongestructureerd beeld/tekstbestand; foutgevoelig bij handmatige overname of achteraf aanpasbaar.</td>
+                <td>Gestructureerde <code>XML/UBL</code> (<code>EN 16931</code> / <code>NLCIUS</code>); verplichte velden worden machinaal gevalideerd.</td>
+              </tr>
+              <tr data-focus="audit">
+                <td><strong>Herleidbaarheid (art. 674 Rv)</strong></td>
+                <td><span class="badge">Audit</span></td>
+                <td>Losse PDF of totaalbedrag zonder directe koppeling aan onderliggende urenregistratie.</td>
+                <td>Directe koppeling tussen BaseNet-dossier (<code>D-nummer</code>), tijdregels, UBL-factuur en Peppol-bericht-ID.</td>
+              </tr>
+              <tr data-focus="beveiliging">
+                <td><strong>Toezicht &amp; normenkader</strong></td>
+                <td><span class="badge">Beveiliging</span></td>
+                <td>Geen centraal toezicht op de verzendketen.</td>
+                <td>Formeel toezicht door <strong>Logius (NPa)</strong>, NORA-kader, ISO 27001 en ISAE 3402 Type II.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTIE 6: KERNPUNTEN -->
+      <section id="conclusies">
+        <div class="section-head-row">
+          <h2>6. Juridische &amp; forensische kernpunten</h2>
+          <button type="button" id="copy-findings" class="btn-accent no-print">Kopieer kernpunten</button>
+        </div>
+
+        <ul class="findings-list" id="findings-list">
+          <li class="finding-item">
+            <strong>1. Sluitende keten bij B2G, optioneel bij B2B</strong>
+            Voor leveringen aan de Rijksoverheid is Peppol via Logius/Digipoort verplicht. Binnen BaseNet staat de eConnect-koppeling echter standaard uit; voor een concreet kantoor moet daarom altijd worden vastgesteld of facturen via Peppol/UBL of nog per e-mail/PDF zijn verzonden.
+          </li>
+          <li class="finding-item">
+            <strong>2. Geen excuus voor ontbrekende specificaties</strong>
+            Ongeacht of een kantoor eConnect heeft geactiveerd, legt BaseNet intern per dossiernummer alle tijdregels, verschotten, btw-bedragen en declaratienummers vast. Een controleerbare export (PDF, CSV of UBL) is systeemtechnisch altijd beschikbaar voor kostencontrole (zoals ex art. 674 Rv).
+          </li>
+          <li class="finding-item">
+            <strong>3. Onderscheid tussen netwerkbeveiliging en website-/AI-hygiëne</strong>
+            Een gecertificeerde Peppol/Logius-keten en een ISO 27001-gecertificeerde BaseNet-omgeving sluiten adtech-lekken op de publieke kantoorwebsite (IAB TCF) of onjuiste AI-citaten in processtukken (art. 21 Rv) niet uit. Elk onderdeel van de informatieketen vereist afzonderlijke verificatie.
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <span>Onderdeel van <a href="./index.html">goija/datananalyses</a></span>
+      <span>Geen externe scripts, geen trackingcookies.</span>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      let currentFont = 19;
+      const setFont = (px) => {
+        currentFont = Math.min(26, Math.max(15, px));
+        document.documentElement.style.setProperty('--base-font', `${currentFont}px`);
+      };
+      document.getElementById('font-dec').addEventListener('click', () => setFont(currentFont - 2));
+      document.getElementById('font-reset').addEventListener('click', () => setFont(19));
+      document.getElementById('font-inc').addEventListener('click', () => setFont(currentFont + 2));
+      document.getElementById('print-btn').addEventListener('click', () => window.print());
+
+      const rows = Array.from(document.querySelectorAll('#compare-body tr'));
+      const filterBtns = Array.from(document.querySelectorAll('.filter-btn'));
+      filterBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const focus = btn.dataset.focus;
+          filterBtns.forEach((b) => b.classList.toggle('active', b === btn));
+          rows.forEach((tr) => {
+            tr.hidden = focus !== 'all' && tr.dataset.focus !== focus;
+          });
+        });
+      });
+
+      const copyBtn = document.getElementById('copy-findings');
+      copyBtn.addEventListener('click', async () => {
+        const text = document.getElementById('findings-list').innerText.trim();
+        const orig = copyBtn.textContent;
+        try {
+          await navigator.clipboard.writeText(text);
+          copyBtn.textContent = 'Gekopieerd';
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+          copyBtn.textContent = 'Gekopieerd';
+        }
+        setTimeout(() => { copyBtn.textContent = orig; }, 1800);
+      });
+    })();
+  </script>
+</body>
+</html>
+"""
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(index_html)
+
+with open("peppol-logius-basenet.html", "w", encoding="utf-8") as f:
+    f.write(peppol_html)
+
+for name in ("index.html", "peppol-logius-basenet.html"):
+    print(f"{name}: {os.path.getsize(name)} bytes")
+
+
+```
+
+```text
+index.html: 13346 bytes
+peppol-logius-basenet.html: 33354 bytes
+
+
+```
+
+Je twee HTML-bestanden staan klaar:
+
+
+### 1. `index.html` — Bijgewerkte overzichtspagina
+
+* **Uitgelichte kernanalyses:** Bovenin staan directe kaarten naar **`peppol-logius-basenet.html`** en **`basenet-analyse.html`**.
+
+
+* **Automatische synchronisatie:** Haalt nog steeds automatisch alle `.html`- en `.md`-bestanden uit **`goija/datananalyses`** op via de GitHub API, inclusief zoekfilter, lettergrootte-knoppen (`19px` standaard) en een knop **Lijst vernieuwen**.
+
+
+
+### 2. `peppol-logius-basenet.html` — Volledige ketenanalyse in context met BaseNet
+
+* **Inline SVG-stroomschema (4-partijenmodel):** Visualiseert de volledige route van **BaseNet (Corner 1)** via **eConnect (Corner 2)**, **SMP / NPa-toezicht (Logius)** en **Digipoort (Corner 3)** naar het crediteurensysteem van de **overheid of onderneming (Corner 4)**.
+
+
+* **Dubbelrol van Logius:** Onderscheid tussen toezichthouder (**Nederlandse Peppolautoriteit / NPa**, beheer van `NLCIUS` en `EN 16931`) en centraal overheidsknooppunt (**Digipoort** binnen NORA).
+* **Routering & beveiliging:** Uitwerking van `KVK`, `btw-nummer`, `OIN`, `SMP`-lookup en versleuteld transport met `TLS` + `PKI-certificaten`.
+* **Integratie met BaseNet & eConnect:** Koppelt de Peppol/Logius-keten direct aan de technische gegevens van **BaseNet Internet Projects B.V.** (KvK 33282707), de standaard uitgeschakelde eConnect-module (`App Key` / `Secret` / `Bedrijfs-ID`), certificeringen (`ISO/IEC 27001:2022/Amd 1:2024`, `ISAE 3402 Type II`, `NEN 7510` tot 20 februari 2027) en de interne dossier-audittrail (`D-nummer` / `I-nummer`).
+
+
+* **Filterbare vergelijkingsmatrix & kopieerknop:** Zet e-mail/PDF naast de BaseNet → eConnect → Peppol/Logius-keten (filterbaar op *Beveiliging & Privacy* en *Audit & Bewijswaarde*), met een kopieerknop voor de juridische en forensische kernpunten en printvriendelijke PDF-opmaak.
+
+Upload beide bestanden naar de hoofdmap van **`goija/datananalyses`** (naast `basenet-analyse.html`); er staan geen persoons- of dossiergegevens in, dus ze zijn direct geschikt voor je openbare Vercel-publicatie.
