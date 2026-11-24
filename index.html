@@ -1,101 +1,64 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentatie &amp; Leeslinks — Index</title>
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --sidebar-bg: #f8f9fa;
-            --text-color: #1c1e21;
-            --muted-color: #5a626a;
-            --accent-color: #A31C1C; /* Zeeuws meekrabrood */
-            --accent-soft: #fdf2f2;
-            --border-color: #dcdfe4;
-            --hover-bg: #f1f3f5;
-            --code-bg: #f4f5f7;
-            --font-size: 19px;
-        }
+<nav aria-label="Repository bestanden">
+  <ul id="repo-links">
+    <li>Bestanden laden...</li>
+  </ul>
+</nav>
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #121212;
-                --sidebar-bg: #181a1d;
-                --text-color: #e4e6eb;
-                --muted-color: #9ba1a6;
-                --accent-color: #d64545;
-                --accent-soft: #2a1616;
-                --border-color: #2e3238;
-                --hover-bg: #23272d;
-                --code-bg: #1e2126;
-            }
-        }
+<script>
+(async () => {
+  const OWNER = 'goija';
+  const REPO = 'datananalyses';
+  const EXCLUDE = new Set(['index.html', 'README.md']);
+  const CACHE_KEY = `gh_links_${OWNER}_${REPO}`;
+  const listEl = document.getElementById('repo-links');
 
-        * {
-            box-sizing: border-box;
-        }
+  const render = (files) => {
+    listEl.innerHTML = '';
+    files.forEach((file) => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      const isHtml = file.name.toLowerCase().endsWith('.html');
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            min-height: 100vh;
-            line-height: 1.65;
-        }
+      // HTML opent direct op je site; Markdown opent opgemaakt op GitHub
+      a.href = isHtml ? `./${encodeURIComponent(file.name)}` : file.html_url;
+      if (!isHtml) {
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+      }
+      a.textContent = file.name.replace(/\.(md|html)$/i, '');
 
-        /* Navigatie / Zijbalk */
-        aside {
-            width: 320px;
-            flex-shrink: 0;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
-            padding: 1.5rem 1.25rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            overflow-y: auto;
-        }
+      li.appendChild(a);
+      listEl.appendChild(li);
+    });
+  };
 
-        .brand {
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 0.75rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 0.5rem;
-        }
+  try {
+    // 5 minuten cache om onder de GitHub API-limiet (60 req/uur) te blijven
+    const cached = sessionStorage.getItem(CACHE_KEY);
+    if (cached) {
+      const { ts, data } = JSON.parse(cached);
+      if (Date.now() - ts < 5 * 60 * 1000) {
+        render(data);
+        return;
+      }
+    }
 
-        .brand h1 {
-            font-size: 1.15rem;
-            margin: 0;
-            color: var(--accent-color);
-            letter-spacing: 0.01em;
-        }
+    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/`);
+    if (!res.ok) throw new Error(`Status ${res.status}`);
 
-        .font-controls {
-            display: flex;
-            gap: 0.25rem;
-        }
+    const items = await res.json();
+    const files = items
+      .filter((item) =>
+        item.type === 'file' &&
+        /\.(md|html)$/i.test(item.name) &&
+        !EXCLUDE.has(item.name)
+      )
+      .sort((a, b) => a.name.localeCompare(b.name, 'nl'));
 
-        .font-controls button {
-            background: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 0.2rem 0.5rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .font-controls button:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-
-        .nav-group-title {
-            font-size: 0.78rem;
-            text-transform: uppercase;
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: files }));
+    render(files);
+  } catch (err) {
+    listEl.innerHTML = `<li>Kon bestanden niet laden (${err.message}).</li>`;
+  }
+})();
+</script>
