@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commerciële SaaS-Kostenstructuur versus Lokale Datasoevereiniteit in Document- en Dossierbeheer</title>
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS & BASISSTIJLEN (Zeeuws meekrab-red & Slate Gray)
+       ========================================================================== */
+    :root {
+      --bg-page: #ffffff;
+      --bg-card: #f8f9fa;
+      --bg-card-hover: #f1f3f5;
+      --bg-code: #f3f4f6;
+      --text-main: #1a1a1a;
+      --text-muted: #525860;
+      --accent: #8b0000;          /* Diep Zeeuws meekrab-rood / donkerrood */
+      --accent-dark: #650000;
+      --accent-soft: #fdf2f2;
+      --accent-border: #e6c2c2;
+      --border-light: #e2e5e9;
+      --border-strong: #cbd0d6;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 1.25rem 4rem;
+    }
+
+    /* ==========================================================================
+       HEADER & ACTIEBALK
+       ========================================================================== */
+    .site-header {
+      border-bottom: 2px solid var(--accent);
+      background-color: var(--bg-page);
+      padding: 2.2rem 0 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1.25rem;
+    }
+
+    .header-title-group {
+      max-width: 760px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 1.02rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.65rem;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.6rem 1.05rem;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background-color: var(--bg-card-hover);
+      border-color: var(--text-muted);
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-dark);
+      border-color: var(--accent-dark);
+    }
+
+    /* ==========================================================================
+       SECTIES & TYPOGRAFIE
+       ========================================================================== */
+    .section {
+      margin-bottom: 3.5rem;
+      scroll-margin-top: 1.5rem;
+    }
+
+    .section-header {
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 0.65rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 1.55rem;
+      color: var(--accent);
+      letter-spacing: -0.015em;
+    }
+
+    .section-header p {
+      margin: 0.35rem 0 0;
+      color: var(--text-muted);
+      font-size: 0.96rem;
+    }
+
+    h3 {
+      margin: 2rem 0 0.75rem;
+      font-size: 1.15rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h3::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 1.1em;
+      background-color: var(--accent);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    p {
+      margin: 0 0 0.85rem;
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       GRIDS & KAARTEN
+       ========================================================================== */
+    .cards-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .cards-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1.15rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1.35rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-accent {
+      border-top: 3px solid var(--accent);
+    }
+
+    .card h4 {
+      margin: 0 0 0.5rem;
+      font-size: 1.02rem;
+      color: var(--text-main);
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+    }
+
+    .callout {
+      background-color: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius-sm);
+      padding: 1.1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 0.93rem;
+    }
+
+    .callout strong {
+      color: var(--accent-dark);
+    }
+
+    /* ==========================================================================
+       TABELLEN
+       ========================================================================== */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-page);
+      box-shadow: var(--shadow-sm);
+      margin: 1rem 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    thead th {
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      font-weight: 700;
+      padding: 0.8rem 0.95rem;
+      border-bottom: 2px solid var(--accent);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 0.8rem 0.95rem;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background-color: #fbfcfd;
+    }
+
+    /* ==========================================================================
+       INTERACTIEVE CALCULATOR (WIDGET)
+       ========================================================================== */
+    .calc-box {
+      background: linear-gradient(135deg, var(--bg-card) 0%, #ffffff 100%);
+      border: 2px solid var(--accent-border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-md);
+      margin-top: 1.5rem;
+    }
+
+    .calc-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .calc-header h3 {
+      margin: 0;
+    }
+
+    .user-slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--bg-page);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+    }
+
+    .user-slider-wrap label {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .user-slider-wrap input[type="range"] {
+      width: 160px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .user-count-badge {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 1.05rem;
+      min-width: 32px;
+      text-align: right;
+    }
+
+    .calc-results-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .calc-res-card {
+      background: var(--bg-page);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1.15rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .calc-res-card.highlight {
+      border: 2px solid var(--accent);
+      background-color: var(--accent-soft);
+    }
+
+    .calc-res-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .calc-res-price {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.2rem;
+    }
+
+    .calc-res-card.highlight .calc-res-price {
+      color: var(--accent);
+    }
+
+    .calc-res-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    .site-footer {
+      border-top: 1px solid var(--border-light);
+      padding-top: 1.5rem;
+      margin-top: 4rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    /* ==========================================================================
+       RESPONSIVE DESIGN
+       ========================================================================== */
+    @media (max-width: 900px) {
+      .cards-grid-4,
+      .calc-results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .cards-grid-2,
+      .cards-grid-4,
+      .calc-results-grid {
+        grid-template-columns: 1fr;
+      }
+      .calc-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .user-slider-wrap {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    /* ==========================================================================
+       PRINTSTIJLEN
+       ========================================================================== */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .header-actions, .user-slider-wrap input {
+        display: none !important;
+      }
+      .calc-box, .card, .table-wrap {
+        box-shadow: none !important;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================================
+       HEADER
+       ====================================================================== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-title-group">
+        <span class="eyebrow">Architectonisch &amp; Economisch Vergelijkingsrapport</span>
+        <h1>Commerciële SaaS-Kostenstructuur versus Lokale Datasoevereiniteit in Document- en Dossierbeheer</h1>
+        <p class="subtitle">
+          Een diepgaande analyse van de economische opbouw van juridische cloudplatforms (zoals BaseNet) afgezet tegen een autonoom in-house alternatief.
+        </p>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn btn-primary" onclick="window.print()">
+          Print / Opslaan als PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ====================================================================
+         SECTIE 1: DE ECONOMISCHE REALITEIT VAN JURIDISCHE SAAS-PLATFORMS
+         ==================================================================== -->
+    <section id="sectie-1" class="section">
+      <div class="section-header">
+        <h2>1. De Economische Realiteit van Juridische SaaS-Platforms</h2>
+        <p>Moderne cloud-gebaseerde dossiersystemen hanteren gelaagde inkomstenmodellen waarin basisfuncties worden ingezet als lokmiddel voor margevolle add-ons.</p>
+      </div>
+
+      <p>
+        Uit analyse van publieke tarieven (zoals BaseNet, eConnect en aanverwante leveranciers) tekenen zich <strong>vier duidelijke verdienlagen</strong> af:
+      </p>
+
+      <div class="cards-grid-2">
+        <div class="card card-accent">
+          <h4>1. De Basislicentie (Fundament)</h4>
+          <p>Recurrente abonnementskosten op basis van een jaarcontract, variërend van €69 (Essentials) tot €149 (Ultimate) per gebruiker per maand. Standaard opslag en basale e-mailkoppelingen zitten hierin verwerkt om instroom te stimuleren.</p>
+        </div>
+        <div class="card card-accent">
+          <h4>2. De AI-Margecluster</h4>
+          <p>Het belangrijkste winstcomponent. Add-ons zoals BaseGPT (€10 tot €22,50 p/g/p/m) en Case Intelligence/Andri (€300 tot €350 p/g/p/m) stapelen op de licentie. In een volledig uitgerust Ultimate-pakket vertegenwoordigen AI-add-ons 65% tot 71% van de totale maandfactuur.</p>
+        </div>
+        <div class="card card-accent">
+          <h4>3. Credit- en Verloopmechanismen</h4>
+          <p>Veel AI- en integratiediensten werken met maandelijkse creditbundels die niet meegaan naar de volgende periode. Ongebruikte capaciteit vervalt direct, wat resulteert in indirecte margeverhoging.</p>
+        </div>
+        <div class="card card-accent">
+          <h4>4. Doorgehaalde Koppelingen &amp; Pay-per-Use</h4>
+          <p>Koppelingen voor e-facturatie (Peppol via eConnect) en aangetekend mailen worden als platformfunctionaliteit gepresenteerd, maar vereisen afzonderlijke contracten, activeringskosten en ondoorzichtige verbruikstarieven.</p>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 2.5rem;">Financiële Projectie per Kantoorformaat (Reguliere Prijzen)</h3>
+      <p>Strikt lineair model zonder volumekorting voor het volledige Ultimate-pakket inclusief AI:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Kantoorformaat</th>
+              <th>Licht (Essentials + BaseGPT)</th>
+              <th>Volledig (Ultimate + Beide AI - Regulier)</th>
+              <th>Jaarlijkse Kosten (Volledig)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Solo</strong> (1 gebruiker)</td>
+              <td>€91,50 p/m</td>
+              <td>€521,50 p/m</td>
+              <td><strong>€6.258</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Klein</strong> (5 gebruikers)</td>
+              <td>€457,50 p/m</td>
+              <td>€2.607,50 p/m</td>
+              <td><strong>€31.290</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Middelgroot</strong> (20 gebruikers)</td>
+              <td>€1.830 p/m</td>
+              <td>€10.430 p/m</td>
+              <td><strong>€125.160</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Groot</strong> (50 gebruikers)</td>
+              <td>€4.575 p/m</td>
+              <td>€26.075 p/m</td>
+              <td><strong>€312.900</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>Opmerking bij introductieprijzen:</strong> Veel leveranciers hanteren tijdelijke introductiekortingen (zoals Andri voor €300 i.p.v. €350). Na afloop van de contractperiode van 12 maanden stijgen deze kosten automatisch met dubbele cijfers (tot wel +13,6% over het totaal, en +125% op specifieke AI-componenten).
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         INTERACTIEVE KOSTEN CALCULATOR (WIDGET)
+         ==================================================================== -->
+    <section class="section">
+      <div class="calc-box">
+        <div class="calc-header">
+          <div>
+            <h3 style="margin:0; color:var(--accent);">Interactieve Kostenvergelijking Calculator</h3>
+            <p style="margin:0.25rem 0 0; font-size:0.9rem; color:var(--text-muted);">Versleep de schuifregelaar om het aantal kantoorgebruikers aan te passen.</p>
+          </div>
+          <div class="user-slider-wrap">
+            <label for="userSlider">Gebruikers:</label>
+            <input type="range" id="userSlider" min="1" max="50" value="5">
+            <span class="user-count-badge" id="userCountDisplay">5</span>
+          </div>
+        </div>
+
+        <div class="calc-results-grid">
+          <div class="calc-res-card">
+            <div class="calc-res-title">Licht SaaS</div>
+            <div class="calc-res-price" id="resLicht">€457,50</div>
+            <div class="calc-res-sub" id="resLichtJaar">€5.490 / jaar</div>
+          </div>
+          <div class="calc-res-card">
+            <div class="calc-res-title">Volledig (Intro)</div>
+            <div class="calc-res-price" id="resVolledigIntro">€2.295</div>
+            <div class="calc-res-sub" id="resVolledigIntroJaar">€27.540 / jaar</div>
+          </div>
+          <div class="calc-res-card highlight">
+            <div class="calc-res-title">Volledig (Regulier)</div>
+            <div class="calc-res-price" id="resVolledigReg">€2.607,50</div>
+            <div class="calc-res-sub" id="resVolledigRegJaar">€31.290 / jaar</div>
+          </div>
+          <div class="calc-res-card" style="border-top: 3px solid #28a745;">
+            <div class="calc-res-title" style="color:#28a745;">Lokaal In-House</div>
+            <div class="calc-res-price" style="color:#28a745;">€0</div>
+            <div class="calc-res-sub">Alleen VPS/Server kosten</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SECTIE 2: HET LOKALE IN-HOUSE ALTERNATIEF (ZERO-CLOUD ARCHITECTUUR)
+         ==================================================================== -->
+    <section id="sectie-2" class="section">
+      <div class="section-header">
+        <h2>2. Het Lokale In-House Alternatief (Zero-Cloud Architectuur)</h2>
+        <p>Daar waar commerciële SaaS inzet op maximale cloud-lock-in en per-gebruiker-stapeling, kiest de soevereine architectuur voor volledige controle.</p>
+      </div>
+
+      <p>
+        De in-house infrastructuur garandeert dat hardware, code en cryptografische bewijsketens volledig in eigen hand blijven zonder ondoorzichtige maandelijkse kosten:
+      </p>
+
+      <div class="cards-grid-4">
+        <div class="card card-accent">
+          <h4>MTA &amp; MDA (E-mail)</h4>
+          <p>Een eigen Linux-server (Debian/Ubuntu) op een soevereine VPS, uitgerust met Postfix (SMTP), Dovecot (IMAP / Maildir-opslag) en Rspamd (spamfiltering &amp; DKIM).</p>
+        </div>
+        <div class="card card-accent">
+          <h4>Documentopslag &amp; Dossiers</h4>
+          <p>Geen monolithische databases in een externe cloud, maar gestructureerde mappen in Maildir en lokale bestandsstructuren, geversioneerd via Git of geback-upd via rsync/borg.</p>
+        </div>
+        <div class="card card-accent">
+          <h4>Cryptografische Integriteit</h4>
+          <p>In plaats van dure externe add-ons wordt de integriteit lokaal gewaarborgd middels SHA-256 hashing en onafhankelijke RFC 3161 tijdstempels (via geverifieerde TSA's).</p>
+        </div>
+        <div class="card card-accent">
+          <h4>Lokale Intelligentie</h4>
+          <p>Indien AI gewenst is, wordt dit gedraaid via lokaal gehoste open-source modellen (bijv. via Ollama), waardoor gevoelige cliëntdata het netwerk fysiek nooit verlaten.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SECTIE 3: DIRECTE VERGELIJKING: SAAS VS. LOKAAL BEHEER
+         ==================================================================== -->
+    <section id="sectie-3" class="section">
+      <div class="section-header">
+        <h2>3. Directe Vergelijking: SaaS vs. Lokaal Beheer</h2>
+        <p>Objectieve evaluatie van de belangrijkste architectonische en operationele dimensies.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Evaluatiecriterium</th>
+              <th>Commerciële Juridische SaaS</th>
+              <th>Lokaal In-House Alternatief</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Eigendom &amp; Datasecurity</strong></td>
+              <td>Data op externe, gedeelde servers; verwerking door Amerikaanse/cloud-api's en derde partijen.</td>
+              <td>100% eigendom op eigen hardware of soevereine VPS; zero telemetrie en volledige encryptie.</td>
+            </tr>
+            <tr>
+              <td><strong>Kostenstructuur</strong></td>
+              <td>Recurrente per-gebruiker-abonnementsvorm met onvoorspelbare prijsinflatie na introductiejaren.</td>
+              <td>Eenmalige hardware-/VPS-investering; nul licentiekosten per gebruiker of maandelijkse credits.</td>
+            </tr>
+            <tr>
+              <td><strong>Cryptografisch Bewijs</strong></td>
+              <td>Afhankelijk van derden en gesloten API's met ondoorzichtige verbruikskosten per document.</td>
+              <td>Transparant en wiskundig verifieerbaar via open standaards (SHA-256, OpenSSL, RFC 3161).</td>
+            </tr>
+            <tr>
+              <td><strong>Afhankelijkheid &amp; Continuïteit</strong></td>
+              <td>Gevoelig voor vendor lock-in, eenzijdig gewijzigde algemene voorwaarden en abonnementsstijgingen.</td>
+              <td>Volledige portabiliteit van bestanden, open-source formaten en onafhankelijkheid van leveranciers.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SECTIE 4: CONCLUSIE EN STRATEGISCH ADVIES
+         ==================================================================== -->
+    <section id="sectie-4" class="section">
+      <div class="section-header">
+        <h2>4. Conclusie en Strategisch Advies</h2>
+        <p>Waar ligt de optimale balans tussen operationeel gemak en volledige datasoevereiniteit?</p>
+      </div>
+
+      <p>
+        De economische analyse bewijst dat commerciële SaaS-platforms voor document- en dossierbeheer primair zijn geoptimaliseerd voor <strong>maximale rendementsgroei via AI-add-ons en lock-in mechanismen</strong>, waarbij de operationele last voor middelgrote kantoren oploopt tot meer dan een ton per jaar.
+      </p>
+      <p>
+        Voor professionals die hechten aan <strong>datasoevereiniteit, auditbaarheid en voorspelbare kosten</strong> biedt een in-house inrichting op basis van open-source componenten (Linux, Postfix, Dovecot, lokale scripts en versleutelde back-ups) een superieur alternatief. Het elimineert de noodzaak voor dure tussenschakels en geeft de volledige regie over de digitale infrastructuur terug aan de gebruiker.
+      </p>
+    </section>
+
+    <!-- ====================================================================
+         FOOTER
+         ==================================================================== -->
+    <footer class="site-footer">
+      <div>Commerciële SaaS-Kostenstructuur versus Lokale Datasoevereiniteit &mdash; Professioneel Architectuurrapport.</div>
+      <div>Alle bedragen ex btw en gebaseerd op openbare tarieven (november 2026).</div>
+    </footer>
+  </main>
+
+  <!-- ======================================================================
+       INTERACTIVE CALCULATOR SCRIPT
+       ====================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      const slider = document.getElementById('userSlider');
+      const badge = document.getElementById('userCountDisplay');
+      const resLicht = document.getElementById('resLicht');
+      const resLichtJaar = document.getElementById('resLichtJaar');
+      const resVolledigIntro = document.getElementById('resVolledigIntro');
+      const resVolledigIntroJaar = document.getElementById('resVolledigIntroJaar');
+      const resVolledigReg = document.getElementById('resVolledigReg');
+      const resVolledigRegJaar = document.getElementById('resVolledigRegJaar');
+
+      function formatEuro(amount) {
+        return '€ ' + amount.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function updateCalculator() {
+        const users = parseInt(slider.value, 10);
+        badge.textContent = users;
+
+        // Tarieven per gebruiker per maand:
+        // Licht: Essentials (€69) + BaseGPT actie (€10) = €79 p/m p/g
+        // Volledig Intro: Ultimate (€149) + BaseGPT actie (€10) + Andri intro (€300) = €459 p/m p/g
+        // Volledig Regulier: Ultimate (€149) + BaseGPT regulier (€22,50) + Andri regulier (€350) = €521,50 p/m p/g
+
+        const m LichtM = users * 79;
+        const mIntroM = users * 459;
+        const mRegM = users * 521.50;
+
+        resLicht.textContent = formatEuro(mLichtM);
+        resLichtJaar.textContent = formatEuro(mLichtM * 12) + ' / jaar';
+
+        resVolledigIntro.textContent = formatEuro(mIntroM);
+        resVolledigIntroJaar.textContent = formatEuro(mIntroM * 12) + ' / jaar';
+
+        resVolledigReg.textContent = formatEuro(mRegM);
+        resVolledigRegJaar.textContent = formatEuro(mRegM * 12) + ' / jaar';
+      }
+
+      slider.addEventListener('input', updateCalculator);
+      updateCalculator();
+    })();
+  </script>
+</body>
+</html>
