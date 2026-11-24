@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BaseNet, BaseGPT &amp; Peppol/eConnect — Data-analyse en Onderleggers</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #fafafa;
+      --surface-alt: #f3f3f3;
+      --text: #111111;
+      --muted: #555555;
+      --accent: #A31C1C;
+      --accent-hover: #7d1414;
+      --accent-soft: #fdf2f2;
+      --border: #dcdcdc;
+      --base-font: 19px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: var(--base-font);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3.5rem;
+    }
+
+    /* Topbar */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .back-link:hover,
+    .back-link:focus-visible {
+      text-decoration: underline;
+      outline: none;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 0.65rem;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: var(--accent);
+      color: var(--accent);
+      outline: none;
+    }
+
+    button.active,
+    .btn-accent {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .btn-accent:hover,
+    .btn-accent:focus-visible {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      color: #ffffff;
+    }
+
+    /* Header */
+    header {
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .kicker {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.6rem;
+      font-size: 1.7rem;
+      line-height: 1.2;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    /* Inhoudsopgave */
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 2.25rem;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .toc-title {
+      margin: 0 0 0.6rem;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 1.35rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.35rem 1.5rem;
+    }
+
+    .toc a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.88rem;
+    }
+
+    .toc a:hover,
+    .toc a:focus-visible {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    /* Secties & typografie */
+    section {
+      margin-bottom: 2.75rem;
+      scroll-margin-top: 1.25rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      line-height: 1.3;
+      margin: 0 0 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 1.25rem 0 0.5rem;
+    }
+
+    p {
+      margin: 0 0 0.9rem;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    a:hover {
+      color: var(--accent-hover);
+    }
+
+    ul, ol {
+      padding-left: 1.3rem;
+      margin: 0 0 1rem;
+    }
+
+    li {
+      margin-bottom: 0.45rem;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.84em;
+      background: var(--surface-alt);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+
+    /* Tabellen */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin: 1rem 0 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      background: var(--bg);
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.7rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--surface-alt);
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--surface);
+    }
+
+    tbody tr[hidden] {
+      display: none;
+    }
+
+    /* Kaarten & Callouts */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0 1.25rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 4px;
+      padding: 1.1rem 1.25rem;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    .card p:last-child,
+    .card ul:last-child {
+      margin-bottom: 0;
+    }
+
+    .callout {
+      background: var(--accent-soft);
+      border: 1px solid #e8c4c4;
+      border-left: 4px solid var(--accent);
+      padding: 1rem 1.2rem;
+      border-radius: 0 4px 4px 0;
+      margin: 1.25rem 0;
+      font-size: 0.94rem;
+    }
+
+    .callout p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Filterbalk */
+    .toolbar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      padding: 0.95rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .search-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1 1 260px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .search-input:focus {
+      outline: 2px solid var(--accent);
+      border-color: var(--accent);
+    }
+
+    .count-status {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.14rem 0.45rem;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid #e8c4c4;
+      white-space: nowrap;
+    }
+
+    /* Aandachtspunten */
+    .findings-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .finding-item {
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 4px 4px 0;
+      padding: 1rem 1.2rem;
+      background: var(--bg);
+    }
+
+    .finding-item strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--text);
+    }
+
+    .section-head-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-head-row h2 {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin: 0;
+    }
+
+    .empty-state {
+      padding: 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media print {
+      .topbar,
+      .toc,
+      .toolbar,
+      .no-print {
+        display: none !important;
+      }
+
+      body {
+        font-size: 10.5pt;
+        line-height: 1.45;
+      }
+
+      .container {
+        max-width: 100%;
+        padding: 0;
+      }
+
+      .card,
+      .finding-item,
+      .table-wrap {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar no-print">
+      <a href="./index.html" class="back-link">&larr; Terug naar overzicht</a>
+      <div class="controls" aria-label="Pagina-instellingen">
+        <button type="button" id="font-dec" aria-label="Kleiner lettertype">A-</button>
+        <button type="button" id="font-reset" aria-label="Standaard lettertype">A</button>
+        <button type="button" id="font-inc" aria-label="Groter lettertype">A+</button>
+        <button type="button" id="print-btn">Afdrukken / PDF</button>
+      </div>
+    </div>
+
+    <header>
+      <span class="kicker">Technische, Juridische &amp; Financiële Data-analyse</span>
+      <h1>BaseNet, BaseNeQXt (BaseGPT) &amp; Peppol/eConnect</h1>
+      <p class="lead">
+        Volledige analyse van de juridische groepsstructuur, openbare primaire onderleggers, beveiligings- en AI-architectuur en de financiële audittrail via BaseNet en eConnect.
+      </p>
+    </header>
+
+    <nav class="toc no-print" aria-label="Inhoudsopgave">
+      <p class="toc-title">Inhoudsopgave</p>
+      <ol>
+        <li><a href="#entiteiten">1. Juridische entiteiten &amp; groepsstructuur</a></li>
+        <li><a href="#onderleggers">2. Openbare onderleggers (bronnen)</a></li>
+        <li><a href="#architectuur">3. Technische architectuur &amp; AI-laag</a></li>
+        <li><a href="#dataketen">4. Financiële dataketen: BaseNet, eConnect &amp; Peppol</a></li>
+        <li><a href="#aandachtspunten">5. Kritische aandachtspunten voor dossieranalyse</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <!-- SECTIE 1 -->
+      <section id="entiteiten">
+        <h2>1. Juridische entiteiten en groepsstructuur</h2>
+        <p>
+          BaseNet opereert niet vanuit één enkele BV, maar via een Nederlandse hoofdvestiging met een Spaanse en Belgische groepsmaatschappij als (sub)verwerkers:
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Entiteit</th>
+                <th>Rol</th>
+                <th>Adres / Registratie</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>BaseNet Internet Projects B.V.</strong></td>
+                <td>Contractpartij &amp; hoofdverwerker (art. 28 AVG)</td>
+                <td>Hullenbergweg 109, gebouw C, 1101 CL Amsterdam — <strong>KvK 33282707</strong></td>
+              </tr>
+              <tr>
+                <td><strong>BaseNet Internet Services, S.L.U.</strong></td>
+                <td>Subverwerker (ontwikkeling/support) en vermeld als verwerkingsverantwoordelijke op webformulieren van <code>basenet.com</code></td>
+                <td>Calle Marie Curie 15 (bajo 3), 29590 Málaga, Spanje</td>
+              </tr>
+              <tr>
+                <td><strong>BaseNet bvba</strong></td>
+                <td>Subverwerker (vermeld in AVG-bijlagen van aangesloten kantoren)</td>
+                <td>Schaliënhoevedreef 20T, B-2800 Mechelen, België</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTIE 2 -->
+      <section id="onderleggers">
+        <h2>2. Gevonden openbare onderleggers (directe bronnen)</h2>
+
+        <div class="toolbar no-print" aria-label="Filter onderleggers">
+          <div class="filter-row" role="group" aria-label="Filter op categorie">
+            <button type="button" class="filter-btn active" data-cat="all">Alles (10)</button>
+            <button type="button" class="filter-btn" data-cat="cert">Certificering (2)</button>
+            <button type="button" class="filter-btn" data-cat="juridisch">Juridisch &amp; AVG (4)</button>
+            <button type="button" class="filter-btn" data-cat="ai">AI-architectuur (2)</button>
+            <button type="button" class="filter-btn" data-cat="peppol">Peppol &amp; eConnect (2)</button>
+          </div>
+          <div class="search-row">
+            <input
+              type="search"
+              id="source-search"
+              class="search-input"
+              placeholder="Zoek op document, ISO, AVG, eConnect, NCC Group..."
+              aria-label="Zoek in onderleggers"
+            >
+            <span id="source-count" class="count-status" aria-live="polite">10 van 10 onderleggers zichtbaar</span>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Onderlegger</th>
+                <th>Categorie</th>
+                <th>Documenttype</th>
+                <th>Directe vindplaats</th>
+              </tr>
+            </thead>
+            <tbody id="sources-body">
+              <tr data-cat="cert">
+                <td><strong>ISO/IEC 27001:2022/Amd 1:2024 Certificaat</strong> (maart 2026)</td>
+                <td><span class="badge">Certificering</span></td>
+                <td>Officieel certificaat (<code>CERT-000810-TN</code>)</td>
+                <td><a href="https://basenet.com/wp-content/uploads/2026/03/Certificaat-CERT-000810-TN-ISO-27001_-NL-NL1.pdf" target="_blank" rel="noopener noreferrer">PDF openen ↗</a></td>
+              </tr>
+              <tr data-cat="cert">
+                <td><strong>Eerder ISO 27001 Certificaat NL &amp; Spanje</strong> (okt 2024)</td>
+                <td><span class="badge">Certificering</span></td>
+                <td>Officieel certificaat (<code>28939-2</code>, omvat NL + Málaga)</td>
+                <td><a href="https://basenet.com/wp-content/uploads/2024/10/28939-2Certificate-NL-PDF.pdf" target="_blank" rel="noopener noreferrer">PDF openen ↗</a></td>
+              </tr>
+              <tr data-cat="juridisch">
+                <td><strong>Algemene Voorwaarden BaseNet</strong> (nov 2025, publ. feb 2026)</td>
+                <td><span class="badge">Juridisch &amp; AVG</span></td>
+                <td>Contractvoorwaarden (incl. remote-overname/beheer)</td>
+                <td><a href="https://basenet.com/wp-content/uploads/2026/02/BaseNet-Algemene-Voorwaarden-November-2025-finaal.pdf" target="_blank" rel="noopener noreferrer">PDF openen ↗</a></td>
+              </tr>
+              <tr data-cat="juridisch">
+                <td><strong>Subverwerkers en beveiligingsmaatregelen</strong> (Annex 2)</td>
+                <td><span class="badge">Juridisch &amp; AVG</span></td>
+                <td>AVG-specificatie &amp; subverwerkerslijst</td>
+                <td><a href="https://basenet.com/subverwerkers-en-beveiligingsmaatregelen" target="_blank" rel="noopener noreferrer">Pagina openen ↗</a></td>
+              </tr>
+              <tr data-cat="juridisch">
+                <td><strong>Privacy Statement BaseNet</strong></td>
+                <td><span class="badge">Juridisch &amp; AVG</span></td>
+                <td>Privacyverklaring</td>
+                <td><a href="https://basenet.com/privacy-statement" target="_blank" rel="noopener noreferrer">Pagina openen ↗</a></td>
+              </tr>
+              <tr data-cat="ai">
+                <td><strong>Praktijkmanagement AI / BaseGPT</strong></td>
+                <td><span class="badge">AI-architectuur</span></td>
+                <td>Product- &amp; privacyarchitectuur AI-laag</td>
+                <td><a href="https://basenet.com/praktijkmanagement-ai" target="_blank" rel="noopener noreferrer">Pagina openen ↗</a></td>
+              </tr>
+              <tr data-cat="ai">
+                <td><strong>AI voor advocaten (BaseNeQXt &amp; Case Intelligence)</strong></td>
+                <td><span class="badge">AI-architectuur</span></td>
+                <td>Specificaties AI-modules &amp; pentest (NCC Group)</td>
+                <td><a href="https://basenet.com/ai-voor-advocaten" target="_blank" rel="noopener noreferrer">Pagina openen ↗</a></td>
+              </tr>
+              <tr data-cat="peppol">
+                <td><strong>Technische integratiedocumentatie BaseNet ↔ eConnect</strong></td>
+                <td><span class="badge">Peppol &amp; eConnect</span></td>
+                <td>Handleiding Peppol/UBL-koppeling (2026)</td>
+                <td><a href="https://econnect.eu/nl/docs/product/integraties/basenet" target="_blank" rel="noopener noreferrer">Documentatie ↗</a></td>
+              </tr>
+              <tr data-cat="peppol">
+                <td><strong>eConnect Peppol Access Point &amp; Compliance</strong></td>
+                <td><span class="badge">Peppol &amp; eConnect</span></td>
+                <td>Certificeringen (ISO 27001, ISAE 3402 Type II, NEN 7510)</td>
+                <td><a href="https://econnect.eu/nl" target="_blank" rel="noopener noreferrer">eConnect.eu ↗</a></td>
+              </tr>
+              <tr data-cat="juridisch">
+                <td><strong>Extern kantoor-referentiedocument</strong> (jan 2026)</td>
+                <td><span class="badge">Juridisch &amp; AVG</span></td>
+                <td>Gepubliceerde art. 28 AVG-samenvatting over BaseNet (Wolfhagen Advocatuur)</td>
+                <td><a href="https://wolfhagenadvocatuur.nl/images/pdf/Privacy_Statement_Wolfhagen_Advocatuur_januari_2026.pdf" target="_blank" rel="noopener noreferrer">PDF openen ↗</a></td>
+              </tr>
+            </tbody>
+          </table>
+          <div id="source-empty" class="empty-state" hidden>Geen onderleggers gevonden voor deze zoekopdracht.</div>
+        </div>
+      </section>
+
+      <!-- SECTIE 3 -->
+      <section id="architectuur">
+        <h2>3. Technische architectuur, dataopslag en beveiliging</h2>
+
+        <div class="card-grid">
+          <article class="card">
+            <h3>Infrastructuur &amp; toegangsbeheer</h3>
+            <ul>
+              <li><strong>Cloud-SaaS op eigen hardware:</strong> Draait in de cloud op servers in eigendom van BaseNet, geplaatst in Nederlandse datacenters met <strong>ISO 27001</strong>- en/of <strong>ISAE 3000 Type II</strong>-certificering.</li>
+              <li><strong>Fysieke toegang:</strong> Volgens Annex 2 beperkt tot <strong>vier</strong> geregistreerde en gevalideerde medewerkers met toegangspassen en -codes.</li>
+              <li><strong>Netwerk- en databaselaag:</strong> Databases zijn niet direct van buitenaf benaderbaar en afgeschermd via een specifieke IP-reeks voor technisch beheer. Klantkantoren kunnen aanvullend <strong>IP-filters</strong> instellen.</li>
+              <li><strong>Transportbeveiliging:</strong> Webservices draaien over SSL; de Back Office-webservices gebruiken een <strong>EV SSL-certificaat</strong>.</li>
+              <li><strong>Meldplicht &amp; geheimhouding:</strong> Medewerkers tekenen een geheimhoudingsverklaring. Datalekken worden conform verwerkersovereenkomst binnen <strong>twee werkdagen</strong> gemeld aan het kantoor.</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3>AI-architectuur (BaseNeQXt: BaseGPT &amp; Case Intelligence)</h3>
+            <ul>
+              <li><strong>BaseGPT (Praktijkmanagement AI):</strong> Geïntegreerd in BaseNeQXt (chat, e-mailagent, spraak-naar-tekst). Draait volgens BaseNet op eigen hardware in Nederlandse datacenters onder één verwerkersovereenkomst, zonder training van modellen van derden.</li>
+              <li><strong>Case Intelligence:</strong> Optionele, los af te nemen uitbreiding met permanent dossiergeheugen en juridisch onderzoek met bronvermelding. Data blijft binnen de EU; onafhankelijk gepentest door <strong>NCC Group</strong>.</li>
+              <li><strong>Aansprakelijkheid &amp; controleplicht:</strong> BaseNet stelt expliciet dat AI fouten maakt bij complexe juridische redeneringen, actuele wetgeving en feitelijke details; inhoudelijke controle (art. 21 Rv / gedragsregels NOvA) blijft volledig bij de advocaat.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- SECTIE 4 -->
+      <section id="dataketen">
+        <h2>4. Financiële dataketen: BaseNet, eConnect en Peppol</h2>
+        <p>
+          Voor de forensische toetsing van declaraties, urenspecificaties en factuurstromen (zoals in het kader van art. 674 Rv of een boedelverantwoording) is de koppeling tussen <strong>BaseNet</strong> en <strong>eConnect</strong> technisch scherp afgebakend.
+        </p>
+
+        <div class="card-grid">
+          <article class="card">
+            <h3>Hoe de koppeling technisch werkt</h3>
+            <ol>
+              <li><strong>Geen standaardfunctie:</strong> De eConnect-module staat standaard <strong>uit</strong> in BaseNet en moet expliciet door BaseNet worden geactiveerd.</li>
+              <li><strong>Authenticatie &amp; routing:</strong> Koppeling via <em>Online Betaalsystemen &gt; eConnect accounts</em> met een <strong>App Key</strong> en <strong>Secret</strong>. Per entiteit wordt een eigen <strong>Bedrijfs-ID</strong> geconfigureerd.</li>
+              <li><strong>Formaten:</strong> eConnect fungeert als gecertificeerd <strong>Peppol Access Point</strong> (sinds 2013; 12+ miljoen documenten/jaar) en verwerkt gestructureerde e-facturen in <code>UBL</code>, <code>EN 16931</code>, <code>Peppol BIS Billing</code>, <code>PINT</code> en <code>NLCIUS</code>.</li>
+              <li><strong>Certificering eConnect:</strong> ISO 27001, ISAE 3402 Type II, verwerking binnen EU/EER. <em>Let op: het NEN 7510-certificaat loopt tot 20 februari 2027 en wordt daarna niet verlengd.</em></li>
+              <li><strong>Synchronisatie:</strong> Bij initiële inrichting treedt een vertraging van enkele uren op voordat facturen in BaseNet zichtbaar zijn.</li>
+            </ol>
+          </article>
+
+          <article class="card">
+            <h3>Interne audittrail &amp; exportmogelijkheden</h3>
+            <ul>
+              <li><strong>Unieke spoorcodes:</strong> Elk dossier (<code>D&lt;nummer&gt;</code>) en elk communicatie- of documentitem (<code>I&lt;nummer&gt;</code>) krijgt een doorlopend systeem-ID.</li>
+              <li><strong>Uren- en tariefadministratie:</strong> Tijdregels per behandelaar, datum, tijdsduur, activiteitcode, tariefgroep, onderhanden werk (OHW) en verschil tussen gewerkte en gefactureerde tijd.</li>
+              <li><strong>Facturatie &amp; koppeling:</strong> Declaratienummers, voorschotten, verschotten, btw-splitsing, betaalstatus en (indien eConnect actief is) de onderliggende UBL/XML-factuur en het Peppol-bericht-ID.</li>
+              <li><strong>API &amp; export:</strong> Beschikt over een <strong>Open REST API</strong> (voor API-partners) en standaard boekhoudkoppelingen en rapportage-exports.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- SECTIE 5 -->
+      <section id="aandachtspunten">
+        <div class="section-head-row">
+          <h2>5. Kritische aandachtspunten voor dossier- en privacyanalyse</h2>
+          <button type="button" id="copy-findings" class="btn-accent no-print">Kopieer bevindingen</button>
+        </div>
+
+        <ul class="findings-list" id="findings-list">
+          <li class="finding-item">
+            <strong>1. Verifieerbaarheid van declaraties (art. 674 Rv)</strong>
+            Omdat BaseNet alle tijdregels, verschotten en declaraties centraal op dossierniveau (<code>D-nummer</code>) vastlegt, is een blote opsomming van totaalbedragen nooit te verontschuldigen met "niet te herleiden". Een uitdraai van de tijdregels, declaratiespecificatie en factuur-PDF/UBL is met enkele klikken uit BaseNet te genereren.
+          </li>
+          <li class="finding-item">
+            <strong>2. Grensoverschrijdende subverwerking binnen de EU</strong>
+            Hoewel BaseNet adverteert met "eigen hardware in Nederlandse datacenters", zijn <strong>BaseNet Internet Services, S.L.U. (Málaga, Spanje)</strong> en <strong>BaseNet bvba (Mechelen, België)</strong> ingeschakeld als subverwerkers. Voor de AVG (EU/EER) is dat toegestaan, maar het kantoor moet dit transparant vermelden in de privacyverklaring en verwerkersovereenkomst.
+          </li>
+          <li class="finding-item">
+            <strong>3. Scheiding publieke website vs. applicatie</strong>
+            Op de publieke marketingwebsite van BaseNet (<code>basenet.com</code>) zijn analytics/session-trackers (zoals Hotjar) actief. Dat staat los van de afgeschermde applicatie-omgeving, maar onderstreept het belang om bij advocatenkantoren zelf altijd te controleren of de eigen website wél vrij is van adtech/TCF-koppelingen.
+          </li>
+          <li class="finding-item">
+            <strong>4. AI-gebruik aantoonbaar maken &amp; risico op hallucinaties</strong>
+            Als een procespartij BaseNeQXt met BaseGPT of Case Intelligence gebruikt, blijven de prompts weliswaar binnen de EU-omgeving (anders dan bij een openbaar ChatGPT-account zoals in <code>ECLI:NL:RBROT:2026:9319</code>), maar het risico op AI-hallucinaties in processtukken (art. 21 Rv) blijft onverkort bestaan — zoals BaseNet zelf ook in haar documentatie bevestigt.
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <span>Onderdeel van <a href="./index.html">goija/datananalyses</a></span>
+      <span>Geen externe scripts, geen trackingcookies.</span>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      // Lettergrootte-regeling (standaard 19px)
+      let currentFont = 19;
+      const setFont = (px) => {
+        currentFont = Math.min(26, Math.max(15, px));
+        document.documentElement.style.setProperty('--base-font', `${currentFont}px`);
+      };
+      document.getElementById('font-dec').addEventListener('click', () => setFont(currentFont - 2));
+      document.getElementById('font-reset').addEventListener('click', () => setFont(19));
+      document.getElementById('font-inc').addEventListener('click', () => setFont(currentFont + 2));
+      document.getElementById('print-btn').addEventListener('click', () => window.print());
+
+      // Filter & zoekfunctie voor onderleggers
+      const rows = Array.from(document.querySelectorAll('#sources-body tr'));
+      const filterBtns = Array.from(document.querySelectorAll('.filter-btn'));
+      const searchInput = document.getElementById('source-search');
+      const countEl = document.getElementById('source-count');
+      const emptyEl = document.getElementById('source-empty');
+      let activeCat = 'all';
+
+      const applyFilter = () => {
+        const q = searchInput.value.trim().toLowerCase();
+        let visible = 0;
+
+        rows.forEach((tr) => {
+          const matchCat = activeCat === 'all' || tr.dataset.cat === activeCat;
+          const matchQ = !q || tr.textContent.toLowerCase().includes(q);
+          const show = matchCat && matchQ;
+          tr.hidden = !show;
+          if (show) visible++;
+        });
+
+        countEl.textContent = `${visible} van ${rows.length} onderleggers zichtbaar`;
+        emptyEl.hidden = visible > 0;
+      };
+
+      filterBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeCat = btn.dataset.cat;
+          filterBtns.forEach((b) => b.classList.toggle('active', b === btn));
+          applyFilter();
+        });
+      });
+
+      searchInput.addEventListener('input', applyFilter);
+
+      // Kopieer bevindingen
+      const copyBtn = document.getElementById('copy-findings');
+      copyBtn.addEventListener('click', async () => {
+        const text = document.getElementById('findings-list').innerText.trim();
+        const orig = copyBtn.textContent;
+        try {
+          await navigator.clipboard.writeText(text);
+          copyBtn.textContent = 'Gekopieerd';
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+          copyBtn.textContent = 'Gekopieerd';
+        }
+        setTimeout(() => { copyBtn.textContent = orig; }, 1800);
+      });
+    })();
+  </script>
+</body>
+</html>
