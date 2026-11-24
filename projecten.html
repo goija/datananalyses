@@ -42,7 +42,6 @@
       padding: 1.5rem 1.25rem 3.5rem;
     }
 
-    /* Topbar */
     .topbar {
       display: flex;
       flex-wrap: wrap;
@@ -101,7 +100,6 @@
       border-color: var(--accent);
     }
 
-    /* Header */
     header {
       border-bottom: 3px solid var(--accent);
       padding-bottom: 1.15rem;
@@ -130,7 +128,6 @@
       font-size: 0.95rem;
     }
 
-    /* Toolbar */
     .toolbar {
       display: flex;
       flex-direction: column;
@@ -176,7 +173,6 @@
       margin-bottom: 1rem;
     }
 
-    /* Repo-lijst */
     .repo-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -339,7 +335,7 @@
 <body>
   <div class="container">
     <div class="topbar no-print">
-      <a href="./index.html" class="back-link">&larr; Terug naar datananalyses</a>
+      <a href="./index.html" class="back-link">&larr; Terug naar overzicht</a>
       <div class="controls" aria-label="Pagina-instellingen">
         <button type="button" id="font-dec" aria-label="Kleiner lettertype">A-</button>
         <button type="button" id="font-reset" aria-label="Standaard lettertype">A</button>
@@ -352,7 +348,7 @@
       <span class="kicker">GitHub Portaal</span>
       <h1>Openbare Repositories — goija</h1>
       <p class="lead">
-        Automatisch gesynchroniseerd overzicht van alle openbare projecten op GitHub. Nieuwe of bijgewerkte repositories verschijnen direct in de lijst.
+        Automatisch gesynchroniseerd overzicht van openbare repositories op GitHub. Nieuwe of bijgewerkte repositories verschijnen direct in de lijst.
       </p>
     </header>
 
@@ -378,7 +374,7 @@
 
         <div class="toolbar-row" role="group" aria-label="Filter op type">
           <button type="button" class="type-btn active" data-type="all">Alles</button>
-          <button type="button" class="type-btn" data-type="source">Eigen projecten</button>
+          <button type="button" class="type-btn" data-type="source">Eigen repositories</button>
           <button type="button" class="type-btn" data-type="fork">Forks</button>
         </div>
       </div>
@@ -401,9 +397,26 @@
   <script>
     (() => {
       const USERNAME = 'goija';
-      // Voeg hier desgewenst namen van openbare repos toe die je wilt verbergen
-      const EXCLUDE = new Set([]);
-      const CACHE_KEY = `gh_repos_${USERNAME}`;
+
+      // Uitgesloten repositories (exacte namen + patronen)
+      const EXCLUDE_EXACT = new Set([
+        'datananalyses',
+        'dataanalyses',
+        'datanalyses',
+        'indexprojectjes'
+      ]);
+      const EXCLUDE_PATTERNS = [
+        /datan?analyses/i,
+        /project(en|jes)?/i
+      ];
+
+      const isExcluded = (name) => {
+        const lower = name.toLowerCase();
+        if (EXCLUDE_EXACT.has(lower)) return true;
+        return EXCLUDE_PATTERNS.some((rx) => rx.test(name));
+      };
+
+      const CACHE_KEY = `gh_repos_${USERNAME}_v2`;
       const CACHE_TTL = 5 * 60 * 1000; // 5 minuten
 
       const gridEl = document.getElementById('repo-grid');
@@ -462,7 +475,7 @@
         const selectedLang = langFilter.value;
         const sortBy = sortSelect.value;
 
-        let filtered = allRepos.filter((repo) => {
+        const filtered = allRepos.filter((repo) => {
           if (activeType === 'source' && repo.fork) return false;
           if (activeType === 'fork' && !repo.fork) return false;
           if (selectedLang !== 'all' && repo.language !== selectedLang) return false;
@@ -589,7 +602,7 @@
           if (batch.length < 100) break;
           page++;
         }
-        return collected.filter((r) => !EXCLUDE.has(r.name));
+        return collected.filter((r) => !isExcluded(r.name));
       };
 
       const loadRepos = async (forceRefresh = false) => {
