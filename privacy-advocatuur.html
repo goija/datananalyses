@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacyanalyse & Herstelplan: IAB TCF, Advocatenwet en AVG</title>
+    <style>
+        :root {
+            --bg-color: #fdfdfd;
+            --text-color: #222222;
+            --accent-color: #A31C1C; /* Zeeuws meekrab red */
+            --accent-light: #fdf2f2;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --code-bg: #f6f8fa;
+            --meta-color: #666666;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #0d1117;
+                --text-color: #c9d1d9;
+                --accent-color: #C73E3E;
+                --accent-light: #2c1515;
+                --card-bg: #161b22;
+                --border-color: #30363d;
+                --code-bg: #1f242c;
+                --meta-color: #8b949e;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 3px solid var(--accent-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin: 0 0 0.5rem 0;
+            color: var(--accent-color);
+        }
+
+        .subtitle {
+            font-size: 1.05rem;
+            color: var(--meta-color);
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: var(--accent-color);
+            margin-top: 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            margin-top: 1.5rem;
+            color: var(--text-color);
+        }
+
+        p, ul, ol {
+            margin: 0.75rem 0;
+        }
+
+        ul, ol {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .model-text {
+            background-color: var(--accent-light);
+            border-left: 4px solid var(--accent-color);
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 6px 6px 0;
+            font-style: normal;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            background-color: var(--accent-color);
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 4rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--meta-color);
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <span class="badge">Compliance & Privacy</span>
+            <h1>Spanning tussen IAB TCF, Advocatenwet en AVG</h1>
+            <p class="subtitle">Juridische analyse, risico-evaluatie en concreet actieplan voor advocatenkantoren.</p>
+        </header>
+
+        <main>
+            <!-- Inleiding / Context -->
+            <section class="card">
+                <h3>Inleiding</h3>
+                <p>De inzet van commerciële Consent Management Platforms (zoals Cookiebot of Complianz) met een geactiveerde IAB TCF-koppeling leidt al snel tot spanning met de wettelijke geheimhoudingsplicht (artikel 11a Advocatenwet) en de AVG.</p>
+                <p>Meer achtergrondinformatie over dit ecosysteem is te vinden via de <a href="https://tcfpartnersbv.com/partners/" target="_blank" rel="noopener">partners-pagina van TCF Partners BV</a>.</p>
+                
+                <ul>
+                    <li><strong>Verbinding met adtech-leveranciers:</strong> Dit framework is ontworpen voor uitgevers en advertentienetwerken (Real-Time Bidding). Het maakt de weg vrij om bezoekersgegevens, IP-adressen en surfgedrag te delen met honderden aangesloten externe advertentiepartners (vendors).</li>
+                    <li><strong>Gezamenlijke verwerkingsverantwoordelijkheid:</strong> Het Europees Hof van Justitie heeft geoordeeld dat deze TC-strings als persoonsgegevens gelden en dat partijen die dit framework inzetten gezamenlijk verwerkingsverantwoordelijk kunnen zijn voor de verdere verwerking door deze adtech-keten.</li>
+                </ul>
+            </section>
+
+            <!-- Waarom dit botst -->
+            <h2>1. Waarom dit botst met de Advocatenwet en de AVG</h2>
+            <div class="card">
+                <ul>
+                    <li><strong>Schending van de geheimhoudingsplicht (art. 11a Advocatenwet):</strong> De enkele vaststelling dat een persoon de website van een specifiek advocatenkantoor bezoekt — en bijvoorbeeld pagina’s over letselschade, echtscheiding of arbeidsrecht bekijkt — kan al een indicatie geven van een vertrouwelijke hulpvraag of een juridisch geschil. Het doorsturen van dit bezoekgedrag naar externe adtech-leveranciers staat haaks op de wettelijke plicht tot geheimhouding en dataminimalisatie.</li>
+                    <li><strong>Bijzondere persoonsgegevens (art. 9 AVG):</strong> Bezoek aan specifieke praktijkpagina’s (zoals medische aansprakelijkheid of strafrecht) kan indirect informatie prijsgeven over gezondheid of strafrechtelijk verleden. Via adtech-trackers worden deze gevoelige profielen buiten het zicht van het kantoor verhandeld of gebruikt voor profilering.</li>
+                    <li><strong>Gerechtvaardigd belang is geen geldige grondslag:</strong> Veel leveranciers binnen het IAB TCF beroepen zich standaard op ‘gerechtvaardigd belang’ voor tracking en profilering. De Autoriteit Persoonsgegevens en Europese toezichthouders hebben verduidelijkt dat dit voor trackingcookies en ingrijpende marketingprofilering geen geldige grondslag onder de AVG is.</li>
+                </ul>
+            </div>
+
+            <!-- Herstelmaatregelen -->
+            <h2>2. Gebruikelijke herstelmaatregelen voor kantoren</h2>
+            <p>Om dit risico in een privacyanalyse of herstelplan weg te nemen, volstaan doorgaans drie technische aanpassingen:</p>
+            <div class="card">
+                <ol>
+                    <li><strong>IAB TCF uitschakelen:</strong> Een advocatenkantoor toont doorgaans geen gepersonaliseerde advertenties van derden op de eigen website en heeft het TCF-framework daarom technisch niet nodig.</li>
+                    <li><strong>Adtech- en retargetingpixels verwijderen:</strong> Verwijder marketingtrackers (zoals Meta Pixel, LinkedIn Insight Tag of Google Ads-retargeting) van pagina’s met gevoelige rechtsgebieden, of vervang ze door privacyvriendelijke, cookieloze statistieken.</li>
+                    <li><strong>CMP terugbrengen tot strikt noodzakelijk:</strong> Configureer de cookiebanner zo dat er vóór expliciete toestemming nul verbindingen worden gemaakt met externe partijen, en beperk de lijst met verwerkers tot alleen de strikt noodzakelijke diensten.</li>
+                </ol>
+            </div>
+
+            <!-- Concept-reactie -->
+            <h2>3. Concept-reactie / Verantwoordingsnotitie</h2>
+            <p><em>Te gebruiken voor het dossier of richting de toezichthouder om aan te tonen dat het kantoor proactief handelt en de geheimhoudingsplicht (art. 11a Advocatenwet) en AVG borgt.</em></p>
+            <div class="model-text">
+                <p><strong>Betreft:</strong> Evaluatie en herinrichting cookie- en trackingbeleid website</p>
+                <p>Naar aanleiding van een interne privacy-evaluatie heeft ons kantoor de technische inrichting van de website getoetst aan de Algemene Verordening Gegevensbescherming (AVG) en artikel 11a van de Advocatenwet.</p>
+                <p>
