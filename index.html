@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leeslinks & Documentatie Index</title>
+    <style>
+        :root {
+            --bg-color: #fdfdfd;
+            --text-color: #222222;
+            --accent-color: #A31C1C; /* Zeeuws meekrab red */
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --hover-bg: #f9f9f9;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #121212;
+                --text-color: #e0e0e0;
+                --accent-color: #C73E3E;
+                --card-bg: #1e1e1e;
+                --border-color: #2e2e2e;
+                --hover-bg: #262626;
+            }
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 0.5rem 0;
+            color: var(--accent-color);
+        }
+
+        p.subtitle {
+            margin: 0;
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+
+        .links-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .link-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.25rem;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .link-card:hover {
+            border-color: var(--accent-color);
+            background-color: var(--hover-bg);
+            transform: translateY(-2px);
+        }
+
+        .link-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .link-desc {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin: 0;
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.6;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Leeslinks & Documentatie Index</h1>
+            <p class="subtitle">Centrale navigatiehub voor repository documentatie.</p>
+        </header>
+
+        <main class="links-grid">
+            <a href="./IAB%20TCF-koppeling.md" class="link-card">
+                <span class="link-title">🔗 IAB TCF-koppeling</span>
+                <p class="link-desc">Documentatie over de IAB Transparency and Consent Framework (TCF) koppeling en samenwerking met TCF Partners BV.</p>
+            </a>
+
+            <a href="./OpenAI.md" class="link-card">
+                <span class="link-title">🔗 OpenAI Documentatie</span>
+                <p class="link-desc">Notities, technische richtlijnen en bugfixes rondom OpenAI-integraties.</p>
+            </a>
+
+            <a href="./README.md" class="link-card">
+                <span class="link-title">🔗 Project Overzicht (README)</span>
+                <p class="link-desc">De hoofdpagina en algemene omschrijving van de repository.</p>
+            </a>
+        </main>
+
+        <footer>
+            Lokale indexpagina &mdash; Geconfigureerd voor snelle navigatie.
+        </footer>
+    </div>
+
+</body>
+</html>
