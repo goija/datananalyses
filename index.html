@@ -3,192 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentatie - Markdown Interface</title>
+    <title>Documentatie &amp; Leeslinks — Index</title>
     <style>
         :root {
             --bg-color: #ffffff;
-            --sidebar-bg: #f6f8fa;
-            --text-color: #24292e;
-            --accent-color: #A31C1C; /* Zeeuws meekrab red */
-            --border-color: #e14d4d33;
-            --border-main: #e1e4e8;
-            --hover-bg: #eaeef2;
-            --code-bg: #f6f8fa;
+            --sidebar-bg: #f8f9fa;
+            --text-color: #1c1e21;
+            --muted-color: #5a626a;
+            --accent-color: #A31C1C; /* Zeeuws meekrabrood */
+            --accent-soft: #fdf2f2;
+            --border-color: #dcdfe4;
+            --hover-bg: #f1f3f5;
+            --code-bg: #f4f5f7;
+            --font-size: 19px;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg-color: #0d1117;
-                --sidebar-bg: #161b22;
-                --text-color: #c9d1d9;
-                --accent-color: #C73E3E;
-                --border-color: #30363d;
-                --border-main: #30363d;
-                --hover-bg: #1f6feb22;
-                --code-bg: #161b22;
+                --bg-color: #121212;
+                --sidebar-bg: #181a1d;
+                --text-color: #e4e6eb;
+                --muted-color: #9ba1a6;
+                --accent-color: #d64545;
+                --accent-soft: #2a1616;
+                --border-color: #2e3238;
+                --hover-bg: #23272d;
+                --code-bg: #1e2126;
             }
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             display: flex;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            line-height: 1.65;
         }
 
-        /* Sidebar / File Tree */
-        sidebar {
-            width: 280px;
+        /* Navigatie / Zijbalk */
+        aside {
+            width: 320px;
+            flex-shrink: 0;
             background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-main);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem 1.25rem;
             display: flex;
             flex-direction: column;
-            padding: 1.5rem 1rem;
-            box-sizing: border-box;
+            gap: 1.5rem;
+            overflow-y: auto;
         }
 
-        .sidebar-title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--accent-color);
-            font-weight: 700;
-            margin-bottom: 1rem;
+        .brand {
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .file-list {
-            list-style: none;
-            padding: 0;
+        .brand h1 {
+            font-size: 1.15rem;
             margin: 0;
+            color: var(--accent-color);
+            letter-spacing: 0.01em;
+        }
+
+        .font-controls {
             display: flex;
-            flex-direction: column;
             gap: 0.25rem;
         }
 
-        .file-item a {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0.75rem;
+        .font-controls button {
+            background: var(--bg-color);
             color: var(--text-color);
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
-            transition: background-color 0.15s ease, color 0.15s ease;
-        }
-
-        .file-item a:hover, .file-item a.active {
-            background-color: var(--hover-bg);
-            color: var(--accent-color);
-        }
-
-        /* Main Markdown Viewport */
-        main {
-            flex: 1;
-            padding: 2.5rem 3rem;
-            overflow-y: auto;
-            max-width: 900px;
-        }
-
-        .markdown-body {
-            font-size: 1rem;
-            line-height: 1.7;
-        }
-
-        .markdown-body h1 {
-            font-size: 2rem;
-            border-bottom: 1px solid var(--border-main);
-            padding-bottom: 0.3rem;
-            margin-top: 0;
-            color: var(--accent-color);
-        }
-
-        .markdown-body h2 {
-            font-size: 1.4rem;
-            border-bottom: 1px solid var(--border-main);
-            padding-bottom: 0.2rem;
-            margin-top: 1.5rem;
-        }
-
-        .markdown-body p {
-            margin: 1rem 0;
-        }
-
-        .markdown-body ul {
-            padding-left: 2rem;
-        }
-
-        .markdown-body code {
-            background-color: var(--code-bg);
-            padding: 0.2rem 0.4rem;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
-            font-family: ui-monospace, monospace;
+            padding: 0.2rem 0.5rem;
             font-size: 0.85rem;
-            border: 1px solid var(--border-main);
+            font-weight: 600;
+            cursor: pointer;
         }
 
-        .badge {
-            display: inline-block;
-            font-size: 0.75rem;
-            padding: 0.15rem 0.5rem;
-            border-radius: 12px;
-            background-color: var(--hover-bg);
+        .font-controls button:hover {
+            border-color: var(--accent-color);
             color: var(--accent-color);
-            border: 1px solid var(--border-main);
-            margin-bottom: 1rem;
         }
 
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-                height: auto;
-                overflow: auto;
-            }
-            sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid var(--border-main);
-            }
-            main {
-                padding: 1.5rem;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <sidebar>
-        <div class="sidebar-title">Bestanden / Repository</div>
-        <ul class="file-list">
-            <li class="file-item">
-                <a href="./IAB%20TCF-koppeling.md" class="active">📄 IAB TCF-koppeling.md</a>
-            </li>
-            <li class="file-item">
-                <a href="./OpenAI.md">📄 OpenAI.md</a>
-            </li>
-        </ul>
-    </sidebar>
-
-    <main>
-        <div class="markdown-body">
-            <span class="badge">Markdown Preview Interface</span>
-            <h1>IAB TCF-koppeling.md</h1>
-            <p>Welkom in de markdown-interface. Hieronder staat de navigatie en structuur voor de gekoppelde documentatie.</p>
-            
-            <h2>Overzicht</h2>
-            <ul>
-                <li><strong>Bestand:</strong> <code>IAB TCF-koppeling.md</code></li>
-                <li><strong>Doel:</strong> Documentatie rondom de IAB Transparency and Consent Framework (TCF) integratie en TCF Partners BV.</li>
-            </ul>
-
-            <h2>Snelle Links</h2>
-            <p>Gebruik de linker menubalk om te schakelen tussen de beschikbare markdown-documenten in de repository.</p>
-        </div>
-    </main>
-
-</body>
-</html>
+        .nav-group-title {
+            font-size: 0.78rem;
+            text-transform: uppercase;
