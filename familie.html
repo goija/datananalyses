@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integrale Dossieranalyse: Didam, Concessies (Waal &amp; Tholen), Geodata &amp; Woo</title>
+  <style>
+    :root {
+      --bg-page: #ffffff;
+      --bg-surface: #f8f6f5;
+      --bg-card: #ffffff;
+      --accent: #9e2a2b; /* Zeeuws meekrab-rood */
+      --accent-dark: #6b1b1c;
+      --text-main: #1c211f;
+      --text-muted: #525956;
+      --border: #dcd6d4;
+      --code-bg: #f3f0ef;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding: 2.5rem 1.25rem;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .tag {
+      display: inline-block;
+      background-color: var(--accent);
+      color: #ffffff;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.65rem;
+      border-radius: 3px;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: 1.95rem;
+      line-height: 1.22;
+      margin-bottom: 0.6rem;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 900px;
+    }
+
+    section {
+      margin-bottom: 3rem;
+    }
+
+    h2.sec-title {
+      font-size: 1.35rem;
+      border-left: 4px solid var(--accent);
+      padding-left: 0.85rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* 4-Koloms Overzicht */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+      gap: 1.15rem;
+    }
+
+    .card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 4px;
+      padding: 1.25rem;
+    }
+
+    .card-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.35rem;
+    }
+
+    .card h3 {
+      font-size: 1.08rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .card ul {
+      padding-left: 1.15rem;
+      font-size: 0.91rem;
+    }
+
+    .card li {
+      margin-bottom: 0.4rem;
+    }
+
+    /* Foto & PDF-documenten Galerij */
+    .gallery-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+      border-radius: 4px;
+      margin-bottom: 1.25rem;
+    }
+
+    .gallery-toolbar p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .photo-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .photo-frame {
+      background-color: #f2efee;
+      border-bottom: 1px solid var(--border);
+      height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      cursor: zoom-in;
+    }
+
+    .photo-placeholder {
+      padding: 1.25rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .photo-placeholder code {
+      display: inline-block;
+      margin-top: 0.35rem;
+      background-color: #ffffff;
+      border: 1px solid var(--border);
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .photo-meta {
+      padding: 1rem 1.15rem;
+      flex: 1;
+    }
+
+    .photo-meta .doc-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .photo-meta h4 {
+      font-size: 1rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .photo-meta p {
+      font-size: 0.89rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Synthese Tabel */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      background-color: var(--bg-surface);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* OGC / PDOK Box */
+    .ogc-box {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+    }
+
+    .endpoint-row {
+      margin-bottom: 1rem;
+    }
+
+    .endpoint-row strong {
+      display: block;
+      font-size: 0.92rem;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+
+    code.url-box {
+      display: block;
+      background-color: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.84rem;
+      word-break: break-all;
+      border-radius: 3px;
+      color: var(--text-main);
+    }
+
+    .wfs-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: flex-end;
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .wfs-controls div {
+      flex: 1 1 200px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 0.5rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-size: 0.92rem;
+      background-color: #ffffff;
+    }
+
+    .btn {
+      background-color: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 0.58rem 1.15rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 3px;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background-color: var(--accent-dark);
+    }
+
+    /* Woo Generator */
+    .woo-panel {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+    }
+
+    .woo-inputs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .letter-output {
+      background-color: #ffffff;
+      border: 1px solid var(--border);
+      padding: 1.35rem;
+      border-radius: 3px;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.62;
+      margin-bottom: 1rem;
+    }
+
+    /* Lightbox Modal voor vergroten foto's */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 22, 21, 0.88);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 95vw;
+      max-height: 90vh;
+      border: 2px solid #ffffff;
+      border-radius: 4px;
+      background: #ffffff;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.5rem;
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <span class="tag">Juridisch &bull; Geodetisch &bull; Visueel Bronnenarchief</span>
+    <h1>Integrale Analyse: Didam-arrest, Concessies (Waal &amp; Tholen), Geologie &amp; Woo</h1>
+    <p class="subtitle">
+      Samenhang tussen schaarse overheidsrechten op water en bodem (Didam-jurisprudentie), delfstoffen- en baggerconcessies, open PDOK OGC-schelpdierdata en het beeld- en archiefmateriaal (Stad Tholen Haven, familie Geluk, TH 7 en landschapsgeologie).
+    </p>
+  </header>
+
+  <!-- 1. Visueel Bronnen- & Fotoarchief -->
+  <section>
+    <h2 class="sec-title">1. Beeld- &amp; Documentenarchief (PDF-pagina's &amp; Bronfoto's)</h2>
+
+    <div class="gallery-toolbar">
+      <p>
+        Plaats dit HTML-bestand in dezelfde map als uw afbeeldingen, of selecteer hier uw lokale foto's / PDF-exports om ze direct in het document te laden:
+      </p>
+      <div>
+        <label for="local-file-input" class="btn" style="color:#ffffff; margin:0;">Laad lokale foto's / PDF-pagina's in</label>
+        <input type="file" id="local-file-input" accept="image/*" multiple style="display:none;" onchange="handleLocalFiles(event)">
+      </div>
+    </div>
+
+    <div class="photo-grid" id="photo-grid">
+      <!-- Bron 1 -->
+      <article class="photo-card">
+        <div class="photo-frame">
+          <img src="afbeelding.png" alt="Verkoop Eurokotter TH-7 Adriana Maria" onclick="openLightbox(this.src)" onerror="showPlaceholder(this, 'afbeelding.png')">
+        </div>
+        <div class="photo-meta">
+          <span class="doc-tag">Bron 01 &bull; Maritiem Nieuwsbericht (2022)</span>
+          <h4>Eurokotter TH-7 Adriana Maria (Familie Baaij)</h4>
+          <p>Verkoop van de Tholense Eurokotter TH-7 aan Mike Sharp (Brixham, Engeland). Illustreert de moderne continuïteit van het Tholense visserijnummer TH-7.</p>
+        </div>
+      </article>
+
+      <!-- Bron 2 & 3 -->
+      <article class="photo-card">
+        <div class="photo-frame">
+          <img src="afbeelding.jpg" alt="Tekening G. Groenewegen & Zeeuwse schouwen" onclick="openLightbox(this.src)" onerror="showPlaceholder(this, 'afbeelding.jpg')">
+        </div>
+        <div class="photo-meta">
+          <span class="doc-tag">Bron 02 &bull; Scheepsbouwhistorie (Groenewegen / Seghers)</span>
+          <h4>Zeeuwse &amp; Tholense Schouwen (TH-registratie)</h4>
+          <p>Historische gravure van een schouw en toelichting op thuishaven-aanduidingen (TH, VLI, ARM, YE) voor platbodems in de Zeeuwse stromen.</p>
+        </div>
+      </article>
+
+      <article class="photo-card">
+        <div class="photo-frame">
+          <img src="afbeelding (1).png" alt="Geschiedenis van de Zeeuwse Schouwen - TH 7" onclick="openLightbox(this.src)" onerror="showPlaceholder(this, 'afbeelding (1).png')">
+        </div>
+        <div class="photo-meta">
+          <span class="doc-tag">Bron 03 &bull; Register Zeeuwse Vissersschepen</span>
+          <h4>Schouw TH 7 (1937) &amp; Mosselpercelen</h4>
+          <p>Documentatie van de door Maurice Seghers in 1937 getekende en gefotografeerde Tholense schouw TH 7 en het gebruik op mosselpercelen in Oosterschelde en Braakman.</p>
+        </div>
+      </article>
+
+      <!-- Bron 4 -->
+      <article class="photo-card">
+        <div class="photo-frame">
+          <img src="afbeelding (2).jpg" alt="Kaart Hoogheemraadschap van de Uitwaterende Sluizen 1607" onclick="openLightbox(this.src)" onerror="showPlaceholder(this, 'afbeelding (2).jpg')">
+        </div>
+        <div class="photo-meta">
+          <span class="doc-tag">Bron 04 &bull; Grondvormen Hollandse Laagland (p. 54)</span>
+          <h4>Kaart Uitwaterende Sluizen (Floris Jacobsz., 1607)</h4>
+          <p>Waterstaatkundige omslagkaart (Nationaal Archief) met vier contributieklassen voor het beheer van de Schermerboezem en bedijkingen.</p>
+        </div>
+      </article>
+
+      <!-- Bron 5 -->
+      <article class="photo-card">
+        <div class="photo-frame">
+          <img src="afbeelding (3).jpg" alt="De grondvormen van het droogmakerijlandschap p. 53" onclick="openLightbox(this.src)" onerror="showPlaceholder(this, 'afbeelding (3).jpg')">
+        </div>
+        <div class="photo-meta">
+          <span class="doc-tag">Bron 05 &bull; Grondvormen Hollandse Laagland (p. 53)</span>
+          <h4>Grondvormen van het Droogmakerijlandschap</h4>
+          <p>Analyse van veenontginning, wielen (doorbraakkolken), ringvaarten en waterstaatkundige hoogte- en oppervlakteverhoudingen.</p>
+        </div>
+      </article>
+
+      <!-- Bron 6 -->
+      <article class="photo-card">
+        <div class="photo-frame">
+          <img src="afbeelding (5).jpg" alt="De Dijkringen en veenarchipel" onclick="openLightbox(this.src)" onerror="showPlaceholder(this, 'afbeelding (5).jpg')">
+        </div>
+        <div class="photo-meta">
+          <span class="doc-tag">Bron 06 &bull; Grondvormen Hollandse Laagland</span>
+          <h4>Inklinking, Doorbraken &amp; De Dijkringen</h4>
+          <p>Ontstaan van meren uit veenstroompjes, vorming van meermolm en de aanleg van de eerste defensieve dijkringen en spuisluizen.</p>
+        </div>
+      </article>
+
+      <!-- Bron 7 -->
+      <article class="photo-card">
+        <div class="photo-frame">
+          <img src="afbeelding (6).jpg" alt="Luchtfoto oud veenlandschap Den Ilp & Afdamming zeegaten p. 50" onclick="openLightbox(this.src)" onerror="showPlaceholder(this, 'afbeelding (6).jpg')">
+        </div>
+        <div class="photo-meta">
+          <span class="doc-tag">Bron 07 &bull; Grondvormen Hollandse Laagland (p. 50)</span>
+          <h4>Afdamming van de Zeegaten &amp; Luchtfoto (1930)</h4>
+          <p>Luchtopname van het oude veenlandschap bij Den Ilp / Zeevang en de middeleeuwse afdammingen (Rekerdam, Zaandam, Knollendam).</p>
+        </div>
+      </article>
+
+      <!-- Bron 8 -->
+      <article class="photo-card">
+        <div class="photo-frame">
+          <img src="afbeelding (7).jpg" alt="Het Veenpolderlandschap en Zeevang kaart p. 51" onclick="openLightbox(this.src)" onerror="showPlaceholder(this, 'afbeelding (7).jpg')">
+        </div>
+        <div class="photo-meta">
+          <span class="doc-tag">Bron 08 &bull; Grondvormen Hollandse Laagland (p. 51)</span>
+          <h4>Het Veenpolderlandschap &amp; Verkaveling Zeevang</h4>
+          <p>Transformatie van waterdorpen naar dijkdorpen en het waterhuishoudkundige mozaïek van kavelpatronen en sluizen.</p>
+        </div>
+      </article>
+
+      <!-- Bron 9 -->
+      <article class="photo-card">
+        <div class="photo-frame">
+          <img src="afbeelding (8).jpg" alt="Kaart bouwlanden Schellinkhout 1603 p. 47" onclick="openLightbox(this.src)" onerror="showPlaceholder(this, 'afbeelding (8).jpg')">
+        </div>
+        <div class="photo-meta">
+          <span class="doc-tag">Bron 09 &bull; Grondvormen Hollandse Laagland (p. 47)</span>
+          <h4>Opstrekkende Verkaveling (Gerrit Dirksz. Langedijk, 1603)</h4>
+          <p>Kadastrale kaart van bouwlanden rond Schellinkhout en het oud-Friese 'recht van opstrek' bij ontginningen.</p>
+        </div>
+      </article>
+
+      <!-- Bron 10 -->
+      <article class="photo-card">
+        <div class="photo-frame">
+          <img src="afbeelding (9).jpg" alt="Model van de veenkoepel van het Hollandveen p. 45" onclick="openLightbox(this.src)" onerror="showPlaceholder(this, 'afbeelding (9).jpg')">
+        </div>
+        <div class="photo-meta">
+          <span class="doc-tag">Bron 10 &bull; Grondvormen Hollandse Laagland (p. 45)</span>
+          <h4>Model van de Veenkoepel &amp; Kreeksysteem</h4>
+          <p>Stratigrafische opbouw van rietveen, zeggeveen, bosveen en mosveen op kreekruggen, wadden en rivierklei.</p>
+        </div>
+      </article>
+
+      <!-- Bron 11 -->
+      <article class="photo-card">
+        <div class="photo-frame">
+          <img src="afbeelding_2.jpg" alt="De winning van zand en grind p. 20" onclick="openLightbox(this.src)" onerror="showPlaceholder(this, 'afbeelding_2.jpg')">
+        </div>
+        <div class="photo-meta">
+          <span class="doc-tag">Bron 11 &bull; Geologie &amp; Delfstoffenwinning (p. 20)</span>
+          <h4>De Winning van Zand en Grind (Rivier &amp; Noordzee)</h4>
+          <p>Zandzuigers, baggermachines en sorteerinstallaties in rivierafzettingen van Maas en Rijn (o.a. Ottersum, Mill/Langeboom) en kustsuppleties.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 2. De Vier Analytische Pijlers -->
+  <section>
+    <h2 class="sec-title">2. De vier pijlers van het samenhangende dossier</h2>
+    <div class="grid-4">
+      <article class="card">
+        <span class="card-label">Pijler I &bull; Privaat- &amp; Bestuursrecht</span>
+        <h3>Didam-arrest (I &amp; II)</h3>
+        <ul>
+          <li><strong>Gelijkheidsbeginsel (art. 3:14 BW):</strong> Overheden moeten bij uitgifte van schaarse gronden en rechten gelijke kansen bieden.</li>
+          <li><strong>Openbare selectie:</strong> Verbod op onderhandse één-op-één gunning zonder objectieve, toetsbare en redelijke criteria.</li>
+          <li><strong>Reikwijdte:</strong> Van toepassing op uiterwaarden langs de Waal, rivierconcessies én pachtpercelen in rijkswateren.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <span class="card-label">Pijler II &bull; Geologie &amp; Waterbouw</span>
+        <h3>Zand-, Grind- &amp; Baggerconcessies</h3>
+        <ul>
+          <li><strong>Delfstoffenwinning:</strong> Zand- en grindwinning uit rivierafzettingen van Rijn en Maas (o.a. groeve Koningsveen/De Diepen, De Kuilen) en Noordzeesuppleties.</li>
+          <li><strong>Baggerbedrijven:</strong> Uitvoering van vaargeulonderhoud en ontgrondingen (o.a. Aannemingsbedrijf Geluk BV / Smals Dredging).</li>
+          <li><strong>Milieukader:</strong> Toetsing van baggerspecie en reststromen aan het Besluit bodemkwaliteit (Bbk).</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <span class="card-label">Pijler III &bull; Open Geodata (PDOK)</span>
+        <h3>OGC Webservices &amp; Waterpercelen</h3>
+        <ul>
+          <li><strong>Rijkseigendom op water:</strong> Perceelsgrenzen in Kustwateren en Grevelingenmeer voor mossel- en oesterkweek (RVO).</li>
+          <li><strong>Open standaarden:</strong> Directe verificatie van geometrie en huurstatus via PDOK WMS v3.0 en WFS v3.0.</li>
+          <li><strong>Transparantie:</strong> Koppeling tussen kadastrale waterpercelen en onderliggende pacht- of concessiebesluiten.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <span class="card-label">Pijler IV &bull; Archief &amp; Historie Tholen</span>
+        <h3>Haven Tholen, Familie Geluk &amp; TH 7</h3>
+        <ul>
+          <li><strong>Kaai &amp; Haven Tholen:</strong> Historisch vastgoedbezit uit <em>stad_tholen_haven.pdf</em> (o.a. Jan Jacob Geluk en weduwe Laurina Cornelia de Later tot 1931).</li>
+          <li><strong>Visserijverwevenheid:</strong> Familie Geluk/Gelock verbonden met Thoolse vissersgeslachten (Van Luijk, De Wilde) en schelpdiercultuur op Oosterschelde en Eendracht.</li>
+          <li><strong>Vaartuigregistraties:</strong> Historische lijn van platbodems (schouw TH 7, 1937) tot modern visserijbeheer.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <!-- 3. Systeemmatrix -->
+  <section>
+    <h2 class="sec-title">3. Systeemmatrix: Juridische, Ruimtelijke en Historische Koppeling</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Domein</th>
+            <th>Fysiek / Geografisch Object</th>
+            <th>Juridisch &amp; Bestuurlijk Kader</th>
+            <th>Verificatie-instrument (Open Data / Woo)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Rivierbeheer &amp; Baggeren</strong><br>(Waal / Maas / Rijn)</td>
+            <td>Vaargeul, uiterwaarden, zand- en grindgroeven (rivierafzettingen).</td>
+            <td>Didam-arrest (art. 3:14 BW), Omgevingswet (ontgrondingen), Besluit bodemkwaliteit (Bbk).</td>
+            <td>Woo-verzoek bij Rijkswaterstaat / Provincie (gunningsmotiveringen, Bbk-meldingen, peilkaarten).</td>
+          </tr>
+          <tr>
+            <td><strong>Schelpdiercultuur</strong><br>(Oosterschelde / Eendracht / Grevelingen)</td>
+            <td>Mossel- en oesterpercelen in rijkseigendom.</td>
+            <td>Visserijwet, huurovereenkomsten RVO, historische registers <em>Bestuur der Visserijen op de Zeeuwse Stromen</em>.</td>
+            <td>PDOK OGC WFS/WMS v3.0 (actuele percelen) + Zeeuws Archief / Woo-verzoek RVO (pachtvoorwaarden).</td>
+          </tr>
+          <tr>
+            <td><strong>Haven &amp; Kadastrale Historie</strong><br>(Stad Tholen)</td>
+            <td>Panden aan de Kaai / Haven van Tholen (<em>stad_tholen_haven.pdf</em>), ligplaatsen en watergangen.</td>
+            <td>Gemeentelijke havenverordeningen, kadastrale leggers, erfpacht- en eigendomsakten.</td>
+            <td>Archiefstukken <em>Stad Tholen Haven</em>, kadastrale reconstructies (o.a. familie Geluk) en waterstaatsleggers.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 4. OGC / PDOK Geodata Inspector -->
+  <section>
+    <h2 class="sec-title">4. Open Geodata Verificatie: PDOK Schelpdierpercelen (OGC v3.0)</h2>
+    <div class="ogc-box">
+      <div class="endpoint-row">
+        <strong>WMS Endpoint (Kaartvisualisatie - GetCapabilities)</strong>
+        <code class="url-box">https://service.pdok.nl/rvo/schelpdierpercelen/wms/v3_0?request=GetCapabilities&amp;service=WMS</code>
+      </div>
+      <div class="endpoint-row">
+        <strong>WFS Endpoint (Vectordata &amp; Attribuuttabel - GetCapabilities)</strong>
+        <code class="url-box">https://service.pdok.nl/rvo/schelpdierpercelen/wfs/v3_0?request=GetCapabilities&amp;service=WFS</code>
+      </div>
+
+      <div class="wfs-controls">
+        <div>
+          <label for="wfs-format">Uitvoerformaat WFS GetFeature</label>
+          <select id="wfs-format" onchange="buildWfsUrl()">
+            <option value="application/json">GeoJSON (application/json)</option>
+            <option value="application/gml+xml; version=3.2">GML 3.2 (XML)</option>
+            <option value="csv">CSV (Tabel)</option>
+          </select>
+        </div>
+        <div>
+          <label for="wfs-count">Maximum aantal percelen (count)</label>
+          <input type="number" id="wfs-count" value="50" min="1" max="1000" oninput="buildWfsUrl()">
+        </div>
+        <div>
+          <button type="button" class="btn" onclick="copyWfsUrl(this)">Kopieer WFS Query-URL</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 1rem;">
+        <label>Gegenereerde open WFS-aanvraag (direct bruikbaar in R, Python of QGIS):</label>
+        <code class="url-box" id="wfs-generated-url"></code>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Gecombineerde Woo-verzoek Generator -->
+  <section>
+    <h2 class="sec-title">5. Gecombineerd Woo-verzoek (Didam, Concessies, Milieu &amp; Historie)</h2>
+    <div class="woo-panel">
+      <div class="woo-inputs">
+        <div>
+          <label for="woo-org">Bestuursorgaan</label>
+          <input type="text" id="woo-org" value="Rijkswaterstaat / RVO / Gemeente Tholen / Gemeente West Maas en Waal" oninput="buildWooLetter()">
+        </div>
+        <div>
+          <label for="woo-scope">Onderzoeksgebied / Concessie</label>
+          <input type="text" id="woo-scope" value="Riviervak Waal &amp; Oosterschelde / Haven Tholen" oninput="buildWooLetter()">
+        </div>
+        <div>
+          <label for="woo-entities">Betrokken Actoren / Registraties</label>
+          <input type="text" id="woo-entities" value="Aannemingsbedrijf Geluk BV (Smals Dredging) / Historie familie Geluk / Registratie TH 7" oninput="buildWooLetter()">
+        </div>
+        <div>
+          <label for="woo-period">Periode</label>
+          <input type="text" id="woo-period" value="2015 tot heden (en onderliggende historische leggers)" oninput="buildWooLetter()">
+        </div>
+      </div>
+
+      <div class="letter-output" id="woo-letter-box"></div>
+      <button type="button" class="btn" onclick="copyWooLetter(this)">Kopieer volledige Woo-tekst</button>
+    </div>
+  </section>
+
+  <footer>
+    <span>Zelfstandige HTML-analyse zonder externe trackers of API-sleutels.</span>
+    <span>Bronnen: Didam-jurisprudentie &bull; PDOK OGC v3.0 &bull; Archief Stad Tholen &bull; Geologie Delfstoffen</span>
+  </footer>
+</div>
+
+<!-- Lightbox voor volledige weergave van bronfoto's -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button type="button" class="lightbox-close" onclick="closeLightbox()">Sluiten &times;</button>
+  <img id="lightbox-img" src="" alt="Vergrote weergave">
+</div>
+
+<script>
+  function showPlaceholder(imgEl, filename) {
+    const parent = imgEl.parentElement;
+    parent.innerHTML = `<div class="photo-placeholder">
+      Afbeelding niet automatisch gevonden in huidige map.<br>
+      Verwachte bestandsnaam:<br>
+      <code>${filename}</code>
+    </div>`;
+  }
+
+  function handleLocalFiles(event) {
+    const files = Array.from(event.target.files);
+    if (!files.length) return;
+
+    const grid = document.getElementById('photo-grid');
+    const existingImgs = Array.from(grid.querySelectorAll('img'));
+
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        // Controleer of bestandsnaam overeenkomt met een bestaande kaart of placeholder
+        const matchingCard = Array.from(grid.querySelectorAll('.photo-card')).find(card => {
+          const codeEl = card.querySelector('.photo-placeholder code');
+          const imgEl = card.querySelector('img');
+          return (codeEl && codeEl.textContent.trim() === file.name) ||
+                 (imgEl && imgEl.getAttribute('src') === file.name);
+        });
+
+        if (matchingCard) {
+          const frame = matchingCard.querySelector('.photo-frame');
+          frame.innerHTML = `<img src="${dataUrl}" alt="${file.name}" onclick="openLightbox(this.src)">`;
+        } else {
+          // Voeg nieuwe kaart toe voor extra geüploade PDF-pagina's of foto's
+          const article = document.createElement('article');
+          article.className = 'photo-card';
+          article.innerHTML = `
+            <div class="photo-frame">
+              <img src="${dataUrl}" alt="${file.name}" onclick="openLightbox(this.src)">
+            </div>
+            <div class="photo-meta">
+              <span class="doc-tag">Toegevoegd Dossierstuk</span>
+              <h4>${file.name}</h4>
+              <p>Lokaal ingeladen bronbestand uit archief / PDF-document.</p>
+            </div>
+          `;
+          grid.appendChild(article);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('open');
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+  }
+
+  function buildWfsUrl() {
+    const format = encodeURIComponent(document.getElementById('wfs-format').value);
+    const count = document.getElementById('wfs-count').value || 50;
+    const base = 'https://service.pdok.nl/rvo/schelpdierpercelen/wfs/v3_0';
+    const url = `${base}?service=WFS&version=2.0.0&request=GetFeature&typeName=schelpdierpercelen:schelpdierpercelen&outputFormat=${format}&count=${count}`;
+    document.getElementById('wfs-generated-url').textContent = url;
+  }
+
+  function copyWfsUrl(btn) {
+    const url = document.getElementById('wfs-generated-url').textContent;
+    navigator.clipboard.writeText(url).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'URL gekopieerd!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+
+  function buildWooLetter() {
+    const org = document.getElementById('woo-org').value || '[Bestuursorgaan]';
+    const scope = document.getElementById('woo-scope').value || '[Gebied]';
+    const entities = document.getElementById('woo-entities').value || '[Actoren]';
+    const period = document.getElementById('woo-period').value || '[Periode]';
+
+    const letter = `Aan: ${org}
+Onderwerp: Verzoek op grond van de Wet open overheid (Woo) inzake toepassing Didam-arrest, bagger-/ontgrondingsconcessies, waterbodemkwaliteit en perceels-/havenregistraties (${scope})
+
+Geacht college / bestuur,
+
+Op grond van de Wet open overheid (Woo) verzoek ik u om openbaarmaking van alle bij uw bestuursorgaan berustende publieke documenten over de periode ${period}, die betrekking hebben op:
+
+1. Gronduitgifte, concessieverlening en het gelijkheidsbeginsel (Didam-kader):
+   Alle overeenkomsten, concessiebesluiten, pacht-/huurcontracten, selectieleidraden en interne juridische of bestuurlijke notities met betrekking tot het uitgeven van gronden, waterpercelen of bagger-/ontgrondingsrechten binnen ${scope} (waaronder begrepen dossiers waarbij ${entities} betrokken zijn). Indien is afgezien van een openbare selectieprocedure, verzoek ik tevens om de onderliggende motivering en publicaties waaruit blijkt dat op grond van objectieve, toetsbare en redelijke criteria slechts één serieuze gegadigde in aanmerking kwam.
+
+2. Delfstoffenwinning, baggerwerk en waterbodemkwaliteit (Bbk):
+   Alle verleende ontgrondings- en watervergunningen, peilkaarten, milieuhygiënische bodemonderzoeken, partijkeuringen en meldingen in het kader van het Besluit bodemkwaliteit (Bbk) inzake het verplaatsen of nuttig toepassen van baggerspecie en minerale reststromen, alsmede eventuele inspectie- en handhavingsrapporten van toezichthouders (zoals ILT en omgevingsdiensten).
+
+3. Waterstaatkundige en kadastrale vastlegging:
+   Kadastrale en waterstaatkundige leggers, cultuurhistorische objectregistraties en haven-/ligplaatsdossiers binnen bovengenoemd gebied (waaronder kadastrale en historische documentatie rondom Stad Tholen Haven).
+
+Ik verzoek u de gevraagde documenten digitaal (bij voorkeur als doorzoekbare PDF-bestanden en open geodata) aan mij te verstrekken binnen de wettelijke beslistermijn van vier weken.
+
+Met vriendelijke groet,
+
+[Naam]
+[Adres / E-mailadres]`;
+
+    document.getElementById('woo-letter-box').textContent = letter;
+  }
+
+  function copyWooLetter(btn) {
+    const text = document.getElementById('woo-letter-box').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Woo-tekst gekopieerd!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+
+  buildWfsUrl();
+  buildWooLetter();
+</script>
+
+</body>
+</html>
