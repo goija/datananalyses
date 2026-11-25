@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>De Pizzaprojektor &amp; Rustige Koffiehoek — Voor Papa's en Mama's</title>
+    <style>
+        /* =====================================================================
+           ZEEUWS MEEKRAB DESIGN TOKENS & TYPOGRAFIE (100% LOKAAL / ZERO-CDN)
+           ===================================================================== */
+        :root {
+            --meekrab-primary: #8B1E24;
+            --meekrab-accent: #9E2A2B;
+            --meekrab-deep: #631318;
+            --meekrab-soft: #FAF3F3;
+            --meekrab-tint: #FDF9F9;
+            --meekrab-border: #DECACC;
+            --ink-primary: #1E1A1A;
+            --ink-secondary: #4E4546;
+            --ink-muted: #766B6C;
+            --paper-bg: #FFFFFF;
+            --backdrop-bg: #FAFAFA;
+            --ok-green: #1B6B3A;
+            --ok-bg: #EDF8F1;
+            --warm-gold: #D99B26;
+            --crust-tan: #D49A5A;
+
+            --font-serif: Georgia, "Times New Roman", Times, serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            color: var(--ink-primary);
+            background-color: var(--backdrop-bg);
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        h1, h2, h3, h4, .serif {
+            font-family: var(--font-serif);
+            margin-top: 0;
+        }
+
+        code, pre, .mono {
+            font-family: var(--font-mono);
+        }
+
+        .top-bar-stripe {
+            height: 6px;
+            width: 100%;
+            background: linear-gradient(90deg, var(--meekrab-deep) 0%, var(--meekrab-primary) 50%, var(--meekrab-accent) 100%);
+        }
+
+        .container {
+            max-width: 1220px;
+            margin: 0 auto;
+            padding: 0 1.2rem;
+        }
+
+        /* =====================================================================
+           HEADER & OUDER-ACTIEKNOPPEN
+           ===================================================================== */
+        header.site-header {
+            background-color: var(--paper-bg);
+            border-bottom: 1.5px solid var(--meekrab-border);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 3px 14px rgba(99, 19, 24, 0.05);
+        }
+
+        .header-flex {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 0;
+        }
+
+        .badge-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.62rem;
+            border-radius: 999px;
+            font-size: 0.71rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .badge-primary {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            font-family: var(--font-sans);
+            letter-spacing: 0.02em;
+        }
+
+        .badge-soft {
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            color: var(--meekrab-primary);
+        }
+
+        .site-title {
+            font-size: clamp(1.42rem, 2.5vw, 1.95rem);
+            font-weight: 700;
+            color: var(--ink-primary);
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .site-subtitle {
+            margin: 0.15rem 0 0 0;
+            font-size: 0.85rem;
+            color: var(--ink-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        /* Knoppen */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.54rem 0.92rem;
+            border-radius: 9px;
+            font-size: 0.79rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: transform 0.12s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+            user-select: none;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-meekrab {
+            background: linear-gradient(180deg, var(--meekrab-accent) 0%, var(--meekrab-primary) 100%);
+            color: #FFFFFF;
+            border-color: var(--meekrab-deep);
+            box-shadow: 0 3px 10px rgba(139, 30, 36, 0.2);
+        }
+
+        .btn-meekrab:hover {
+            background: linear-gradient(180deg, var(--meekrab-primary) 0%, var(--meekrab-deep) 100%);
+        }
+
+        .btn-soft {
+            background-color: var(--meekrab-soft);
+            color: var(--meekrab-primary);
+            border-color: var(--meekrab-border);
+        }
+
+        .btn-soft:hover {
+            border-color: var(--meekrab-primary);
+            background-color: #F3E4E5;
+        }
+
+        .btn-white {
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            border-color: var(--meekrab-border);
+        }
+
+        .btn-white:hover {
+            border-color: var(--meekrab-primary);
+            color: var(--meekrab-primary);
+        }
+
+        .btn-sm {
+            padding: 0.38rem 0.7rem;
+            font-size: 0.74rem;
+            border-radius: 7px;
+        }
+
+        /* =====================================================================
+           MAIN WORKSPACE & SECTIES
+           ===================================================================== */
+        main.workspace {
+            padding: 1.5rem 0 3rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.6rem;
+        }
+
+        .panel {
+            background-color: var(--paper-bg);
+            border: 1px solid var(--meekrab-border);
+            border-radius: 14px;
+            padding: 1.45rem 1.6rem;
+            box-shadow: 0 3px 14px rgba(30, 26, 26, 0.035);
+        }
+
+        .panel-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 0.65rem;
+        }
+
+        .panel-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--ink-primary);
+        }
+
+        .meekrab-divider {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, var(--meekrab-primary) 0%, var(--meekrab-accent) 55%, rgba(158, 42, 43, 0.12) 100%);
+            margin: 0 0 1.25rem 0;
+        }
+
+        /* =====================================================================
+           MODULE 1: DE PIZZAPROJEKTOR & GAUSS' THEOREMA EGREGIUM
+           ===================================================================== */
+        .mode-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-bottom: 1.15rem;
+            background-color: var(--meekrab-soft);
+            padding: 0.55rem;
+            border-radius: 11px;
+            border: 1px solid var(--meekrab-border);
+        }
+
+        .mode-tab {
+            flex: 1 1 auto;
+            min-width: 150px;
+            padding: 0.52rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+            color: var(--ink-secondary);
+            font-size: 0.77rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.16s ease;
+            text-align: center;
+        }
+
+        .mode-tab:hover {
+            border-color: var(--meekrab-primary);
+            color: var(--meekrab-primary);
+        }
+
+        .mode-tab.active {
+            background-color: var(--meekrab-primary);
+            border-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            box-shadow: 0 3px 9px rgba(139, 30, 36, 0.22);
+        }
+
+        .projector-grid {
+            display: grid;
+            grid-template-columns: 1.28fr 0.92fr;
+            gap: 1.25rem;
+            align-items: start;
+        }
+
+        @media (max-width: 960px) {
+            .projector-grid {
+                grid-template-columns: 1fr;
+            }
+            .panel {
+                padding: 1.1rem;
+            }
+        }
+
+        .canvas-card {
+            border: 1px solid var(--meekrab-border);
+            border-radius: 12px;
+            padding: 0.9rem;
+            background-color: var(--meekrab-tint);
+        }
+
+        .canvas-stage {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            min-height: 340px;
+            max-height: 500px;
+            background-color: #FFFFFF;
+            border-radius: 9px;
+            border: 1.5px solid var(--meekrab-border);
+            overflow: hidden;
+        }
+
+        .canvas-stage canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: grab;
+        }
+
+        .canvas-stage canvas:active {
+            cursor: grabbing;
+        }
+
+        .canvas-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-top: 0.6rem;
+            font-size: 0.73rem;
+            color: var(--ink-secondary);
+        }
+
+        /* Besturing & Live Uitlezing */
+        .control-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.95rem;
+        }
+
+        .control-box {
+            border: 1px solid var(--meekrab-border);
+            border-radius: 10px;
+            padding: 0.9rem 1rem;
+            background-color: #FFFFFF;
+        }
+
+        .control-box-soft {
+            border: 1.5px solid var(--meekrab-primary);
+            border-radius: 10px;
+            padding: 0.9rem 1rem;
+            background-color: var(--meekrab-soft);
+        }
+
+        .box-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--meekrab-primary);
+            margin-bottom: 0.55rem;
+        }
+
+        .slider-row {
+            margin-bottom: 0.75rem;
+        }
+
+        .slider-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        input[type="range"].meekrab-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #E5D4D5;
+            border-radius: 999px;
+            outline: none;
+        }
+
+        input[type="range"].meekrab-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--meekrab-primary);
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        input[type="range"].meekrab-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--meekrab-primary);
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.55rem;
+        }
+
+        .metric-tile {
+            background-color: #FFFFFF;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 8px;
+            padding: 0.52rem 0.68rem;
+        }
+
+        .metric-name {
+            font-size: 0.67rem;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            font-family: var(--font-mono);
+        }
+
+        .metric-val {
+            font-size: 0.92rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--ink-primary);
+            margin-top: 0.12rem;
+        }
+
+        .formula-strip {
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            border-left: 4px solid var(--meekrab-primary);
+            border-radius: 8px;
+            padding: 0.75rem 0.95rem;
+            font-size: 0.81rem;
+            margin-top: 1.15rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* =====================================================================
+           UITLEGKAARTEN VOOR OUDERS & KINDEREN
+           ===================================================================== */
+        .duo-explain-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.15rem;
+            margin-top: 1.2rem;
+        }
+
+        @media (max-width: 820px) {
+            .duo-explain-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .explain-card {
+            border: 1px solid var(--meekrab-border);
+            border-radius: 11px;
+            padding: 1.05rem 1.15rem;
+            background-color: var(--meekrab-tint);
+        }
+
+        .explain-card h3 {
+            font-size: 1.12rem;
+            color: var(--meekrab-primary);
+            margin-bottom: 0.45rem;
+        }
+
+        .explain-card p {
+            margin: 0 0 0.6rem 0;
+            font-size: 0.84rem;
+            color: var(--ink-primary);
+        }
+
+        .explain-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* =====================================================================
+           MODULE 2: HET OUDER-SCHILD & RUSTIGE KOFFIEHOEK
+           ===================================================================== */
+        .koffiehoek-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 1.25rem;
+            align-items: stretch;
+        }
+
+        @media (max-width: 880px) {
+            .koffiehoek-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .peace-flag-card {
+            border: 2px solid var(--meekrab-primary);
+            border-radius: 12px;
+            background: linear-gradient(180deg, #FFFFFF 0%, var(--meekrab-soft) 100%);
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            justify-content: space-between;
+        }
+
+        .flag-stage {
+            width: 175px;
+            height: 155px;
+            border-radius: 16px;
+            background-color: #FFFFFF;
+            border: 1.5px dashed var(--meekrab-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 0.5rem 0;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+        }
+
+        .flag-stage:hover {
+            border-color: var(--meekrab-primary);
+            box-shadow: 0 6px 18px rgba(139, 30, 36, 0.12);
+        }
+
+        @keyframes waveFlag {
+            0%   { transform: rotate(0deg); }
+            20%  { transform: rotate(-16deg) scale(1.06); }
+            45%  { transform: rotate(18deg) scale(1.08); }
+            70%  { transform: rotate(-10deg) scale(1.04); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        .waving {
+            animation: waveFlag 0.7s ease-in-out;
+            transform-origin: 25% 88%;
+        }
+
+        .coffee-note-card {
+            border: 1px solid var(--meekrab-border);
+            border-radius: 12px;
+            background-color: #FFFFFF;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.85rem;
+        }
+
+        .pizza-recipe-calc {
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            border-radius: 9px;
+            padding: 0.85rem 1rem;
+        }
+
+        /* =====================================================================
+           RUSTIGE KOFFIE & WISKUNDE-MODUS (VOLLEDIG SCHERM OVERLAY)
+           ===================================================================== */
+        .calm-mode-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background-color: #FAFAFA;
+            color: #1E1A1A;
+            overflow-y: auto;
+            display: none;
+            padding: 2rem 1.25rem;
+        }
+
+        .calm-mode-overlay.visible {
+            display: block;
+        }
+
+        .calm-sheet {
+            max-width: 860px;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            border: 1.5px solid var(--meekrab-border);
+            border-top: 6px solid var(--meekrab-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 12px 35px rgba(30, 26, 26, 0.08);
+        }
+
+        .calm-math-block {
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            border-left: 4px solid var(--meekrab-primary);
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            font-family: var(--font-serif);
+            font-size: 1.08rem;
+            margin: 1rem 0;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 1.2rem;
+            right: 1.2rem;
+            z-index: 90;
+            background-color: #1E1A1A;
+            color: #FFFFFF;
+            padding: 0.72rem 1.05rem;
+            border-radius: 9px;
+            border-left: 4px solid var(--meekrab-accent);
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        footer.site-footer {
+            background-color: var(--paper-bg);
+            border-top: 1px solid var(--meekrab-border);
+            padding: 1.2rem 0;
+            font-size: 0.78rem;
+            color: var(--ink-secondary);
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            header.site-header { position: static !important; box-shadow: none !important; }
+            .panel { box-shadow: none !important; break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar-stripe"></div>
+
+    <!-- =======================================================================
+         HEADER
+         ======================================================================= -->
+    <header class="site-header">
+        <div class="container">
+            <div class="header-flex">
+                <div>
+                    <div class="badge-strip">
+                        <span class="badge badge-primary">Voor Papa's en Mama's (&amp; Nieuwsgierige Kinderen)</span>
+                        <span class="badge badge-soft">R = 19 cm &bull; R&sup2; = 361 &bull; 19&times;19 Rooster</span>
+                        <span class="badge badge-soft">100% Lokaal / Zero-Tracker</span>
+                    </div>
+                    <h1 class="site-title">De Pizzaprojektor &amp; Rustige Koffiehoek</h1>
+                    <p class="site-subtitle">
+                        Samen ontdekken hoe Gauss&rsquo; <em>Theorema Egregium</em> je pizzapunt rechthoudt en hoe je een ronde deegbol plat op een bord projecteert
+                    </p>
+                </div>
+
+                <div class="header-actions no-print">
+                    <button type="button" class="btn btn-meekrab" onclick="toggleCalmMode(true)">
+                        Rustige Koffie &amp; Wiskunde-Modus
+                    </button>
+                    <button type="button" class="btn btn-soft" onclick="wavePeaceFlag()">
+                        Matteklopper-ontwijker / Vredesvlag
+                    </button>
+                    <button type="button" class="btn btn-white" onclick="window.print()">
+                        Afdrukken / PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- =======================================================================
+         HOOFDINHOUD
+         ======================================================================= -->
+    <main class="container workspace">
+
+        <!-- ===================================================================
+             MODULE 1: DE PIZZAPROJEKTOR & GAUSS' THEOREMA EGREGIUM
+             =================================================================== -->
+        <section class="panel" aria-labelledby="heading-projector">
+            <div class="panel-header">
+                <h2 id="heading-projector" class="panel-title">1. De Pizzaprojektor &amp; Gauss&rsquo; <em>Theorema Egregium</em></h2>
+                <span class="mono" style="font-size:0.75rem; color:var(--meekrab-primary); font-weight:700;">
+                    sin&sup2;(&alpha;) + cos&sup2;(&alpha;) = 1 &bull; tan(&alpha;) = sin(&alpha;)/cos(&alpha;)
+                </span>
+            </div>
+            <hr class="meekrab-divider">
+
+            <!-- 6 Weergavemodi: Platte Pizza, 3D-Opgevouwen Punt, en 4 Kaartprojecties -->
+            <div class="mode-tabs no-print" role="tablist" aria-label="Pizzaprojektor weergavemodus">
+                <button type="button" class="mode-tab active" data-mode="flat" onclick="setProjectorMode('flat', this)">
+                    1. Platte Pizza (19&times;19 Rooster)
+                </button>
+                <button type="button" class="mode-tab" data-mode="fold3d" onclick="setProjectorMode('fold3d', this)">
+                    2. 3D-Opgevouwen Pizzapunt (K = 0)
+                </button>
+                <button type="button" class="mode-tab" data-mode="equidistant" onclick="setProjectorMode('equidistant', this)">
+                    3. Azimutale Equidistante Projectie
+                </button>
+                <button type="button" class="mode-tab" data-mode="stereographic" onclick="setProjectorMode('stereographic', this)">
+                    4. Stereografische Projectie (Conform)
+                </button>
+                <button type="button" class="mode-tab" data-mode="orthographic" onclick="setProjectorMode('orthographic', this)">
+                    5. Orthografische Projectie (Bovenaanzicht)
+                </button>
+                <button type="button" class="mode-tab" data-mode="lambert" onclick="setProjectorMode('lambert', this)">
+                    6. Lambert Oppervlaktegetrouw
+                </button>
+            </div>
+
+            <!-- Hoofdraster: Interactief Canvas Links + Schuifregelaars & Live Metriek Rechts -->
+            <div class="projector-grid">
+                <!-- Linker kolom: HTML5 Canvas -->
+                <div class="canvas-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; font-family:var(--font-mono); color:var(--ink-secondary); margin-bottom:0.45rem;">
+                        <span id="canvasModeHeader">MODUS: PLATTE PIZZA OP 19&times;19 ROOSTER (361 PUNTEN)</span>
+                        <span style="color:var(--meekrab-primary); font-weight:700;">R = 19 cm (R&sup2; = 361)</span>
+                    </div>
+
+                    <div class="canvas-stage">
+                        <canvas id="pizzaCanvas" aria-label="Interactieve pizzaprojectie en 3D-krommingsvisualisatie"></canvas>
+                    </div>
+
+                    <div class="canvas-legend">
+                        <span id="canvasHintText">Tip: Sleep met je muis of vinger over de pizza om de kijkhoek of fasehoek &alpha; te draaien.</span>
+                        <span class="mono" style="color:var(--meekrab-primary); font-weight:700;" id="gaussCurvatureBadge">Gaussische kromming K = 0</span>
+                    </div>
+                </div>
+
+                <!-- Rechter kolom: Schuifregelaars & Live Uitlezing -->
+                <div class="control-stack">
+                    <!-- Schuifregelaars -->
+                    <div class="control-box no-print">
+                        <div class="box-label">Interactieve Schuifregelaars</div>
+
+                        <!-- Slider 1: Hoek alpha -->
+                        <div class="slider-row">
+                            <div class="slider-header">
+                                <label for="sliderAlpha">Fasehoek &alpha; (op de cirkel)</label>
+                                <span class="mono" style="color:var(--meekrab-primary);" id="labelAlpha">45&deg; (0.785 rad)</span>
+                            </div>
+                            <input type="range" id="sliderAlpha" class="meekrab-slider" min="0" max="360" step="1" value="45" oninput="onSliderUpdate()">
+                        </div>
+
+                        <!-- Slider 2: Aantal pizzapunten n -->
+                        <div class="slider-row">
+                            <div class="slider-header">
+                                <label for="sliderSlices">Aantal pizzapunten (n)</label>
+                                <span class="mono" style="color:var(--meekrab-primary);" id="labelSlices">n = 8 punten (&theta; = 45.0&deg;)</span>
+                            </div>
+                            <input type="range" id="sliderSlices" class="meekrab-slider" min="3" max="19" step="1" value="8" oninput="onSliderUpdate()">
+                        </div>
+
+                        <!-- Slider 3: Kromming / Vouwgraad -->
+                        <div class="slider-row">
+                            <div class="slider-header">
+                                <label for="sliderFold">Korst-vouwgraad / Bolkromming</label>
+                                <span class="mono" style="color:var(--meekrab-primary);" id="labelFold">75% gevouwen (stevig!)</span>
+                            </div>
+                            <input type="range" id="sliderFold" class="meekrab-slider" min="0" max="100" step="1" value="75" oninput="onSliderUpdate()">
+                        </div>
+
+                        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.65rem; padding-top:0.6rem; border-top:1px solid #EFEAEA;">
+                            <label style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.75rem; cursor:pointer;">
+                                <input type="checkbox" id="chkGrid361" checked onchange="drawPizzaScene()" style="accent-color:#8B1E24;">
+                                <span>Toon 19&times;19 rooster (361 punten)</span>
+                            </label>
+                            <label style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.75rem; cursor:pointer;">
+                                <input type="checkbox" id="chkSalami" checked onchange="drawPizzaScene()" style="accent-color:#8B1E24;">
+                                <span>Salami-indicatoren (Tissot-cirkels)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Live Wiskundige & Geodetische Uitlezing -->
+                    <div class="control-box-soft">
+                        <div class="box-label">Live Metriek (R = 19 cm &bull; R&sup2; = 361)</div>
+                        <div class="metrics-grid">
+                            <div class="metric-tile">
+                                <div class="metric-name">Oppervlakte 1 punt</div>
+                                <div class="metric-val" id="metricSliceArea">141.76 cm&sup2;</div>
+                            </div>
+                            <div class="metric-tile">
+                                <div class="metric-name">Korstboog (s = R&theta;)</div>
+                                <div class="metric-val" id="metricArc">14.92 cm</div>
+                            </div>
+                            <div class="metric-tile">
+                                <div class="metric-name">Koorde (c = 2R&middot;sin)</div>
+                                <div class="metric-val" id="metricChord">14.54 cm</div>
+                            </div>
+                            <div class="metric-tile">
+                                <div class="metric-name">Roosterpunten in cirkel</div>
+                                <div class="metric-val" id="metricGridCount">285 / 361</div>
+                            </div>
+                            <div class="metric-tile">
+                                <div class="metric-name">sin&sup2;(&alpha;) + cos&sup2;(&alpha;)</div>
+                                <div class="metric-val" id="metricTrigId" style="color:var(--ok-green);">1.00000</div>
+                            </div>
+                            <div class="metric-tile">
+                                <div class="metric-name">tan(&alpha;) &amp; Randrek</div>
+                                <div class="metric-val" id="metricTanDist">1.000 | 1.00&times;</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulebalk -->
+            <div class="formula-strip">
+                <div>
+                    <strong style="color:var(--meekrab-primary);">Cirkelvergelijking op de pizza:</strong>
+                    <span class="mono">x = 19&middot;cos(&alpha;), y = 19&middot;sin(&alpha;) &rArr; x&sup2; + y&sup2; = 361&middot;(cos&sup2;(&alpha;) + sin&sup2;(&alpha;)) = 361</span>
+                </div>
+                <div class="mono" style="font-size:0.75rem; color:var(--ink-secondary);" id="projectionFormulaNote">
+                    Totale pizza-oppervlakte: A = &pi;&middot;19&sup2; = 361&pi; &approx; 1134.11 cm&sup2;
+                </div>
+            </div>
+
+            <!-- Heldere uitleg voor zowel Kinderen als Ouders -->
+            <div class="duo-explain-grid">
+                <div class="explain-card">
+                    <h3>Uitleg voor Kinderen: Waarom valt mijn pizzapunt niet slap naar beneden?</h3>
+                    <p>
+                        Pak je een platte pizzapunt bij de korst vast, dan hangt het puntje meteen slap omlaag en glijdt de gesmolten kaas op je bord. Maar vouw je de korst aan de zijkanten een beetje omhoog (als een U-gootje), dan blijft de punt ineens kaarsrecht vooruit steken!
+                    </p>
+                    <p>
+                        Dat komt doordat pizzadeeg niet makkelijk uitrekt of krimpt. Een plat deegvel kan maar in <strong>&eacute;&eacute;n richting tegelijk</strong> buigen. Door het deeg in de breedte te buigen (de korst vouwen), <em>moet</em> het in de lengte wel recht blijven!
+                    </p>
+                </div>
+
+                <div class="explain-card">
+                    <h3>Uitleg voor Papa&rsquo;s en Mama&rsquo;s: Gauss&rsquo; <em>Theorema Egregium</em> &amp; Kaartprojecties</h3>
+                    <p>
+                        Wiskundige Carl Friedrich Gauss bewees in 1827 dat de <strong>Gaussische kromming</strong> <span class="mono">K = &kappa;&#8321; &middot; &kappa;&#8322;</span> een intrinsieke eigenschap is die bij buigen zonder rek (isometrie) onveranderd blijft. Voor een platte pizza geldt <span class="mono">K = 0</span>. Vouw je de korst dwars (<span class="mono">&kappa;&#8322; &ne; 0</span>), dan dwingt <span class="mono">K = 0</span> dat <span class="mono">&kappa;&#8321; = 0</span>: de punt blijft recht.
+                    </p>
+                    <p>
+                        Een bolvormige deegbol heeft echter <span class="mono">K = 1/R&sup2; &gt; 0</span>. Omdat <span class="mono">K<sub>bol</sub> &ne; K<sub>bord</sub></span>, kun je een bol nooit zonder vervorming platdrukken. De ronde plakjes salami (<em>Tissot-indicatrices</em>) tonen per kaartprojectie exact waar afstanden, hoeken of oppervlakten vervormen.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================
+             MODULE 2: HET OUDER-SCHILD & RUSTIGE KOFFIEHOEK
+             =================================================================== -->
+        <section class="panel" aria-labelledby="heading-koffiehoek">
+            <div class="panel-header">
+                <h2 id="heading-koffiehoek" class="panel-title">2. Het Ouder-Schild &amp; Rustige Koffiehoek</h2>
+                <span class="badge badge-soft">Vriendschappelijk Alternatief voor de Matteklopper</span>
+            </div>
+            <hr class="meekrab-divider">
+
+            <div class="koffiehoek-grid">
+                <!-- Linker kolom: Koffiehoek & Pizza-portie rekenhulp -->
+                <div class="coffee-note-card">
+                    <div>
+                        <div class="box-label">Even ademhalen tussen het kletsen door</div>
+                        <h3 style="font-size:1.22rem; margin-bottom:0.45rem;">Welkom in de Rustige Koffiehoek</h3>
+                        <p style="font-size:0.84rem; color:var(--ink-secondary); margin:0 0 0.85rem 0;">
+                            Terwijl de kinderen in <em>De Klets- en Roddelruimte</em> met hun digitale matteklopper zwaaien, kunnen papa&rsquo;s en mama&rsquo;s hier rustig een kop koffie drinken, samen naar de wiskunde achter de eettafel kijken en meteen uitrekenen hoeveel pizza iedereen krijgt.
+                        </p>
+
+                        <!-- Praktische keukentafel-calculator gekoppeld aan R = 19 cm -->
+                        <div class="pizza-recipe-calc">
+                            <div style="font-size:0.75rem; font-weight:700; color:var(--meekrab-primary); text-transform:uppercase; margin-bottom:0.35rem;">
+                                Eettafel-Check (Pizza van R = 19 cm &bull; &Oslash; 38 cm)
+                            </div>
+                            <p id="dinnerTableSummary" style="font-size:0.82rem; margin:0; color:var(--ink-primary); line-height:1.5;">
+                                Met <strong>8 punten</strong> krijgt elk gezinslid een punt van <strong>141.76 cm&sup2;</strong> met een korstboog van <strong>14.92 cm</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:0.55rem;" class="no-print">
+                        <button type="button" class="btn btn-meekrab" onclick="toggleCalmMode(true)">
+                            Open Rustige Koffie &amp; Wiskunde-Modus
+                        </button>
+                        <button type="button" class="btn btn-white" onclick="wavePeaceFlag()">
+                            Zwaai met de Vredesvlag
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Rechter kolom: Matteklopper-ontwijker & Vredesvlag -->
+                <div class="peace-flag-card">
+                    <div>
+                        <span class="badge badge-primary" style="margin-bottom:0.35rem;">Geen Matteklopper Nodig</span>
+                        <h3 style="font-size:1.2rem; margin-bottom:0.25rem; color:var(--meekrab-primary);">De Matteklopper-Ontwijker</h3>
+                        <p style="font-size:0.79rem; color:var(--ink-secondary); margin:0;">
+                            Klik op de witte vredesvlag met meekrab-hart om vriendelijk aan te geven dat je alleen maar even koffie komt brengen (en een stukje pizza komt proeven).
+                        </p>
+                    </div>
+
+                    <!-- Klikbare Vredesvlag SVG -->
+                    <div class="flag-stage" onclick="wavePeaceFlag()" role="button" tabindex="0" aria-label="Zwaai met de witte vredesvlag" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();wavePeaceFlag();}">
+                        <svg id="peaceFlagSvg" width="128" height="128" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Vlaggenstok -->
+                            <rect x="28" y="18" width="6" height="106" rx="3" fill="#631318"/>
+                            <circle cx="31" cy="16" r="5" fill="#8B1E24"/>
+                            <!-- Wapperende witte vredesvlag met meekrab-rand -->
+                            <path d="M34 24 C56 18, 78 30, 108 24 L108 74 C78 80, 56 68, 34 74 Z" fill="#FFFFFF" stroke="#8B1E24" stroke-width="3.5" stroke-linejoin="round"/>
+                            <!-- Vriendelijk hartje & koffiekop-symbool op de vlag -->
+                            <path d="M71 58 C71 58, 57 49, 57 41 C57 36.5, 61 34, 65 34 C68 34, 70 36, 71 38 C72 36, 74 34, 77 34 C81 34, 85 36.5, 85 41 C85 49, 71 58, 71 58 Z" fill="#9E2A2B"/>
+                        </svg>
+                    </div>
+
+                    <div style="width:100%;">
+                        <button type="button" class="btn btn-soft" style="width:100%;" onclick="wavePeaceFlag()">
+                            Vredesvlag Hijsen (&ldquo;Wij komen alleen voor de koffie!&rdquo;)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =======================================================================
+         RUSTIGE KOFFIE & WISKUNDE-MODUS (VOLLEDIG SCHERM LEESSTAND)
+         ======================================================================= -->
+    <div id="calmModeOverlay" class="calm-mode-overlay" role="dialog" aria-modal="true" aria-labelledby="calmModeTitle">
+        <div class="calm-sheet">
+            <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.75rem; border-bottom:1.5px solid var(--meekrab-border); padding-bottom:0.9rem; margin-bottom:1.25rem;">
+                <div>
+                    <span class="badge badge-soft" style="margin-bottom:0.3rem;">Rustige Koffie &amp; Wiskunde-Modus</span>
+                    <h2 id="calmModeTitle" class="serif" style="font-size:1.65rem; margin:0; color:var(--meekrab-primary);">
+                        Goniometrie, Het 19&times;19 Rooster (361) &amp; Gaussische Kromming
+                    </h2>
+                </div>
+                <button type="button" class="btn btn-meekrab" onclick="toggleCalmMode(false)">
+                    Terug naar de Pizzaprojektor (Esc)
+                </button>
+            </div>
+
+            <p style="font-size:0.92rem; line-height:1.65;">
+                <strong>1. De Stelling van Pythagoras op de Cirkel met Straal R = 19:</strong><br>
+                Voor elke hoek &alpha; beschrijft het punt <span class="mono">(x, y) = (19&middot;cos(&alpha;), 19&middot;sin(&alpha;))</span> de rand van een pizza met straal 19 cm. Dankzij de fundamentele identiteit blijft de afstand tot het middelpunt altijd exact gelijk:
+            </p>
+            <div class="calm-math-block">
+                sin&sup2;(&alpha;) + cos&sup2;(&alpha;) = 1 &nbsp;&nbsp;&rArr;&nbsp;&nbsp; (19&middot;sin(&alpha;))&sup2; + (19&middot;cos(&alpha;))&sup2; = 19&sup2; = <strong>361</strong><br>
+                tan(&alpha;) = sin(&alpha;) / cos(&alpha;) &nbsp;&nbsp;(voor cos(&alpha;) &ne; 0)
+            </div>
+
+            <p style="font-size:0.92rem; line-height:1.65;">
+                <strong>2. Het 19&times;19 Rooster (361 Roosterpunten &amp; het Gauss-Cirkelprobleem):</strong><br>
+                Rondom de cirkel met straal <span class="mono">R = 19</span> past een vierkant rooster van <span class="mono">19 &times; 19 = 361</span> gehele co&ouml;rdinaten (van &minus;9 tot +9 op beide assen, geschaald met factor 2 cm). Binnen de cirkel <span class="mono">x&sup2; + y&sup2; &le; 361</span> liggen <strong>285</strong> gehele roosterpunten, wat een directe benadering geeft voor &pi;: <span class="mono">285 / 90.25 &approx; 3.158</span>.
+            </p>
+
+            <p style="font-size:0.92rem; line-height:1.65;">
+                <strong>3. Waarom een Opgevouwen Pizzapunt Niet Doorbuigt (Theorema Egregium):</strong><br>
+                De Gaussische kromming <span class="mono">K = &kappa;&#8321; &middot; &kappa;&#8322;</span> is het product van de twee hoofdkrommingen. Omdat een platte pizzabodem <span class="mono">K = 0</span> heeft en het deeg niet kan uitrekken, moet minstens &eacute;&eacute;n van de twee krommingen nul blijven. Buig je de korst (<span class="mono">&kappa;&#8322; &ne; 0</span>), dan wordt <span class="mono">&kappa;&#8321; = 0</span> afgedwongen.
+            </p>
+
+            <div class="calm-math-block">
+                <strong>Overzicht van de Vier Azimutale Kaartprojecties (Bolstraal R = 19):</strong><br>
+                &bull; <em>Azimutaal Equidistant:</em> r(&theta;) = R &middot; &theta; (radiale afstanden exact)<br>
+                &bull; <em>Stereografisch (Conform):</em> r(&theta;) = 2R &middot; tan(&theta;/2) = 38 &middot; sin(&theta;) / (1 + cos(&theta;)) (hoekgetrouw)<br>
+                &bull; <em>Orthografisch:</em> r(&theta;) = R &middot; sin(&theta;) = 19 &middot; sin(&theta;) (loodrecht bovenaanzicht)<br>
+                &bull; <em>Lambert Oppervlaktegetrouw:</em> r(&theta;) = 2R &middot; sin(&theta;/2) (oppervlakte van elke topping exact)
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notificatie -->
+    <div id="toastBanner" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.65rem;">
+            <div>
+                <strong>De Pizzaprojektor &amp; Rustige Koffiehoek</strong> &bull; Wiskunde &amp; Geodesie aan de Eettafel
+            </div>
+            <div class="mono" style="color:var(--meekrab-primary);">
+                R = 19 cm &bull; R&sup2; = 361 &bull; sin&sup2;(&alpha;) + cos&sup2;(&alpha;) = 1 &bull; 100% Lokaal
+            </div>
+        </div>
+    </footer>
+
+    <!-- =======================================================================
+         VOLLEDIGE LOKALE JAVASCRIPT (GEOMETRIE, 3D-VOUW & KAARTPROJECTIES)
+         ======================================================================= -->
+    <script>
+        /* ---------------------------------------------------------------------
+           1. APPLICATIESTATUS & CONFIGURATIE
+           --------------------------------------------------------------------- */
+        const R_CM = 19;          // Straal van de pizza in cm
+        const R_SQ = 361;         // R^2 = 19^2 = 361
+
+        let projectorMode = 'flat'; // 'flat' | 'fold3d' | 'equidistant' | 'stereographic' | 'orthographic' | 'lambert'
+        let alphaDeg = 45;          // Fasehoek alpha in graden
+        let sliceCount = 8;         // Aantal pizzapunten n
+        let foldPercent = 75;       // Vouwgraad of bolkromming (0..100%)
+        let viewYaw = -0.42;        // 3D kijkhoek horizontaal (sleepbaar)
+        let viewPitch = 0.48;       // 3D kijkhoek verticaal (sleepbaar)
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let isCalmModeOpen = false;
+
+        const canvas = document.getElementById('pizzaCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Vaste topping-posities op de bol / pizza (in genormaliseerde poolcoördinaten rho in [0, 1], phi in [0, 2pi])
+        const SALAMI_TOPPINGS = [
+            { rho: 0.28, phi: 0.45, rNorm: 0.11 },
+            { rho: 0.28, phi: 2.55, rNorm: 0.11 },
+            { rho: 0.28, phi: 4.65, rNorm: 0.11 },
+            { rho: 0.62, phi: 0.15, rNorm: 0.11 },
+            { rho: 0.62, phi: 1.20, rNorm: 0.11 },
+            { rho: 0.62, phi: 2.25, rNorm: 0.11 },
+            { rho: 0.62, phi: 3.30, rNorm: 0.11 },
+            { rho: 0.62, phi: 4.35, rNorm: 0.11 },
+            { rho: 0.62, phi: 5.40, rNorm: 0.11 },
+            { rho: 0.84, phi: 0.72, rNorm: 0.10 },
+            { rho: 0.84, phi: 1.98, rNorm: 0.10 },
+            { rho: 0.84, phi: 3.24, rNorm: 0.10 },
+            { rho: 0.84, phi: 4.50, rNorm: 0.10 },
+            { rho: 0.84, phi: 5.76, rNorm: 0.10 }
+        ];
+
+        const MODE_DESCRIPTIONS = {
+            flat: {
+                header: 'MODUS: PLATTE PIZZA OP 19×19 ROOSTER (361 PUNTEN)',
+                gauss: 'Gaussische kromming K = 0 (vlak)',
+                formula: 'Totale pizza-oppervlakte: A = π·19² = 361π ≈ 1134.11 cm² | Rooster: 19 × 19 = 361 snijpunten',
+                hint: 'Sleep over de pizza om de fasehoek α te draaien.'
+            },
+            fold3d: {
+                header: 'MODUS: 3D-OPGEVOUWEN PIZZAPUNT (THEOREMA EGREGIUM)',
+                gauss: 'K = κ₁·κ₂ = 0 (dwars gevouwen ⇒ lengte recht!)',
+                formula: 'Isometrische buiging: korstkromming κ₂ > 0 dwingt lengtekromming κ₁ = 0 af (geen slappe punt!)',
+                hint: 'Sleep met muis/vinger om het 3D-model te draaien; pas de korst-vouwgraad aan.'
+            },
+            equidistant: {
+                header: 'MODUS: AZIMUTALE EQUIDISTANTE PROJECTIE',
+                gauss: 'Bol K = 1/361 → Bord K = 0 (radiaal afstandgetrouw)',
+                formula: 'Projectiewet: r(θ) = R·θ = 19·θ | Tangentiële rek aan de rand: θ / sin(θ)',
+                hint: 'Afstanden vanuit het middelpunt kloppen exact, maar de korst en salami rekken zijwaarts uit.'
+            },
+            stereographic: {
+                header: 'MODUS: STEREOGRAFISCHE PROJECTIE (CONFORM / HOEKGETROUW)',
+                gauss: 'Bol K = 1/361 → Bord K = 0 (hoekgetrouw)',
+                formula: 'Projectiewet: r(θ) = 2R·tan(θ/2) = 38·sin(θ)/(1 + cos(θ))',
+                hint: 'Alle plakjes salami blijven perfect cirkelvormig, maar worden aan de rand sterk vergroot.'
+            },
+            orthographic: {
+                header: 'MODUS: ORTHOGRAFISCHE PROJECTIE (LOODRECHT BOVENAANZICHT)',
+                gauss: 'Bol K = 1/361 → Bord K = 0 (perspectief van oneindig)',
+                formula: 'Projectiewet: r(θ) = R·sin(θ) = 19·sin(θ) | Radiale verkorting: cos(θ)',
+                hint: 'Zoals een foto recht boven de deegbol: aan de rand worden de salami-plakjes platgedrukt.'
+            },
+            lambert: {
+                header: 'MODUS: LAMBERT AZIMUTALE OPPERVLAKTEGETROUWE PROJECTIE',
+                gauss: 'Bol K = 1/361 → Bord K = 0 (oppervlaktegetrouw)',
+                formula: 'Projectiewet: r(θ) = 2R·sin(θ/2) | Elk stukje kaas & tomaat behoudt exact zijn cm²',
+                hint: 'De oppervlakte van elk plakje salami blijft gelijk, maar de vorm wordt aan de rand ovaal.'
+            }
+        };
+
+        /* ---------------------------------------------------------------------
+           2. RESPONSIEVE CANVAS-SCHALING & INTERACTIE
+           --------------------------------------------------------------------- */
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+            canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            drawPizzaScene();
+        }
+
+        function setProjectorMode(mode, btnEl) {
+            projectorMode = mode;
+            document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+
+            const info = MODE_DESCRIPTIONS[mode];
+            document.getElementById('canvasModeHeader').textContent = info.header;
+            document.getElementById('gaussCurvatureBadge').textContent = info.gauss;
+            document.getElementById('projectionFormulaNote').textContent = info.formula;
+            document.getElementById('canvasHintText').textContent = info.hint;
+
+            updateMetrics();
+            drawPizzaScene();
+        }
+
+        function onSliderUpdate() {
+            alphaDeg = parseFloat(document.getElementById('sliderAlpha').value);
+            sliceCount = parseInt(document.getElementById('sliderSlices').value, 10);
+            foldPercent = parseFloat(document.getElementById('sliderFold').value);
+
+            const alphaRad = (alphaDeg * Math.PI) / 180;
+            const sliceAngleDeg = 360 / sliceCount;
+
+            document.getElementById('labelAlpha').textContent = `${alphaDeg}° (${alphaRad.toFixed(3)} rad)`;
+            document.getElementById('labelSlices').textContent = `n = ${sliceCount} punten (θ = ${sliceAngleDeg.toFixed(1)}°)`;
+
+            if (projectorMode === 'fold3d') {
+                document.getElementById('labelFold').textContent = foldPercent >= 45
+                    ? `${foldPercent}% gevouwen (stevig!)`
+                    : `${foldPercent}% gevouwen (punt zakt door!)`;
+            } else {
+                document.getElementById('labelFold').textContent = `${foldPercent}% bolkromming (θ_max = ${(foldPercent * 0.9).toFixed(0)}°)`;
+            }
+
+            updateMetrics();
+            drawPizzaScene();
+        }
+
+        function updateMetrics() {
+            const alphaRad = (alphaDeg * Math.PI) / 180;
+            const sliceAngleRad = (2 * Math.PI) / sliceCount;
+
+            // Exacte meetkunde van één pizzapunt (R = 19 cm, R^2 = 361)
+            const sliceArea = 0.5 * R_SQ * sliceAngleRad;
+            const arcLength = R_CM * sliceAngleRad;
+            const chordLength = 2 * R_CM * Math.sin(sliceAngleRad / 2);
+
+            document.getElementById('metricSliceArea').textContent = `${sliceArea.toFixed(2)} cm²`;
+            document.getElementById('metricArc').textContent = `${arcLength.toFixed(2)} cm`;
+            document.getElementById('metricChord').textContent = `${chordLength.toFixed(2)} cm`;
+
+            // Eettafel-samenvatting in Module 2 bijwerken
+            const tableEl = document.getElementById('dinnerTableSummary');
+            if (tableEl) {
+                tableEl.innerHTML = `Met <strong>${sliceCount} punten</strong> krijgt elk gezinslid een punt van <strong>${sliceArea.toFixed(2)} cm&sup2;</strong> met een korstboog van <strong>${arcLength.toFixed(2)} cm</strong> (koorde: ${chordLength.toFixed(2)} cm).`;
+            }
+
+            // Tel roosterpunten binnen cirkel op het 19x19 rooster (stapgrootte 2 cm, van -18 tot +18 -> 19x19 = 361 punten)
+            let insideCount = 0;
+            for (let gx = -9; gx <= 9; gx++) {
+                for (let gy = -9; gy <= 9; gy++) {
+                    const xCm = gx * 2;
+                    const yCm = gy * 2;
+                    if (xCm * xCm + yCm * yCm <= R_SQ) {
+                        insideCount++;
+                    }
+                }
+            }
+            document.getElementById('metricGridCount').textContent = `${insideCount} / 361`;
+
+            // Goniometrische identiteit
+            const s = Math.sin(alphaRad);
+            const c = Math.cos(alphaRad);
+            const idVal = s * s + c * c;
+            document.getElementById('metricTrigId').textContent = idVal.toFixed(5);
+
+            // tan(alpha) en projectie-randrek
+            const tanStr = Math.abs(c) < 1e-4 ? '∞ (asymp.)' : (s / c).toFixed(3);
+            const thetaMax = Math.max(0.05, (foldPercent / 100) * (Math.PI / 2));
+            let stretchFactor = 1.0;
+            if (projectorMode === 'equidistant') stretchFactor = thetaMax / Math.sin(thetaMax);
+            else if (projectorMode === 'stereographic') stretchFactor = 1 / Math.pow(Math.cos(thetaMax / 2), 2);
+            else if (projectorMode === 'orthographic') stretchFactor = Math.cos(thetaMax);
+            else if (projectorMode === 'lambert') stretchFactor = 1 / Math.cos(thetaMax / 2);
+
+            document.getElementById('metricTanDist').textContent = `${tanStr} | ${stretchFactor.toFixed(2)}×`;
+        }
+
+        /* ---------------------------------------------------------------------
+           3. CANVAS RENDERING: PLATTE PIZZA, KAARTPROJECTIES & 3D-VOUW
+           --------------------------------------------------------------------- */
+        function projectRadial(rho, thetaMax) {
+            // rho in [0, 1] is de genormaliseerde boogafstand vanaf het centrum van de deegbol
+            const theta = rho * thetaMax;
+            if (thetaMax < 0.02) return rho;
+
+            switch (projectorMode) {
+                case 'equidistant':
+                    return theta / thetaMax;
+                case 'stereographic':
+                    return Math.tan(theta / 2) / Math.tan(thetaMax / 2);
+                case 'orthographic':
+                    return Math.sin(theta) / Math.sin(thetaMax);
+                case 'lambert':
+                    return Math.sin(theta / 2) / Math.sin(thetaMax / 2);
+                default:
+                    return rho;
+            }
+        }
+
+        function drawPizzaScene() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+            if (w <= 0 || h <= 0) return;
+
+            ctx.clearRect(0, 0, w, h);
+
+            if (projectorMode === 'fold3d') {
+                draw3DFoldedSlice(w, h);
+            } else {
+                draw2DPizzaProjection(w, h);
+            }
+        }
+
+        function draw2DPizzaProjection(w, h) {
+            const cx = w / 2;
+            const cy = h / 2;
+            const maxR = Math.min(w, h) * 0.40;
+            const showGrid = document.getElementById('chkGrid361').checked;
+            const showSalami = document.getElementById('chkSalami').checked;
+            const thetaMax = Math.max(0.05, (foldPercent / 100) * (Math.PI / 2));
+
+            // 1. Optioneel 19x19 rooster (361 roosterpunten) op de achtergrond
+            if (showGrid) {
+                const gridHalf = maxR;
+                const step = gridHalf / 9; // 19 lijnen: -9 .. +9 => 19 * 19 = 361 snijpunten
+                ctx.save();
+                ctx.strokeStyle = '#EFE6E7';
+                ctx.lineWidth = 1;
+                for (let i = -9; i <= 9; i++) {
+                    const pos = i * step;
+                    ctx.beginPath();
+                    ctx.moveTo(cx + pos, cy - gridHalf);
+                    ctx.lineTo(cx + pos, cy + gridHalf);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(cx - gridHalf, cy + pos);
+                    ctx.lineTo(cx + gridHalf, cy + pos);
+                    ctx.stroke();
+                }
+
+                // Roosterpunten tekenen (meekrab-rood binnen R=19, lichtgrijs erbuiten)
+                for (let gx = -9; gx <= 9; gx++) {
+                    for (let gy = -9; gy <= 9; gy++) {
+                        const px = cx + gx * step;
+                        const py = cy - gy * step;
+                        const inside = (gx * gx + gy * gy) <= 81.2;
+                        ctx.fillStyle = inside ? 'rgba(139, 30, 36, 0.35)' : '#D6CECF';
+                        ctx.beginPath();
+                        ctx.arc(px, py, inside ? 1.8 : 1.3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+                ctx.restore();
+            }
+
+            // 2. Pizzakorst & Tomatensaus-bodem
+            ctx.save();
+            // Buitenste gebakken korst
+            ctx.beginPath();
+            ctx.arc(cx, cy, maxR, 0, Math.PI * 2);
+            ctx.fillStyle = '#D99B5A';
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = '#8B1E24';
+            ctx.stroke();
+
+            // Tomatensaus & kaas-binnenschijf
+            const sauceR = maxR * 0.89;
+            ctx.beginPath();
+            ctx.arc(cx, cy, sauceR, 0, Math.PI * 2);
+            ctx.fillStyle = '#B8333A';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, sauceR * 0.96, 0, Math.PI * 2);
+            ctx.fillStyle = '#FCE8B2';
+            ctx.fill();
+            ctx.restore();
+
+            // 3. Concentrische breedtecirkels & meridianen (geodetisch net op de pizza)
+            ctx.save();
+            ctx.strokeStyle = 'rgba(139, 30, 36, 0.24)';
+            ctx.lineWidth = 1;
+            [0.25, 0.5, 0.75, 1.0].forEach(rho => {
+                const projR = projectRadial(rho, thetaMax) * sauceR * 0.96;
+                ctx.beginPath();
+                ctx.arc(cx, cy, projR, 0, Math.PI * 2);
+                ctx.stroke();
+            });
+            ctx.restore();
+
+            // 4. Snijlijnen voor n pizzapunten
+            ctx.save();
+            ctx.strokeStyle = 'rgba(139, 30, 36, 0.55)';
+            ctx.lineWidth = 1.4;
+            for (let k = 0; k < sliceCount; k++) {
+                const ang = (k * 2 * Math.PI) / sliceCount;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(ang) * maxR, cy - Math.sin(ang) * maxR);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // 5. Plakjes Salami (Tissot-indicatrices die projectievervorming zichtbaar maken)
+            if (showSalami) {
+                ctx.save();
+                SALAMI_TOPPINGS.forEach(top => {
+                    const rProj = projectRadial(top.rho, thetaMax);
+                    const px = cx + Math.cos(top.phi) * rProj * sauceR * 0.92;
+                    const py = cy - Math.sin(top.phi) * rProj * sauceR * 0.92;
+
+                    // Bereken radiale en tangentiële schaalfactor voor deze projectie
+                    const theta = top.rho * thetaMax;
+                    let scaleRad = 1;
+                    let scaleTan = 1;
+
+                    if (projectorMode === 'equidistant' && theta > 0.01) {
+                        scaleRad = 1;
+                        scaleTan = theta / Math.sin(theta);
+                    } else if (projectorMode === 'stereographic') {
+                        const f = 1 / Math.pow(Math.cos(theta / 2), 2);
+                        scaleRad = f;
+                        scaleTan = f;
+                    } else if (projectorMode === 'orthographic') {
+                        scaleRad = Math.cos(theta);
+                        scaleTan = 1;
+                    } else if (projectorMode === 'lambert') {
+                        scaleRad = Math.cos(theta / 2);
+                        scaleTan = 1 / Math.cos(theta / 2);
+                    }
+
+                    const basePx = top.rNorm * sauceR * 0.72;
+                    const rx = Math.max(2.5, basePx * scaleRad);
+                    const ry = Math.max(2.5, basePx * scaleTan);
+
+                    ctx.save();
+                    ctx.translate(px, py);
+                    ctx.rotate(-top.phi);
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = '#9E2A2B';
+                    ctx.fill();
+                    ctx.lineWidth = 1.3;
+                    ctx.strokeStyle = '#631318';
+                    ctx.stroke();
+
+                    // Klein wit vetstipje in salami
+                    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+                    ctx.beginPath();
+                    ctx.arc(rx * 0.25, -ry * 0.2, Math.max(1, basePx * 0.14), 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+                ctx.restore();
+            }
+
+            // 6. Goniometrische eenheidsdriehoek voor fasehoek alpha (cos(alpha), sin(alpha))
+            const alphaRad = (alphaDeg * Math.PI) / 180;
+            const triR = maxR;
+            const px = cx + Math.cos(alphaRad) * triR;
+            const py = cy - Math.sin(alphaRad) * triR;
+
+            ctx.save();
+            // Highlight de actieve cirkelsector (1 pizzapunt vanaf hoek alpha)
+            const sectorAngle = (2 * Math.PI) / sliceCount;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, maxR, -alphaRad - sectorAngle, -alphaRad);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(139, 30, 36, 0.14)';
+            ctx.fill();
+
+            // Voerstraal R = 19
+            ctx.strokeStyle = '#1E1A1A';
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(px, py);
+            ctx.stroke();
+
+            // cos(alpha) projectie op x-as
+            ctx.strokeStyle = '#1B6B3A';
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(px, cy);
+            ctx.stroke();
+
+            // sin(alpha) projectie op y-as
+            ctx.strokeStyle = '#8B1E24';
+            ctx.lineWidth = 2.2;
+            ctx.setLineDash([4, 3]);
+            ctx.beginPath();
+            ctx.moveTo(px, cy);
+            ctx.lineTo(px, py);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Hoekboogje
+            ctx.beginPath();
+            ctx.arc(cx, cy, 26, -alphaRad, 0);
+            ctx.strokeStyle = '#8B1E24';
+            ctx.lineWidth = 1.6;
+            ctx.stroke();
+
+            // Punt op de rand (19 cos α, 19 sin α)
+            ctx.fillStyle = '#8B1E24';
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(px, py, 5.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#1E1A1A';
+            ctx.font = 'bold 11px monospace';
+            ctx.fillText(`(19·cos α, 19·sin α)`, Math.min(w - 135, Math.max(10, px + 8)), Math.max(18, py - 8));
+            ctx.restore();
+        }
+
+        /* ---------------------------------------------------------------------
+           3D-OPGEVOUWEN PIZZAPUNT (GAUSS' THEOREMA EGREGIUM VISUALISATIE)
+           --------------------------------------------------------------------- */
+        function draw3DFoldedSlice(w, h) {
+            const cx = w / 2;
+            const cy = h * 0.56;
+            const scale = Math.min(w, h) * 0.58;
+
+            const foldRatio = foldPercent / 100; // 0 = helemaal plat (punt zakt omlaag!), 1 = stevig U-gevouwen (punt blijft recht!)
+            const halfAngle = Math.min(0.45, Math.PI / sliceCount);
+
+            // Hoe meer je de korst dwars opvouwt (kappa_2), hoe minder de punt doorzakt (kappa_1 -> 0)
+            const transverseBend = foldRatio * 0.85;
+            const tipDroop = Math.pow(1 - foldRatio, 1.8) * 0.68;
+
+            function project3D(x, y, z) {
+                // Rotatie rond Y (yaw) en X (pitch)
+                const cosY = Math.cos(viewYaw);
+                const sinY = Math.sin(viewYaw);
+                const x1 = x * cosY - z * sinY;
+                const z1 = x * sinY + z * cosY;
+
+                const cosP = Math.cos(viewPitch);
+                const sinP = Math.sin(viewPitch);
+                const y2 = y * cosP - z1 * sinP;
+                const z2 = y * sinP + z1 * cosP;
+
+                const fov = 2.6;
+                const persp = fov / (fov + z2 + 0.8);
+                return {
+                    sx: cx + x1 * scale * persp,
+                    sy: cy - y2 * scale * persp,
+                    depth: z2
+                };
+            }
+
+            // Genereer 3D-mesh van de pizzapunt (u langs lengte van punt=0 tot korst=1, v dwars van -1 tot +1)
+            const stepsU = 18;
+            const stepsV = 16;
+            const grid = [];
+
+            for (let iu = 0; iu <= stepsU; iu++) {
+                const u = iu / stepsU; // 0 = puntje, 1 = korst
+                const row = [];
+                for (let iv = 0; iv <= stepsV; iv++) {
+                    const v = (iv / stepsV) * 2 - 1; // -1 .. +1
+                    const angle = v * halfAngle;
+
+                    // Platte coördinaten
+                    const r = u;
+                    const xBase = (r - 0.52) * Math.cos(angle);
+                    const zBase = r * Math.sin(angle);
+
+                    // Dwarsbuiging (U-gootje in de korst) & lengte-doorzakking (als niet gevouwen)
+                    const yTransverse = transverseBend * (v * v) * (0.28 * u + 0.04);
+                    const yDroop = -tipDroop * Math.pow(1 - u, 1.6);
+
+                    row.push(project3D(xBase, yTransverse + yDroop, zBase));
+                }
+                grid.push(row);
+            }
+
+            // Teken schaduw op het bord eronder
+            ctx.save();
+            ctx.fillStyle = 'rgba(30, 26, 26, 0.07)';
+            ctx.beginPath();
+            ctx.ellipse(cx, cy + scale * 0.28, scale * 0.48, scale * 0.14, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // Teken de vlakjes van de pizzapunt
+            for (let iu = 0; iu < stepsU; iu++) {
+                const isCrust = iu >= stepsU - 2;
+                for (let iv = 0; iv < stepsV; iv++) {
+                    const p1 = grid[iu][iv];
+                    const p2 = grid[iu + 1][iv];
+                    const p3 = grid[iu + 1][iv + 1];
+                    const p4 = grid[iu][iv + 1];
+
+                    ctx.beginPath();
+                    ctx.moveTo(p1.sx, p1.sy);
+                    ctx.lineTo(p2.sx, p2.sy);
+                    ctx.lineTo(p3.sx, p3.sy);
+                    ctx.lineTo(p4.sx, p4.sy);
+                    ctx.closePath();
+
+                    if (isCrust) {
+                        ctx.fillStyle = '#D49A5A';
+                    } else {
+                        // Kaas met subtiele schaduwwerking door vouw
+                        const vNorm = Math.abs((iv / stepsV) * 2 - 1);
+                        ctx.fillStyle = vNorm > 0.55 && foldRatio > 0.3 ? '#F4D894' : '#FCE8B2';
+                    }
+                    ctx.fill();
+                    ctx.strokeStyle = isCrust ? 'rgba(139, 30, 36, 0.45)' : 'rgba(184, 51, 58, 0.18)';
+                    ctx.lineWidth = 0.7;
+                    ctx.stroke();
+                }
+            }
+
+            // Rode kruislijnen voor hoofdkrommingen kappa_1 (lengte) en kappa_2 (breedte)
+            ctx.save();
+            // Lengtelijn (kappa_1)
+            ctx.strokeStyle = '#8B1E24';
+            ctx.lineWidth = 2.6;
+            ctx.beginPath();
+            for (let iu = 0; iu <= stepsU; iu++) {
+                const p = grid[iu][Math.floor(stepsV / 2)];
+                if (iu === 0) ctx.moveTo(p.sx, p.sy);
+                else ctx.lineTo(p.sx, p.sy);
+            }
+            ctx.stroke();
+
+            // Dwarslijn bij de korst (kappa_2)
+            ctx.strokeStyle = '#1B6B3A';
+            ctx.lineWidth = 2.6;
+            ctx.beginPath();
+            for (let iv = 0; iv <= stepsV; iv++) {
+                const p = grid[stepsU - 2][iv];
+                if (iv === 0) ctx.moveTo(p.sx, p.sy);
+                else ctx.lineTo(p.sx, p.sy);
+            }
+            ctx.stroke();
+
+            // Statuslabel in het canvas
+            ctx.fillStyle = '#1E1A1A';
+            ctx.font = 'bold 12px sans-serif';
+            const statusMsg = foldRatio >= 0.45
+                ? 'Stevig gevouwen korst (κ₂ > 0) ⇒ Punt blijft kaarsrecht (κ₁ ≈ 0)!'
+                : 'Platte korst (κ₂ ≈ 0) ⇒ Zwaartekracht trekt de punt omlaag (κ₁ > 0)!';
+            ctx.fillText(statusMsg, 14, 24);
+
+            ctx.font = '11px monospace';
+            ctx.fillStyle = '#8B1E24';
+            ctx.fillText('Rood = Lengtekromming κ₁   |   Groen = Dwarskromming κ₂ (Korst)', 14, 42);
+            ctx.restore();
+        }
+
+        /* ---------------------------------------------------------------------
+           4. MUIS- EN TOUCH-BESTURING OP HET CANVAS
+           --------------------------------------------------------------------- */
+        function handlePointerDown(clientX, clientY) {
+            isDragging = true;
+            dragStartX = clientX;
+            dragStartY = clientY;
+
+            if (projectorMode !== 'fold3d') {
+                updateAlphaFromPointer(clientX, clientY);
+            }
+        }
+
+        function handlePointerMove(clientX, clientY) {
+            if (!isDragging) return;
+            if (projectorMode === 'fold3d') {
+                const dx = clientX - dragStartX;
+                const dy = clientY - dragStartY;
+                dragStartX = clientX;
+                dragStartY = clientY;
+                viewYaw += dx * 0.01;
+                viewPitch = Math.max(-1.1, Math.min(1.2, viewPitch + dy * 0.01));
+                drawPizzaScene();
+            } else {
+                updateAlphaFromPointer(clientX, clientY);
+            }
+        }
+
+        function updateAlphaFromPointer(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            const dx = clientX - (rect.left + rect.width / 2);
+            const dy = (rect.top + rect.height / 2) - clientY;
+            let deg = Math.round((Math.atan2(dy, dx) * 180) / Math.PI);
+            if (deg < 0) deg += 360;
+            document.getElementById('sliderAlpha').value = deg;
+            onSliderUpdate();
+        }
+
+        canvas.addEventListener('mousedown', (e) => handlePointerDown(e.clientX, e.clientY));
+        window.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY));
+        window.addEventListener('mouseup', () => { isDragging = false; });
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                handlePointerDown(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+        canvas.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 1) {
+                handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+        window.addEventListener('touchend', () => { isDragging = false; });
+
+        /* ---------------------------------------------------------------------
+           5. OUDER-SCHILD (RUSTIGE KOFFIE-MODUS) & VREDESVLAG
+           --------------------------------------------------------------------- */
+        function toggleCalmMode(forceState) {
+            isCalmModeOpen = typeof forceState === 'boolean' ? forceState : !isCalmModeOpen;
+            const overlay = document.getElementById('calmModeOverlay');
+            if (isCalmModeOpen) {
+                overlay.classList.add('visible');
+            } else {
+                overlay.classList.remove('visible');
+            }
+        }
+
+        function wavePeaceFlag() {
+            const svg = document.getElementById('peaceFlagSvg');
+            if (svg) {
+                svg.classList.remove('waving');
+                void svg.offsetWidth;
+                svg.classList.add('waving');
+            }
+            showToast('Vredesvlag gehesen! Papa en mama komen alleen even koffie en een stukje pizza brengen.');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastBanner');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => toast.classList.remove('show'), 3400);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isCalmModeOpen) {
+                toggleCalmMode(false);
+            }
+        });
+
+        /* ---------------------------------------------------------------------
+           6. INITIALISATIE BIJ LADEN
+           --------------------------------------------------------------------- */
+        window.addEventListener('resize', resizeCanvas);
+        window.onload = function () {
+            onSliderUpdate();
+            resizeCanvas();
+        };
+    </script>
+</body>
+</html>
