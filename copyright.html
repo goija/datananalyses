@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ondertekening Licentie v3.0 — Planimeter &amp; Veerpen</title>
+    <style>
+        :root {
+            --meekrab: #9E2A2B;
+            --meekrab-dark: #751C1D;
+            --brass: #B8860B;
+            --brass-light: #E5C158;
+            --ink: #1A1F24;
+            --parchment: #FCFBF7;
+            --bg-page: #FFFFFF;
+            --border: #D8D4C8;
+            --muted: #5A5E62;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
+            background-color: var(--bg-page);
+            color: var(--ink);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--meekrab);
+            color: #FFFFFF;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 4px solid var(--brass);
+        }
+
+        header h1 {
+            margin: 0 0 0.4rem 0;
+            font-size: 1.85rem;
+            letter-spacing: -0.01em;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 0.95rem;
+            opacity: 0.92;
+        }
+
+        main {
+            max-width: 980px;
+            margin: 2rem auto;
+            padding: 0 1.25rem;
+        }
+
+        section {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1.75rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        h2 {
+            color: var(--meekrab);
+            border-bottom: 2px solid var(--meekrab);
+            padding-bottom: 0.35rem;
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+
+        /* Toezichthouder & Licentieoverzicht */
+        .supervisor-bar {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            background: var(--parchment);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--brass);
+            padding: 1rem 1.25rem;
+            border-radius: 4px;
+            margin-bottom: 1.25rem;
+        }
+
+        .supervisor-avatar {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--brass);
+            cursor: pointer;
+            background: #EAE6DC;
+            flex-shrink: 0;
+        }
+
+        .supervisor-info p {
+            margin: 0.2rem 0;
+            font-size: 0.92rem;
+        }
+
+        details {
+            background: var(--parchment);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.85rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        summary {
+            font-weight: 700;
+            color: var(--meekrab);
+            cursor: pointer;
+        }
+
+        /* Formulier */
+        fieldset {
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1rem 1.25rem;
+            margin: 0 0 1.25rem 0;
+        }
+
+        legend {
+            font-weight: 700;
+            color: var(--meekrab-dark);
+            padding: 0 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.88rem;
+            margin-bottom: 0.3rem;
+        }
+
+        input[type="text"], input[type="date"], select {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        /* Planimeter & Veerpen Werkvlak */
+        .instrument-wrapper {
+            position: relative;
+            width: 100%;
