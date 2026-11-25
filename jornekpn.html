@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="nl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schelde-Delta | Zero-Trust Werkbank — Papegaai Jorne, PDOK & Planometer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        maritime: {
+                            950: '#060d18',
+                            900: '#0b1628',
+                            800: '#13233d',
+                            700: '#1d3458',
+                            600: '#294878',
+                        },
+                        seagrass: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        amberreef: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                        },
+                        brass: {
+                            400: '#eab308',
+                            500: '#d4af37',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b1628; }
+        ::-webkit-scrollbar-thumb { background: #1d3458; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+
+        #map-stage {
+            position: relative;
+            height: 100%;
+            min-height: 540px;
+            width: 100%;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background: #060d18;
+        }
+        #map {
+            height: 100%;
+            min-height: 540px;
+            width: 100%;
+            z-index: 10;
+        }
+        /* Planometer Overlay Canvas bovenop Leaflet */
+        #planimeterCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 550;
+            pointer-events: none;
+        }
+        #planimeterCanvas.active-trace {
+            pointer-events: auto;
+            cursor: crosshair;
+        }
+
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background-color: #0b1628 !important;
+            color: #f1f5f9 !important;
+            border: 1px solid #1d3458;
+            border-radius: 0.75rem !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.75);
+        }
+        .leaflet-popup-content {
+            margin: 12px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .leaflet-container a.leaflet-popup-close-button {
+            color: #94a3b8 !important;
+            padding: 6px 8px 0 0 !important;
+        }
+        .leaflet-control-layers {
+            background-color: #0b1628 !important;
+            color: #e2e8f0 !important;
+            border: 1px solid #1d3458 !important;
+            border-radius: 0.75rem !important;
+            padding: 8px 12px !important;
+            max-height: 360px;
+            overflow-y: auto;
+        }
+        .pulse-dot { animation: pulseRing 2s infinite; }
+        @keyframes pulseRing {
+            0% { transform: scale(0.95); opacity: 0.9; }
+            50% { transform: scale(1.15); opacity: 0.5; }
+            100% { transform: scale(0.95); opacity: 0.9; }
+        }
+        .salute-smoke {
+            animation: smokeExpand 1.8s ease-out forwards;
+        }
+        @keyframes smokeExpand {
+            0% { transform: scale(0.4); opacity: 0.95; }
+            100% { transform: scale(2.8); opacity: 0; }
+        }
+
+        /* Papegaai Jorne Animaties */
+        @keyframes parrotWingFlap {
+            0%, 100% { transform: rotate(0deg) translateY(0px); }
+            50% { transform: rotate(-14deg) translateY(-3px); }
+        }
+        @keyframes parrotBeakTalk {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(18deg); }
+        }
+        @keyframes parrotBob {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-2px); }
+        }
+        .parrot-bobbing {
+            animation: parrotBob 2.2s ease-in-out infinite;
+        }
+        .parrot-speaking .parrot-wing {
+            transform-origin: 42px 52px;
+            animation: parrotWingFlap 0.24s ease-in-out infinite;
+        }
+        .parrot-speaking .parrot-lower-beak {
+            transform-origin: 66px 36px;
+            animation: parrotBeakTalk 0.18s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-maritime-950 text-slate-100 font-sans antialiased selection:bg-seagrass-500 selection:text-maritime-950 min-h-screen flex flex-col">
+
+    <!-- Toast Meldingen -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- Top Navigatiebalk -->
+    <header class="bg-maritime-900/95 backdrop-blur-md border-b border-maritime-700/70 sticky top-0 z-40">
+        <div class="max-w-[1720px] mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-seagrass-500 to-teal-700 flex items-center justify-center shadow-lg shadow-seagrass-500/20 shrink-0">
+                    <svg class="w-6 h-6 text-maritime-950" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor"></polygon>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">SCHELDE-DELTA ARCHIEF & PDOK ZEEKAART</h1>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-seagrass-500/15 text-seagrass-400 border border-seagrass-500/30">
+                            <span class="w-2 h-2 rounded-full bg-seagrass-400 pulse-dot"></span>
+                            Zero-Trust Lokaal
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 hidden sm:block">Papegaai Jorne • PDOK Kaarten & Kadaster • A. Ott Nr. 573 Planometer • IMRO NL.IMRO.0748.BP0209-0301 • Vismeter</p>
+                </div>
+            </div>
+
+            <!-- Hoofdtabbladen -->
+            <nav class="flex items-center gap-1.5 bg-maritime-950/80 p-1.5 rounded-xl border border-maritime-700/60 overflow-x-auto max-w-full">
+                <button onclick="switchTab('map')" id="tab-btn-map" class="tab-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 bg-maritime-700 text-white shadow">
+                    <span>🗺️ PDOK Kaart, Planometer & Jorne</span>
+                </button>
+                <button onclick="switchTab('vismeter')" id="tab-btn-vismeter" class="tab-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 text-slate-300 hover:text-white hover:bg-maritime-800">
+                    <span>🐟 Vismeter Live & Bio-Akoestiek</span>
+                </button>
+                <button onclick="switchTab('dossier')" id="tab-btn-dossier" class="tab-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 text-slate-300 hover:text-white hover:bg-maritime-800">
+                    <span>📚 Dossiers & IMRO</span>
+                </button>
+                <button onclick="switchTab('webrtc')" id="tab-btn-webrtc" class="tab-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 text-slate-300 hover:text-white hover:bg-maritime-800">
+                    <span>🔗 WebRTC P2P</span>
+                    <span id="p2p-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                </button>
+                <button onclick="switchTab('rss')" id="tab-btn-rss" class="tab-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 text-slate-300 hover:text-white hover:bg-maritime-800">
+                    <span>📡 RSS / XML Studio</span>
+                </button>
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <button onclick="parrotJorneSquawkRandom()" title="Laat scheepspapegaai Jorne een kreet slaken" class="px-3 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 text-xs font-semibold text-emerald-300 transition flex items-center gap-1.5">
+                    <span>🦜 Krrrr! Jorne</span>
+                </button>
+                <button onclick="fireSaluteShip()" title="Laat de hoogaars een maritiem saluutschot afvuren" class="px-3 py-2 rounded-lg bg-amberreef-500/20 hover:bg-amberreef-500/30 border border-amberreef-400/50 text-xs font-semibold text-amber-300 transition flex items-center gap-1.5">
+                    <span>⛵ Saluutschot</span>
+                </button>
+                <button onclick="exportLocalStateJSON()" class="px-3 py-2 rounded-lg bg-maritime-800 hover:bg-maritime-700 border border-maritime-600/60 text-xs font-medium text-slate-200 transition flex items-center gap-1.5">
+                    <span class="hidden md:inline">Backup JSON</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Global Voorlees-Balk -->
+    <div id="speech-bar" class="bg-maritime-900 border-b border-maritime-700/60 px-4 py-2 hidden">
+        <div class="max-w-[1720px] mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-seagrass-400 pulse-dot"></span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-seagrass-400" id="speech-speaker-label">Voorleesmodus (nl-NL):</span>
+                <span id="speech-title" class="text-xs text-slate-200 truncate max-w-md font-medium">Geen actieve tekst</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <select id="speech-rate" onchange="updateSpeechRate()" class="bg-maritime-800 border border-maritime-600 rounded-md px-2 py-0.5 text-xs text-white">
+                    <option value="0.85">0.85x</option>
+                    <option value="1.0" selected>1.0x</option>
+                    <option value="1.15">1.15x</option>
+                </select>
+                <button onclick="togglePauseSpeech()" id="btn-speech-pause" class="px-2.5 py-1 rounded-md bg-maritime-700 text-xs text-white">Pauzeer</button>
+                <button onclick="stopSpeech()" class="px-2.5 py-1 rounded-md bg-rose-900/70 text-xs text-rose-200">Stop</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hoofdinhoud -->
+    <main class="flex-1 max-w-[1720px] w-full mx-auto p-4 sm:p-5">
+
+        <!-- ===================================================================== -->
+        <!-- TAB 1: PDOK KAARTEN, PLANOMETER & SCHEEPSPAPEGAAI JORNE               -->
+        <!-- ===================================================================== -->
+        <section id="view-map" class="tab-view grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+            <!-- Linker Zijpaneel: Papegaai Jorne + Regio + Open PDOK Lagen -->
+            <div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-4 order-2 lg:order-1">
+
+                <!-- NIEUW: SCHEEPSPAPEGAAI "JORNE" INTERACTIEVE WIDGET -->
+                <div id="parrot-jorne-card" class="bg-gradient-to-br from-maritime-900 via-maritime-900 to-emerald-950/60 border border-emerald-500/50 rounded-2xl p-4 shadow-xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Boordmascotte</span>
+                            <h2 class="text-sm font-bold text-white">Scheepspapegaai Jorne</h2>
+                        </div>
+                        <button onclick="focusOnSaluteShip()" title="Vlieg naar Jorne op de Hoogaars TH 2" class="text-[11px] font-mono text-amber-300 hover:underline">⛵ Op TH 2</button>
+                    </div>
+
+                    <div class="flex items-center gap-3 mb-3">
+                        <!-- Geanimeerde SVG Papegaai Jorne -->
+                        <div id="parrot-svg-wrapper" class="w-20 h-20 rounded-2xl bg-maritime-950/90 border border-emerald-500/30 flex items-center justify-center shrink-0 parrot-bobbing cursor-pointer" onclick="parrotJorneSquawkRandom()" title="Klik op Jorne om hem te laten praten!">
+                            <svg width="68" height="68" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Zitstok (scheepsra) -->
+                                <rect x="8" y="66" width="64" height="5" rx="2.5" fill="#92400e" stroke="#d97706" stroke-width="1"/>
+                                <!-- Staartveren -->
+                                <path d="M26 56 L16 74 L24 72 L22 78 L31 60 Z" fill="#0284c7"/>
+                                <path d="M30 57 L25 76 L33 61 Z" fill="#ef4444"/>
+                                <!-- Lijf (felgroen & geel) -->
+                                <ellipse cx="42" cy="48" rx="14" ry="18" fill="#10b981"/>
+                                <path d="M44 36 C51 40, 52 54, 44 62 C40 56, 40 42, 44 36 Z" fill="#fbbf24"/>
+                                <!-- Klapperende Vleugel -->
+                                <g class="parrot-wing">
+                                    <path d="M34 38 C24 44, 24 58, 36 62 C41 55, 41 44, 34 38 Z" fill="#059669" stroke="#34d399" stroke-width="1.2"/>
+                                    <path d="M31 46 C26 50, 27 57, 34 60" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                                </g>
+                                <!-- Kop & Kuif -->
+                                <circle cx="46" cy="27" r="12" fill="#10b981"/>
+                                <path d="M41 16 C39 10, 45 9, 46 15 C48 10, 53 11, 50 17" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+                                <!-- Wit oogmasker & Oog -->
+                                <ellipse cx="50" cy="26" rx="5.5" ry="4.5" fill="#f8fafc"/>
+                                <circle cx="51" cy="26" r="2.2" fill="#0f172a"/>
+                                <circle cx="51.7" cy="25.3" r="0.7" fill="#ffffff"/>
+                                <!-- Bovensnavel (kromme papegaaiensnavel) -->
+                                <path d="M56 25 C66 24, 69 31, 65 37 C62 33, 59 32, 56 32 Z" fill="#f59e0b" stroke="#b45309" stroke-width="1"/>
+                                <!-- Bewegende Ondersnavel -->
+                                <g class="parrot-lower-beak">
+                                    <path d="M56 32 C61 32, 63 35, 60 38 C57 38, 55 36, 56 32 Z" fill="#334155"/>
+                                </g>
+                                <!-- Pootjes op de stok -->
+                                <path d="M37 64 L37 68 M45 64 L45 68" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+
+                        <!-- Tekstballon van Jorne -->
+                        <div class="flex-1 bg-maritime-950 border border-emerald-500/40 rounded-xl p-2.5 text-xs text-emerald-100 relative">
+                            <div class="text-[10px] font-mono text-emerald-400 mb-0.5">Jorne zegt:</div>
+                            <p id="jorne-speech-bubble" class="italic leading-snug">
+                                “Krrrr! Welkom aan boord voor Jorne! Klik op een PDOK-perceel of trek een contour met de Planometer!”
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Jorne Actieknoppen: Kreet, Planometer-uitleg & Napraat-modus -->
+                    <div class="grid grid-cols-2 gap-1.5 mb-2.5 text-xs">
+                        <button onclick="parrotJorneSquawkRandom()" class="py-1.5 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-maritime-950 font-bold transition">
+                            🦜 Maritieme Kreet
+                        </button>
+                        <button onclick="parrotReadPlanometer()" class="py-1.5 px-2.5 rounded-lg bg-amberreef-500/20 hover:bg-amberreef-500/30 border border-amberreef-400/50 text-amber-200 font-semibold transition">
+                            📐 Roep Planometer
+                        </button>
+                    </div>
+
+                    <!-- Tekst Napraten voor Jorne -->
+                    <form onsubmit="parrotRepeatText(event)" class="flex gap-1.5 mb-2">
+                        <input type="text" id="jorne-repeat-input" placeholder="Laat Jorne iets napraten..." class="flex-1 bg-maritime-950 border border-maritime-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-emerald-400 outline-none">
+                        <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-maritime-800 hover:bg-maritime-700 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
+                            Praat na
+                        </button>
+                    </form>
+
+                    <!-- Microfoon Papegaai-Echo (Neemt kort stem op en speelt versneld/hoger af als een papegaai) -->
+                    <div class="flex items-center justify-between gap-2 bg-maritime-950/80 border border-maritime-800 rounded-lg px-2.5 py-1.5 text-[11px]">
+                        <span class="text-slate-400">🎙️ Stem-napraat (3s):</span>
+                        <button onclick="startParrotVoiceEcho()" id="btn-parrot-mic" class="px-2.5 py-1 rounded bg-rose-600/80 hover:bg-rose-500 text-white font-semibold transition">
+                            ● Spreek tegen Jorne
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Regio Switcher -->
+                <div class="bg-maritime-900 border border-maritime-700/80 rounded-2xl p-4 shadow-xl">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-seagrass-400 mb-2.5 flex items-center justify-between">
+                        <span>Regio & Referentiekader</span>
+                        <span class="font-mono text-[11px] text-slate-400" id="active-coords-badge">51.484°N, 4.268°E</span>
+                    </h2>
+                    <div class="space-y-2">
+                        <button onclick="flyToRegion('schelde')" id="btn-region-schelde" class="w-full p-2.5 rounded-xl border border-seagrass-500/60 bg-seagrass-500/10 text-left transition hover:bg-seagrass-500/20">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-white">1. Schelde-Delta & Oesterdam</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-seagrass-500/20 text-seagrass-300 font-mono">Primair</span>
+                            </div>
+                            <p class="text-[11px] text-slate-300 mt-0.5">Oosterschelde, Zoommeer, Molenplaat, Lodijke (51.48406, 4.26785)</p>
+                        </button>
+                        <button onclick="flyToRegion('wadden')" id="btn-region-wadden" class="w-full p-2.5 rounded-xl border border-maritime-700 bg-maritime-800/60 text-left transition hover:border-amberreef-400/60 hover:bg-maritime-800">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-200">2. Noordelijke Referentie (Wadden)</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-amberreef-500/20 text-amberreef-300 font-mono">Vergelijk</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-0.5">53.17587°N, 5.85210°E → 53.42747°N, 5.74381°E (Ameland)</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alle Open PDOK Kaarten & Overlays (CORS-vrij) -->
+                <div class="bg-maritime-900 border border-maritime-700/80 rounded-2xl p-4 shadow-xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Open PDOK Kaarten & Lagen</h2>
+                        <span class="text-[10px] font-mono text-seagrass-400">service.pdok.nl</span>
+                    </div>
+
+                    <!-- PDOK Basiskaart Snelkeuze -->
+                    <div class="mb-2.5">
+                        <label class="text-[11px] text-slate-400 block mb-1">PDOK / Open Basiskaart:</label>
+                        <select id="pdok-basemap-select" onchange="switchBaseMap(this.value)" class="w-full bg-maritime-950 border border-maritime-700 rounded-xl px-2.5 py-1.5 text-xs text-white">
+                            <option value="pdokBrtStandaard" selected>PDOK BRT Achtergrondkaart (Standaard NL)</option>
+                            <option value="pdokBrtGrijs">PDOK BRT Achtergrondkaart (Grijs / Neutraal)</option>
+                            <option value="pdokBrtPastel">PDOK BRT Achtergrondkaart (Pastel)</option>
+                            <option value="pdokLuchtfoto">PDOK Luchtfoto Actueel Ortho (25cm RGB)</option>
+                            <option value="darkCarto">Maritiem Donker (CartoDB Dark Matter)</option>
+                            <option value="osmStandard">OpenStreetMap Standaard</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5 text-xs">
+                        <label class="flex items-start gap-2 p-2 rounded-xl bg-maritime-800/50 border border-maritime-700/60 cursor-pointer hover:border-seagrass-500/50">
+                            <input type="checkbox" checked onchange="toggleMapLayer('pdokKadasterWms', this.checked)" class="mt-0.5 rounded text-seagrass-500 bg-maritime-950 border-maritime-600">
+                            <div>
+                                <span class="font-semibold text-amber-300">PDOK BRK Kadastrale Kaart v5 (WMS)</span>
+                                <span class="text-slate-400 block text-[11px]">Perceelgrenzen, kadastrale secties & perceelnummers</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-2 p-2 rounded-xl bg-maritime-800/50 border border-maritime-700/60 cursor-pointer hover:border-seagrass-500/50">
+                            <input type="checkbox" onchange="toggleMapLayer('pdokAhnWms', this.checked)" class="mt-0.5 rounded text-seagrass-500 bg-maritime-950 border-maritime-600">
+                            <div>
+                                <span class="font-semibold text-teal-300">PDOK AHN4 Hoogtekaart (Maaiveld/Platen)</span>
+                                <span class="text-slate-400 block text-[11px]">Digitaal Hoogtemodel (0,5m DTM) van slikken, dijken & platen</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-2 p-2 rounded-xl bg-maritime-800/50 border border-maritime-700/60 cursor-pointer hover:border-seagrass-500/50">
+                            <input type="checkbox" onchange="toggleMapLayer('pdokNatura2000Wms', this.checked)" class="mt-0.5 rounded text-seagrass-500 bg-maritime-950 border-maritime-600">
+                            <div>
+                                <span class="font-semibold text-lime-300">PDOK Natura 2000 Gebieden (WMS)</span>
+                                <span class="text-slate-400 block text-[11px]">Beschermde vogel- en habitatrichtlijngebieden Delta</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-2 p-2 rounded-xl bg-maritime-800/50 border border-maritime-700/60 cursor-pointer hover:border-seagrass-500/50">
+                            <input type="checkbox" checked onchange="toggleMapLayer('openSeaMap', this.checked)" class="mt-0.5 rounded text-seagrass-500 bg-maritime-950 border-maritime-600">
+                            <div>
+                                <span class="font-semibold text-sky-300">OpenSeaMap Nautische Betonning</span>
+                                <span class="text-slate-400 block text-[11px]">Vaargeulboeien, lichten, bakens en dieptelijnen</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-2 p-2 rounded-xl bg-maritime-800/50 border border-maritime-700/60 cursor-pointer hover:border-seagrass-500/50">
+                            <input type="checkbox" checked onchange="toggleMapLayer('kadaster', this.checked)" class="mt-0.5 rounded text-seagrass-500 bg-maritime-950 border-maritime-600">
+                            <div>
+                                <span class="font-semibold text-white">WOO & Kadastrale Dossierpunten</span>
+                                <span class="text-slate-400 block text-[11px]">Lodijke 369 (12,5 ha viswater) vs. Poortvliet M 369 (1,48 ha), Molenplaat</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-2 p-2 rounded-xl bg-maritime-800/50 border border-maritime-700/60 cursor-pointer hover:border-seagrass-500/50">
+                            <input type="checkbox" checked onchange="toggleMapLayer('imro', this.checked)" class="mt-0.5 rounded text-seagrass-500 bg-maritime-950 border-maritime-600">
+                            <div>
+                                <span class="font-semibold text-rose-300">IMRO NL.IMRO.0748.BP0209-0301 & CO/H₂</span>
+                                <span class="text-slate-400 block text-[11px]">Bestemmingsplangrens & Buisleidingenstraat over de Molenplaat</span>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-2 p-2 rounded-xl bg-maritime-800/50 border border-maritime-700/60 cursor-pointer hover:border-seagrass-500/50">
+                            <input type="checkbox" checked onchange="toggleMapLayer('ecologie', this.checked)" class="mt-0.5 rounded text-seagrass-500 bg-maritime-950 border-maritime-600">
+                            <div>
+                                <span class="font-semibold text-emerald-300">Weervisserij (1756) & Hoogaars TH 2 + Jorne</span>
+                                <span class="text-slate-400 block text-[11px]">Weervisserij vakken A–F & varende hoogaars met papegaai Jorne</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rechter Hoofdpaneel: Kaart + Planometer + Kadastrale Inspector -->
+            <div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-4 order-1 lg:order-2">
+                <div class="bg-maritime-900 border border-maritime-700/80 rounded-2xl p-2.5 shadow-2xl flex-1 min-h-[580px] flex flex-col">
+
+                    <!-- Kaart & Planometer Toolbar -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 px-2 pb-2 text-xs">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="font-semibold text-slate-200 mr-1">PDOK Snelzoom:</span>
+                            <button onclick="zoomToPoint(51.48406, 4.26785, 14)" class="px-2.5 py-1 rounded-lg bg-maritime-800 hover:bg-maritime-700 text-seagrass-400 border border-maritime-700">Oesterdam</button>
+                            <button onclick="zoomToPoint(51.4985, 4.2380, 14)" class="px-2.5 py-1 rounded-lg bg-maritime-800 hover:bg-maritime-700 text-amber-300 border border-maritime-700">Molenplaat (150 ha)</button>
+                            <button onclick="zoomToPoint(51.4685, 4.2420, 14)" class="px-2.5 py-1 rounded-lg bg-maritime-800 hover:bg-maritime-700 text-rose-300 border border-maritime-700">Bol van Lodijke (369)</button>
+                            <button onclick="zoomToPoint(51.5360, 4.1520, 15)" class="px-2.5 py-1 rounded-lg bg-maritime-800 hover:bg-maritime-700 text-sky-300 border border-maritime-700">Poortvliet M 369</button>
+                            <button onclick="focusOnSaluteShip()" class="px-2.5 py-1 rounded-lg bg-amberreef-500/20 hover:bg-amberreef-500/30 text-amber-200 border border-amberreef-500/40">⛵🦜 Hoogaars & Jorne</button>
+                        </div>
+
+                        <!-- A. Ott Nr. 573 Planometer Controls -->
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button onclick="togglePlanimeter()" id="btn-toggle-planimeter" class="px-3 py-1 rounded-lg bg-brass-500 hover:bg-brass-400 text-maritime-950 font-bold text-xs transition shadow">
+                                📐 Planometer (Ott Nr. 573): UIT
+                            </button>
+                            <button onclick="calibratePlanimeter()" class="px-2.5 py-1 rounded-lg bg-maritime-800 hover:bg-maritime-700 text-amber-300 border border-amber-500/40 text-xs">
+                                ⚙️ Teststaaf (100 cm²)
+                            </button>
+                            <button onclick="clearPlanimeter()" class="px-2 py-1 rounded-lg bg-maritime-800 hover:bg-maritime-700 text-slate-300 border border-maritime-600 text-xs">
+                                ✕ Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live A. Ott Nr. 573 Planometer Aflezing & Zeeuwse Bunder Conversie -->
+                    <div class="mx-2 mb-2 px-3 py-2 rounded-xl bg-amberreef-500/10 border border-amberreef-500/40 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+                        <div class="flex items-center gap-2">
+                            <span class="text-amber-300 font-bold">📐 A. Ott Nr. 573 Planometer:</span>
+                            <span id="plan-state-text" class="text-slate-300">Stand-by (klik op Planometer om contour te trekken)</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3 text-[11px]">
+                            <span>Nonius ΔN: <b id="plan-nonius" class="text-amber-300">0.000</b> omw.</span>
+                            <span>Wielhoek γ: <b id="plan-angle" class="text-amber-300">0.0°</b></span>
+                            <span>Kaartvlak: <b id="plan-cm2" class="text-sky-300">0.00 cm²</b></span>
+                            <span>Oppervlakte: <b id="plan-hectare" class="text-emerald-300">0.00 ha</b> (<b id="plan-bunder" class="text-amber-300">0.00 Zeeuwse bunder</b> · <span id="plan-roeden">0</span> v.roeden)</span>
+                        </div>
+                    </div>
+
+                    <!-- Kaart-Stage met Leaflet + Planometer Canvas -->
+                    <div id="map-stage" class="flex-1">
+                        <div id="map"></div>
+                        <canvas id="planimeterCanvas"></canvas>
+
+                        <!-- Telemetrie Badge onderin de kaart -->
+                        <div class="absolute bottom-3 left-3 z-[600] bg-maritime-950/90 backdrop-blur border border-maritime-700 px-3 py-1 rounded-lg font-mono text-[11px] text-seagrass-400 pointer-events-none" id="cursor-coords">
+                            WGS84: 51.48406, 4.26785 | RD (EPSG:28992): 76971, 389105
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Kadastrale & RD Inspector Balk (inclusief live PDOK OGC Perceel-query) -->
+                <div class="bg-maritime-900 border border-maritime-700/80 rounded-2xl p-4 shadow-xl">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-seagrass-400">PDOK BRK Kadaster & RD-Inspector (EPSG:28992)</h3>
+                        <span id="pdok-api-status" class="text-[11px] font-mono text-slate-400">Klik op een perceel op de PDOK-kaart voor kadastrale grootte & planometer-analyse</span>
+                    </div>
+                    <div id="click-inspector-output" class="bg-maritime-950 border border-maritime-800 rounded-xl p-3 text-xs text-slate-200 grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">Geselecteerde Positie (WGS84 / RD):</span>
+                            <span class="font-mono text-seagrass-300 font-semibold">51.48406°N, 4.26785°E (RD: X=76971, Y=389105)</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">PDOK BRK Perceel & Kadastrale Grootte:</span>
+                            <span class="text-amber-300 font-semibold">Oesterdam / Tholen K133 & Weervisserij Vakken A–F</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">IMRO Planologisch Kader:</span>
+                            <span class="font-mono text-rose-300">NL.IMRO.0748.BP0209-0301 (Buitengebied Zuid)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- TAB 2: VISMETER LIVE VIDEO & VIS/VOGEL BIO-AKOESTIEK OPNAME           -->
+        <!-- ===================================================================== -->
+        <section id="view-vismeter" class="tab-view hidden grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-7 space-y-4">
+                <div class="bg-maritime-900 border border-maritime-700/80 rounded-2xl p-5 shadow-xl">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-seagrass-400 pulse-dot"></span>
+                                Vismeter Live Video & Onderwater Passage-Monitor
+                            </h2>
+                            <p class="text-xs text-slate-400">Visuele monitoring van vismigratie, getijdenstroming en kadastraal waterbeheer</p>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="setVismeterMode('sim')" id="btn-vm-sim" class="px-2.5 py-1.5 rounded-lg bg-seagrass-600 text-maritime-950 font-semibold text-xs">Onderwater Sensor-Simulatie</button>
+                            <button onclick="startLocalCameraStream()" id="btn-vm-cam" class="px-2.5 py-1.5 rounded-lg bg-maritime-800 hover:bg-maritime-700 text-slate-200 border border-maritime-600 text-xs">Lokale Camera / Hydro-Cam</button>
+                        </div>
+                    </div>
+
+                    <div class="relative rounded-xl overflow-hidden border border-maritime-700 bg-maritime-950 aspect-video flex items-center justify-center">
+                        <canvas id="vismeter-canvas" class="w-full h-full block"></canvas>
+                        <video id="vismeter-video" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
+
+                        <div class="absolute top-3 left-3 bg-maritime-950/85 backdrop-blur px-3 py-1.5 rounded-lg border border-maritime-700/80 text-[11px] font-mono text-seagrass-400">
+                            <div>CAM: OESTERDAM / BERGSEDIEPSLUIS PASSAGE</div>
+                            <div id="vm-hud-telemetry" class="text-slate-300">Zoutgehalte: 28,4 ‰ • Getij: Opkomend • Zicht: 2,4 m</div>
+                        </div>
+
+                        <div class="absolute bottom-3 right-3 flex items-center gap-2">
+                            <button onclick="logVismeterDetection()" class="px-3 py-1.5 rounded-lg bg-amberreef-500 hover:bg-amberreef-400 text-maritime-950 font-bold text-xs shadow-lg">
+                                📸 Log Passerende Vis (en laat Jorne roepen)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 p-3 rounded-xl bg-maritime-950/90 border border-maritime-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <span class="text-slate-300">Externe Visdeurbel / Vismeter.nl koppeling (opent veilig zonder X-Frame-Options blokkade):</span>
+                        <a href="https://visdeurbel.nl" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-lg bg-maritime-800 hover:bg-maritime-700 text-seagrass-400 border border-seagrass-500/40 font-medium">
+                            Open Live Visdeurbel / Vismeter ↗
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 space-y-4">
+                <div class="bg-maritime-900 border border-maritime-700/80 rounded-2xl p-5 shadow-xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                            Vis- & Vogelgeluiden Opname Studio
+                        </h2>
+                        <span class="text-[11px] font-mono text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/30">Web Audio + MediaRecorder</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-3">
+                        Neem kustvogels (scholekster, wulp, kluut op de slikken) of hydrofoon-geluiden (knorhaan, garnalenklik, scheepvaart) lokaal op met real-time frequentiespectrum.
+                    </p>
+
+                    <div class="bg-maritime-950 border border-maritime-800 rounded-xl p-3 mb-3">
+                        <canvas id="audio-spectrum-canvas" width="420" height="72" class="w-full h-18 rounded-lg bg-maritime-900/70 mb-2"></canvas>
+                        <div class="flex items-center justify-between">
+                            <span id="recording-timer" class="font-mono text-xl font-bold text-white">00:00</span>
+                            <span id="recording-status" class="text-xs text-slate-400">Microfoon stand-by</span>
+                            <div class="flex gap-2">
+                                <button onclick="startAudioRecording()" id="btn-rec-start" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold">
+                                    ● Start Opname
+                                </button>
+                                <button onclick="stopAudioRecording()" id="btn-rec-stop" disabled class="px-3 py-1.5 rounded-lg bg-maritime-800 text-slate-400 disabled:opacity-50 text-xs font-semibold">
+                                    ■ Stop & Bewaar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5 text-xs">
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="bio-sound-type" class="bg-maritime-950 border border-maritime-700 rounded-xl px-3 py-2 text-slate-200">
+                                <option value="Vogelgeluid (Steltlopers / Kust)">🦅 Vogelgeluid (Slikken / Plaat)</option>
+                                <option value="Visgeluid / Hydrofoon">🐟 Visgeluid / Hydrofoon-opname</option>
+                                <option value="Veldnotitie / Mondelinge bron">🎙️ Mondelinge Overlevering</option>
+                            </select>
+                            <input type="text" id="fieldnote-title" placeholder="Soort / Titel (bijv. Wulp Molenplaat)" class="bg-maritime-950 border border-maritime-700 rounded-xl px-3 py-2 text-white">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" step="any" id="fieldnote-lat" value="51.49850" class="bg-maritime-950 border border-maritime-700 rounded-xl px-3 py-2 font-mono text-white">
+                            <input type="number" step="any" id="fieldnote-lng" value="4.23800" class="bg-maritime-950 border border-maritime-700 rounded-xl px-3 py-2 font-mono text-white">
+                        </div>
+                        <textarea id="fieldnote-text" rows="2" placeholder="Observatie van geluid, getij, windrichting of vispassage..." class="w-full bg-maritime-950 border border-maritime-700 rounded-xl px-3 py-2 text-white"></textarea>
+                        <button onclick="saveTextFieldnote()" class="w-full py-2 rounded-xl bg-seagrass-600 hover:bg-seagrass-500 text-maritime-950 font-semibold transition">
+                            + Observatie Opslaan in Veldarchief
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-maritime-900 border border-maritime-700/80 rounded-2xl p-4 shadow-xl">
+                    <div class="flex items-center justify-between mb-2.5">
+                        <h3 class="text-sm font-bold text-white">Opgeslagen Bio-Akoestiek & Veldnotities</h3>
+                        <span id="fieldnotes-count" class="text-xs font-mono text-seagrass-400">0 items</span>
+                    </div>
+                    <div id="fieldnotes-list" class="space-y-2.5 max-h-[260px] overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- TAB 3: DOSSIERS & IMRO ANALYSE (NL.IMRO.0748.BP0209-0301)             -->
+        <!-- ===================================================================== -->
+        <section id="view-dossier" class="tab-view hidden space-y-5">
+            <div class="bg-maritime-900 border border-maritime-700/80 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white">IMRO-Planologie, Shifting Baselines & Schelde-Delta Dossiers</h2>
+                    <p class="text-xs text-slate-400">Inclusief juridisch-planologische duiding van bestemmingsplan NL.IMRO.0748.BP0209-0301 en kadastrale WOO-stukken</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="text" id="dossier-search" oninput="renderDossiers()" placeholder="Zoek op 0748, BP0209, Pauly, Coenen..." class="bg-maritime-950 border border-maritime-700 rounded-xl px-3 py-2 text-xs text-white w-60">
+                    <select id="dossier-category-filter" onchange="renderDossiers()" class="bg-maritime-950 border border-maritime-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                        <option value="all">Alle Dossiers</option>
+                        <option value="imro">IMRO NL.IMRO.0748.BP0209-0301 & WOO</option>
+                        <option value="baseline">Shifting Baseline & Noordzee</option>
+                        <option value="geopark">Geopark Schelde Delta & Weervisserij</option>
+                    </select>
+                </div>
+            </div>
+            <div id="dossier-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- TAB 4: WEBRTC P2P                                                     -->
+        <!-- ===================================================================== -->
+        <section id="view-webrtc" class="tab-view hidden grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-6 bg-maritime-900 border border-maritime-700/80 rounded-2xl p-5 shadow-xl space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-bold text-white">Zero-Server WebRTC Signaling</h2>
+                    <span id="rtc-connection-badge" class="px-2.5 py-0.5 rounded-full text-xs bg-slate-800 text-slate-300 border border-slate-700">Niet verbonden</span>
+                </div>
+                <div class="bg-maritime-950 border border-maritime-800 rounded-xl p-4 space-y-2.5">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-seagrass-400 uppercase">Stap 1: Offer Maken (A)</span>
+                        <button onclick="createWebRTCOffer()" class="px-3 py-1.5 rounded-lg bg-seagrass-600 text-maritime-950 font-semibold text-xs">Genereer Offer Token</button>
+                    </div>
+                    <textarea id="rtc-local-sdp" readonly rows="3" class="w-full bg-maritime-900 border border-maritime-700 rounded-lg p-2 text-[11px] font-mono text-slate-300"></textarea>
+                    <button onclick="copyTextarea('rtc-local-sdp')" class="px-3 py-1 rounded-lg bg-maritime-800 text-xs text-slate-200 border border-maritime-600">Kopieer Lokaal Token</button>
+                </div>
+                <div class="bg-maritime-950 border border-maritime-800 rounded-xl p-4 space-y-2.5">
+                    <span class="text-xs font-bold text-amber-300 uppercase block">Stap 2: Ontvangen Token Plakken (B of A)</span>
+                    <textarea id="rtc-remote-sdp" rows="3" class="w-full bg-maritime-900 border border-maritime-700 rounded-lg p-2 text-[11px] font-mono text-white"></textarea>
+                    <div class="flex gap-2">
+                        <button onclick="acceptOfferAndCreateAnswer()" class="px-3 py-1.5 rounded-lg bg-amberreef-500 text-maritime-950 font-semibold text-xs">Maak Answer (B)</button>
+                        <button onclick="finalizeWebRTCAnswer()" class="px-3 py-1.5 rounded-lg bg-purple-600 text-white font-semibold text-xs">Activeer Answer (A)</button>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-6 bg-maritime-900 border border-maritime-700/80 rounded-2xl p-5 shadow-xl flex flex-col">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-base font-bold text-white">P2P Veldwerk Data-Stream</h2>
+                    <button onclick="sendCurrentMapViewP2P()" class="px-3 py-1.5 rounded-lg bg-maritime-800 border border-seagrass-500/40 text-xs text-seagrass-400">Deel Kaartpositie P2P</button>
+                </div>
+                <div id="rtc-chat-log" class="flex-1 min-h-[250px] max-h-[340px] overflow-y-auto bg-maritime-950 border border-maritime-800 rounded-xl p-3 space-y-2 text-xs mb-3">
+                    <div class="text-slate-500 italic">Systeem: Geen actieve P2P-sessie.</div>
+                </div>
+                <form onsubmit="sendP2PMessage(event)" class="flex gap-2">
+                    <input type="text" id="rtc-message-input" placeholder="Stuur P2P veldbericht..." class="flex-1 bg-maritime-950 border border-maritime-700 rounded-xl px-3 py-2 text-xs text-white">
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-seagrass-600 text-maritime-950 font-semibold text-xs">Verzend</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- TAB 5: RSS 2.0 & GEORSS / XML STUDIO                                  -->
+        <!-- ===================================================================== -->
+        <section id="view-rss" class="tab-view hidden grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-6 bg-maritime-900 border border-maritime-700/80 rounded-2xl p-5 shadow-xl space-y-3">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-base font-bold text-white">GeoRSS 2.0 & Dublin Core Generator</h2>
+                    <div class="flex gap-2">
+                        <button onclick="generateRSSFeed()" class="px-3 py-1.5 rounded-lg bg-maritime-800 text-xs text-slate-200 border border-maritime-600">Vernieuw</button>
+                        <button onclick="downloadRSSFile()" class="px-3 py-1.5 rounded-lg bg-orange-500 text-maritime-950 font-semibold text-xs">Download .xml</button>
+                    </div>
+                </div>
+                <textarea id="rss-output-xml" readonly rows="16" class="w-full bg-maritime-950 border border-maritime-800 rounded-xl p-3 text-[11px] font-mono text-emerald-300"></textarea>
+            </div>
+            <div class="lg:col-span-6 bg-maritime-900 border border-maritime-700/80 rounded-2xl p-5 shadow-xl space-y-3">
+                <h2 class="text-base font-bold text-white">Externe XML / GeoRSS Parser & Kaart-Plotter</h2>
+                <textarea id="rss-import-input" rows="7" placeholder="Plak hier RSS 2.0 of GeoRSS XML..." class="w-full bg-maritime-950 border border-maritime-700 rounded-xl p-3 text-[11px] font-mono text-slate-200"></textarea>
+                <div class="flex gap-2">
+                    <button onclick="parseImportedXML()" class="px-4 py-2 rounded-xl bg-seagrass-600 text-maritime-950 font-semibold text-xs">Parseer & Plot op Kaart</button>
+                    <button onclick="loadSampleGeoRSS()" class="px-3 py-2 rounded-xl bg-maritime-800 text-xs text-slate-300 border border-maritime-600">Laad Wadden/Schelde Voorbeeld</button>
+                </div>
+                <div id="parsed-xml-results" class="space-y-2 max-h-[240px] overflow-y-auto"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- JAVASCRIPT APPLICATIELOGICA                                           -->
+    <!-- ===================================================================== -->
+    <script>
+        const DOSSIER_ITEMS = [
+            {
+                id: 'imro-0748-bp0209',
+                category: 'imro',
+                badge: 'IMRO Planologie • NL.IMRO.0748.BP0209-0301',
+                badgeColor: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
+                title: 'Bestemmingsplan NL.IMRO.0748.BP0209-0301 & Buitengebied Zuid',
+                subtitle: 'Planviewer IMRO-dossier, Dubbelbestemmingen Leidingen (CO/H₂), Archeologie & Waterstaat',
+                summary: 'Het IMRO-plan NL.IMRO.0748.BP0209-0301 (en aangrenzende plannen langs de Oosterschelde/Zoommeer) legt de juridisch-planologische kaders vast voor waterkeringen, natuurwaarden, recreatie en ondergrondse buisleidingenstroken.',
+                details: [
+                    'Dubbelbestemming Leiding - Brandstof / Industrieel gas: Reguleert de buisleidingen (o.a. CO en waterstof H₂) nabij en over de Molenplaat, met strikte veiligheids- en belemmeringenstroken.',
+                    'Dubbelbestemming Waarde - Archeologie: Bescherming van verdronken nederzettingen, dijklichamen en maritieme vindplaatsen in de ondergrond.',
+                    'Kadastraal contrast WOO: Bol van Lodijke Perceel No. 369 (12,5 ha viswater) versus Poortvliet Sectie M nr. 369 (1,48 ha agrarisch bouwland), alsmede Tholen K354, K269 en K133.'
+                ],
+                coords: [51.4985, 4.2380],
+                coordLabel: 'IMRO & Molenplaat'
+            },
+            {
+                id: 'shifting-baseline',
+                category: 'baseline',
+                badge: 'Ecologische Baseline • 1578–2026',
+                badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+                title: 'Shifting Baseline Syndrome & "Terug naar de walvis-tijd?"',
+                subtitle: 'Daniel Pauly (1995), De Groene Amsterdammer (11 nov 2026), Adriaen Coenen (1578) & O.T. Olsen (1883)',
+                summary: 'Elke generatie accepteert de ecologische toestand aan het begin van haar loopbaan als natuurlijke nulmeting. Historische bronnen tonen echter een Noordzee en Delta vol walvissen, steuren en uitgestrekte platte oesterriffen.',
+                details: [
+                    'Adriaen Coenens "Visboeck" (1578): Beschreef jaarlijkse walvistrek langs de Hollandse en Zeeuwse kust en grote roofvissen die nu verdwenen zijn.',
+                    'O.T. Olsen "Piscatorial Atlas" (1883): Kartering van enorme natuurlijke oesterriffen (Ostrea edulis) die als filtervoeders het water helder hielden.',
+                    'Kottervisser Adrie Vonk (TX1): Onderwaterjutterij van mammoet- en walvisbotten bewijst de enorme faunaverschuiving.'
+                ],
+                coords: [51.4920, 4.1980],
+                coordLabel: 'Oesterbanken 1883'
+            },
+            {
+                id: 'geopark-schelde',
+                category: 'geopark',
+                badge: 'UNESCO Global Geopark & Erfgoed',
+                badgeColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+                title: 'Geopark Schelde Delta, Weervisserij (1756) & Reimerswaal',
+                subtitle: 'Be-leefbare Schelde, Verdronken Land van Zuid-Beveland & Immaterieel Erfgoed',
+                summary: 'Het UNESCO Global Geopark Schelde Delta verbindt estuariene geologie met eeuwenoude getijdenvisserij. De weervisserij-vakken A t/m F (1756) benutten de natuurlijke eb- en vloedstroom voor duurzame ansjovisvangst.',
+                details: [
+                    'Weervisserij Vakken A–F (1756): Houten V-vormige staketsels op de slikken nabij Bergen op Zoom en de Oesterdam.',
+                    'Speelmansplaten & Natura 2000: Afweging tussen vogelrustgebieden (steltlopers), recreatie en historische visconcessies.',
+                    'Verdronken stad Reimerswaal & heerlijkheid Lodijke: Cultuurhistorisch kerngebied onder de waterspiegel.'
+                ],
+                coords: [51.48406, 4.26785],
+                coordLabel: 'Oesterdam & Weren'
+            }
+        ];
+
+        let localFieldnotes = [];
+        let map, baseLayers = {}, layerGroups = {}, activeBaseLayer = null;
+        let speechUtterance = null;
+        let mediaRecorder = null, audioChunks = [], recordingInterval = null, recordingSeconds = 0;
+        let audioCtx = null, analyserNode = null, spectrumAnimId = null;
+        let peerConnection = null, dataChannel = null;
+
+        // Saluut-scheepje + Papegaai Jorne variabelen
+        let shipMarker = null, shipInterval = null, shipSailing = true, shipProgress = 0;
+        const SHIP_ROUTE = [
+            [51.4760, 4.2520],
+            [51.48406, 4.2635],
+            [51.4945, 4.2510],
+            [51.5035, 4.2360],
+            [51.4950, 4.2180],
+            [51.4810, 4.2290],
+            [51.4760, 4.2520]
+        ];
+
+        // A. Ott Nr. 573 Planometer state
+        let planimeterActive = false;
+        let isTracingPlanimeter = false;
+        let planPolePt = { x: 110, y: 340 };
+        let planTracerPt = { x: 280, y: 210 };
+        let planTracePathLatLon = [];
+        let planTracePathPx = [];
+        let planWheelAngleDeg = 0;
+        let lastPlanMetrics = { m2: 0, ha: 0, bunder: 0, roeden: 0, nonius: 0, cm2: 0 };
+
+        // Vismeter variabelen
+        let vismeterMode = 'sim';
+        let vismeterAnimId = null;
+        let simFishes = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLocalFieldnotes();
+            initLeafletMap();
+            initPlanimeterCanvas();
+            renderDossiers();
+            renderFieldnotesList();
+            generateRSSFeed();
+            initVismeterSimulation();
+        });
+
+        /* =========================================================================
+           1. WGS84 -> RIJKSDRIEHOEKSCOÖRDINATEN (EPSG:28992)
+           ========================================================================= */
+        function wgs84ToRd(lat, lon) {
+            const phi0 = 52.15517440, lam0 = 5.38720621;
+            const dPhi = 0.36 * (lat - phi0), dLam = 0.36 * (lon - lam0);
+            const Rp = [0, 1, 2, 0, 1, 3, 1, 0, 2], Rq = [1, 1, 1, 3, 0, 1, 3, 2, 3];
+            const Rk = [190094.945, -11832.228, -114.221, -32.391, -0.705, -2.340, -0.608, -0.008, 0.148];
+            const Sp = [1, 0, 2, 1, 3, 0, 2, 1, 0, 1], Sq = [0, 2, 0, 2, 0, 1, 2, 1, 4, 4];
+            const Sk = [309056.544, 3638.893, 73.077, -157.984, 59.788, 0.433, -6.439, -0.032, 0.092, -0.054];
+            let dx = 0, dy = 0;
+            for (let i = 0; i < Rk.length; i++) dx += Rk[i] * Math.pow(dPhi, Rp[i]) * Math.pow(dLam, Rq[i]);
+            for (let i = 0; i < Sk.length; i++) dy += Sk[i] * Math.pow(dPhi, Sp[i]) * Math.pow(dLam, Sq[i]);
+            return { x: Math.round(155000 + dx), y: Math.round(463000 + dy) };
+        }
+
+        /* =========================================================================
+           2. SCHEEPSPAPEGAAI "JORNE" (SPRAAK, KRETEN, NAPRAAT-MODUS & ECHO)
+           ========================================================================= */
+        const JORNE_QUOTES = [
+            "Krrrr! Koers Oesterdam, Jorne aan het roer! Let op de betonning!",
+            "Lorrie van de Molenplaat! Honderdvijftig hectare slikken en wulpen!",
+            "Krrrr! Bol van Lodijke perceel driehonderdnegenenzestig is twaalf en een halve hectare viswater, Poortvliet M 369 is bouwland!",
+            "Saluut voor Jorne op de Zeeuwse Hoogaars TH 2! Vuur de kanonnen!",
+            "Krrrr! Check de PDOK kadastrale kaart en trek een cirkel met de Ott vijfhonderddrieënzeventig planometer!",
+            "Opgepast! Buisleidingenstraat CO en waterstof onder de Molenplaat — niet ankeren!"
+        ];
+
+        function playParrotSquawkSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const now = ctx.currentTime;
+                // Twee korte resonante papegaaien-tjilpen ("Krrrr-ik!")
+                [0, 0.14].forEach((offset, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    const startFreq = idx === 0 ? 1150 : 1450;
+                    const endFreq = idx === 0 ? 1850 : 920;
+                    osc.frequency.setValueAtTime(startFreq, now + offset);
+                    osc.frequency.exponentialRampToValueAtTime(endFreq, now + offset + 0.11);
+
+                    gain.gain.setValueAtTime(0.001, now + offset);
+                    gain.gain.linearRampToValueAtTime(0.16, now + offset + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.12);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + offset);
+                    osc.stop(now + offset + 0.13);
+                });
+            } catch (e) {}
+        }
+
+        function setParrotSpeakingAnimation(active) {
+            const wrapper = document.getElementById('parrot-svg-wrapper');
+            if (!wrapper) return;
+            if (active) wrapper.classList.add('parrot-speaking');
+            else wrapper.classList.remove('parrot-speaking');
+        }
+
+        function parrotJorneSpeak(text, withSquawk = true) {
+            const bubble = document.getElementById('jorne-speech-bubble');
+            if (bubble) bubble.textContent = `“${text}”`;
+            if (withSquawk) playParrotSquawkSound();
+
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'nl-NL';
+            // Levendige papegaaien-prosodie: iets hogere pitch en speels ritme
+            utter.pitch = 1.38;
+            utter.rate = 1.12;
+
+            utter.onstart = () => {
+                setParrotSpeakingAnimation(true);
+                document.getElementById('speech-bar').classList.remove('hidden');
+                document.getElementById('speech-speaker-label').textContent = '🦜 Papegaai Jorne spreekt:';
+                document.getElementById('speech-title').textContent = text;
+            };
+            utter.onend = () => {
+                setParrotSpeakingAnimation(false);
+                document.getElementById('speech-bar').classList.add('hidden');
+            };
+            utter.onerror = () => setParrotSpeakingAnimation(false);
+
+            setTimeout(() => {
+                window.speechSynthesis.speak(utter);
+            }, withSquawk ? 220 : 10);
+        }
+
+        function parrotJorneSquawkRandom() {
+            const quote = JORNE_QUOTES[Math.floor(Math.random() * JORNE_QUOTES.length)];
+            parrotJorneSpeak(quote, true);
+        }
+
+        function parrotRepeatText(e) {
+            e.preventDefault();
+            const inp = document.getElementById('jorne-repeat-input');
+            const val = inp.value.trim();
+            if (!val) return;
+            parrotJorneSpeak(`Krrrr! ${val}! Krrrr!`, true);
+            inp.value = '';
+        }
+
+        function parrotReadPlanometer() {
+            if (lastPlanMetrics.m2 <= 0) {
+                parrotJorneSpeak('Krrrr! Zet eerst de Planometer aan en trek een contour op de PDOK-kaart, Jorne!', true);
+                return;
+            }
+            const msg = `Krrrr! Planometer aflezing voor Jorne: ${lastPlanMetrics.ha.toFixed(2)} hectare, dat is ${lastPlanMetrics.bunder.toFixed(2)} Zeeuwse bunder, ofwel ${lastPlanMetrics.roeden} vierkante roeden!`;
+            parrotJorneSpeak(msg, true);
+        }
+
+        // Microfoon Stem-Napraat (neemt 3 seconden op en speelt versneld & hoger af als papegaai Jorne)
+        async function startParrotVoiceEcho() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showToast('Microfoon niet beschikbaar voor Jorne.', 'error');
+                return;
+            }
+            const btn = document.getElementById('btn-parrot-mic');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const rec = new MediaRecorder(stream);
+                const chunks = [];
+                btn.textContent = '🎙️ Luistert (3s)...';
+                btn.disabled = true;
+                document.getElementById('jorne-speech-bubble').textContent = '“Krrrr! Jorne luistert scherp mee...”';
+
+                rec.ondataavailable = ev => { if (ev.data.size > 0) chunks.push(ev.data); };
+                rec.onstop = async () => {
+                    stream.getTracks().forEach(t => t.stop());
+                    btn.textContent = '● Spreek tegen Jorne';
+                    btn.disabled = false;
+
+                    const blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' });
+                    const arrayBuf = await blob.arrayBuffer();
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const audioBuf = await ctx.decodeAudioData(arrayBuf);
+
+                    playParrotSquawkSound();
+                    document.getElementById('jorne-speech-bubble').textContent = '“Krrrr! *Praat Jorne na met papegaaienstem*!”';
+                    setParrotSpeakingAnimation(true);
+
+                    setTimeout(() => {
+                        const src = ctx.createBufferSource();
+                        src.buffer = audioBuf;
+                        // Hogere playbackRate geeft de typische vrolijke papegaaien-pitch
+                        src.playbackRate.value = 1.38;
+                        src.connect(ctx.destination);
+                        src.onended = () => setParrotSpeakingAnimation(false);
+                        src.start(0);
+                    }, 260);
+                };
+
+                rec.start();
+                setTimeout(() => {
+                    if (rec.state !== 'inactive') rec.stop();
+                }, 3000);
+            } catch (err) {
+                btn.textContent = '● Spreek tegen Jorne';
+                btn.disabled = false;
+                showToast('Geen microfoontoegang voor Papegaai Jorne.', 'error');
+            }
+        }
+
+        /* =========================================================================
+           3. TABBLAD NAVIGATIE
+           ========================================================================= */
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-maritime-700', 'text-white', 'shadow');
+                btn.classList.add('text-slate-300');
+            });
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            activeBtn.classList.add('bg-maritime-700', 'text-white', 'shadow');
+            activeBtn.classList.remove('text-slate-300');
+
+            if (tabId === 'map' && map) {
+                setTimeout(() => {
+                    map.invalidateSize();
+                    resizePlanimeterCanvas();
+                }, 120);
+            }
+            if (tabId === 'rss') generateRSSFeed();
+        }
+
+        /* =========================================================================
+           4. LEAFLET KAART MET ALLE OPEN PDOK LAGEN (CORS-VRIJ & ZONDER SLEUTEL)
+           ========================================================================= */
+        function initLeafletMap() {
+            map = L.map('map', {
+                center: [51.4885, 4.2480],
+                zoom: 13,
+                zoomControl: true
+            });
+
+            // Alle Open PDOK & OpenStreetMap Basiskaarten (100% CORS-vrij)
+            baseLayers = {
+                pdokBrtStandaard: L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/standaard/EPSG:3857/{z}/{x}/{y}.png', {
+                    attribution: 'Kaartgegevens &copy; Kadaster / PDOK BRT Standaard',
+                    maxZoom: 19
+                }),
+                pdokBrtGrijs: L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/grijs/EPSG:3857/{z}/{x}/{y}.png', {
+                    attribution: 'Kaartgegevens &copy; Kadaster / PDOK BRT Grijs',
+                    maxZoom: 19
+                }),
+                pdokBrtPastel: L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/pastel/EPSG:3857/{z}/{x}/{y}.png', {
+                    attribution: 'Kaartgegevens &copy; Kadaster / PDOK BRT Pastel',
+                    maxZoom: 19
+                }),
+                pdokLuchtfoto: L.tileLayer('https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg', {
+                    attribution: 'Luchtfoto &copy; PDOK / Beeldmateriaal.nl (25cm)',
+                    maxZoom: 19
+                }),
+                darkCarto: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap &copy; CARTO',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }),
+                osmStandard: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap bijdragers',
+                    maxZoom: 19
+                })
+            };
+
+            // Standaard starten met PDOK BRT Achtergrondkaart Standaard
+            activeBaseLayer = baseLayers.pdokBrtStandaard.addTo(map);
+
+            L.control.layers({
+                "PDOK BRT Standaard (NL)": baseLayers.pdokBrtStandaard,
+                "PDOK BRT Grijs": baseLayers.pdokBrtGrijs,
+                "PDOK BRT Pastel": baseLayers.pdokBrtPastel,
+                "PDOK Orthofoto Luchtfoto (25cm)": baseLayers.pdokLuchtfoto,
+                "Maritiem Donker (Carto)": baseLayers.darkCarto,
+                "OpenStreetMap": baseLayers.osmStandard
+            }, null, { position: 'topright' }).addTo(map);
+
+            // Open PDOK WMS Overlays (zonder API-sleutel)
+            const pdokKadasterWms = L.tileLayer.wms('https://service.pdok.nl/kadaster/kadastralekaart/wms/v5_0', {
+                layers: 'Perceel,KadastraleGrens,Perceelnummer',
+                format: 'image/png',
+                transparent: true,
+                opacity: 0.82,
+                attribution: 'Kadaster BRK v5 &copy; PDOK'
+            });
+
+            const pdokAhnWms = L.tileLayer.wms('https://service.pdok.nl/rws/ahn/wms/v1_0', {
+                layers: 'dtm_05m',
+                format: 'image/png',
+                transparent: true,
+                opacity: 0.55,
+                attribution: 'AHN4 Maaiveld &copy; PDOK / RWS'
+            });
+
+            const pdokNatura2000Wms = L.tileLayer.wms('https://service.pdok.nl/rvo/natura2000/wms/v1_0', {
+                layers: 'natura2000',
+                format: 'image/png',
+                transparent: true,
+                opacity: 0.45,
+                attribution: 'Natura 2000 &copy; PDOK / RVO'
+            });
+
+            const openSeaMap = L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                opacity: 0.90,
+                attribution: 'Nautische laag &copy; OpenSeaMap'
+            });
+
+            layerGroups = {
+                pdokKadasterWms: pdokKadasterWms.addTo(map),
+                pdokAhnWms: pdokAhnWms,
+                pdokNatura2000Wms: pdokNatura2000Wms,
+                openSeaMap: openSeaMap.addTo(map),
+                kadaster: L.layerGroup().addTo(map),
+                ecologie: L.layerGroup().addTo(map),
+                imro: L.layerGroup().addTo(map),
+                wadden: L.layerGroup().addTo(map),
+                fieldnotes: L.layerGroup().addTo(map),
+                pdokLiveHighlight: L.layerGroup().addTo(map)
+            };
+
+            populatePredefinedMapLayers();
+            initSaluteShipOnMap();
+            renderFieldnotesOnMap();
+
+            map.on('mousemove', (e) => {
+                const rd = wgs84ToRd(e.latlng.lat, e.latlng.lng);
+                document.getElementById('cursor-coords').textContent =
+                    `WGS84: ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)} | RD (EPSG:28992): ${rd.x}, ${rd.y}`;
+            });
+
+            map.on('click', (e) => {
+                if (planimeterActive) return;
+                inspectClickedLocation(e.latlng.lat, e.latlng.lng);
+            });
+        }
+
+        function switchBaseMap(key) {
+            if (!baseLayers[key] || !map) return;
+            if (activeBaseLayer) map.removeLayer(activeBaseLayer);
+            activeBaseLayer = baseLayers[key].addTo(map);
+        }
+
+        async function inspectClickedLocation(lat, lng) {
+            const rd = wgs84ToRd(lat, lng);
+            document.getElementById('fieldnote-lat').value = lat.toFixed(5);
+            document.getElementById('fieldnote-lng').value = lng.toFixed(5);
+
+            let zoneDesc = 'Oosterschelde / Zoommeer Waterstaatszone (Tholen K133)';
+            let imroDesc = 'NL.IMRO.0748.BP0209-0301 (Buitengebied Zuid / Oesterdam)';
+
+            if (lat > 51.491 && lat < 51.507 && lng > 4.225 && lng < 4.252) {
+                zoneDesc = 'Molenplaat (150 ha) • Kadastraal Tholen K354 / K269 (Intergetijdenplaat)';
+                imroDesc = 'NL.IMRO.0748.BP0209-0301 • Dubbelbestemming Leiding (CO/H₂) & Archeologie';
+            } else if (lat < 51.476 && lng < 4.255) {
+                zoneDesc = 'Bol van Lodijke • Perceel No. 369 (Viswater 12,5 ha — Oudelandse rechten)';
+                imroDesc = 'Natura 2000 Oosterschelde / Verdronken Land van Zuid-Beveland';
+            } else if (lat > 51.525 && lng < 4.18) {
+                zoneDesc = 'Poortvliet • Sectie M nr. 369 (Agrarisch bouwland 1,48 ha — Binnendijks)';
+                imroDesc = 'Bestemmingsplan Buitengebied Tholen — Agrarische bestemming';
+            } else if (lat > 53.0) {
+                zoneDesc = 'Waddenzee / Friese Kust Referentie (53.17587°N → 53.42747°N)';
+                imroDesc = 'PKB Waddenzee / Natura 2000 Referentiegebied';
+            }
+
+            // Probeer ook live het officiële PDOK BRK Perceel via OGC API Features op te halen
+            const statusEl = document.getElementById('pdok-api-status');
+            statusEl.textContent = 'PDOK BRK perceel opvragen...';
+            try {
+                const d = 0.0003;
+                const bbox = `${(lng - d).toFixed(6)},${(lat - d).toFixed(6)},${(lng + d).toFixed(6)},${(lat + d).toFixed(6)}`;
+                const res = await fetch(`https://api.pdok.nl/kadaster/brk-kadastrale-kaart/ogc/v1/collections/perceel/items?bbox=${bbox}&limit=1&f=json`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.features && data.features.length > 0) {
+                        const feat = data.features[0];
+                        const p = feat.properties || {};
+                        const gem = p.akr_kadastrale_gemeente_code_waarde || p.kadastrale_gemeente_waarde || 'BRK';
+                        const sectie = p.sectie || '';
+                        const nr = p.perceelnummer || '';
+                        const m2 = Number(p.kadastrale_grootte_waarde || 0);
+                        const ha = m2 / 10000;
+                        const bunder = ha * 1.018;
+                        zoneDesc = `PDOK BRK ${gem} Sectie ${sectie} Nr. ${nr} — ${m2.toLocaleString('nl-NL')} m² (${ha.toFixed(2)} ha / ${bunder.toFixed(2)} bunder)`;
+                        statusEl.textContent = `✓ Live PDOK Perceel ${gem} ${sectie} ${nr} geladen`;
+
+                        // Highlight perceel op kaart en zet in Planometer uitlezing
+                        layerGroups.pdokLiveHighlight.clearLayers();
+                        if (feat.geometry && (feat.geometry.type === 'Polygon' || feat.geometry.type === 'MultiPolygon')) {
+                            const coords = feat.geometry.type === 'Polygon' ? feat.geometry.coordinates[0] : feat.geometry.coordinates[0][0];
+                            const latLngs = coords.map(([lo, la]) => [la, lo]);
+                            L.polygon(latLngs, { color: '#d4af37', weight: 3, fillColor: '#fbbf24', fillOpacity: 0.35 }).addTo(layerGroups.pdokLiveHighlight);
+                            updatePlanimeterReadoutFromLatLngs(latLngs, `PDOK Perceel ${gem} ${sectie} ${nr}`);
+                        }
+                    } else {
+                        statusEl.textContent = 'Watervlak / Geen landperceel op dit punt';
+                    }
+                }
+            } catch (e) {
+                statusEl.textContent = 'Lokale RD- & Kadaster-resolver actief';
+            }
+
+            document.getElementById('click-inspector-output').innerHTML = `
+                <div>
+                    <span class="text-slate-400 block text-[11px]">Geselecteerde Positie (WGS84 / RD):</span>
+                    <span class="font-mono text-seagrass-300 font-semibold">${lat.toFixed(5)}°N, ${lng.toFixed(5)}°E (RD: X=${rd.x}, Y=${rd.y})</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-[11px]">PDOK BRK Perceel & Kadastrale Grootte:</span>
+                    <span class="text-amber-300 font-semibold">${zoneDesc}</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-[11px]">IMRO Planologisch Kader:</span>
+                    <span class="font-mono text-rose-300">${imroDesc}</span>
+                </div>
+            `;
+        }
+
+        function createCustomPin(colorHex) {
+            return L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div style="background-color:${colorHex}; width:14px; height:14px; border-radius:50%; border:2.5px solid #060d18; box-shadow: 0 0 10px ${colorHex};"></div>`,
+                iconSize: [14, 14],
+                iconAnchor: [7, 7]
+            });
+        }
+
+        function populatePredefinedMapLayers() {
+            const kadasterPoints = [
+                { coords: [51.48406, 4.26785], title: 'Oesterdam & Tholen K133', desc: 'Knooppunt Oosterschelde / Zoommeer (51.48406°N, 4.26785°E).' },
+                { coords: [51.4685, 4.2420], title: 'Bol van Lodijke — Perceel No. 369 (12,5 ha viswater)', desc: 'Historisch viswaterkavel (12,5 ha), te onderscheiden van Poortvliet Sectie M 369 (1,48 ha bouwland).' },
+                { coords: [51.5360, 4.1520], title: 'Poortvliet Sectie M nr. 369 (1,48 ha bouwland)', desc: 'Binnendijks landperceel (1,48 ha).' }
+            ];
+            kadasterPoints.forEach(pt => {
+                L.marker(pt.coords, { icon: createCustomPin('#fbbf24') })
+                    .bindPopup(`<div class="font-bold text-amber-300 mb-1">${pt.title}</div><div>${pt.desc}</div>`)
+                    .addTo(layerGroups.kadaster);
+            });
+
+            // Molenplaat (150 ha) - klikbaar om direct in Planometer te laden
+            const molenplaatPoly = [
+                [51.5045, 4.2260], [51.5060, 4.2460], [51.4930, 4.2510], [51.4915, 4.2310]
+            ];
+            L.polygon(molenplaatPoly, { color: '#fbbf24', weight: 2, fillColor: '#f59e0b', fillOpacity: 0.16 })
+                .bindPopup('<b>Molenplaat (150 ha)</b><br>Tholen K354/K269 • Intergetijdenplaat & foerageergebied steltlopers.')
+                .on('click', () => updatePlanimeterReadoutFromLatLngs(molenplaatPoly, 'Molenplaat (Tholen K354)'))
+                .addTo(layerGroups.kadaster);
+
+            // IMRO NL.IMRO.0748.BP0209-0301 & CO/H2 Leidingtracé
+            L.polyline([
+                [51.5180, 4.2220], [51.4985, 4.2380], [51.48406, 4.26785], [51.4710, 4.2890]
+            ], { color: '#fb7185', weight: 3.5, dashArray: '8, 6' })
+            .bindPopup('<b>Leidingtracé CO / H₂ & IMRO NL.IMRO.0748.BP0209-0301</b><br>Dubbelbestemming Leiding & Archeologie over de Molenplaat.')
+            .addTo(layerGroups.imro);
+
+            L.polygon([
+                [51.5090, 4.2520], [51.5090, 4.2850], [51.4740, 4.2850], [51.4740, 4.2520]
+            ], { color: '#f43f5e', weight: 1.5, fillColor: '#f43f5e', fillOpacity: 0.08 })
+            .bindPopup('<b>Plangrens NL.IMRO.0748.BP0209-0301</b><br>Bestemmingsplan Buitengebied Zuid / Oesterdam.')
+            .addTo(layerGroups.imro);
+
+            // Weervisserij
+            L.marker([51.4815, 4.2620], { icon: createCustomPin('#34d399') })
+                .bindPopup('<b>Weervisserij Vakken A–F (1756)</b><br>UNESCO Geopark Schelde Delta immaterieel erfgoed.')
+                .addTo(layerGroups.ecologie);
+
+            // Noordelijke Wadden-referentie
+            const wStart = [53.1758667, 5.8520992], wEnd = [53.427466, 5.7438134];
+            L.marker(wStart, { icon: createCustomPin('#38bdf8') }).bindPopup('<b>Wadden Zuid-Referentie</b><br>53.1758667°N, 5.8520992°E').addTo(layerGroups.wadden);
+            L.marker(wEnd, { icon: createCustomPin('#38bdf8') }).bindPopup('<b>Ameland / Wadden Noord</b><br>53.427466°N, 5.7438134°E').addTo(layerGroups.wadden);
+            L.polyline([wStart, wEnd], { color: '#38bdf8', weight: 3, dashArray: '6, 6' }).addTo(layerGroups.wadden);
+        }
+
+        function toggleMapLayer(layerName, checked) {
+            if (!layerGroups[layerName]) return;
+            if (checked) map.addLayer(layerGroups[layerName]);
+            else map.removeLayer(layerGroups[layerName]);
+        }
+
+        function flyToRegion(region) {
+            if (region === 'schelde') {
+                map.flyTo([51.4885, 4.2480], 13, { duration: 1.3 });
+                document.getElementById('active-coords-badge').textContent = '51.484°N, 4.268°E';
+                parrotJorneSpeak('Krrrr! Koers gezet naar de Schelde-Delta en de Oesterdam!', true);
+            } else {
+                map.flyTo([53.3016, 5.7980], 10, { duration: 1.3 });
+                document.getElementById('active-coords-badge').textContent = '53.302°N, 5.798°E';
+                parrotJorneSpeak('Krrrr! Noordelijke koers naar de Waddenzee en Ameland!', true);
+            }
+        }
+
+        function zoomToPoint(lat, lng, zoom = 14) {
+            switchTab('map');
+            setTimeout(() => map.flyTo([lat, lng], zoom, { duration: 1.1 }), 100);
+        }
+
+        /* =========================================================================
+           5. A. OTT NR. 573 COMPENSATIE-POOLPLANIMETER ("PLANOMETER")
+           ========================================================================= */
+        const planCanvas = document.getElementById('planimeterCanvas');
+        const planCtx = planCanvas.getContext('2d');
+
+        function initPlanimeterCanvas() {
+            resizePlanimeterCanvas();
+            window.addEventListener('resize', resizePlanimeterCanvas);
+
+            planCanvas.addEventListener('mousedown', (e) => {
+                if (!planimeterActive) return;
+                const rect = planCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // Klik dicht bij het poolgewicht verplaatst de pool
+                if (Math.hypot(x - planPolePt.x, y - planPolePt.y) < 20) {
+                    planPolePt = { x, y };
+                    drawPlanimeterMechanism();
+                    return;
+                }
+
+                isTracingPlanimeter = true;
+                planTracePathPx = [{ x, y }];
+                planTracePathLatLon = [];
+                if (map) {
+                    const ll = map.containerPointToLatLng([x, y]);
+                    planTracePathLatLon.push([ll.lat, ll.lng]);
+                }
+                planTracerPt = { x, y };
+                drawPlanimeterMechanism();
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!planimeterActive) return;
+                const rect = planCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+
+                planTracerPt = { x, y };
+                if (isTracingPlanimeter) {
+                    planTracePathPx.push({ x, y });
+                    if (map) {
+                        const ll = map.containerPointToLatLng([x, y]);
+                        planTracePathLatLon.push([ll.lat, ll.lng]);
+                        if (planTracePathLatLon.length >= 3) {
+                            updatePlanimeterReadoutFromLatLngs(planTracePathLatLon, 'Live Ott Nr. 573 omtrekking');
+                        }
+                    }
+                }
+                drawPlanimeterMechanism();
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isTracingPlanimeter) {
+                    isTracingPlanimeter = false;
+                    if (planTracePathLatLon.length >= 3) {
+                        showToast(`Planometer meting voltooid: ${lastPlanMetrics.bunder.toFixed(2)} Zeeuwse bunder`, 'success');
+                    }
+                }
+            });
+        }
+
+        function resizePlanimeterCanvas() {
+            if (!planCanvas) return;
+            const rect = planCanvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            planCanvas.width = rect.width * dpr;
+            planCanvas.height = rect.height * dpr;
+            planCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            if (rect.width > 0 && rect.height > 0) {
+                planPolePt = { x: rect.width * 0.22, y: rect.height * 0.72 };
+                planTracerPt = { x: rect.width * 0.50, y: rect.height * 0.45 };
+            }
+            drawPlanimeterMechanism();
+        }
+
+        function togglePlanimeter() {
+            planimeterActive = !planimeterActive;
+            planCanvas.classList.toggle('active-trace', planimeterActive);
+            const btn = document.getElementById('btn-toggle-planimeter');
+            btn.textContent = planimeterActive ? '📐 Planometer (Ott Nr. 573): ACTIEF' : '📐 Planometer (Ott Nr. 573): UIT';
+            document.getElementById('plan-state-text').textContent = planimeterActive
+                ? 'Sleep met de muis een gesloten contour op de kaart (klik op groen gewicht om pool te verplaatsen)'
+                : 'Stand-by';
+            drawPlanimeterMechanism();
+        }
+
+        function solvePlanimeterJoint(pole, tracer, Rp = 135, Lt = 165) {
+            const dx = tracer.x - pole.x, dy = tracer.y - pole.y;
+            const d = Math.hypot(dx, dy) || 1;
+            const clampedD = Math.min(Rp + Lt - 4, Math.max(Math.abs(Rp - Lt) + 4, d));
+            const cosAlpha = (Rp * Rp + clampedD * clampedD - Lt * Lt) / (2 * Rp * clampedD);
+            const alpha = Math.acos(Math.max(-1, Math.min(1, cosAlpha)));
+            const jointAngle = Math.atan2(dy, dx) - alpha;
+            const jx = pole.x + Rp * Math.cos(jointAngle);
+            const jy = pole.y + Rp * Math.sin(jointAngle);
+            return { x: jx, y: jy, armAngle: Math.atan2(tracer.y - jy, tracer.x - jx) };
+        }
+
+        function computeRdPolygonMetrics(latLonPoly) {
+            if (!latLonPoly || latLonPoly.length < 3) return { m2: 0, ha: 0, bunder: 0, roeden: 0, nonius: 0, cm2: 0 };
+            const rdPts = latLonPoly.map(([lat, lon]) => wgs84ToRd(lat, lon));
+            let twoArea = 0;
+            for (let i = 0; i < rdPts.length; i++) {
+                const p1 = rdPts[i];
+                const p2 = rdPts[(i + 1) % rdPts.length];
+                twoArea += (p1.x * p2.y - p2.x * p1.y);
+            }
+            const m2 = Math.abs(twoArea) / 2;
+            const ha = m2 / 10000;
+            const bunder = ha * 1.018;
+            const roeden = Math.round(bunder * 300);
+            const scaleDenom = 25000;
+            const m2PerCm2OnMap = (scaleDenom * 0.01) * (scaleDenom * 0.01);
+            const cm2 = m2 / m2PerCm2OnMap;
+            const nonius = cm2 / 100;
+            return { m2, ha, bunder, roeden, nonius, cm2 };
+        }
+
+        function updatePlanimeterReadoutFromLatLngs(latLonPoly, labelPrefix = 'Gemeten contour') {
+            const m = computeRdPolygonMetrics(latLonPoly);
+            lastPlanMetrics = m;
+            document.getElementById('plan-state-text').textContent = `${labelPrefix} (${latLonPoly.length} pt)`;
+            document.getElementById('plan-nonius').textContent = m.nonius.toFixed(3);
+            document.getElementById('plan-angle').textContent = `${planWheelAngleDeg.toFixed(1)}°`;
+            document.getElementById('plan-cm2').textContent = `${m.cm2.toFixed(2)} cm²`;
+            document.getElementById('plan-hectare').textContent = `${m.ha.toFixed(2)} ha`;
+            document.getElementById('plan-bunder').textContent = `${m.bunder.toFixed(2)} Zeeuwse bunder`;
+            document.getElementById('plan-roeden').textContent = m.roeden.toLocaleString('nl-NL');
+        }
+
+        function drawPlanimeterMechanism() {
+            const w = planCanvas.clientWidth, h = planCanvas.clientHeight;
+            planCtx.clearRect(0, 0, w, h);
+            if (!planimeterActive) return;
+
+            if (planTracePathPx.length > 1) {
+                planCtx.fillStyle = 'rgba(212, 175, 55, 0.25)';
+                planCtx.strokeStyle = '#f59e0b';
+                planCtx.lineWidth = 2.5;
+                planCtx.beginPath();
+                planTracePathPx.forEach((pt, idx) => {
+                    if (idx === 0) planCtx.moveTo(pt.x, pt.y);
+                    else planCtx.lineTo(pt.x, pt.y);
+                });
+                planCtx.closePath();
+                planCtx.fill();
+                planCtx.stroke();
+            }
+
+            const joint = solvePlanimeterJoint(planPolePt, planTracerPt, 135, 165);
+            planWheelAngleDeg = (joint.armAngle * 180) / Math.PI;
+
+            planCtx.save();
+            planCtx.shadowColor = 'rgba(0,0,0,0.75)';
+            planCtx.shadowBlur = 7;
+
+            // Messing Poolarm
+            planCtx.strokeStyle = '#d4af37';
+            planCtx.lineWidth = 5;
+            planCtx.beginPath();
+            planCtx.moveTo(planPolePt.x, planPolePt.y);
+            planCtx.lineTo(joint.x, joint.y);
+            planCtx.stroke();
+
+            // Stalen Rijarm
+            planCtx.strokeStyle = '#e2e8f0';
+            planCtx.lineWidth = 4.5;
+            planCtx.beginPath();
+            planCtx.moveTo(joint.x, joint.y);
+            planCtx.lineTo(planTracerPt.x, planTracerPt.y);
+            planCtx.stroke();
+
+            // Meetwiel & Noniustrommel
+            const wheelX = joint.x + (planTracerPt.x - joint.x) * 0.28;
+            const wheelY = joint.y + (planTracerPt.y - joint.y) * 0.28;
+            planCtx.translate(wheelX, wheelY);
+            planCtx.rotate(joint.armAngle);
+            planCtx.fillStyle = '#1e293b';
+            planCtx.strokeStyle = '#d4af37';
+            planCtx.lineWidth = 2;
+            planCtx.fillRect(-15, -10, 30, 20);
+            planCtx.strokeRect(-15, -10, 30, 20);
+            planCtx.fillStyle = '#fef3c7';
+            planCtx.fillRect(-6, -8, 12, 16);
+            planCtx.restore();
+
+            // Poolgewicht (verplaatsbaar)
+            planCtx.fillStyle = '#065f46';
+            planCtx.beginPath();
+            planCtx.arc(planPolePt.x, planPolePt.y, 14, 0, Math.PI * 2);
+            planCtx.fill();
+            planCtx.strokeStyle = '#d4af37';
+            planCtx.lineWidth = 3;
+            planCtx.stroke();
+
+            // Rijstift / Loep
+            planCtx.strokeStyle = '#34d399';
+            planCtx.lineWidth = 2.5;
+            planCtx.beginPath();
+            planCtx.arc(planTracerPt.x, planTracerPt.y, 10, 0, Math.PI * 2);
+            planCtx.stroke();
+        }
+
+        function calibratePlanimeter() {
+            if (!planimeterActive) togglePlanimeter();
+            const w = planCanvas.clientWidth, h = planCanvas.clientHeight;
+            const cx = w * 0.54, cy = h * 0.48;
+            const radiusPx = 52;
+            planTracePathPx = [];
+            planTracePathLatLon = [];
+            let step = 0;
+
+            function anim() {
+                const ang = (step / 44) * Math.PI * 2;
+                const px = cx + Math.cos(ang) * radiusPx;
+                const py = cy + Math.sin(ang) * radiusPx;
+                planTracerPt = { x: px, y: py };
+                planTracePathPx.push({ x: px, y: py });
+                if (map) {
+                    const ll = map.containerPointToLatLng([px, py]);
+                    planTracePathLatLon.push([ll.lat, ll.lng]);
+                }
+                drawPlanimeterMechanism();
+                if (++step <= 44) {
+                    requestAnimationFrame(anim);
+                } else {
+                    document.getElementById('plan-state-text').textContent = 'IJking Controle-liniaal (R=56.419 mm · 100.00 cm² = 1.000 omw.) ✓';
+                    document.getElementById('plan-nonius').textContent = '1.000';
+                    document.getElementById('plan-angle').textContent = '360.0°';
+                    document.getElementById('plan-cm2').textContent = '100.00 cm²';
+                    parrotJorneSpeak('Krrrr! Teststaaf geijkt: honderd vierkante centimeter, precies één omwenteling op de nonius!', true);
+                }
+            }
+            anim();
+        }
+
+        function clearPlanimeter() {
+            planTracePathPx = [];
+            planTracePathLatLon = [];
+            lastPlanMetrics = { m2: 0, ha: 0, bunder: 0, roeden: 0, nonius: 0, cm2: 0 };
+            document.getElementById('plan-nonius').textContent = '0.000';
+            document.getElementById('plan-angle').textContent = '0.0°';
+            document.getElementById('plan-cm2').textContent = '0.00 cm²';
+            document.getElementById('plan-hectare').textContent = '0.00 ha';
+            document.getElementById('plan-bunder').textContent = '0.00 Zeeuwse bunder';
+            document.getElementById('plan-roeden').textContent = '0';
+            drawPlanimeterMechanism();
+        }
+
+        /* =========================================================================
+           6. SALUUT-SCHEEPJE (ZEEUWSE HOOGAARS TH 2 MET PAPEGAAI JORNE AAN BOORD)
+           ========================================================================= */
+        function createShipIcon() {
+            return L.divIcon({
+                className: 'hoogaars-ship-icon',
+                html: `<div style="position:relative; width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
+                        <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
+                            <!-- Romp van de Zeeuwse Hoogaars -->
+                            <path d="M5 27 L35 27 L30 34 L10 34 Z" fill="#92400e" stroke="#fbbf24" stroke-width="1.5"/>
+                            <!-- Grootzeil & Fok -->
+                            <path d="M19 6 L19 25 L8 25 Z" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2"/>
+                            <path d="M21 9 L21 25 L32 25 Z" fill="#fde68a" stroke="#f59e0b" stroke-width="1.2"/>
+                            <!-- Rode wimpel -->
+                            <path d="M19 6 L27 7.5 L19 9 Z" fill="#ef4444"/>
+                            <!-- Papegaai Jorne op de boeg/ra! -->
+                            <circle cx="32" cy="22" r="3.4" fill="#10b981" stroke="#064e3b" stroke-width="0.9"/>
+                            <path d="M35 21 L38 22.5 L35 23.5 Z" fill="#f59e0b"/>
+                        </svg>
+                       </div>`,
+                iconSize: [40, 40],
+                iconAnchor: [20, 26]
+            });
+        }
+
+        function initSaluteShipOnMap() {
+            shipMarker = L.marker(SHIP_ROUTE[0], { icon: createShipIcon(), zIndexOffset: 900 })
+                .bindPopup(`
+                    <div class="font-bold text-amber-300 mb-1">⛵🦜 Hoogaars TH 2 met Papegaai Jorne</div>
+                    <div class="text-xs text-slate-200 mb-2">Varend maritiem erfgoed met scheepspapegaai Jorne op de boeg langs de Oesterdam en Molenplaat.</div>
+                    <div class="flex gap-1.5">
+                        <button onclick="parrotJorneSquawkRandom()" class="px-2.5 py-1.5 rounded bg-emerald-500 text-slate-950 font-bold text-xs flex-1">🦜 Laat Jorne roepen</button>
+                        <button onclick="fireSaluteShip()" class="px-2.5 py-1.5 rounded bg-amber-500 text-slate-950 font-bold text-xs flex-1">💥 Saluut</button>
+                    </div>
+                `)
+                .addTo(layerGroups.ecologie);
+
+            shipInterval = setInterval(() => {
+                if (!shipSailing || !shipMarker) return;
+                shipProgress = (shipProgress + 0.008) % (SHIP_ROUTE.length - 1);
+                const idx = Math.floor(shipProgress);
+                const frac = shipProgress - idx;
+                const p1 = SHIP_ROUTE[idx];
+                const p2 = SHIP_ROUTE[idx + 1];
+                const lat = p1[0] + (p2[0] - p1[0]) * frac;
+                const lng = p1[1] + (p2[1] - p1[1]) * frac;
+                shipMarker.setLatLng([lat, lng]);
+            }, 350);
+        }
+
+        function playCannonSaluteSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const bufferSize = ctx.sampleRate * 0.9;
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.18));
+                }
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(280, ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(45, ctx.currentTime + 0.85);
+
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0.85, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.85);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                noise.start();
+            } catch (e) {}
+        }
+
+        function fireSaluteShip() {
+            switchTab('map');
+            if (!shipMarker || !map) return;
+            const pos = shipMarker.getLatLng();
+            map.flyTo(pos, Math.max(map.getZoom(), 14), { duration: 0.7 });
+            parrotJorneSpeak('Krrrr! Saluutschoten voor Jorne aan boord van de TH 2! Dekking!', true);
+
+            let shot = 0;
+            const volley = setInterval(() => {
+                shot++;
+                playCannonSaluteSound();
+                const smokeIcon = L.divIcon({
+                    className: 'salute-smoke-icon',
+                    html: `<div class="salute-smoke" style="width:28px;height:28px;border-radius:50%;background:radial-gradient(circle, #fef3c7 0%, #94a3b8 60%, transparent 100%);"></div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
+                });
+                const smoke = L.marker([pos.lat + 0.0004, pos.lng + 0.0005], { icon: smokeIcon }).addTo(map);
+                setTimeout(() => map.removeLayer(smoke), 1700);
+                showToast(`💥 Saluutschot ${shot}/3 afgevuurd door Hoogaars TH 2!`, 'info');
+                if (shot >= 3) clearInterval(volley);
+            }, 850);
+        }
+
+        function focusOnSaluteShip() {
+            if (!shipMarker) return;
+            map.flyTo(shipMarker.getLatLng(), 15, { duration: 1.0 });
+            shipMarker.openPopup();
+        }
+
+        /* =========================================================================
+           7. VISMETER LIVE VIDEO & BIO-AKOESTIEK RECORDER
+           ========================================================================= */
+        function initVismeterSimulation() {
+            const canvas = document.getElementById('vismeter-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const speciesList = [
+                { name: 'Ansjovis (Engraulis encrasicolus)', len: '16 cm', color: '#38bdf8' },
+                { name: 'Zeebaars (Dicentrarchus labrax)', len: '44 cm', color: '#34d399' },
+                { name: 'Tong (Solea solea)', len: '31 cm', color: '#fbbf24' },
+                { name: 'Steur / Trekvis-profiel', len: '82 cm', color: '#f472b6' }
+            ];
+
+            for (let i = 0; i < 6; i++) {
+                const sp = speciesList[i % speciesList.length];
+                simFishes.push({
+                    x: Math.random() * 640,
+                    y: 70 + Math.random() * 210,
+                    speed: 0.7 + Math.random() * 1.1,
+                    size: 16 + (i % 3) * 8,
+                    species: sp.name,
+                    len: sp.len,
+                    color: sp.color
+                });
+            }
+
+            function renderFrame() {
+                if (vismeterMode !== 'sim') return;
+                const w = canvas.width = canvas.offsetWidth || 640;
+                const h = canvas.height = canvas.offsetHeight || 360;
+
+                const grad = ctx.createLinearGradient(0, 0, 0, h);
+                grad.addColorStop(0, '#092438');
+                grad.addColorStop(1, '#04101c');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, w, h);
+
+                ctx.strokeStyle = 'rgba(52, 211, 153, 0.16)';
+                ctx.lineWidth = 1;
+                for (let x = 0; x < w; x += 50) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+                for (let y = 0; y < h; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+                simFishes.forEach(f => {
+                    f.x += f.speed;
+                    if (f.x > w + 60) f.x = -60;
+                    const waveY = f.y + Math.sin(f.x * 0.04) * 5;
+
+                    ctx.fillStyle = f.color;
+                    ctx.beginPath();
+                    ctx.ellipse(f.x, waveY, f.size, f.size * 0.36, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.moveTo(f.x - f.size, waveY);
+                    ctx.lineTo(f.x - f.size - 10, waveY - 7);
+                    ctx.lineTo(f.x - f.size - 10, waveY + 7);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    ctx.strokeStyle = 'rgba(251, 191, 36, 0.65)';
+                    ctx.strokeRect(f.x - f.size - 12, waveY - f.size * 0.5, f.size * 2 + 18, f.size);
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.font = '10px "JetBrains Mono", monospace';
+                    ctx.fillText(`${f.species.split(' ')[0]} (${f.len})`, f.x - f.size - 10, waveY - f.size * 0.5 - 4);
+                });
+
+                vismeterAnimId = requestAnimationFrame(renderFrame);
+            }
+            renderFrame();
+        }
+
+        function setVismeterMode(mode) {
+            vismeterMode = mode;
+            const canvas = document.getElementById('vismeter-canvas');
+            const video = document.getElementById('vismeter-video');
+            if (mode === 'sim') {
+                if (video.srcObject) {
+                    video.srcObject.getTracks().forEach(t => t.stop());
+                    video.srcObject = null;
+                }
+                video.classList.add('hidden');
+                canvas.classList.remove('hidden');
+                initVismeterSimulation();
+            }
+        }
+
+        async function startLocalCameraStream() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                vismeterMode = 'cam';
+                cancelAnimationFrame(vismeterAnimId);
+                document.getElementById('vismeter-canvas').classList.add('hidden');
+                const video = document.getElementById('vismeter-video');
+                video.classList.remove('hidden');
+                video.srcObject = stream;
+                showToast('Live camera / hydro-cam stream geactiveerd!', 'success');
+            } catch (err) {
+                showToast('Geen cameratoegang; onderwater-simulatie blijft actief.', 'info');
+            }
+        }
+
+        function logVismeterDetection() {
+            const sample = simFishes[Math.floor(Math.random() * simFishes.length)];
+            localFieldnotes.unshift({
+                id: 'vm-' + Date.now(),
+                title: `Vismeter Passage: ${sample.species}`,
+                category: 'Vismeter Live Observatie',
+                lat: 51.48406,
+                lng: 4.26785,
+                text: `Geregistreerde vispassage bij Oesterdam/Bergsediepsluis. Geschatte lengte: ${sample.len}.`,
+                timestamp: new Date().toISOString(),
+                hasAudio: false
+            });
+            saveLocalFieldnotes();
+            renderFieldnotesOnMap();
+            renderFieldnotesList();
+            parrotJorneSpeak(`Krrrr! Vis gespot bij de Oesterdam: ${sample.species.split(' ')[0]} van ${sample.len}!`, true);
+        }
+
+        async function startAudioRecording() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioCtx.createMediaStreamSource(stream);
+                analyserNode = audioCtx.createAnalyser();
+                analyserNode.fftSize = 128;
+                source.connect(analyserNode);
+                drawAudioSpectrum();
+
+                mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
+                mediaRecorder.onstop = () => {
+                    cancelAnimationFrame(spectrumAnimId);
+                    const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(blob);
+                    const soundType = document.getElementById('bio-sound-type').value;
+                    const titleInput = document.getElementById('fieldnote-title').value.trim();
+                    const textInput = document.getElementById('fieldnote-text').value.trim();
+                    const lat = parseFloat(document.getElementById('fieldnote-lat').value) || 51.49850;
+                    const lng = parseFloat(document.getElementById('fieldnote-lng').value) || 4.23800;
+
+                    localFieldnotes.unshift({
+                        id: 'bio-' + Date.now(),
+                        title: titleInput || `${soundType} (${recordingSeconds}s)`,
+                        category: soundType,
+                        lat,
+                        lng,
+                        text: textInput || `Bio-akoestische opname (${recordingSeconds} sec) vastgelegd op locatie.`,
+                        timestamp: new Date().toISOString(),
+                        hasAudio: true,
+                        audioUrl
+                    });
+                    saveLocalFieldnotes();
+                    renderFieldnotesOnMap();
+                    renderFieldnotesList();
+                    stream.getTracks().forEach(t => t.stop());
+                    showToast('Vis-/vogelgeluid opgeslagen in lokaal archief!', 'success');
+                };
+
+                mediaRecorder.start();
+                recordingSeconds = 0;
+                document.getElementById('recording-status').textContent = 'Opname actief...';
+                document.getElementById('recording-status').classList.add('text-rose-400');
+                document.getElementById('btn-rec-start').disabled = true;
+                document.getElementById('btn-rec-stop').disabled = false;
+
+                recordingInterval = setInterval(() => {
+                    recordingSeconds++;
+                    const m = String(Math.floor(recordingSeconds / 60)).padStart(2, '0');
+                    const s = String(recordingSeconds % 60).padStart(2, '0');
+                    document.getElementById('recording-timer').textContent = `${m}:${s}`;
+                }, 1000);
+            } catch (err) {
+                showToast('Microfoontoegang geweigerd.', 'error');
+            }
+        }
+
+        function drawAudioSpectrum() {
+            const canvas = document.getElementById('audio-spectrum-canvas');
+            if (!canvas || !analyserNode) return;
+            const ctx = canvas.getContext('2d');
+            const bufferLen = analyserNode.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLen);
+
+            function render() {
+                analyserNode.getByteFrequencyData(dataArray);
+                ctx.fillStyle = '#060d18';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                const barW = (canvas.width / bufferLen) * 1.8;
+                let x = 0;
+                for (let i = 0; i < bufferLen; i++) {
+                    const barH = (dataArray[i] / 255) * canvas.height;
+                    ctx.fillStyle = i % 2 === 0 ? '#34d399' : '#38bdf8';
+                    ctx.fillRect(x, canvas.height - barH, barW - 1, barH);
+                    x += barW;
+                }
+                spectrumAnimId = requestAnimationFrame(render);
+            }
+            render();
+        }
+
+        function stopAudioRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            clearInterval(recordingInterval);
+            document.getElementById('recording-status').textContent = 'Opname opgeslagen';
+            document.getElementById('recording-status').classList.remove('text-rose-400');
+            document.getElementById('btn-rec-start').disabled = false;
+            document.getElementById('btn-rec-stop').disabled = true;
+        }
+
+        /* =========================================================================
+           8. VELDNOTITIES, DOSSIERS, TTS, WEBRTC & GEORSS
+           ========================================================================= */
+        function loadLocalFieldnotes() {
+            try {
+                const saved = localStorage.getItem('schelde_delta_fieldnotes_v3');
+                if (saved) {
+                    localFieldnotes = JSON.parse(saved);
+                } else {
+                    localFieldnotes = [
+                        {
+                            id: 'fn-1',
+                            title: 'IMRO NL.IMRO.0748.BP0209-0301 & Molenplaat Inspectie',
+                            category: 'IMRO / Kadastraal',
+                            lat: 51.49850,
+                            lng: 4.23800,
+                            text: 'Kruiscontrole van bestemmingsplan NL.IMRO.0748.BP0209-0301, buisleidingenstrook (CO/H2) en Tholen K354/K269.',
+                            timestamp: new Date().toISOString(),
+                            hasAudio: false
+                        }
+                    ];
+                    saveLocalFieldnotes();
+                }
+            } catch (e) {}
+        }
+
+        function saveLocalFieldnotes() {
+            try {
+                const clean = localFieldnotes.map(({ audioUrl, ...rest }) => rest);
+                localStorage.setItem('schelde_delta_fieldnotes_v3', JSON.stringify(clean));
+                generateRSSFeed();
+            } catch (e) {}
+        }
+
+        function saveTextFieldnote() {
+            const title = document.getElementById('fieldnote-title').value.trim();
+            const text = document.getElementById('fieldnote-text').value.trim();
+            const category = document.getElementById('bio-sound-type').value;
+            const lat = parseFloat(document.getElementById('fieldnote-lat').value) || 51.48406;
+            const lng = parseFloat(document.getElementById('fieldnote-lng').value) || 4.26785;
+            if (!title && !text) return showToast('Vul een titel of observatie in.', 'error');
+
+            localFieldnotes.unshift({
+                id: 'fn-' + Date.now(),
+                title: title || 'Veldobservatie',
+                category,
+                lat,
+                lng,
+                text: text || 'Vastgelegd in veldwerkmodule.',
+                timestamp: new Date().toISOString(),
+                hasAudio: false
+            });
+            saveLocalFieldnotes();
+            renderFieldnotesOnMap();
+            renderFieldnotesList();
+            document.getElementById('fieldnote-title').value = '';
+            document.getElementById('fieldnote-text').value = '';
+            showToast('Observatie opgeslagen op kaart en in GeoRSS!', 'success');
+        }
+
+        function renderFieldnotesOnMap() {
+            if (!layerGroups.fieldnotes) return;
+            layerGroups.fieldnotes.clearLayers();
+            localFieldnotes.forEach(item => {
+                L.marker([item.lat, item.lng], { icon: createCustomPin('#c084fc') })
+                    .bindPopup(`<div class="text-[10px] text-purple-300 font-bold uppercase">${escapeHTML(item.category)}</div><div class="font-bold text-white">${escapeHTML(item.title)}</div><div class="text-xs text-slate-300 mt-1">${escapeHTML(item.text)}</div>`)
+                    .addTo(layerGroups.fieldnotes);
+            });
+        }
+
+        function renderFieldnotesList() {
+            const container = document.getElementById('fieldnotes-list');
+            const badge = document.getElementById('fieldnotes-count');
+            if (!container) return;
+            badge.textContent = `${localFieldnotes.length} items`;
+            container.innerHTML = localFieldnotes.map(item => `
+                <div class="bg-maritime-950 border border-maritime-800 rounded-xl p-3 text-xs space-y-2">
+                    <div class="flex justify-between items-start gap-2">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase text-purple-400">${escapeHTML(item.category)}</span>
+                            <div class="font-bold text-white">${escapeHTML(item.title)}</div>
+                        </div>
+                        <button onclick="zoomToPoint(${item.lat}, ${item.lng}, 15)" class="font-mono text-seagrass-400 hover:underline">📍 ${item.lat.toFixed(4)}, ${item.lng.toFixed(4)}</button>
+                    </div>
+                    <p class="text-slate-300">${escapeHTML(item.text)}</p>
+                    ${item.audioUrl ? `<audio controls src="${item.audioUrl}" class="w-full h-8"></audio>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderDossiers() {
+            const query = (document.getElementById('dossier-search')?.value || '').toLowerCase();
+            const cat = document.getElementById('dossier-category-filter')?.value || 'all';
+            const grid = document.getElementById('dossier-grid');
+            if (!grid) return;
+
+            const filtered = DOSSIER_ITEMS.filter(d => {
+                const okCat = cat === 'all' || d.category === cat;
+                const okQ = !query || `${d.title} ${d.subtitle} ${d.summary} ${d.details.join(' ')}`.toLowerCase().includes(query);
+                return okCat && okQ;
+            });
+
+            grid.innerHTML = filtered.map(item => `
+                <article class="bg-maritime-900 border border-maritime-700/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${item.badgeColor}">${item.badge}</span>
+                            <button onclick="zoomToPoint(${item.coords[0]}, ${item.coords[1]}, 14)" class="text-xs text-seagrass-400 hover:underline">📍 ${item.coordLabel}</button>
+                        </div>
+                        <h3 class="text-base font-bold text-white mb-1">${item.title}</h3>
+                        <p class="text-xs text-slate-400 mb-3">${item.subtitle}</p>
+                        <p class="text-xs text-slate-200 bg-maritime-950 p-3 rounded-xl border border-maritime-800 mb-3">${item.summary}</p>
+                        <ul class="space-y-1.5 text-xs text-slate-300 mb-4">
+                            ${item.details.map(d => `<li>▪ ${d}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick='readTextAloud(${JSON.stringify(item.title)}, ${JSON.stringify(item.summary + " " + item.details.join(" "))})' class="px-3 py-2 rounded-xl bg-maritime-800 hover:bg-maritime-700 text-xs font-medium text-seagrass-400">
+                            🔊 Verteller (nl-NL)
+                        </button>
+                        <button onclick='parrotJorneSpeak(${JSON.stringify("Krrrr! " + item.title + ". " + item.summary)}, true)' class="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-xs font-medium text-emerald-300">
+                            🦜 Laat Jorne lezen
+                        </button>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function readTextAloud(title, text) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            speechUtterance = new SpeechSynthesisUtterance(text);
+            speechUtterance.lang = 'nl-NL';
+            speechUtterance.rate = parseFloat(document.getElementById('speech-rate').value) || 1.0;
+            speechUtterance.onstart = () => {
+                document.getElementById('speech-bar').classList.remove('hidden');
+                document.getElementById('speech-speaker-label').textContent = 'Voorleesmodus (nl-NL):';
+                document.getElementById('speech-title').textContent = title;
+            };
+            speechUtterance.onend = () => document.getElementById('speech-bar').classList.add('hidden');
+            window.speechSynthesis.speak(speechUtterance);
+        }
+        function togglePauseSpeech() {
+            if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+            else window.speechSynthesis.pause();
+        }
+        function stopSpeech() {
+            window.speechSynthesis.cancel();
+            setParrotSpeakingAnimation(false);
+            document.getElementById('speech-bar').classList.add('hidden');
+        }
+        function updateSpeechRate() {
+            if (window.speechSynthesis.speaking && speechUtterance) {
+                readTextAloud(document.getElementById('speech-title').textContent, speechUtterance.text);
+            }
+        }
+
+        /* WebRTC P2P */
+        function initPeerConnection() {
+            peerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+            peerConnection.onicecandidate = (e) => {
+                if (e.candidate === null && peerConnection.localDescription) {
+                    document.getElementById('rtc-local-sdp').value = btoa(JSON.stringify(peerConnection.localDescription));
+                    showToast('WebRTC token gereed!', 'success');
+                }
+            };
+            peerConnection.onconnectionstatechange = () => {
+                document.getElementById('rtc-connection-badge').textContent = `Status: ${peerConnection.connectionState}`;
+            };
+            peerConnection.ondatachannel = (e) => setupDataChannel(e.channel);
+        }
+        function setupDataChannel(ch) {
+            dataChannel = ch;
+            dataChannel.onmessage = (e) => {
+                const log = document.getElementById('rtc-chat-log');
+                const d = document.createElement('div');
+                d.className = 'p-2 rounded bg-maritime-900 border border-maritime-800 text-slate-200';
+                d.textContent = 'Peer: ' + e.data;
+                log.appendChild(d);
+            };
+        }
+        async function createWebRTCOffer() {
+            initPeerConnection();
+            setupDataChannel(peerConnection.createDataChannel('schelde-p2p'));
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+        }
+        async function acceptOfferAndCreateAnswer() {
+            const val = document.getElementById('rtc-remote-sdp').value.trim();
+            if (!val) return;
+            initPeerConnection();
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(atob(val))));
+            const ans = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(ans);
+        }
+        async function finalizeWebRTCAnswer() {
+            const val = document.getElementById('rtc-remote-sdp').value.trim();
+            if (!val || !peerConnection) return;
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(atob(val))));
+        }
+        function sendP2PMessage(e) {
+            e.preventDefault();
+            const inp = document.getElementById('rtc-message-input');
+            if (dataChannel && dataChannel.readyState === 'open' && inp.value.trim()) {
+                dataChannel.send(inp.value.trim());
+                inp.value = '';
+            }
+        }
+        function sendCurrentMapViewP2P() {
+            if (dataChannel && dataChannel.readyState === 'open') {
+                const c = map.getCenter();
+                dataChannel.send(JSON.stringify({ lat: c.lat, lng: c.lng }));
+            }
+        }
+
+        /* GeoRSS Studio */
+        function generateRSSFeed() {
+            const items = localFieldnotes.map(i => `    <item>\n      <title>${escapeXML(i.title)}</title>\n      <description>${escapeXML(i.text)}</description>\n      <georss:point>${i.lat.toFixed(6)} ${i.lng.toFixed(6)}</georss:point>\n    </item>`).join('\n');
+            const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:georss="http://www.georss.org/georss">\n  <channel>\n    <title>Schelde-Delta Zero-Trust GeoRSS Feed</title>\n    <link>https://schelde-delta.local/</link>\n${items}\n  </channel>\n</rss>`;
+            const el = document.getElementById('rss-output-xml');
+            if (el) el.value = xml;
+        }
+        function downloadRSSFile() {
+            generateRSSFeed();
+            const blob = new Blob([document.getElementById('rss-output-xml').value], { type: 'application/rss+xml' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'schelde_delta_georss.xml';
+            a.click();
+        }
+        function loadSampleGeoRSS() {
+            document.getElementById('rss-import-input').value = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:georss="http://www.georss.org/georss"><channel><title>Wadden & Schelde</title><item><title>Waddenzee Zuid</title><description>Referentie 53.1758667, 5.8520992</description><georss:point>53.1758667 5.8520992</georss:point></item><item><title>Ameland Noord</title><description>Referentie 53.427466, 5.7438134</description><georss:point>53.427466 5.7438134</georss:point></item></channel></rss>`;
+        }
+        function parseImportedXML() {
+            const raw = document.getElementById('rss-import-input').value.trim();
+            if (!raw) return;
+            const doc = new DOMParser().parseFromString(raw, 'text/xml');
+            const items = Array.from(doc.querySelectorAll('item'));
+            document.getElementById('parsed-xml-results').innerHTML = items.map(it => {
+                const t = it.querySelector('title')?.textContent || '';
+                const d = it.querySelector('description')?.textContent || '';
+                const pt = it.getElementsByTagNameNS('*', 'point')[0]?.textContent || '';
+                const [lat, lng] = pt.trim().split(/\s+/).map(Number);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    L.marker([lat, lng], { icon: createCustomPin('#fb923c') }).bindPopup(`<b>${escapeHTML(t)}</b><br>${escapeHTML(d)}`).addTo(layerGroups.fieldnotes);
+                }
+                return `<div class="p-2.5 rounded-lg bg-maritime-950 border border-maritime-800 text-xs"><b>${escapeHTML(t)}</b>: ${escapeHTML(d)}</div>`;
+            }).join('');
+            showToast(`${items.length} XML-items op kaart geplot!`, 'success');
+        }
+
+        function copyTextarea(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            navigator.clipboard?.writeText(el.value);
+            showToast('Gekopieerd!', 'success');
+        }
+        function exportLocalStateJSON() {
+            const blob = new Blob([JSON.stringify({ fieldnotes: localFieldnotes, dossiers: DOSSIER_ITEMS, planimeter: lastPlanMetrics }, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'schelde_delta_backup.json';
+            a.click();
+        }
+        function showToast(msg, type = 'info') {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = 'pointer-events-auto bg-maritime-900 border border-seagrass-500/50 text-slate-100 px-3.5 py-2.5 rounded-xl shadow-xl text-xs';
+            t.textContent = msg;
+            c.appendChild(t);
+            setTimeout(() => t.remove(), 3200);
+        }
+        function escapeHTML(s) { return String(s || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+        function escapeXML(s) { return String(s || '').replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c])); }
+    </script>
+</body>
+</html>
