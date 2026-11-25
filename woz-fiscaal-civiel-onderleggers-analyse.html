@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volledige Analyse &amp; Onderleggers — WOZ, Fiscaal vs. Civiel Spoor &amp; Verificatiekader</title>
+  <style>
+    :root {
+      --bg-page: #FFFFFF;
+      --bg-parchment: #FAF7F2;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F3EDE4;
+      --border-linen: #E4DDD3;
+      --border-strong: #CFC4B6;
+      --meekrap: #A31C1C;
+      --meekrap-dark: #821414;
+      --meekrap-soft: #FDF3F3;
+      --ink: #241F1C;
+      --ink-muted: #5C534C;
+      --brass: #9A6B2F;
+      --brass-soft: #FBF5EC;
+      --ok: #1F6B43;
+      --ok-soft: #EEF8F2;
+      --warn: #9E5A11;
+      --warn-soft: #FEF6EB;
+      --base-size: 19px;
+      --font-serif: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      font-size: var(--base-size);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      color: var(--ink);
+      background: var(--bg-page);
+      line-height: 1.62;
+    }
+
+    /* Layout */
+    .layout {
+      display: grid;
+      grid-template-columns: 295px 1fr;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--bg-parchment);
+      border-right: 1px solid var(--border-linen);
+      border-left: 7px solid var(--meekrap);
+      padding: 1.4rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .brand-tag {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--meekrap);
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .sidebar-title {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      line-height: 1.25;
+      margin: 0;
+      color: var(--ink);
+    }
+
+    .sidebar-sub {
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      margin: 0.35rem 0 0;
+    }
+
+    .nav-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+    }
+
+    .nav-list a {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: var(--ink);
+      font-size: 0.84rem;
+      padding: 0.42rem 0.55rem;
+      border-radius: 6px;
+      border-left: 3px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .nav-list a:hover,
+    .nav-list a.active {
+      background: var(--meekrap-soft);
+      border-left-color: var(--meekrap);
+      color: var(--meekrap-dark);
+      font-weight: 600;
+    }
+
+    .nav-num {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--meekrap);
+      min-width: 1.4rem;
+    }
+
+    .control-box {
+      border-top: 1px solid var(--border-linen);
+      padding-top: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .control-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-muted);
+      font-weight: 700;
+    }
+
+    .font-switcher {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.35rem;
+    }
+
+    .btn {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.48rem 0.72rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-card);
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+    }
+
+    .btn:hover {
+      border-color: var(--meekrap);
+      color: var(--meekrap-dark);
+      background: var(--meekrap-soft);
+    }
+
+    .btn.active,
+    .btn-primary {
+      background: var(--meekrap);
+      border-color: var(--meekrap);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background: var(--meekrap-dark);
+      border-color: var(--meekrap-dark);
+      color: #FFFFFF;
+    }
+
+    /* Main content */
+    .main {
+      padding: 2rem 2.6rem 3.5rem;
+      max-width: 1120px;
+      width: 100%;
+    }
+
+    .doc-header {
+      border-bottom: 2px solid var(--meekrap);
+      padding-bottom: 1.2rem;
+      margin-bottom: 1.6rem;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.22rem 0.58rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-parchment);
+      color: var(--ink);
+    }
+
+    .badge-red {
+      background: var(--meekrap-soft);
+      border-color: #E3B4B4;
+      color: var(--meekrap-dark);
+    }
+
+    .badge-ok {
+      background: var(--ok-soft);
+      border-color: #B7DEC8;
+      color: var(--ok);
+    }
+
+    .badge-warn {
+      background: var(--warn-soft);
+      border-color: #E7C99B;
+      color: var(--warn);
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: 1.95rem;
+      line-height: 1.2;
+      margin: 0 0 0.55rem;
+      color: var(--ink);
+    }
+
+    .lead {
+      font-size: 0.96rem;
+      color: var(--ink-muted);
+      margin: 0;
+    }
+
+    /* KPI Strip */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: var(--bg-parchment);
+      border: 1px solid var(--border-linen);
+      border-top: 4px solid var(--meekrap);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+
+    .kpi-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-muted);
+      font-weight: 700;
+    }
+
+    .kpi-value {
+      font-family: var(--font-serif);
+      font-size: 1.38rem;
+      font-weight: 700;
+      color: var(--meekrap-dark);
+      margin: 0.2rem 0;
+    }
+
+    .kpi-note {
+      font-size: 0.76rem;
+      color: var(--ink-muted);
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 2.6rem;
+      scroll-margin-top: 1.2rem;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 0.65rem;
+      border-bottom: 1px solid var(--border-linen);
+      padding-bottom: 0.45rem;
+      margin-bottom: 1.05rem;
+    }
+
+    .section-code {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--meekrap);
+      background: var(--meekrap-soft);
+      padding: 0.14rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    h2 {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      margin: 0;
+      color: var(--ink);
+    }
+
+    h3 {
+      font-family: var(--font-serif);
+      font-size: 1.04rem;
+      margin: 1.15rem 0 0.45rem;
+      color: var(--meekrap-dark);
+    }
+
+    p { margin: 0 0 0.8rem; }
+
+    /* Callouts & Cards */
+    .callout {
+      background: var(--bg-parchment);
+      border: 1px solid var(--border-linen);
+      border-left: 5px solid var(--meekrap);
+      border-radius: 6px;
+      padding: 0.95rem 1.15rem;
+      margin: 1rem 0;
+      font-size: 0.92rem;
+    }
+
+    .callout-warn {
+      background: var(--warn-soft);
+      border-color: #EBD3AE;
+      border-left-color: var(--brass);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.95rem;
+      margin: 1rem 0;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-linen);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+    }
+
+    .card-parchment {
+      background: var(--bg-parchment);
+    }
+
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--meekrap-dark);
+      margin: 0 0 0.45rem;
+    }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-linen);
+      border-radius: 8px;
+      margin: 0.95rem 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+      background: var(--bg-card);
+    }
+
+    th, td {
+      padding: 0.68rem 0.78rem;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border-linen);
+    }
+
+    th {
+      background: var(--bg-parchment);
+      font-weight: 700;
+      color: var(--ink);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .mono {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    .num {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* Filter bar & checklist */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+      margin: 0.9rem 0;
+      padding: 0.75rem;
+      background: var(--bg-parchment);
+      border: 1px solid var(--border-linen);
+      border-radius: 8px;
+    }
+
+    .search-input {
+      flex: 1 1 220px;
+      font-family: var(--font-sans);
+      font-size: 0.86rem;
+      padding: 0.45rem 0.68rem;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      background: #FFFFFF;
+      color: var(--ink);
+    }
+
+    .progress-wrap {
+      margin: 0.8rem 0 1rem;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .progress-bar {
+      height: 11px;
+      background: var(--bg-subtle);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border-linen);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--meekrap);
+      transition: width 0.25s ease;
+    }
+
+    .check-cell {
+      width: 42px;
+      text-align: center;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--meekrap);
+      cursor: pointer;
+    }
+
+    tr.done-row {
+      background: #F6FBF8;
+    }
+
+    /* Hash box */
+    .hash-box {
+      background: var(--bg-parchment);
+      border: 1px solid var(--border-linen);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-top: 0.9rem;
+      font-size: 0.82rem;
+    }
+
+    .hash-output {
+      font-family: var(--font-mono);
+      word-break: break-all;
+      background: #FFFFFF;
+      border: 1px solid var(--border-linen);
+      padding: 0.45rem 0.6rem;
+      border-radius: 5px;
+      margin-top: 0.4rem;
+      color: var(--meekrap-dark);
+    }
+
+    /* SVG Diagram */
+    .diagram-box {
+      background: var(--bg-parchment);
+      border: 1px solid var(--border-linen);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+    }
+
+    /* Letter box */
+    .letter-box {
+      background: var(--bg-parchment);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 1.2rem 1.35rem;
+      font-family: var(--font-serif);
+      font-size: 0.92rem;
+      white-space: pre-wrap;
+      line-height: 1.58;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.2rem;
+      right: 1.2rem;
+      background: var(--ink);
+      color: #FFFFFF;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 1000;
+    }
+
+    .toast.show { opacity: 1; }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 2px solid var(--meekrap);
+      }
+      .main { padding: 1.3rem 1.1rem 2.5rem; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* Print */
+    @media print {
+      .sidebar, .toolbar, .no-print, .toast { display: none !important; }
+      .layout { display: block; }
+      .main { max-width: 100%; padding: 0; }
+      section { page-break-inside: avoid; }
+      body { font-size: 11pt; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Zijbalk -->
+    <aside class="sidebar">
+      <div>
+        <div class="brand-tag">Dossier-Analyse &amp; Bewijsmatrix</div>
+        <h2 class="sidebar-title">WOZ-Discrepantie, Fiscaal vs. Civiel Spoor &amp; Onderleggers</h2>
+        <p class="sidebar-sub">Volledig geanonimiseerde, offline-werkbare referentiepagina (Zero-Cloud).</p>
+      </div>
+
+      <nav aria-label="Sectienavigatie">
+        <ul class="nav-list">
+          <li><a href="#sec-discrepantie" class="active"><span class="nav-num">01</span>Cijferanalyse (€ 241k vs. € 246k)</a></li>
+          <li><a href="#sec-hypothesen"><span class="nav-num">02</span>Drie Verificatie-Scenario's</a></li>
+          <li><a href="#sec-sporen"><span class="nav-num">03</span>Fiscaal vs. Civiel Spoor</a></li>
+          <li><a href="#sec-keten"><span class="nav-num">04</span>NORA &amp; LV WOZ-Keten</a></li>
+          <li><a href="#sec-onderleggers"><span class="nav-num">05</span>Onderleggers-Matrix (12)</a></li>
+          <li><a href="#sec-strategie"><span class="nav-num">06</span>Processtrategie &amp; Art. 28 Model</a></li>
+        </ul>
+      </nav>
+
+      <div class="control-box">
+        <span class="control-label">Tekstgrootte</span>
+        <div class="font-switcher">
+          <button type="button" class="btn" data-size="16px">A-</button>
+          <button type="button" class="btn active" data-size="19px">A+</button>
+          <button type="button" class="btn" data-size="22px">A++</button>
+        </div>
+      </div>
+
+      <div class="control-box">
+        <span class="control-label">Export &amp; Afdruk</span>
+        <button type="button" class="btn btn-primary" onclick="window.print()">Afdrukken / PDF</button>
+        <button type="button" class="btn" id="btn-export-csv">Exporteer Onderleggers (CSV)</button>
+        <button type="button" class="btn" id="btn-export-json">Exporteer Dossier (JSON)</button>
+      </div>
+    </aside>
+
+    <!-- Hoofdinhoud -->
+    <main class="main">
+      <header class="doc-header">
+        <div class="badge-row">
+          <span class="badge badge-red">Geanonimiseerd Dossier</span>
+          <span class="badge">Wet WOZ &amp; Art. 21 lid 5 SW</span>
+          <span class="badge">Art. 3:185 BW &amp; Art. 674 Rv</span>
+          <span class="badge badge-ok">Zero-Cloud / Offline HTML</span>
+        </div>
+        <h1>Volledige Analyse &amp; Onderleggers: WOZ-Waardering, Taxatie &amp; Bewijsvoering</h1>
+        <p class="lead">
+          Methodische toetsing van de cijfermatige kloof (€ 241.000 vs. € 246.000), de strikte scheiding tussen het fiscale en het civiele spoor (taxatie € 280.000 vs. gebreken/herstelkosten) en het volledige register van verifieerbare onderleggers.
+        </p>
+      </header>
+
+      <!-- KPI Strip -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">WOZ-Verificatiekloof</div>
+          <div class="kpi-value">€ 5.000</div>
+          <div class="kpi-note">€ 241.000 (loket) vs. € 246.000 (IB 2024)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Civiele Taxatie</div>
+          <div class="kpi-value">€ 280.000</div>
+          <div class="kpi-note">Tegenover € 82.500 herstelkosten &amp; Wbb</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Juridische Sporen</div>
+          <div class="kpi-value">2 Gescheiden</div>
+          <div class="kpi-note">Fiscaal (SW/WOZ) ≠ Civiel (WEV/Rv)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Kernonderleggers</div>
+          <div class="kpi-value" id="kpi-progress">0 / 12</div>
+          <div class="kpi-note">Afgevinkt &amp; lokaal opgeslagen</div>
+        </div>
+      </div>
+
+      <!-- Sectie 01 -->
+      <section id="sec-discrepantie">
+        <div class="section-head">
+          <span class="section-code">01</span>
+          <h2>Cijfermatige Analyse &amp; Correctie van Peildatums</h2>
+        </div>
+
+        <p>
+          In de beschikbare stukken duiken vier verschillende waardebedragen op voor dezelfde boedelwoning (<strong>Object B</strong>, op het kadastrale hoofdperceel). Voordat hieraan juridische conclusies worden verbonden, moeten de <strong>waardepeildatums</strong> zuiver worden vastgesteld. Een veelgemaakte fout is het verwisselen van het WOZ-belastingjaar met de waardepeildatum:
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Bron / Stuk</th>
+                <th>Bedrag</th>
+                <th>Correcte Peildatum</th>
+                <th>Juridische / Fiscale Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Aangifte IB 2023 erflater (WOZ-jaar 2023)</td>
+                <td class="num">€ 230.000</td>
+                <td class="mono">01-01-2022</td>
+                <td>Historische referentiewaarde voorafgaand aan overlijdensjaar.</td>
+              </tr>
+              <tr>
+                <td>WOZ-waardeloket / Boedeloverzicht (WOZ-jaar 2024)</td>
+                <td class="num">€ 241.000</td>
+                <td class="mono">01-01-2023</td>
+                <td><strong>Optie 1 erfbelasting (art. 21 lid 5 SW)</strong> &amp; wettelijke grondslag eigenwoningforfait IB 2024.</td>
+              </tr>
+              <tr>
+                <td>F-formulier / Berekening IB 2024 (t/m 29 okt. 2024)</td>
+                <td class="num">€ 246.000</td>
+                <td class="mono">Nader te verifiëren</td>
+                <td>Opgevoerd als <em>"Huurwaarde woning t/m 29 oktober"</em>. Kloof van <strong>€ 5.000</strong> met WOZ-loket 2024.</td>
+              </tr>
+              <tr>
+                <td>Commercieel NWWI-taxatierapport (Partij B)</td>
+                <td class="num">€ 280.000</td>
+                <td class="mono">Taxatiedatum</td>
+                <td><strong>Niet bindend voor de Belastingdienst.</strong> Uitsluitend relevant in het civiele verdelingsgeschil.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout-warn">
+          <strong>Fiscaal-technische aanscherping (F-formulier IB 2024):</strong> Voor het eigenwoningforfait in de aangifte inkomstenbelasting over het jaar van overlijden (2024) geldt verplicht de <strong>WOZ-waarde 2024 (peildatum 1 januari 2023)</strong> — nooit de WOZ-waarde 2025 (peildatum 1 januari 2024). Indien in het F-formulier € 246.000 staat terwijl het WOZ-waardeloket voor 2024 € 241.000 vermeldt, vereist dit eerst harde documentaire opheldering via de officiële beschikkingen.
+        </div>
+      </section>
+
+      <!-- Sectie 02 -->
+      <section id="sec-hypothesen">
+        <div class="section-head">
+          <span class="section-code">02</span>
+          <h2>Drie Aannemelijke Verklaringen (Uit te sluiten vóór stellingname)</h2>
+        </div>
+
+        <p>
+          Zonder formele onderleggers mag het verschil van € 5.000 niet worden gepresenteerd als onjuiste aangifte of kwade trouw. De volgende drie scenario's moeten documentair worden getoetst:
+        </p>
+
+        <div class="grid-3">
+          <article class="card card-parchment">
+            <h3 class="card-title">Scenario A — Objectafbakening (art. 16 Wet WOZ)</h3>
+            <p>
+              Het kadastrale perceel omvat mogelijk meerdere huisnummers of bijgebouwen (hoofdwoning plus nevenopstal). Gecontroleerd moet worden of <strong>€ 241.000</strong> uitsluitend de hoofdwoning betreft en <strong>€ 246.000</strong> een samengesteld WOZ-object.
+            </p>
+            <span class="badge badge-warn">Bewijs: Model 3-taxatieverslag</span>
+          </article>
+
+          <article class="card card-parchment">
+            <h3 class="card-title">Scenario B — Invoerfout of Schatting (F-formulier)</h3>
+            <p>
+              De administrateur kan in de aangifte IB 2024 een voorlopige schatting, afgerond bedrag of een tussentijdse herziening (art. 17 Wet WOZ-gebeurtenis) hebben ingevuld die afwijkt van de definitieve WOZ-beschikking 2024.
+            </p>
+            <span class="badge badge-warn">Bewijs: WOZ-beschikking 2024 + F-formulier</span>
+          </article>
+
+          <article class="card card-parchment">
+            <h3 class="card-title">Scenario C — Keuzerecht 2024 vs. 2025 (art. 21 lid 5 SW)</h3>
+            <p>
+              Voor de <em>erfbelasting</em> mag gekozen worden tussen WOZ 2024 (peil 1-1-2023) en WOZ 2025 (peil 1-1-2024). Als de waarde steeg van € 241.000 naar € 246.000, is de laagste waarde fiscaal verplicht voordeliger.
+            </p>
+            <span class="badge badge-warn">Bewijs: WOZ 2024/2025 + Aangifte Erfbelasting</span>
+          </article>
+        </div>
+      </section>
+
+      <!-- Sectie 03 -->
+      <section id="sec-sporen">
+        <div class="section-head">
+          <span class="section-code">03</span>
+          <h2>Strikte Scheiding: Fiscaal Spoor vs. Civiel Spoor</h2>
+        </div>
+
+        <p>
+          Een kernrisico in de argumentatie is het vermengen van de <strong>Successiewet</strong> (fiscaal) met de <strong>verdelingswaarde</strong> (civiel). De stelling dat een commerciële taxatie van € 280.000 automatisch leidt tot onnodige erfbelasting over € 39.000 houdt juridisch geen stand, omdat de inspecteur van rechtswege de LV WOZ-waarde volgt.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Kenmerk</th>
+                <th>Fiscaal Spoor (Erfbelasting &amp; IB)</th>
+                <th>Civiel Spoor (Boedelverdeling &amp; Toedeling)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Wettelijke grondslag</strong></td>
+                <td>Art. 21 lid 5 Successiewet 1956; Wet WOZ (art. 17 &amp; 28).</td>
+                <td>Art. 3:185 BW; art. 674 Rv (boedelbeschrijving); art. 194 Rv.</td>
+              </tr>
+              <tr>
+                <td><strong>Maatstaf</strong></td>
+                <td>Laagste officiële WOZ-waarde: <strong>2024</strong> (peil 01-01-2023) of <strong>2025</strong> (peil 01-01-2024).</td>
+                <td>Reële <strong>Waarde in het Economisch Verkeer (WEV)</strong> op de verdelings- of peildatum.</td>
+              </tr>
+              <tr>
+                <td><strong>Rol taxatie (€ 280.000)</strong></td>
+                <td><strong>Geen binding</strong> voor de Belastingdienst (WOZ is <em>lex specialis</em>).</td>
+                <td><strong>Kern van het geschil.</strong> Aanvechtbaar wegens omissies in de NWWI-methodiek.</td>
+              </tr>
+              <tr>
+                <td><strong>Inhoudelijke aanvalslijn</strong></td>
+                <td>Opvragen beschikkingen via <strong>art. 28 Wet WOZ</strong> (nieuwe 6-wekentermijn) en controle aangifte erfbelasting.</td>
+                <td>Taxatie negeert: (1) publiekrechtelijke beperking (Hyp4 / Wbb-code / schone-grondfictie), (2) <strong>€ 82.500</strong> bouwkundige herstelkosten, (3) ontbrekend energielabel (feitelijk label F/G).</td>
+              </tr>
+              <tr>
+                <td><strong>Bevoegde instantie</strong></td>
+                <td>Heffingsambtenaar Gemeente / Regionaal Belastingkantoor (WOZ) &amp; Belastingdienst (aanslag).</td>
+                <td>Civiele rechter (rechtbank) / onafhankelijke deskundigentaxatie.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <strong>Interne consistentie bewaken:</strong> Indien de gemeente de bodemverontreiniging en het achterstallig onderhoud (€ 82.500) evenmin heeft verdisconteerd in de WOZ-waarde, dan is ook € 241.000 geen zuivere civiele WEV. De juridisch sluitende positie luidt daarom: <em>fiscaal</em> het laagste WOZ-anker (eventueel verlaagd via art. 28 Wet WOZ), en <em>civiel</em> de reële WEV ná aftrek van bouwkundige herstelkosten, verduurzamingslasten en bodemrisico.
+        </div>
+      </section>
+
+      <!-- Sectie 04 -->
+      <section id="sec-keten">
+        <div class="section-head">
+          <span class="section-code">04</span>
+          <h2>Gegevensketen &amp; Overheidsarchitectuur (NORA / LV WOZ)</h2>
+        </div>
+
+        <p>
+          Onder het bindende afsprakenstelsel <strong>NORA</strong> (<em>eenmalig vastleggen, meervoudig gebruik</em>) vormt de Landelijke Voorziening WOZ (beheerd door het Kadaster) de enige authentieke bron voor publieke heffingen. Commerciële taxaties en Peppol-facturatie maken geen deel uit van deze keten.
+        </p>
+
+        <div class="diagram-box">
+          <svg viewBox="0 0 920 315" width="100%" height="auto" role="img" aria-label="Architectuurschema NORA en LV WOZ keten">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#821414" />
+              </marker>
+            </defs>
+
+            <!-- Boxes Row 1 -->
+            <rect x="20" y="20" width="240" height="78" rx="8" fill="#FFFFFF" stroke="#A31C1C" stroke-width="2"/>
+            <text x="140" y="46" text-anchor="middle" font-family="Georgia, serif" font-size="14" font-weight="bold" fill="#821414">Gemeente / Belastingkantoor</text>
+            <text x="140" y="66" text-anchor="middle" font-family="sans-serif" font-size="11.5" fill="#5C534C">Bronhouder: BAG, BRP &amp; Wet WOZ</text>
+            <text x="140" y="83" text-anchor="middle" font-family="monospace" font-size="10.5" fill="#241F1C">Model 3 &amp; art. 28 beschikking</text>
+
+            <rect x="340" y="20" width="240" height="78" rx="8" fill="#FDF3F3" stroke="#A31C1C" stroke-width="2.2"/>
+            <text x="460" y="46" text-anchor="middle" font-family="Georgia, serif" font-size="14" font-weight="bold" fill="#821414">Kadaster — LV WOZ &amp; BRK</text>
+            <text x="460" y="66" text-anchor="middle" font-family="sans-serif" font-size="11.5" fill="#5C534C">Landelijke Voorziening WOZ</text>
+            <text x="460" y="83" text-anchor="middle" font-family="monospace" font-size="10.5" fill="#241F1C">StUF-WOZ / Haal Centraal API</text>
+
+            <rect x="660" y="20" width="240" height="78" rx="8" fill="#FFFFFF" stroke="#9A6B2F" stroke-width="1.8"/>
+            <text x="780" y="46" text-anchor="middle" font-family="Georgia, serif" font-size="14" font-weight="bold" fill="#241F1C">RVO (EP-Online)</text>
+            <text x="780" y="66" text-anchor="middle" font-family="sans-serif" font-size="11.5" fill="#5C534C">Energielabel-register (BAG-ID)</text>
+            <text x="780" y="83" text-anchor="middle" font-family="monospace" font-size="10.5" fill="#9E5A11">Geen autom. WOZ-verlaging</text>
+
+            <!-- Arrows Row 1 -->
+            <line x1="260" y1="59" x2="336" y2="59" stroke="#821414" stroke-width="2" marker-end="url(#arrow)"/>
+            <line x1="580" y1="59" x2="656" y2="59" stroke="#9A6B2F" stroke-width="1.5" stroke-dasharray="5,4"/>
+
+            <!-- Boxes Row 2 -->
+            <rect x="150" y="152" width="270" height="74" rx="8" fill="#FFFFFF" stroke="#A31C1C" stroke-width="1.8"/>
+            <text x="285" y="177" text-anchor="middle" font-family="Georgia, serif" font-size="14" font-weight="bold" fill="#241F1C">Belastingdienst (RORA)</text>
+            <text x="285" y="196" text-anchor="middle" font-family="sans-serif" font-size="11.5" fill="#5C534C">Verplicht afnemer LV WOZ</text>
+            <text x="285" y="213" text-anchor="middle" font-family="monospace" font-size="10.5" fill="#821414">IB (F-formulier) &amp; Erfbelasting</text>
+
+            <rect x="500" y="152" width="270" height="74" rx="8" fill="#FFFFFF" stroke="#A31C1C" stroke-width="1.8"/>
+            <text x="635" y="177" text-anchor="middle" font-family="Georgia, serif" font-size="14" font-weight="bold" fill="#241F1C">Waterschappen (WILMA/PETRA)</text>
+            <text x="635" y="196" text-anchor="middle" font-family="sans-serif" font-size="11.5" fill="#5C534C">Verplicht afnemer LV WOZ</text>
+            <text x="635" y="213" text-anchor="middle" font-family="monospace" font-size="10.5" fill="#241F1C">Watersysteemheffing gebouwd</text>
+
+            <!-- Arrows Row 1 -> Row 2 -->
+            <line x1="420" y1="98" x2="310" y2="148" stroke="#821414" stroke-width="2" marker-end="url(#arrow)"/>
+            <line x1="500" y1="98" x2="610" y2="148" stroke="#821414" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Row 3: Buiten de keten -->
+            <rect x="20" y="255" width="880" height="46" rx="6" fill="#F3EDE4" stroke="#CFC4B6" stroke-width="1.5" stroke-dasharray="6,4"/>
+            <text x="460" y="283" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="bold" fill="#5C534C">
+              BUITEN DE LV WOZ-KETEN: Particulier NWWI-taxatierapport (€ 280.000) &amp; Peppol (e-facturatie) — geen fiscale bronstatus
+            </text>
+          </svg>
+        </div>
+      </section>
+
+      <!-- Sectie 05 -->
+      <section id="sec-onderleggers">
+        <div class="section-head">
+          <span class="section-code">05</span>
+          <h2>Volledige Onderleggers-Matrix (Interactief &amp; Verifieerbaar)</h2>
+        </div>
+
+        <p>
+          Elke stelling in een civiel of fiscaal dossier vereist een controleerbare onderlegger. Vink aanwezige stukken af (wordt lokaal in de browser opgeslagen) of filter op categorie en prioriteit.
+        </p>
+
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span>Voortgang dossieropbouw (onderleggers compleet)</span>
+            <span id="progress-text">0 van 12 (0%)</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+
+        <div class="toolbar no-print">
+          <input type="text" id="search-docs" class="search-input" placeholder="Zoek op onderlegger, bron, wetsartikel of prioriteit...">
+          <button type="button" class="btn active" data-filter="ALL">Alle (12)</button>
+          <button type="button" class="btn" data-filter="PRIORITEIT">Prioriteit (Opvragen)</button>
+          <button type="button" class="btn" data-filter="WOZ">WOZ &amp; Kadaster</button>
+          <button type="button" class="btn" data-filter="FISCAAL">Fiscaal</button>
+          <button type="button" class="btn" data-filter="CIVIEL">Civiel &amp; Technisch</button>
+          <button type="button" class="btn" data-filter="DIGITAAL">Audit Trail</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="check-cell">OK</th>
+                <th>Ref</th>
+                <th>Onderlegger</th>
+                <th>Bron / Instantie</th>
+                <th>Juridische / Bewijsfunctie</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="docs-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="hash-box">
+          <strong>Client-side Integriteitscheck (SHA-256 over actuele onderleggers-export):</strong>
+          <div class="hash-output" id="sha256-output">Berekenen...</div>
+        </div>
+      </section>
+
+      <!-- Sectie 06 -->
+      <section id="sec-strategie">
+        <div class="section-head">
+          <span class="section-code">06</span>
+          <h2>Processtrategie &amp; Modelverzoek (Art. 28 Wet WOZ)</h2>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <h3 class="card-title">1. Geen premature kwalificatie</h3>
+            <p>Presenteer het verschil tussen € 241.000 en € 246.000 richting notaris, rechtbank of Belastingdienst uitsluitend als feitelijk verificatiepunt — niet als onjuiste aangifte zonder beschikkingen.</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">2. Eerst de 3 kernstukken</h3>
+            <p>Verzamel met prioriteit: (a) WOZ-beschikkingen 2024 &amp; 2025, (b) Model 3-taxatieverslagen incl. objectafbakening en (c) definitief afschrift van de ingediende aangifte erfbelasting.</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">3. Civiele aanval op inhoud</h3>
+            <p>Richt het civiele verweer op de objectieve gebreken van de € 280.000-taxatie: negeren van Hyp4/Wbb-beperking, € 82.500 herstelkosten en het ontbrekende energielabel (feitelijk F/G).</p>
+          </div>
+        </div>
+
+        <h3>Geanonimiseerd Modelverzoek Medebelanghebbendenbeschikking (art. 28 Wet WOZ)</h3>
+        <div style="margin-bottom:0.6rem;" class="no-print">
+          <button type="button" class="btn btn-primary" id="btn-copy-letter">Kopieer Verzoektekst</button>
+        </div>
+        <div class="letter-box" id="model-letter">Aan: De heffingsambtenaar van [Gemeente / Regionaal Belastingkantoor]
+Betreft: Verzoek om medebelanghebbendenbeschikkingen (art. 28 Wet WOZ) en WOZ-taxatieverslagen 2024 en 2025
+Object: [Adres Boedelwoning / Kadastraal Perceel]
+Datum: [Datum]
+
+Geachte heffingsambtenaar,
+
+Als erfgenaam in de nalatenschap van wijlen [Naam Erflater], overleden op 29 oktober 2024, ben ik medebelanghebbende bij de vastgestelde WOZ-waarden van de onroerende zaak aan [Adres Boedelwoning, kadastraal perceel].
+
+Ten behoeve van de afwikkeling van de nalatenschap en de fiscale controle (art. 21 lid 5 Successiewet 1956) verzoek ik u mij op grond van artikel 28 van de Wet waardering onroerende zaken (Wet WOZ) de volgende stukken te verstrekken:
+
+1. De officiële WOZ-beschikking voor belastingjaar 2024 (waardepeildatum 1 januari 2023).
+2. De officiële WOZ-beschikking voor belastingjaar 2025 (waardepeildatum 1 januari 2024).
+3. De bijbehorende WOZ-taxatieverslagen (Model 3) voor beide belastingjaren, inclusief objectkenmerken, grondoppervlakte, opstallen en referentiepanden.
+4. Een korte bevestiging van de WOZ-objectafbakening op het kadastrale perceel (of hoofdwoning en nevenopstallen als één samengesteld WOZ-object dan wel afzonderlijk zijn gewaardeerd).
+
+Ter onderbouwing van mijn belanghebbendheid voeg ik een kopie van [akte van overlijden / verklaring van erfrecht] en een kopie van een geldig legitimatiebewijs (met afgeschermd BSN) bij.
+
+Met vriendelijke groet,
+[Naam erfgenaam]
+[Adres]
+[Contactgegevens]</div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">Gekopieerd</div>
+
+  <script>
+    const STORAGE_KEY = "meekrap_woz_onderleggers_v1";
+
+    const onderleggers = [
+      {
+        id: "OND-01",
+        cat: "WOZ",
+        prioriteit: true,
+        titel: "WOZ-beschikking 2024 (waardepeildatum 01-01-2023)",
+        bron: "Gemeente / Regionaal Belastingkantoor",
+        functie: "Art. 21 lid 5 SW (optie 1 erfbelasting) & verplichte grondslag eigenwoningforfait IB 2024. Helderheid over € 241k vs. € 246k.",
+        statusLabel: "Prioriteit: Opvragen (art. 28 WOZ)"
+      },
+      {
+        id: "OND-02",
+        cat: "WOZ",
+        prioriteit: true,
+        titel: "WOZ-beschikking 2025 (waardepeildatum 01-01-2024)",
+        bron: "Gemeente / Regionaal Belastingkantoor",
+        functie: "Art. 21 lid 5 SW (optie 2 erfbelasting). Laagste van 2024 en 2025 mag gekozen worden.",
+        statusLabel: "Prioriteit: Opvragen (art. 28 WOZ)"
+      },
+      {
+        id: "OND-03",
+        cat: "WOZ",
+        prioriteit: true,
+        titel: "WOZ-taxatieverslagen (Model 3) 2024 & 2025 + Objectafbakening",
+        bron: "Gemeente / Regionaal Belastingkantoor",
+        functie: "Toont referentiepanden, correctiefactoren (onderhoud/bodem) en of bijgebouwen/extra huisnummers zijn meegerekend.",
+        statusLabel: "Prioriteit: Opvragen"
+      },
+      {
+        id: "OND-04",
+        cat: "WOZ",
+        prioriteit: false,
+        titel: "Uitdraai WOZ-waardeloket / LV WOZ-register",
+        bron: "Kadaster (LV WOZ)",
+        functie: "Neutrale publieke registratie uit de Landelijke Voorziening WOZ (Productie 6: € 241.000).",
+        statusLabel: "Verifiëren tegen beschikking"
+      },
+      {
+        id: "OND-05",
+        cat: "FISCAAL",
+        prioriteit: true,
+        titel: "Definitief afschrift Aangifte Erfbelasting",
+        bron: "Belastingdienst / Indiendende partij",
+        functie: "Bewijst welk bedrag (€ 241.000 of € 246.000) daadwerkelijk is opgegeven onder art. 21 lid 5 SW.",
+        statusLabel: "Prioriteit: Opvragen"
+      },
+      {
+        id: "OND-06",
+        cat: "FISCAAL",
+        prioriteit: false,
+        titel: "F-formulier / Aangifte IB 2024 (t/m 29 okt. 2024)",
+        bron: "Belastingdienst / Administrateur",
+        functie: "Verklaart de herkomst van post 'Huurwaarde woning € 246.000' in Box 1.",
+        statusLabel: "In dossier (kruiscontrole)"
+      },
+      {
+        id: "OND-07",
+        cat: "FISCAAL",
+        prioriteit: false,
+        titel: "(Concept-)Aanslag Erfbelasting & correspondentie fiscus",
+        bron: "Belastingdienst",
+        functie: "Toont welke waarde de inspecteur definitief hanteert en of bezwaar/correctie openstaat.",
+        statusLabel: "Monitoren"
+      },
+      {
+        id: "OND-08",
+        cat: "CIVIEL",
+        prioriteit: false,
+        titel: "Commercieel NWWI-taxatierapport (€ 280.000) + Opdrachtbevestiging",
+        bron: "Taxatiekantoor Partij B",
+        functie: "Civiel geschilpunt (Productie 7). Toetsen op eenzijdige opdracht, schone-grondfictie en ontbrekend energielabel.",
+        statusLabel: "In dossier (civiel betwisten)"
+      },
+      {
+        id: "OND-09",
+        cat: "CIVIEL",
+        prioriteit: false,
+        titel: "Kadastraal uittreksel BRK & WKPB (Hyp4 / Wbb-beperking)",
+        bron: "Kadaster",
+        functie: "Bewijst actieve publiekrechtelijke beperking (bodem) die de taxatie ten onrechte negeert.",
+        statusLabel: "Essentieel tegenbewijs"
+      },
+      {
+        id: "OND-10",
+        cat: "CIVIEL",
+        prioriteit: true,
+        titel: "Bodemkaart / Milieurapportage & Energielabel-status (RVO)",
+        bron: "Bevoegd Gezag / RVO EP-Online",
+        functie: "Onderbouwt sanerings-/bodemrisico én het waardedrukkend effect van ontbrekend energielabel (feitelijk F/G).",
+        statusLabel: "Prioriteit: Aanvullen"
+      },
+      {
+        id: "OND-11",
+        cat: "CIVIEL",
+        prioriteit: false,
+        titel: "Bouwkundig inspectierapport (€ 82.500 herstelkosten) & Fotodossier",
+        bron: "Onafhankelijk Bouwkundig Bureau",
+        functie: "Objectieve cijfermatige onderbouwing van achterstallig onderhoud en constructieve staat op peildatum.",
+        statusLabel: "In dossier (civiel kernbewijs)"
+      },
+      {
+        id: "OND-12",
+        cat: "DIGITAAL",
+        prioriteit: false,
+        titel: "DigiD-sessielog & RFC-conforme e-mailheaders (Audit Trail)",
+        bron: "Eigen registratie / MijnOverheid / SMTP-headers",
+        functie: "Bewijst tijdig beroep op inzagerecht en onweerlegbare (non-repudiation) verzend- en ontvangstmomenten.",
+        statusLabel: "Bewijsborging"
+      }
+    ];
+
+    let checkedMap = {};
+    try {
+      checkedMap = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    } catch (e) {
+      checkedMap = {};
+    }
+
+    let currentFilter = "ALL";
+    let searchTerm = "";
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2200);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function saveChecked() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(checkedMap));
+      } catch (e) {}
+    }
+
+    function updateProgress() {
+      const total = onderleggers.length;
+      const done = onderleggers.filter(d => checkedMap[d.id]).length;
+      const pct = Math.round((done / total) * 100);
+      document.getElementById("progress-text").textContent = `${done} van ${total} (${pct}%)`;
+      document.getElementById("progress-fill").style.width = `${pct}%`;
+      document.getElementById("kpi-progress").textContent = `${done} / ${total}`;
+    }
+
+    function getCsvContent() {
+      const header = ["Ref", "Categorie", "Prioriteit", "Aanwezig", "Onderlegger", "Bron", "Functie", "Status"];
+      const rows = onderleggers.map(d => [
+        d.id,
+        d.cat,
+        d.prioriteit ? "Ja" : "Nee",
+        checkedMap[d.id] ? "Afgevinkt" : "Open",
+        d.titel,
+        d.bron,
+        d.functie,
+        d.statusLabel
+      ]);
+      const esc = v => `"${String(v).replace(/"/g, '""')}"`;
+      return "\uFEFF" + [header, ...rows].map(r => r.map(esc).join(",")).join("\n");
+    }
+
+    async function updateSha256() {
+      const out = document.getElementById("sha256-output");
+      const csv = getCsvContent();
+      if (window.crypto && window.crypto.subtle) {
+        try {
+          const data = new TextEncoder().encode(csv);
+          const hashBuf = await crypto.subtle.digest("SHA-256", data);
+          const hashHex = Array.from(new Uint8Array(hashBuf))
+            .map(b => b.toString(16).padStart(2, "0"))
+            .join("");
+          out.textContent = hashHex;
+        } catch (e) {
+          out.textContent = "Web Crypto niet beschikbaar in deze context.";
+        }
+      } else {
+        out.textContent = "Web Crypto API vereist een beveiligde context (localhost/https).";
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("docs-tbody");
+      const q = searchTerm.trim().toLowerCase();
+
+      const filtered = onderleggers.filter(d => {
+        const matchFilter =
+          currentFilter === "ALL" ||
+          (currentFilter === "PRIORITEIT" && d.prioriteit) ||
+          d.cat === currentFilter;
+        const matchQuery =
+          !q ||
+          `${d.id} ${d.titel} ${d.bron} ${d.functie} ${d.statusLabel}`.toLowerCase().includes(q);
+        return matchFilter && matchQuery;
+      });
+
+      tbody.innerHTML = filtered.map(d => {
+        const isDone = !!checkedMap[d.id];
+        const badgeClass = d.prioriteit ? "badge badge-red" : "badge";
+        return `
+          <tr class="${isDone ? "done-row" : ""}">
+            <td class="check-cell">
+              <input type="checkbox" data-id="${d.id}" ${isDone ? "checked" : ""} aria-label="Markeer ${escapeHtml(d.id)} als aanwezig">
+            </td>
+            <td class="mono"><strong>${escapeHtml(d.id)}</strong></td>
+            <td><strong>${escapeHtml(d.titel)}</strong></td>
+            <td>${escapeHtml(d.bron)}</td>
+            <td>${escapeHtml(d.functie)}</td>
+            <td><span class="${badgeClass}">${escapeHtml(d.statusLabel)}</span></td>
+          </tr>
+        `;
+      }).join("");
+
+      tbody.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener("change", e => {
+          const id = e.target.getAttribute("data-id");
+          checkedMap[id] = e.target.checked;
+          saveChecked();
+          updateProgress();
+          renderTable();
+          updateSha256();
+        });
+      });
+
+      updateProgress();
+      updateSha256();
+    }
+
+    // Filter buttons
+    document.querySelectorAll("[data-filter]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-filter]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentFilter = btn.getAttribute("data-filter");
+        renderTable();
+      });
+    });
+
+    // Search
+    document.getElementById("search-docs").addEventListener("input", e => {
+      searchTerm = e.target.value;
+      renderTable();
+    });
+
+    // Font switcher
+    document.querySelectorAll("[data-size]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-size]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.documentElement.style.setProperty("--base-size", btn.getAttribute("data-size"));
+      });
+    });
+
+    // Export CSV
+    document.getElementById("btn-export-csv").addEventListener("click", () => {
+      const blob = new Blob([getCsvContent()], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "onderleggers-woz-analyse.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("CSV geëxporteerd");
+    });
+
+    // Export JSON
+    document.getElementById("btn-export-json").addEventListener("click", () => {
+      const payload = {
+        titel: "Geanonimiseerde Analyse WOZ, Fiscaal vs. Civiel Spoor & Onderleggers",
+        kernbedragen: {
+          woz_2023_peil_2022: 230000,
+          woz_2024_peil_2023_loket: 241000,
+          ib_2024_f_formulier: 246000,
+          commerciele_taxatie_nwwi: 280000,
+          bouwkundige_herstelkosten: 82500
+        },
+        onderleggers: onderleggers.map(d => ({ ...d, aanwezig: !!checkedMap[d.id] }))
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "dossier-woz-onderleggers.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("JSON-dossier geëxporteerd");
+    });
+
+    // Copy letter
+    document.getElementById("btn-copy-letter").addEventListener("click", async () => {
+      const text = document.getElementById("model-letter").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Modelverzoek gekopieerd naar klembord");
+      } catch (e) {
+        showToast("Kopiëren mislukt — selecteer de tekst handmatig");
+      }
+    });
+
+    // Active nav highlight on scroll
+    const navLinks = document.querySelectorAll(".nav-list a");
+    const sections = Array.from(navLinks).map(a => document.querySelector(a.getAttribute("href")));
+    window.addEventListener("scroll", () => {
+      const pos = window.scrollY + 120;
+      sections.forEach((sec, idx) => {
+        if (sec && sec.offsetTop <= pos && sec.offsetTop + sec.offsetHeight > pos) {
+          navLinks.forEach(l => l.classList.remove("active"));
+          navLinks[idx].classList.add("active");
+        }
+      });
+    }, { passive: true });
+
+    renderTable();
+  </script>
+</body>
+</html>
