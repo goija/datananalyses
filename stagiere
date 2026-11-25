@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Geheimhoudingsverbintenis Stagiair — Planimeter &amp; Veerpen</title>
+    <style>
+        :root {
+            --meekrab: #9E2A2B;
+            --meekrab-dark: #751C1D;
+            --meekrab-light: #FDF6F6;
+            --brass: #B8860B;
+            --brass-light: #E5C158;
+            --ink: #1A1F24;
+            --parchment: #FCFBF7;
+            --bg-page: #FFFFFF;
+            --border: #D8D4C8;
+            --muted: #5A5E62;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
+            background-color: var(--bg-page);
+            color: var(--ink);
+            line-height: 1.65;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--meekrab);
+            color: #FFFFFF;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 4px solid var(--brass);
+        }
+
+        header h1 {
+            margin: 0 0 0.4rem 0;
+            font-size: 1.85rem;
+            letter-spacing: -0.01em;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 0.95rem;
+            opacity: 0.92;
+        }
+
+        main {
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 0 1.25rem;
+        }
+
+        section {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.6rem;
+            margin-bottom: 1.75rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        h2 {
+            color: var(--meekrab);
+            border-bottom: 2px solid var(--meekrab);
+            padding-bottom: 0.35rem;
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+
+        .nda-clauses {
+            background: var(--parchment);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--meekrab);
+            padding: 1.15rem 1.4rem;
+            border-radius: 4px;
+            font-size: 0.94rem;
+        }
+
+        .nda-clauses ol {
+            padding-left: 1.25rem;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .nda-clauses li {
+            margin-bottom: 0.65rem;
+        }
+
+        fieldset {
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding:
