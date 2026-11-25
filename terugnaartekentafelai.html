@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bewijsrecht, Belanghebbende &amp; Verbintenissenrecht — Meekrab Leermodule</title>
+<style>
+  :root {
+    --meekrab: #9E2A2B;
+    --meekrab-dark: #751C1D;
+    --meekrab-light: #FDF6F6;
+    --brass: #B8860B;
+    --brass-light: #E5C158;
+    --kleur-achtergrond: #FFFFFF;
+    --kleur-perkament: #FCFBF7;
+    --kleur-tekst: #1F2421;
+    --kleur-grens: #DCDFE0;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    color: var(--kleur-tekst);
+    background: var(--kleur-achtergrond);
+    line-height: 1.65;
+  }
+
+  main, footer {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  header {
+    background: var(--meekrab);
+    color: #FFFFFF;
+    padding: 2.5rem 1.25rem;
+    text-align: center;
+    border-bottom: 4px solid var(--brass);
+  }
+
+  header h1 { margin: 0 0 .35rem; font-size: 1.95rem; }
+  header p { margin: 0; opacity: .92; font-style: italic; }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--kleur-grens);
+    padding: .65rem 1.25rem;
+    text-align: center;
+  }
+
+  nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  nav a {
+    color: var(--meekrab);
+    text-decoration: none;
+    font-weight: bold;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: .9rem;
+  }
+
+  nav a:hover, nav a:focus {
+    text-decoration: underline;
+    color: var(--meekrab-dark);
+  }
+
+  section, article { padding: 1.75rem 0 1rem; }
+
+  h2 {
+    font-size: 1.45rem;
+    color: var(--meekrab);
+    border-bottom: 2px solid var(--meekrab);
+    padding-bottom: .3rem;
+  }
+
+  h3 { font-size: 1.12rem; color: var(--meekrab-dark); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .95rem;
+    background: #FFFFFF;
+    margin: 1rem 0;
+  }
+
+  caption {
+    caption-side: top;
+    text-align: left;
+    font-weight: bold;
+    padding: .5rem 0;
+    color: var(--kleur-tekst);
+  }
+
+  th, td {
+    border: 1px solid var(--kleur-grens);
+    padding: .6rem .75rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  thead th {
+    background: var(--meekrab);
+    color: #FFFFFF;
+  }
+
+  tbody tr:nth-child(even) {
+    background: var(--meekrab-light);
+  }
+
+  ol.opera {
+    counter-reset: opera;
+    list-style: none;
+    padding-left: 0;
+  }
+
+  ol.opera > li {
+    counter-increment: opera;
+    background: #FFFFFF;
+    border: 1px solid var(--kleur-grens);
+    border-left: 5px solid var(--meekrab);
+    border-radius: .35rem;
+    padding: .8rem 1rem .8rem 3.4rem;
+    margin: .7rem 0;
+    position: relative;
+  }
+
+  ol.opera > li::before {
+    content: counter(opera);
+    position: absolute;
+    left: 1rem;
+    top: .8rem;
+    width: 1.6rem;
+    height: 1.6rem;
+    background: var(--meekrab);
+    color: #FFFFFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: .85rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  aside.woo {
+    background: var(--meekrab-light);
+    border: 1px solid #E2B8B8;
+    border-left: 5px solid var(--brass);
+    border-radius: .35rem;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+  }
+
+  aside.woo strong:first-child { color: var(--meekrab-dark); }
+
+  abbr { text-decoration: underline dotted; cursor: help; }
+
+  figure.quote {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    border-left: 4px solid var(--meekrab);
+    background: var(--kleur-perkament);
+  }
+
+  figure.quote blockquote { margin: 0; font-style: italic; }
+  figure.quote figcaption { font-size: .85rem; color: #5A5E62; margin-top: .35rem; }
+
+  /* Verbintenissenrecht & AI-breukvlak */
+  .breuk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+
+  .breuk-card {
+    background: var(--kleur-perkament);
+    border: 1px solid var(--kleur-grens);
+    border-top: 4px solid var(--meekrab);
+    border-radius: .35rem;
+    padding: 1rem 1.15rem;
+  }
+
+  .breuk-card h3 { margin-top: 0; margin-bottom: .4rem; font-size: 1.05rem; }
+  .breuk-card p { margin: 0; font-size: .92rem; }
+
+  /* Planimeter & Veerpen Tekentafel */
+  .tekentafel-wrap {
+    position: relative;
+    width: 100%;
+    height: 360px;
+    background-color: var(--kleur-perkament);
+    background-image:
+      linear-gradient(rgba(158, 42, 43, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(158, 42, 43, 0.08) 1px, transparent 1px);
+    background-size: 25px 25px;
+    border: 2px solid var(--meekrab);
+    border-radius: .4rem;
+    overflow: hidden;
+    touch-action: none;
+    cursor: none;
+    margin-top: 1rem;
+  }
+
+  .tekentafel-wrap canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  #inkCanvas { z-index: 1; }
+  #instrumentCanvas { z-index: 2; pointer-events: none; }
+
+  .telemetry-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: .75rem;
+    margin-top: .85rem;
+    background: #1C1E21;
+    color: #F3EFE0;
+    padding: .85rem 1rem;
+    border-radius: .35rem;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: .84rem;
+  }
+
+  .telemetry-item span {
+    display: block;
+    color: var(--brass-light);
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1rem;
+  }
+
+  button {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: .65rem 1.2rem;
+    font-size: .9rem;
+    font-weight: 600;
+    border-radius: .3rem;
+    border: none;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+
+  .btn-meekrab { background: var(--meekrab); color: #FFFFFF; }
+  .btn-meekrab:hover { background: var(--meekrab-dark); }
+  .btn-outline { background: #FFFFFF; color: var(--kleur-tekst); border: 1px solid var(--kleur-grens); }
+  .btn-outline:hover { background: var(--meekrab-light); }
+
+  #statusLog {
+    margin-top: .85rem;
+    padding: .8rem 1rem;
+    background: var(--meekrab-light);
+    border: 1px solid #E2B8B8;
+    border-radius: .35rem;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: .84rem;
+    display: none;
+    white-space: pre-wrap;
+  }
+
+  dl dt { font-weight: bold; color: var(--meekrab-dark); margin-top: .75rem; }
+  dl dd { margin: .2rem 0 0 1rem; }
+
+  footer {
+    border-top: 1px solid var(--kleur-grens);
+    color: #666;
+    font-size: .85rem;
+    text-align: center;
+    padding: 1.5rem 1.25rem 2rem;
+    margin-top: 2rem;
+  }
+
+  @media print {
+    nav, .controls { display: none; }
+    body { background: #FFFFFF; }
+  }
+</style>
+</head>
+<body>
+
+<header role="banner">
+  <h1>Bewijsrecht, Belanghebbende &amp; Verbintenissenrecht</h1>
+  <p>Rv vs. Awb, de OPERA-toets en de Planimeter-Tekentafel: waar AI stuk gaat</p>
+</header>
+
+<nav aria-label="Inhoudsopgave">
+  <ul>
+    <li><a href="#kern">1. Kernverbinding</a></li>
+    <li><a href="#vergelijking">2. Rv vs. Awb</a></li>
+    <li><a href="#opera">3. OPERA-toets</a></li>
+    <li><a href="#verbintenissen">4. Verbintenissenrecht &amp; AI</a></li>
+    <li><a href="#tekentafel">5. Planimeter-Veer</a></li>
+    <li><a href="#begrippen">6. Begrippenlijst</a></li>
+  </ul>
+</nav>
+
+<main role="main">
+  <article>
+
+    <section id="kern" aria-labelledby="kop-kern">
+      <h2 id="kop-kern">1. De kernverbinding</h2>
+      <p>
+        De kernverbinding tussen het civiele bewijsrecht
+        (<abbr title="artikelen 194, 195a en 205 van het Wetboek van Burgerlijke Rechtsvordering">artt.&nbsp;194&ndash;195a &amp; 205 Rv</abbr>)
+        en het bestuursrecht (<abbr title="Algemene wet bestuursrecht">Awb</abbr>) zit in de
+        <strong>juridische toegangspoort</strong>: in beide rechtsgebieden mag u niet zomaar
+        procederen of stukken opeisen zonder een aantoonbaar, direct gekoppeld belang.
+      </p>
+      <figure class="quote">
+        <blockquote>
+          Waar het civiele recht spreekt van een <strong>rechtmatig belang bij een rechtsbetrekking</strong>,
+          hanteert het bestuursrecht het <strong>belanghebbendebegrip</strong> (art.&nbsp;1:2 Awb).
+        </blockquote>
+        <figcaption>Kernstelling van deze module.</figcaption>
+      </figure>
+      <p>
+        In beide gevallen wordt een <em>actio popularis</em> &mdash; procederen in het algemeen
+        belang zonder eigen geraaktheid &mdash; uitgesloten.
+      </p>
+    </section>
+
+    <section id="vergelijking" aria-labelledby="kop-vergelijking">
+      <h2 id="kop-vergelijking">2. Vergelijkingstabel: Rv vs. Awb</h2>
+      <table>
+        <caption>Overeenkomstige verbintenissen tussen civiel procesrecht en bestuursrecht</caption>
+        <thead>
+          <tr>
+            <th scope="col">Rechtsbeginsel / mechanisme</th>
+            <th scope="col">Civiel procesrecht (Rv)</th>
+            <th scope="col">Bestuursrecht (Awb)</th>
+            <th scope="col">Overeenkomst / raakvlak</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Toegangspoort (belang)</strong></td>
+            <td>Rechtmatig belang &amp; rechtsbetrekking (art.&nbsp;194 Rv)</td>
+            <td>Belanghebbende (art.&nbsp;1:2 Awb)</td>
+            <td>Beide sluiten een <em>actio popularis</em> uit.</td>
+          </tr>
+          <tr>
+            <td><strong>Stukken &amp; onderleggers</strong></td>
+            <td>Inzagerecht &amp; bewijsbeslag (artt.&nbsp;194, 205 Rv) voor <em>bepaalde bescheiden</em></td>
+            <td>Op de zaak betrekking hebbende stukken (art.&nbsp;8:42 Awb) &amp; Woo-verzoek</td>
+            <td>Verplichting om primaire onderleggers en audit-trails op tafel te leggen; geen ruimte voor blote stellingen.</td>
+          </tr>
+          <tr>
+            <td><strong>Waarheids- &amp; zorgvuldigheidsplicht</strong></td>
+            <td>Waarheidsplicht (art.&nbsp;21 Rv) en verbod op procesmisbruik (art.&nbsp;3:13 BW)</td>
+            <td>Zorgvuldigheids- en motiveringsbeginsel (artt.&nbsp;3:2 en 3:46 Awb)</td>
+            <td>Strenge verificatieplicht voor feiten en bronnen; geen ongeverifieerde aannames.</td>
+          </tr>
+          <tr>
+            <td><strong>Derden &amp; data</strong></td>
+            <td>Inzage bij derden (cloud/hosting/SaaS) via rechterlijk verlof</td>
+            <td>Derde-belanghebbenden (art.&nbsp;8:26 Awb) en informatieplichten van bestuursorganen</td>
+            <td>Bescherming van derdenbelangen en privacy weegt mee bij het vrijgeven van data.</td>
+          </tr>
+          <tr>
+            <td><strong>Bevoegdheidsgrens</strong></td>
+            <td>Burgerlijke rechter (art.&nbsp;112 Gw): feitelijk overheidshandelen, AVG-schade (art.&nbsp;82 AVG), erfrecht</td>
+            <td>Bestuursrechter (Awb): schriftelijke besluiten en <em>niet tijdig beslissen</em> (art.&nbsp;8:55b Awb)</td>
+            <td><strong>Art.&nbsp;70 Rv (spoorwissel):</strong> bij de verkeerde rechter volgt niet-ontvankelijkheid met verwijzing naar het juiste spoor.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="opera" aria-labelledby="kop-opera">
+      <h2 id="kop-opera">3. Het belanghebbendebegrip (art. 1:2 Awb): de OPERA-toets</h2>
+      <p>
+        Om bij de bestuursrechter (zoals Rechtbank Zeeland-West-Brabant) ontvankelijk te zijn,
+        moet uw belang <strong>rechtstreeks</strong> bij een besluit betrokken zijn.
+        In de bestuursrechtspraak wordt dit getoetst aan vijf <strong>cumulatieve</strong> criteria:
+      </p>
+      <ol class="opera">
+        <li id="opera-o"><strong>O &mdash; Objectief bepaalbaar:</strong>
+          Het belang moet naar objectieve maatstaven vast te stellen zijn; een puur subjectief
+          gevoel van onrecht is onvoldoende.</li>
+        <li id="opera-p"><strong>P &mdash; Persoonlijk:</strong>
+          U moet zich voldoende onderscheiden van willekeurige andere burgers
+          (geen algemeen publieksbelang).</li>
+        <li id="opera-e"><strong>E &mdash; Eigen:</strong>
+          Het gaat om uw eigen belang, niet dat van iemand anders &mdash; tenzij u optreedt als
+          formeel gemachtigde of wettelijk vertegenwoordiger.</li>
+        <li id="opera-r"><strong>R &mdash; Rechtstreeks:</strong>
+          Er moet een direct oorzakelijk verband bestaan tussen het besluit en de gevolgen die u
+          ondervindt (geen afgeleid belang via een contract met een derde).</li>
+        <li id="opera-a"><strong>A &mdash; Actueel:</strong>
+          Het belang moet op het moment van het besluit en de procedure daadwerkelijk bestaan en
+          niet louter toekomstig of hypothetisch zijn.</li>
+      </ol>
+
+      <aside id="woo" class="woo" aria-label="Uitzondering bij de Woo">
+        <strong>Uitzondering bij de Woo.</strong>
+        Bij een verzoek op grond van de <abbr title="Wet open overheid">Woo</abbr> hoeft u vooraf
+        géén bijzonder belang aan te tonen: als indiener van de aanvraag bent u automatisch
+        <strong>belanghebbende</strong> bij het besluit (of het uitblijven daarvan) op uw eigen verzoek.
+      </aside>
+    </section>
+
+    <section id="verbintenissen" aria-labelledby="kop-verbintenissen">
+      <h2 id="kop-verbintenissen">4. Verbintenissenrecht: waar AI stuk gaat en terug moet naar de tekentafel</h2>
+      <p>
+        Een probabilistisch taalmodel rekent in waarschijnlijkheden, niet in rechtsgevolgen. In het
+        Nederlandse <strong>verbintenissenrecht</strong> (Boek 3 en Boek 6 BW) loopt ongeverifieerde
+        AI-generatie vast op vier harde juridische fundamenten:
+      </p>
+
+      <div class="breuk-grid">
+        <div class="breuk-card">
+          <h3>Wil &amp; Verklaring (art. 3:33 &amp; 3:35 BW)</h3>
+          <p>Een rechtshandeling vereist een op rechtsgevolg gerichte <em>menselijke wil</em> die zich door een verklaring heeft geopenbaard. Een AI heeft geen wil en geen rechtspersoonlijkheid; een gehallucineerde toezegging of clausule moet direct terug naar de tekentafel.</p>
+        </div>
+
+        <div class="breuk-card">
+          <h3>Redelijkheid &amp; Billijkheid (art. 6:2 &amp; 6:248 BW)</h3>
+          <p>Verbintenissen worden niet alleen beheerst door letterlijke tekst, maar ook door aanvullende en beperkende redelijkheid en billijkheid (Haviltex-maatstaf). Statistische tekstvoorspelling mist de feitelijke partijbedoeling en context.</p>
+        </div>
+
+        <div class="breuk-card">
+          <h3>Toerekenbaarheid (art. 6:74 &amp; 6:162 BW)</h3>
+          <p>Wie een foutieve AI-berekening of verzonnen jurisprudentie inbrengt, kan zich niet verschuilen achter het algoritme. De tekortkoming of onrechtmatige daad blijft volledig toerekenbaar aan de menselijke contractspartij of procesvertegenwoordiger.</p>
+        </div>
+
+        <div class="breuk-card">
+          <h3>Onderleggers &amp; Bewijslast (art. 150 Rv)</h3>
+          <p>Wie zich beroept op een verbintenis draagt de bewijslast met primaire onderleggers. Een AI-samenvatting is geen bewijsstuk; alleen verifieerbare akten, audit-trails en eigenhandige ondertekening houden stand.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tekentafel" aria-labelledby="kop-tekentafel">
+      <h2 id="kop-tekentafel">5. Terug naar de Tekentafel: Poolplanimeter &amp; Veerpen</h2>
+      <p>
+        Waar AI stuk gaat op schijnzekerheid, keert de jurist en ingenieur terug naar de tekentafel:
+        <strong>mechanische meetbaarheid en menselijke wilsverklaring</strong>. Beweeg de veerpen
+        over het meekrab-raster om een eigenhandige verbintenis te tekenen; de messing poolplanimeter
+        meet de geometrische integraal van uw spoor.
+      </p>
+
+      <div class="tekentafel-wrap" id="canvasContainer" role="application" aria-label="Tekentafel met compensatie-poolplanimeter en veerpen">
+        <canvas id="inkCanvas"></canvas>
+        <canvas id="instrumentCanvas"></canvas>
+      </div>
+
+      <div class="telemetry-bar" aria-live="polite" aria-label="Planimeter meetwaarden">
+        <div class="telemetry-item">
+          <span>Meetwiel (Nonius)</span>
+          <strong id="readoutVernier">0.000 omw</strong>
+        </div>
+        <div class="telemetry-item">
+          <span>Omsloten Oppervlakte</span>
+          <strong id="readoutArea">0.00 cm&sup2;</strong>
+        </div>
+        <div class="telemetry-item">
+          <span>Inktspoor Lengte</span>
+          <strong id="readoutLength">0.0 mm</strong>
+        </div>
+        <div class="telemetry-item">
+          <span>Status Wilsverklaring</span>
+          <strong id="readoutStatus">Wacht op menselijke hand</strong>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button type="button" class="btn-meekrab" onclick="verifyHumanSignature()">Wilsverklaring Vastleggen (SHA-256)</button>
+        <button type="button" class="btn-outline" onclick="clearCanvas()">Terug naar de Tekentafel (Wissen)</button>
+      </div>
+
+      <div id="statusLog" role="status" aria-live="polite"></div>
+    </section>
+
+    <section id="begrippen" aria-labelledby="kop-begrippen">
+      <h2 id="kop-begrippen">6. Begrippenlijst</h2>
+      <dl>
+        <dt><dfn>Actio popularis</dfn></dt>
+        <dd>Procederen in het algemeen belang zonder eigen geraaktheid; in Nederland uitgesloten in zowel het civiele procesrecht als het bestuursrecht.</dd>
+        <dt><dfn>Bewijsbeslag</dfn></dt>
+        <dd>Maatregel uit art. 205 Rv waarmee bepaalde bescheiden veiliggesteld kunnen worden voor gebruik in een rechtsbetwisting.</dd>
+        <dt><dfn>Belanghebbende</dfn></dt>
+        <dd>Degene wiens belang rechtstreeks bij een besluit betrokken is (art. 1:2 Awb); toets aan de OPERA-criteria.</dd>
+        <dt><dfn>Spoorwissel</dfn></dt>
+        <dd>Art. 70 Rv: procedure bij de verkeerde rechter leidt tot niet-ontvankelijkheid, met verwijzing naar het juiste rechtsgebied.</dd>
+        <dt><dfn>Verbintenis</dfn></dt>
+        <dd>Vermogensrechtelijke rechtsbetrekking tussen twee of meer partijen (Boek 6 BW) op grond waarvan de ene partij tot een prestatie verplicht is en de andere daarop recht heeft.</dd>
+        <dt><dfn>Wilsovereenstemming</dfn></dt>
+        <dd>De overeenstemmende wil en verklaring van partijen (art. 3:33 jo. 6:217 BW) die nodig is om een geldige overeenkomst tot stand te brengen.</dd>
+        <dt><dfn>Woo</dfn></dt>
+        <dd>Wet open overheid &mdash; regelt toegang tot overheidsinformatie; indiener van een verzoek is van rechtswege belanghebbende.</dd>
+      </dl>
+    </section>
+
+  </article>
+</main>
+
+<footer role="contentinfo">
+  <p><small>Leermodule &mdash; civiel procesrecht, bestuursrecht &amp; verbintenissenrecht. Semantische HTML5 in Zeeuws meekrab-rood. Educatieve samenvatting; geen juridisch advies.</small></p>
+</footer>
+
+<script>
+  const container = document.getElementById('canvasContainer');
+  const inkCanvas = document.getElementById('inkCanvas');
+  const instCanvas = document.getElementById('instrumentCanvas');
+  const inkCtx = inkCanvas.getContext('2d');
+  const instCtx = instCanvas.getContext('2d');
+
+  let width = 0, height = 0;
+  let isDrawing = false;
+  let hasSigned = false;
+  let lastX = 0, lastY = 0, lastTime = 0;
+  let cursorX = 360, cursorY = 180;
+
+  let poleX = 85, poleY = 255;
+  let L1 = 205, L2 = 228;
+  let wheelIntegral = 0;
+  let pathLengthPx = 0;
+  const pxPerCm = 37.8;
+
+  function resizeCanvases() {
+    const rect = container.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
+
+    const tempInk = document.createElement('canvas');
+    tempInk.width = inkCanvas.width || width;
+    tempInk.height = inkCanvas.height || height;
+    if (inkCanvas.width > 0) tempInk.getContext('2d').drawImage(inkCanvas, 0, 0);
+
+    inkCanvas.width = width;
+    inkCanvas.height = height;
+    instCanvas.width = width;
+    instCanvas.height = height;
+
+    inkCtx.drawImage(tempInk, 0, 0);
+    drawSignatureLine();
+
+    poleX = Math.max(60, width * 0.12);
+    poleY = height * 0.72;
+    L1 = Math.max(175, width * 0.34);
+    L2 = L1 * (16.67 / 15.00);
+
+    drawInstrument(cursorX, cursorY);
+  }
+
+  function drawSignatureLine() {
+    inkCtx.save();
+    inkCtx.strokeStyle = 'rgba(158, 42, 43, 0.4)';
+    inkCtx.lineWidth = 1;
+    inkCtx.setLineDash([4, 4]);
+    inkCtx.beginPath();
+    inkCtx.moveTo(width * 0.22, height * 0.78);
+    inkCtx.lineTo(width * 0.90, height * 0.78);
+    inkCtx.stroke();
+    inkCtx.fillStyle = 'rgba(117, 28, 29, 0.7)';
+    inkCtx.font = 'italic 12px Georgia, serif';
+    inkCtx.fillText('Eigenhandige wilsverklaring (art. 3:33 BW) — Veerpen', width * 0.22, height * 0.85);
+    inkCtx.restore();
+  }
+
+  function solveElbow(tx, ty) {
+    const dx = tx - poleX;
+    const dy = ty - poleY;
+    let d = Math.hypot(dx, dy);
+    const maxReach = L1 + L2 - 2;
+    const minReach = Math.abs(L1 - L2) + 2;
+
+    if (d > maxReach) d = maxReach;
+    if (d < minReach) d = minReach;
+
+    const a = (L1 * L1 - L2 * L2 + d * d) / (2 * d);
+    const h = Math.sqrt(Math.max(0, L1 * L1 - a * a));
+    const midX = poleX + (a * dx) / d;
+    const midY = poleY + (a * dy) / d;
+
+    return { ex: midX + (h * dy) / d, ey: midY - (h * dx) / d };
+  }
+
+  function drawInstrument(tx, ty) {
+    instCtx.clearRect(0, 0, width, height);
+    const { ex, ey } = solveElbow(tx, ty);
+
+    instCtx.save();
+
+    // Poolgewicht
+    instCtx.fillStyle = '#8C6206';
+    instCtx.beginPath();
+    instCtx.arc(poleX, poleY, 15, 0, Math.PI * 2);
+    instCtx.fill();
+    instCtx.strokeStyle = '#E5C158';
+    instCtx.lineWidth = 2.5;
+    instCtx.stroke();
+
+    // Poolarm
+    instCtx.strokeStyle = '#B8860B';
+    instCtx.lineWidth = 5;
+    instCtx.lineCap = 'round';
+    instCtx.beginPath();
+    instCtx.moveTo(poleX, poleY);
+    instCtx.lineTo(ex, ey);
+    instCtx.stroke();
+
+    // Traceerarm
+    instCtx.strokeStyle = '#C9971C';
+    instCtx.lineWidth = 6;
+    instCtx.beginPath();
+    instCtx.moveTo(ex, ey);
+    instCtx.lineTo(tx, ty);
+    instCtx.stroke();
+
+    // Meetwiel
+    const armLen = Math.hypot(tx - ex, ty - ey) || 1;
+    const ux = (tx - ex) / armLen;
+    const uy = (ty - ey) / armLen;
+    instCtx.save();
+    instCtx.translate(ex + ux * 28, ey + uy * 28);
+    instCtx.rotate(Math.atan2(uy, ux));
+    instCtx.fillStyle = '#2C2F33';
+    instCtx.fillRect(-10, -14, 20, 8);
+    instCtx.strokeStyle = '#E5C158';
+    instCtx.lineWidth = 1.5;
+    instCtx.strokeRect(-10, -14, 20, 8);
+    instCtx.restore();
+
+    // Scharnier
+    instCtx.fillStyle = '#E5C158';
+    instCtx.beginPath();
+    instCtx.arc(ex, ey, 7, 0, Math.PI * 2);
+    instCtx.fill();
+    instCtx.strokeStyle = '#5C4003';
+    instCtx.lineWidth = 1.5;
+    instCtx.stroke();
+
+    // Meekrab-rode Veerpen
+    instCtx.save();
+    instCtx.translate(tx, ty);
+    instCtx.rotate(-0.55);
+
+    instCtx.fillStyle = '#2C2F33';
+    instCtx.beginPath();
+    instCtx.moveTo(0, 0);
+    instCtx.lineTo(5, -18);
+    instCtx.lineTo(-5, -18);
+    instCtx.closePath();
+    instCtx.fill();
+
+    instCtx.strokeStyle = '#F5F0E1';
+    instCtx.lineWidth = 3;
+    instCtx.beginPath();
+    instCtx.moveTo(0, -16);
+    instCtx.quadraticCurveTo(10, -60, 26, -110);
+    instCtx.stroke();
+
+    instCtx.fillStyle = 'rgba(158, 42, 43, 0.9)';
+    instCtx.beginPath();
+    instCtx.moveTo(2, -26);
+    instCtx.quadraticCurveTo(-14, -65, 26, -112);
+    instCtx.quadraticCurveTo(32, -68, 8, -26);
+    instCtx.closePath();
+    instCtx.fill();
+
+    instCtx.restore();
+    instCtx.restore();
+  }
+
+  function getPointerPos(e) {
+    const rect = inkCanvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+
+  function startDraw(e) {
+    isDrawing = true;
+    hasSigned = true;
+    const pos = getPointerPos(e);
+    lastX = pos.x; lastY = pos.y;
+    cursorX = pos.x; cursorY = pos.y;
+    lastTime = performance.now();
+    document.getElementById('readoutStatus').textContent = 'Menselijke invoer actief';
+    drawInstrument(cursorX, cursorY);
+  }
+
+  function moveDraw(e) {
+    const pos = getPointerPos(e);
+    cursorX = pos.x; cursorY = pos.y;
+
+    if (isDrawing) {
+      const now = performance.now();
+      const dt = Math.max(1, now - lastTime);
+      const dx = pos.x - lastX;
+      const dy = pos.y - lastY;
+      const dist = Math.hypot(dx, dy);
+
+      const speed = dist / dt;
+      const lineWidth = Math.max(1.2, Math.min(4.8, 4.2 - speed * 1.4));
+
+      inkCtx.save();
+      inkCtx.strokeStyle = '#1F2421';
+      inkCtx.lineWidth = lineWidth;
+      inkCtx.lineCap = 'round';
+      inkCtx.lineJoin = 'round';
+      inkCtx.beginPath();
+      inkCtx.moveTo(lastX, lastY);
+      inkCtx.lineTo(pos.x, pos.y);
+      inkCtx.stroke();
+      inkCtx.restore();
+
+      const { ex, ey } = solveElbow(pos.x, pos.y);
+      const armLen = Math.hypot(pos.x - ex, pos.y - ey) || 1;
+      const nx = -(pos.y - ey) / armLen;
+      const ny = (pos.x - ex) / armLen;
+      wheelIntegral += dx * nx + dy * ny;
+      pathLengthPx += dist;
+
+      const areaCm2 = Math.abs((wheelIntegral * L2) / (pxPerCm * pxPerCm));
+      const vernierRevs = wheelIntegral / 120;
+      const lengthMm = (pathLengthPx / pxPerCm) * 10;
+
+      document.getElementById('readoutVernier').textContent = `${vernierRevs.toFixed(3)} omw`;
+      document.getElementById('readoutArea').textContent = `${areaCm2.toFixed(2)} cm²`;
+      document.getElementById('readoutLength').textContent = `${lengthMm.toFixed(1)} mm`;
+
+      lastX = pos.x; lastY = pos.y;
+      lastTime = now;
+    }
+    drawInstrument(cursorX, cursorY);
+  }
+
+  function endDraw() { isDrawing = false; }
+
+  container.addEventListener('mousedown', startDraw);
+  window.addEventListener('mousemove', moveDraw);
+  window.addEventListener('mouseup', endDraw);
+  container.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, { passive: false });
+  container.addEventListener('touchmove', (e) => { e.preventDefault(); moveDraw(e); }, { passive: false });
+  container.addEventListener('touchend', endDraw);
+
+  function clearCanvas() {
+    inkCtx.clearRect(0, 0, width, height);
+    drawSignatureLine();
+    hasSigned = false;
+    wheelIntegral = 0;
+    pathLengthPx = 0;
+    document.getElementById('readoutVernier').textContent = '0.000 omw';
+    document.getElementById('readoutArea').textContent = '0.00 cm²';
+    document.getElementById('readoutLength').textContent = '0.0 mm';
+    document.getElementById('readoutStatus').textContent = 'Terug op de tekentafel';
+    document.getElementById('statusLog').style.display = 'none';
+  }
+
+  async function verifyHumanSignature() {
+    const out = document.getElementById('statusLog');
+    if (!hasSigned) {
+      out.style.display = 'block';
+      out.textContent = 'Geen menselijke wilsverklaring aangetroffen. Gebruik eerst de veerpen op de tekentafel.';
+      return;
+    }
+
+    const area = document.getElementById('readoutArea').textContent;
+    const length = document.getElementById('readoutLength').textContent;
+    const utc = new Date().toISOString();
+    const payload = `VERBINTENIS-TEKENTAFEL|UTC:${utc}|OPPERVLAKTE:${area}|LENGTE:${length}`;
+    const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload));
+    const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    document.getElementById('readoutStatus').textContent = 'Geverifieerd (SHA-256)';
+    out.style.display = 'block';
+    out.textContent =
+`=== MENSELIJKE WILSVERKLARING VASTGELEGD (ART. 3:33 BW) ===
+Timestamp (UTC) : ${utc}
+Planimeter-meet : Oppervlakte ${area} | Inktspoor ${length}
+SHA-256 Hash    : ${hashHex}
+Opmerking       : Geverifieerde onderlegger — geen probabilistische AI-uitvoer.`;
+  }
+
+  window.addEventListener('resize', resizeCanvases);
+  resizeCanvases();
+</script>
+
+</body>
+</html>
