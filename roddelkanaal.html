@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>De Klets- en Roddelruimte — Peer-to-Peer WebRTC Livestream &amp; Matteklopper</title>
+    <style>
+        /* =====================================================================
+           ZEEUWS MEEKRAB DESIGN TOKENS & BASISSTIJLEN (100% LOKAAL / ZERO-CDN)
+           ===================================================================== */
+        :root {
+            --meekrab-primary: #8B1E24;
+            --meekrab-accent: #9E2A2B;
+            --meekrab-deep: #631318;
+            --meekrab-soft: #FAF3F3;
+            --meekrab-tint: #FDF9F9;
+            --meekrab-border: #DECACC;
+            --ink-primary: #1E1A1A;
+            --ink-secondary: #4E4546;
+            --ink-muted: #766B6C;
+            --paper-bg: #FFFFFF;
+            --backdrop-bg: #F5F0F0;
+            --ok-green: #1B6B3A;
+            --ok-bg: #EDF8F1;
+            --warn-amber: #8A5314;
+            --warn-bg: #FEF6EC;
+
+            --font-serif: Georgia, "Times New Roman", Times, serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            color: var(--ink-primary);
+            background-color: var(--backdrop-bg);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        h1, h2, h3, .serif {
+            font-family: var(--font-serif);
+            margin-top: 0;
+        }
+
+        code, pre, textarea.sdp-box, .mono {
+            font-family: var(--font-mono);
+        }
+
+        .top-bar-stripe {
+            height: 6px;
+            width: 100%;
+            background: linear-gradient(90deg, var(--meekrab-deep) 0%, var(--meekrab-primary) 50%, var(--meekrab-accent) 100%);
+        }
+
+        .container {
+            max-width: 1220px;
+            margin: 0 auto;
+            padding: 0 1.2rem;
+        }
+
+        /* =====================================================================
+           HEADER & MATTEKLOPPER BEDIENING
+           ===================================================================== */
+        header.room-header {
+            background-color: var(--paper-bg);
+            border-bottom: 1.5px solid var(--meekrab-border);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 3px 14px rgba(99, 19, 24, 0.06);
+        }
+
+        .header-flex {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 0;
+        }
+
+        .badge-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.71rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .badge-p2p {
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            color: var(--meekrab-primary);
+        }
+
+        .badge-guard {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            text-transform: uppercase;
+            font-family: var(--font-sans);
+            letter-spacing: 0.03em;
+        }
+
+        .room-title {
+            font-size: clamp(1.45rem, 2.6vw, 2rem);
+            font-weight: 700;
+            color: var(--ink-primary);
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .room-subtitle {
+            margin: 0.15rem 0 0 0;
+            font-size: 0.84rem;
+            color: var(--ink-secondary);
+        }
+
+        .header-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        /* Knoppen */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.42rem;
+            padding: 0.55rem 0.92rem;
+            border-radius: 9px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: transform 0.12s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+            user-select: none;
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-meekrab {
+            background: linear-gradient(180deg, var(--meekrab-accent) 0%, var(--meekrab-primary) 100%);
+            color: #FFFFFF;
+            border-color: var(--meekrab-deep);
+            box-shadow: 0 3px 10px rgba(139, 30, 36, 0.22);
+        }
+
+        .btn-meekrab:hover:not(:disabled) {
+            background: linear-gradient(180deg, var(--meekrab-primary) 0%, var(--meekrab-deep) 100%);
+        }
+
+        .btn-soft {
+            background-color: var(--meekrab-soft);
+            color: var(--meekrab-primary);
+            border-color: var(--meekrab-border);
+        }
+
+        .btn-soft:hover:not(:disabled) {
+            border-color: var(--meekrab-primary);
+            background-color: #F3E4E5;
+        }
+
+        .btn-white {
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            border-color: var(--meekrab-border);
+        }
+
+        .btn-white:hover:not(:disabled) {
+            border-color: var(--meekrab-primary);
+            color: var(--meekrab-primary);
+        }
+
+        .btn-sm {
+            padding: 0.36rem 0.68rem;
+            font-size: 0.74rem;
+            border-radius: 7px;
+        }
+
+        /* =====================================================================
+           MAIN LAYOUT & KAARTEN
+           ===================================================================== */
+        main.workspace {
+            padding: 1.5rem 0 3rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+        }
+
+        .panel {
+            background-color: var(--paper-bg);
+            border: 1px solid var(--meekrab-border);
+            border-radius: 14px;
+            padding: 1.35rem 1.5rem;
+            box-shadow: 0 3px 14px rgba(30, 26, 26, 0.04);
+        }
+
+        .panel-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 0.65rem;
+        }
+
+        .panel-title {
+            font-size: 1.28rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--ink-primary);
+        }
+
+        .meekrab-divider {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, var(--meekrab-primary) 0%, var(--meekrab-accent) 50%, rgba(158, 42, 43, 0.1) 100%);
+            margin: 0 0 1.15rem 0;
+        }
+
+        .grid-videos {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.15rem;
+        }
+
+        .grid-chat-guard {
+            display: grid;
+            grid-template-columns: 1.35fr 0.85fr;
+            gap: 1.2rem;
+        }
+
+        .grid-sdp {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        @media (max-width: 920px) {
+            .grid-videos, .grid-chat-guard, .grid-sdp {
+                grid-template-columns: 1fr;
+            }
+            .panel {
+                padding: 1.05rem;
+            }
+        }
+
+        /* =====================================================================
+           VIDEOPANELEN & BRONKEUZE
+           ===================================================================== */
+        .stream-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            border-radius: 10px;
+            padding: 0.75rem 0.95rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .segmented-toggle {
+            display: inline-flex;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #FFFFFF;
+        }
+
+        .segmented-toggle button {
+            border: none;
+            background: transparent;
+            padding: 0.44rem 0.8rem;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--ink-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .segmented-toggle button.active {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        .status-chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.24rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            color: var(--ink-secondary);
+        }
+
+        .status-chip.live {
+            background-color: var(--ok-bg);
+            border-color: #9DD4B2;
+            color: var(--ok-green);
+        }
+
+        .status-chip.busy {
+            background-color: var(--warn-bg);
+            border-color: #E7C69C;
+            color: var(--warn-amber);
+        }
+
+        .video-card {
+            border: 1px solid var(--meekrab-border);
+            border-radius: 11px;
+            padding: 0.85rem;
+            background-color: var(--meekrab-tint);
+        }
+
+        .video-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.55rem;
+        }
+
+        .video-card-label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--meekrab-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .video-stage {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #1B1516;
+            border-radius: 9px;
+            overflow: hidden;
+            border: 1.5px solid var(--meekrab-border);
+        }
+
+        .video-stage video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-tag-left {
+            position: absolute;
+            bottom: 0.6rem;
+            left: 0.6rem;
+            background-color: rgba(27, 21, 22, 0.86);
+            color: #FFFFFF;
+            padding: 0.22rem 0.58rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            border-left: 3px solid var(--meekrab-accent);
+        }
+
+        .video-tag-right {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .dot-live {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #FFFFFF;
+            animation: blinkDot 1.3s infinite ease-in-out;
+        }
+
+        @keyframes blinkDot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .media-notice {
+            margin-top: 0.55rem;
+            font-size: 0.75rem;
+            color: var(--ink-secondary);
+        }
+
+        .media-notice.error-msg {
+            background-color: var(--warn-bg);
+            border: 1px solid #E7C69C;
+            color: var(--warn-amber);
+            padding: 0.45rem 0.65rem;
+            border-radius: 7px;
+            font-weight: 600;
+        }
+
+        /* =====================================================================
+           HANDMATIGE SDP SIGNALING (UITKLAPBAAR)
+           ===================================================================== */
+        details.sdp-accordion {
+            margin-top: 1.1rem;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 10px;
+            background-color: var(--meekrab-soft);
+            padding: 0.8rem 1rem;
+        }
+
+        details.sdp-accordion summary {
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--meekrab-primary);
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        details.sdp-accordion summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.sdp-accordion[open] summary {
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.55rem;
+            border-bottom: 1px solid var(--meekrab-border);
+        }
+
+        .sdp-card {
+            background-color: #FFFFFF;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 8px;
+            padding: 0.8rem;
+        }
+
+        textarea.sdp-box {
+            width: 100%;
+            min-height: 86px;
+            padding: 0.55rem;
+            border-radius: 7px;
+            border: 1px solid var(--meekrab-border);
+            font-size: 0.72rem;
+            resize: vertical;
+            margin-top: 0.45rem;
+            color: var(--ink-primary);
+        }
+
+        textarea.sdp-box:focus {
+            outline: none;
+            border-color: var(--meekrab-primary);
+            box-shadow: 0 0 0 3px rgba(139, 30, 36, 0.12);
+        }
+
+        /* =====================================================================
+           LIVE RODDELCHAT (RTCDATACHANNEL)
+           ===================================================================== */
+        .chat-box-wrapper {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 11px;
+            background-color: #FFFFFF;
+            overflow: hidden;
+        }
+
+        .chat-topbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 0.9rem;
+            background-color: var(--meekrab-soft);
+            border-bottom: 1px solid var(--meekrab-border);
+        }
+
+        .nickname-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--meekrab-primary);
+        }
+
+        .nickname-input {
+            width: 135px;
+            padding: 0.3rem 0.55rem;
+            border-radius: 6px;
+            border: 1px solid var(--meekrab-border);
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--ink-primary);
+            background-color: #FFFFFF;
+        }
+
+        .nickname-input:focus {
+            outline: none;
+            border-color: var(--meekrab-primary);
+        }
+
+        .chat-feed {
+            height: 310px;
+            overflow-y: auto;
+            padding: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            background-color: #FCF9F9;
+        }
+
+        .msg-bubble {
+            max-width: 84%;
+            padding: 0.58rem 0.82rem;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            line-height: 1.42;
+            border: 1px solid var(--meekrab-border);
+            word-wrap: break-word;
+        }
+
+        .msg-bubble.mine {
+            align-self: flex-end;
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            border-color: var(--meekrab-deep);
+        }
+
+        .msg-bubble.peer {
+            align-self: flex-start;
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            border-left: 3.5px solid var(--meekrab-primary);
+        }
+
+        .msg-bubble.system {
+            align-self: center;
+            max-width: 95%;
+            background-color: var(--meekrab-soft);
+            color: var(--ink-secondary);
+            font-size: 0.73rem;
+            font-family: var(--font-mono);
+            text-align: center;
+        }
+
+        .msg-bubble.alarm {
+            align-self: center;
+            max-width: 95%;
+            background-color: #FFF1F2;
+            border: 1.5px solid var(--meekrab-primary);
+            color: var(--meekrab-deep);
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .msg-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.8rem;
+            font-size: 0.68rem;
+            font-family: var(--font-mono);
+            opacity: 0.85;
+            margin-bottom: 0.2rem;
+        }
+
+        .chat-compose {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.65rem;
+            border-top: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+        }
+
+        .chat-text-input {
+            flex: 1;
+            min-width: 170px;
+            padding: 0.52rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--meekrab-border);
+            font-size: 0.82rem;
+            font-family: var(--font-sans);
+        }
+
+        .chat-text-input:focus {
+            outline: none;
+            border-color: var(--meekrab-primary);
+            box-shadow: 0 0 0 3px rgba(139, 30, 36, 0.12);
+        }
+
+        /* =====================================================================
+           DE MATTEKLOPPER & OUDER-BESCHERMING PANEEL
+           ===================================================================== */
+        .matteklopper-card {
+            border: 2px solid var(--meekrab-primary);
+            border-radius: 12px;
+            background: linear-gradient(180deg, #FFFFFF 0%, var(--meekrab-soft) 100%);
+            padding: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            justify-content: space-between;
+        }
+
+        .matteklopper-stage {
+            position: relative;
+            width: 170px;
+            height: 170px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 0.35rem 0;
+            border-radius: 50%;
+            background-color: #FFFFFF;
+            border: 1.5px dashed var(--meekrab-border);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .matteklopper-stage:hover {
+            border-color: var(--meekrab-primary);
+            box-shadow: 0 6px 18px rgba(139, 30, 36, 0.14);
+        }
+
+        .matteklopper-svg {
+            width: 132px;
+            height: 132px;
+            transform-origin: 50% 88%;
+            transition: transform 0.12s ease;
+        }
+
+        @keyframes klopperMep {
+            0%   { transform: rotate(0deg) scale(1); }
+            20%  { transform: rotate(-32deg) scale(1.08); }
+            45%  { transform: rotate(38deg) scale(1.16); }
+            65%  { transform: rotate(-18deg) scale(1.05); }
+            85%  { transform: rotate(12deg) scale(1.02); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        .matteklopper-svg.swatting {
+            animation: klopperMep 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Volledig scherm Matteklopper Mep-Overlay (bij meppen of ontvangen alarm) */
+        .swat-flash-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 90;
+            background-color: rgba(139, 30, 36, 0.18);
+            backdrop-filter: blur(2px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .swat-flash-overlay.active {
+            display: flex;
+        }
+
+        .swat-banner-box {
+            background-color: #FFFFFF;
+            border: 3px solid var(--meekrab-primary);
+            border-radius: 16px;
+            padding: 1.35rem 2rem;
+            text-align: center;
+            box-shadow: 0 18px 45px rgba(99, 19, 24, 0.32);
+            animation: popBanner 0.45s ease;
+        }
+
+        @keyframes popBanner {
+            0% { transform: scale(0.75) rotate(-4deg); opacity: 0; }
+            60% { transform: scale(1.04) rotate(1deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        /* =====================================================================
+           OUDER-SCHILD CAMOUFLAGE SCHERM (GONIOMETRIE & PRIEMGETALLEN)
+           ===================================================================== */
+        .ouder-schild-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background-color: #FFFFFF;
+            color: #1A1A1A;
+            overflow-y: auto;
+            display: none;
+            padding: 2rem 1.25rem;
+        }
+
+        .ouder-schild-screen.visible {
+            display: block;
+        }
+
+        .homework-container {
+            max-width: 860px;
+            margin: 0 auto;
+            border: 1px solid #D4D4D8;
+            border-radius: 10px;
+            padding: 2rem;
+            background-color: #FFFFFF;
+        }
+
+        .homework-header {
+            border-bottom: 2px solid #27272A;
+            padding-bottom: 0.85rem;
+            margin-bottom: 1.4rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .math-box {
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-left: 4px solid #334155;
+            padding: 0.95rem 1.15rem;
+            border-radius: 6px;
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            margin: 0.9rem 0;
+        }
+
+        .secret-return-btn {
+            background: transparent;
+            border: 1px solid #E4E4E7;
+            color: #71717A;
+            font-size: 0.72rem;
+            padding: 0.3rem 0.65rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .secret-return-btn:hover {
+            border-color: var(--meekrab-primary);
+            color: var(--meekrab-primary);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 1.2rem;
+            right: 1.2rem;
+            z-index: 80;
+            background-color: #1E1A1A;
+            color: #FFFFFF;
+            padding: 0.68rem 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--meekrab-accent);
+            font-size: 0.78rem;
+            font-weight: 600;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar-stripe"></div>
+
+    <!-- =======================================================================
+         1. HEADER MET TITEL, P2P BADGE, MATTEKLOPPER & OUDER-SCHILD
+         ======================================================================= -->
+    <header class="room-header">
+        <div class="container">
+            <div class="header-flex">
+                <div>
+                    <div class="badge-strip">
+                        <span class="badge badge-p2p">Peer-to-Peer WebRTC | Geen Centrale Server</span>
+                        <span class="badge badge-guard" id="headerKlopperCounter">Matteklopper: 0x gemept</span>
+                    </div>
+                    <h1 class="room-title">De Klets- en Roddelruimte</h1>
+                    <p class="room-subtitle">
+                        Geheime P2P livestream &amp; live roddelchat &mdash; streng verboden voor vaders en moeders (sneltoets <kbd style="background:#FAF3F3; border:1px solid #DECACC; padding:0.05rem 0.35rem; border-radius:4px; font-family:monospace;">Esc</kbd> = Ouder-Schild)
+                    </p>
+                </div>
+
+                <div class="header-controls">
+                    <button type="button" class="btn btn-meekrab" onclick="swingMatteklopper(true)">
+                        <!-- Mini SVG Matteklopper icoon -->
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 21v-8"/>
+                            <path d="M8 3h8l2 6-6 4-6-4 2-6z"/>
+                            <path d="M9 7h6M10 10h4"/>
+                        </svg>
+                        <span>Zwaai de Matteklopper!</span>
+                    </button>
+
+                    <button type="button" class="btn btn-soft" onclick="toggleOuderSchild(true)" title="Verberg de roddelruimte direct achter wiskundehuiswerk (Esc)">
+                        Ouder-Alarm / Camouflage (Esc)
+                    </button>
+
+                    <button type="button" class="btn btn-white" onclick="startLoopbackConnection()">
+                        Lokale Loopback-Test
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Verborgen Canvas voor de Geheime Studio-Avatar stream -->
+    <canvas id="avatarStudioCanvas" width="640" height="360" style="display:none;"></canvas>
+
+    <!-- =======================================================================
+         HOOFDRUIMTE: VIDEO LIVESTREAM + LIVE CHAT & DE MATTEKLOPPER
+         ======================================================================= -->
+    <main class="container workspace">
+
+        <!-- SECTIE 1: WEBRTC VIDEO & AUDIO LIVESTREAM -->
+        <section class="panel" aria-labelledby="heading-video">
+            <div class="panel-header">
+                <h2 id="heading-video" class="panel-title">1. WebRTC Video &amp; Audio Livestream</h2>
+                <div style="display:flex; flex-wrap:wrap; gap:0.45rem;">
+                    <button type="button" class="btn btn-meekrab btn-sm" onclick="startLoopbackConnection()">
+                        Directe Lokale Testverbinding
+                    </button>
+                    <button type="button" class="btn btn-white btn-sm" onclick="resetConnections(false)">
+                        Verbinding Verbreken
+                    </button>
+                </div>
+            </div>
+            <hr class="meekrab-divider">
+
+            <!-- Streambron-kiezer & Audio mute -->
+            <div class="stream-toolbar">
+                <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.65rem;">
+                    <span style="font-size:0.76rem; font-weight:700; color:var(--meekrab-primary); text-transform:uppercase;">Kies jouw stream:</span>
+                    <div class="segmented-toggle" role="group" aria-label="Streambron keuze">
+                        <button type="button" id="btnModeAvatar" class="active" onclick="selectStreamMode('avatar')">
+                            Geheime Studio-Avatar (Zonder Webcam)
+                        </button>
+                        <button type="button" id="btnModeWebcam" onclick="selectStreamMode('webcam')">
+                            Echte Webcam &amp; Microfoon
+                        </button>
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
+                    <button type="button" id="btnToggleMic" class="btn btn-soft btn-sm" onclick="toggleMicMute()">
+                        Microfoon: Aan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live verbindingsstatus -->
+            <div class="status-chip-row">
+                <span class="status-chip" id="chipIce">ICE-verbinding: Wacht op start</span>
+                <span class="status-chip" id="chipChat">Roddelkanaal (RTCDataChannel): Lokaal gereed</span>
+                <span class="status-chip" id="chipStream">Bron: Geheime Studio-Avatar (30 fps)</span>
+            </div>
+
+            <!-- Twee videopanelen naast elkaar -->
+            <div class="grid-videos">
+                <!-- Paneel Links: Jouw Camera / Stream -->
+                <div class="video-card">
+                    <div class="video-card-top">
+                        <span class="video-card-label">Jouw Camera / Stream</span>
+                        <span class="mono" style="font-size:0.71rem; color:var(--ink-secondary);" id="localNickBadge">Zender</span>
+                    </div>
+                    <div class="video-stage">
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <div class="video-tag-left" id="localVideoCaption">GEHEIME STUDIO-AVATAR &bull; LOKAAL</div>
+                        <div class="video-tag-right"><span class="dot-live"></span> LIVE</div>
+                    </div>
+                    <div id="mediaFeedback" class="media-notice">
+                        Je zendt momenteel de geanimeerde Geheime Studio-Avatar uit. Schakel hierboven over op je echte webcam als je wilt.
+                    </div>
+                </div>
+
+                <!-- Paneel Rechts: Kletsmaatje Stream -->
+                <div class="video-card">
+                    <div class="video-card-top">
+                        <span class="video-card-label">Kletsmaatje Stream</span>
+                        <span class="mono" style="font-size:0.71rem; color:var(--ink-secondary);" id="remoteNickBadge">Wacht op maatje...</span>
+                    </div>
+                    <div class="video-stage">
+                        <video id="remoteVideo" autoplay playsinline></video>
+                        <div class="video-tag-left" id="remoteVideoCaption">NOG GEEN VERBINDING MET KLETSMAATJE</div>
+                        <div class="video-tag-right" id="remoteLiveIndicator" style="display:none;"><span class="dot-live"></span> P2P VERBONDEN</div>
+                    </div>
+                    <div class="media-notice">
+                        Klik op <strong>Directe Lokale Testverbinding</strong> om direct jezelf in loopback te zien en horen, of koppel twee tabbladen via SDP hieronder.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Handmatige SDP Offer & Answer voor twee tabbladen/apparaten -->
+            <details class="sdp-accordion">
+                <summary>
+                    <span>Echte P2P-verbinding tussen twee browsertabbladen of apparaten (Aanbod / Offer &amp; Antwoord / Answer)</span>
+                    <span class="mono" style="font-size:0.72rem;">Openen &darr;</span>
+                </summary>
+                <p style="font-size:0.79rem; color:var(--ink-secondary); margin:0 0 0.85rem 0;">
+                    Geen centrale server nodig: <strong>Persoon 1</strong> klikt op <em>Aanbod (Offer) Maken</em> en stuurt de tekst door naar <strong>Persoon 2</strong>. Persoon 2 plakt die tekst, klikt op <em>Antwoord (Answer) Maken</em> en stuurt het antwoord terug naar Persoon 1, die op <em>Antwoord Plakken &amp; Verbinden</em> klikt.
+                </p>
+                <div class="grid-sdp">
+                    <div class="sdp-card">
+                        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.4rem;">
+                            <strong style="font-size:0.8rem; color:var(--meekrab-primary);">Stap 1: Aanbod (Offer)</strong>
+                            <div style="display:flex; gap:0.35rem;">
+                                <button type="button" class="btn btn-meekrab btn-sm" onclick="createManualOffer()">Aanbod (Offer) Maken</button>
+                                <button type="button" class="btn btn-white btn-sm" onclick="copyTextarea('offerInput', 'Aanbod (Offer)')">Kopieer</button>
+                            </div>
+                        </div>
+                        <textarea id="offerInput" class="sdp-box" placeholder="Klik op 'Aanbod (Offer) Maken' of plak hier het ontvangen aanbod van je kletsmaatje..."></textarea>
+                    </div>
+
+                    <div class="sdp-card">
+                        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.4rem;">
+                            <strong style="font-size:0.8rem; color:var(--meekrab-primary);">Stap 2: Antwoord (Answer)</strong>
+                            <div style="display:flex; gap:0.35rem;">
+                                <button type="button" class="btn btn-soft btn-sm" onclick="createAnswerFromOffer()">Antwoord (Answer) Maken</button>
+                                <button type="button" class="btn btn-meekrab btn-sm" onclick="acceptRemoteAnswer()">Antwoord Plakken &amp; Verbinden</button>
+                                <button type="button" class="btn btn-white btn-sm" onclick="copyTextarea('answerInput', 'Antwoord (Answer)')">Kopieer</button>
+                            </div>
+                        </div>
+                        <textarea id="answerInput" class="sdp-box" placeholder="Hier verschijnt het antwoord, of plak hier het ontvangen antwoord om de verbinding te voltooien..."></textarea>
+                    </div>
+                </div>
+            </details>
+        </section>
+
+        <!-- SECTIE 2: LIVE RODDELCHAT & DE MATTEKLOPPER (OUDER-BESCHERMING) -->
+        <section class="panel" aria-labelledby="heading-chat-klopper">
+            <div class="panel-header">
+                <h2 id="heading-chat-klopper" class="panel-title">2. Live Roddelchat &amp; De Matteklopper (Vader- en Moederwering)</h2>
+                <span class="mono" style="font-size:0.74rem; color:var(--meekrab-primary); font-weight:700;">Versleuteld via WebRTC RTCDataChannel</span>
+            </div>
+            <hr class="meekrab-divider">
+
+            <div class="grid-chat-guard">
+                <!-- Linker kolom: Real-time Roddelchat -->
+                <div class="chat-box-wrapper">
+                    <div class="chat-topbar">
+                        <div class="nickname-group">
+                            <label for="nicknameField">Jouw bijnaam:</label>
+                            <input type="text" id="nicknameField" class="nickname-input" value="GeheimeKletser" maxlength="22" oninput="updateNicknameDisplay()">
+                        </div>
+
+                        <button type="button" class="btn btn-soft btn-sm" onclick="sendMatteklopperWarning()">
+                            Stuur Matteklopper-waarschuwing!
+                        </button>
+                    </div>
+
+                    <div id="roddelChatFeed" class="chat-feed" aria-live="polite"></div>
+
+                    <form class="chat-compose" onsubmit="submitRoddelMessage(event)">
+                        <input type="text" id="roddelInput" class="chat-text-input" placeholder="Typ hier het laatste nieuws of een geheim..." autocomplete="off">
+                        <button type="submit" class="btn btn-meekrab">Verstuur</button>
+                    </form>
+                </div>
+
+                <!-- Rechter kolom: Interactieve SVG Matteklopper & Ouder-Schild -->
+                <div class="matteklopper-card">
+                    <div>
+                        <span class="badge badge-guard" style="margin-bottom:0.4rem;">Ouder-Bescherming Actief</span>
+                        <h3 style="font-size:1.25rem; margin-bottom:0.25rem; color:var(--meekrab-primary);">De Matteklopper</h3>
+                        <p style="font-size:0.78rem; color:var(--ink-secondary); margin:0;">
+                            Hoor je voetstappen op de trap? Klik op de matteklopper om te meppen of activeer direct het <strong>Ouder-Schild</strong>!
+                        </p>
+                    </div>
+
+                    <!-- Klikbare SVG Matteklopper -->
+                    <div class="matteklopper-stage" onclick="swingMatteklopper(true)" role="button" tabindex="0" aria-label="Mep met de matteklopper om vaders en moeders te weren" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();swingMatteklopper(true);}">
+                        <svg id="matteklopperSvg" class="matteklopper-svg" viewBox="0 0 160 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Handvat van gevlochten rotan / meekrab-hout -->
+                            <rect x="74" y="106" width="12" height="62" rx="6" fill="#631318" stroke="#1E1A1A" stroke-width="2.5"/>
+                            <path d="M76 118h8M76 130h8M76 142h8M76 154h8" stroke="#DECACC" stroke-width="1.8" stroke-linecap="round"/>
+                            <!-- Lus onderaan handvat -->
+                            <circle cx="80" cy="171" r="4" fill="none" stroke="#8B1E24" stroke-width="2.5"/>
+
+                            <!-- Klassiek gevlochten klopblad van de matteklopper -->
+                            <path d="M80 14 C112 14, 128 38, 124 66 C120 92, 98 108, 80 108 C62 108, 40 92, 36 66 C32 38, 48 14, 80 14 Z" fill="#FAF3F3" stroke="#8B1E24" stroke-width="5"/>
+                            <!-- Binnenste vlechtwerk (hart- en ruitpatroon in meekrab-rood) -->
+                            <path d="M80 24 C102 24, 114 42, 110 64 C107 83, 92 96, 80 96 C68 96, 53 83, 50 64 C46 42, 58 24, 80 24 Z" fill="none" stroke="#9E2A2B" stroke-width="3"/>
+                            <path d="M80 36 L98 60 L80 86 L62 60 Z" fill="none" stroke="#8B1E24" stroke-width="3"/>
+                            <path d="M52 54 Q80 42 108 54" stroke="#8B1E24" stroke-width="2.5" fill="none"/>
+                            <path d="M52 70 Q80 82 108 70" stroke="#8B1E24" stroke-width="2.5" fill="none"/>
+                            <line x1="80" y1="16" x2="80" y2="106" stroke="#8B1E24" stroke-width="2.5"/>
+                            <!-- Verstevigingsmanchet bij de hals -->
+                            <rect x="71" y="100" width="18" height="10" rx="3" fill="#8B1E24" stroke="#1E1A1A" stroke-width="2"/>
+                        </svg>
+                    </div>
+
+                    <div style="width:100%; display:flex; flex-direction:column; gap:0.45rem;">
+                        <button type="button" class="btn btn-meekrab" style="width:100%;" onclick="swingMatteklopper(true)">
+                            Mep! &ldquo;Wegwezen vaders en moeders!&rdquo;
+                        </button>
+                        <button type="button" class="btn btn-white" style="width:100%;" onclick="toggleOuderSchild(true)">
+                            Activeer Ouder-Schild (Wiskunde-Camouflage)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- =======================================================================
+         VISUELE MATTEKLOPPER MEP-ANIMATIE OVERLAY
+         ======================================================================= -->
+    <div id="swatFlashOverlay" class="swat-flash-overlay" aria-hidden="true">
+        <div class="swat-banner-box">
+            <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--meekrab-primary); margin-bottom:0.25rem;">
+                KLAP MET DE MATTEKLOPPER!
+            </div>
+            <div id="swatBannerHeadline" class="serif" style="font-size:1.55rem; font-weight:700; color:var(--ink-primary);">
+                Wegwezen vaders en moeders!
+            </div>
+            <div id="swatBannerSub" style="font-size:0.8rem; color:var(--ink-secondary); margin-top:0.25rem;">
+                De Klets- en Roddelruimte is beveiligd tegen nieuwsgierige ouders.
+            </div>
+        </div>
+    </div>
+
+    <!-- =======================================================================
+         OUDER-SCHILD CAMOUFLAGE SCHERM (WISKUNDE: GONIOMETRIE & PRIEMGETALLEN)
+         ======================================================================= -->
+    <div id="ouderSchildScreen" class="ouder-schild-screen" role="dialog" aria-modal="true" aria-labelledby="homeworkTitle">
+        <div class="homework-container">
+            <div class="homework-header">
+                <div>
+                    <span style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:#52525B; letter-spacing:0.05em;">
+                        Wiskunde B &bull; Hoofdstuk 6: Goniometrie &amp; Getaltheorie
+                    </span>
+                    <h2 id="homeworkTitle" class="serif" style="font-size:1.6rem; margin:0.2rem 0 0 0; color:#18181B;">
+                        Samenvatting Stellingen: Goniometrische Identiteiten &amp; Priemgetallen
+                    </h2>
+                </div>
+                <button type="button" class="secret-return-btn" onclick="toggleOuderSchild(false)" title="Keer terug naar de Klets- en Roddelruimte (Esc)">
+                    Terug naar oefening (Esc)
+                </button>
+            </div>
+
+            <p style="font-size:0.9rem; line-height:1.6; color:#27272A;">
+                <strong>1. De Stelling van Pythagoras op de Eenheidscirkel:</strong> Voor elke hoek &alpha; &isin; &#8477; geldt dat de co&ouml;rdinaten (cos(&alpha;), sin(&alpha;)) op de eenheidscirkel met straal 1 liggen. Hieruit volgt direct de fundamentele goniometrische identiteit:
+            </p>
+            <div class="math-box">
+                sin&sup2;(&alpha;) + cos&sup2;(&alpha;) = 1 &nbsp;&nbsp;&nbsp;en&nbsp;&nbsp;&nbsp; tan(&alpha;) = sin(&alpha;) / cos(&alpha;) &nbsp;(voor cos(&alpha;) &ne; 0)
+            </div>
+
+            <p style="font-size:0.9rem; line-height:1.6; color:#27272A;">
+                <strong>2. Som- en Verdubbelingsformules:</strong> Bij het herleiden van goniometrische vergelijkingen op het interval [0, 2&pi;] worden de volgende standaardregels toegepast:
+            </p>
+            <div class="math-box">
+                sin(2&alpha;) = 2 &middot; sin(&alpha;) &middot; cos(&alpha;)<br>
+                cos(2&alpha;) = cos&sup2;(&alpha;) &minus; sin&sup2;(&alpha;) = 2cos&sup2;(&alpha;) &minus; 1 = 1 &minus; 2sin&sup2;(&alpha;)
+            </div>
+
+            <p style="font-size:0.9rem; line-height:1.6; color:#27272A;">
+                <strong>3. Stelling van Euclides over Oneindig Veel Priemgetallen:</strong> Stel dat er slechts eindig veel priemgetallen p&#8321;, p&#8322;, &hellip;, p<sub>n</sub> bestaan. Beschouw het getal N = (p&#8321; &middot; p&#8322; &middot; &hellip; &middot; p<sub>n</sub>) + 1. Omdat N bij deling door elk priemgetal p<sub>i</sub> rest 1 overlaat, heeft N een priemdeler die niet in de oorspronkelijke lijst voorkomt. Contradictie.
+            </p>
+            <div class="math-box">
+                &pi;(x) ~ x / ln(x) &nbsp;&nbsp;&mdash;&nbsp;&nbsp; Priemgetalstelling (Hadamard &amp; De la Vall&eacute;e Poussin, 1896)
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notificatie -->
+    <div id="toastBanner" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- =======================================================================
+         VOLLEDIGE LOKALE JAVASCRIPT (WEBRTC, AVATAR CANVAS, WEB AUDIO & CHAT)
+         ======================================================================= -->
+    <script>
+        /* ---------------------------------------------------------------------
+           1. STATE & INITIALISATIE
+           --------------------------------------------------------------------- */
+        let localStream = null;
+        let currentStreamMode = 'avatar'; // 'avatar' | 'webcam'
+        let isMicMuted = false;
+        let swatCount = 0;
+        let isOuderSchildOpen = false;
+        let audioCtx = null;
+
+        // WebRTC PeerConnections & DataChannels
+        let pcLocal = null;
+        let pcRemote = null;
+        let dcLocal = null;
+        let dcRemote = null;
+
+        /* ---------------------------------------------------------------------
+           2. WEB AUDIO API: SYNTHETISCH MATTEKLOPPER GELUIDSEFFECT (GEEN MP3 NODIG)
+           --------------------------------------------------------------------- */
+        function playMatteklopperSound() {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
+                if (!audioCtx) audioCtx = new AudioContextClass();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const now = audioCtx.currentTime;
+
+                // 1) Zwabberende rotan-zwiep (oscillator pitch drop)
+                const osc = audioCtx.createOscillator();
+                const oscGain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(520, now);
+                osc.frequency.exponentialRampToValueAtTime(110, now + 0.16);
+
+                oscGain.gain.setValueAtTime(0.001, now);
+                oscGain.gain.linearRampToValueAtTime(0.32, now + 0.03);
+                oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+                osc.connect(oscGain);
+                oscGain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.23);
+
+                // 2) Korte tik / klap (gefilterde witte ruis)
+                const bufferSize = Math.floor(audioCtx.sampleRate * 0.12);
+                const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.25));
+                }
+
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = noiseBuffer;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(950, now + 0.06);
+                filter.Q.setValueAtTime(1.8, now + 0.06);
+
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.setValueAtTime(0.45, now + 0.06);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+
+                noise.connect(filter);
+                filter.connect(noiseGain);
+                noiseGain.connect(audioCtx.destination);
+                noise.start(now + 0.06);
+            } catch (e) {
+                // Negeer als browser autoplay-audio blokkeert
+            }
+        }
+
+        /* ---------------------------------------------------------------------
+           3. DE MATTEKLOPPER & OUDER-SCHILD (CAMOUFLAGE)
+           --------------------------------------------------------------------- */
+        function swingMatteklopper(playSound = true, customHeadline = null, customSub = null) {
+            swatCount++;
+            document.getElementById('headerKlopperCounter').textContent = `Matteklopper: ${swatCount}x gemept`;
+
+            if (playSound) playMatteklopperSound();
+
+            // Animeer de SVG Matteklopper
+            const svgEl = document.getElementById('matteklopperSvg');
+            svgEl.classList.remove('swatting');
+            void svgEl.offsetWidth; // Forceer reflow voor herhaalde animatie
+            svgEl.classList.add('swatting');
+
+            // Toon grote visuele waarschuwing op scherm
+            const overlay = document.getElementById('swatFlashOverlay');
+            document.getElementById('swatBannerHeadline').textContent = customHeadline || 'Wegwezen vaders en moeders!';
+            document.getElementById('swatBannerSub').textContent = customSub || 'De Klets- en Roddelruimte is beveiligd tegen nieuwsgierige ouders.';
+            overlay.classList.add('active');
+
+            clearTimeout(window._swatTimer);
+            window._swatTimer = setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 1350);
+        }
+
+        function toggleOuderSchild(forceState) {
+            isOuderSchildOpen = typeof forceState === 'boolean' ? forceState : !isOuderSchildOpen;
+            const screen = document.getElementById('ouderSchildScreen');
+            if (isOuderSchildOpen) {
+                screen.classList.add('visible');
+                document.title = 'Wiskunde B — Goniometrie & Priemgetallen';
+            } else {
+                screen.classList.remove('visible');
+                document.title = 'De Klets- en Roddelruimte — Peer-to-Peer WebRTC Livestream & Matteklopper';
+            }
+        }
+
+        // Sneltoets Esc voor directe Ouder-Schild camouflage
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                toggleOuderSchild();
+            }
+        });
+
+        /* ---------------------------------------------------------------------
+           4. GEHEIME STUDIO-AVATAR (HTML5 CANVAS STREAM) & WEBCAM SELECTIE
+           --------------------------------------------------------------------- */
+        const avatarCanvas = document.getElementById('avatarStudioCanvas');
+        const avatarCtx = avatarCanvas.getContext('2d');
+        let avatarTick = 0;
+
+        function animateStudioAvatar() {
+            const w = avatarCanvas.width;
+            const h = avatarCanvas.height;
+            avatarTick++;
+
+            // Achtergrond in diep meekrab-bordeaux
+            const grad = avatarCtx.createLinearGradient(0, 0, w, h);
+            grad.addColorStop(0, '#2B0B0E');
+            grad.addColorStop(1, '#581318');
+            avatarCtx.fillStyle = grad;
+            avatarCtx.fillRect(0, 0, w, h);
+
+            // Subtiele decoratieve ringen
+            const cx = w / 2;
+            const cy = h / 2 - 10;
+            for (let r = 1; r <= 3; r++) {
+                const radius = 58 + r * 26 + Math.sin(avatarTick * 0.05 + r) * 6;
+                avatarCtx.beginPath();
+                avatarCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+                avatarCtx.strokeStyle = `rgba(255, 255, 255, ${0.18 - r * 0.04})`;
+                avatarCtx.lineWidth = 2;
+                avatarCtx.stroke();
+            }
+
+            // Bewegende geluidsgolven links en rechts van de avatar
+            avatarCtx.fillStyle = '#F3B4B8';
+            for (let i = -14; i <= 14; i++) {
+                if (Math.abs(i) < 4) continue;
+                const barHeight = isMicMuted
+                    ? 4
+                    : 10 + Math.abs(Math.sin(avatarTick * 0.14 + i * 0.55)) * 38;
+                const bx = cx + i * 16;
+                avatarCtx.fillRect(bx - 3, cy - barHeight / 2, 6, barHeight);
+            }
+
+            // Centrale Geheime Studio-Avatar cirkel
+            avatarCtx.fillStyle = '#FFFFFF';
+            avatarCtx.beginPath();
+            avatarCtx.arc(cx, cy, 48, 0, Math.PI * 2);
+            avatarCtx.fill();
+
+            avatarCtx.strokeStyle = '#8B1E24';
+            avatarCtx.lineWidth = 4;
+            avatarCtx.stroke();
+
+            // Gestileerd geheim-agent / roddel-icoon (zonnebril & glimlach)
+            avatarCtx.fillStyle = '#1E1A1A';
+            avatarCtx.fillRect(cx - 26, cy - 12, 22, 13);
+            avatarCtx.fillRect(cx + 4, cy - 12, 22, 13);
+            avatarCtx.fillRect(cx - 4, cy - 9, 8, 3);
+
+            // Glimlach
+            avatarCtx.beginPath();
+            avatarCtx.arc(cx, cy + 10, 14, 0.15 * Math.PI, 0.85 * Math.PI);
+            avatarCtx.strokeStyle = '#8B1E24';
+            avatarCtx.lineWidth = 3.5;
+            avatarCtx.lineCap = 'round';
+            avatarCtx.stroke();
+
+            // Bijnaam & status onderin canvas
+            const nick = getNickname();
+            avatarCtx.fillStyle = '#FFFFFF';
+            avatarCtx.font = 'bold 16px sans-serif';
+            avatarCtx.textAlign = 'center';
+            avatarCtx.fillText(`STUDIO-AVATAR: ${nick}`, cx, h - 42);
+
+            avatarCtx.fillStyle = '#E6C7C9';
+            avatarCtx.font = '12px monospace';
+            avatarCtx.fillText(isMicMuted ? 'MICROFOON GEDEMPT' : 'GEHEIME STUDIO-STREAM ACTIEF (30 FPS)', cx, h - 20);
+
+            requestAnimationFrame(animateStudioAvatar);
+        }
+
+        async function selectStreamMode(mode) {
+            const feedbackEl = document.getElementById('mediaFeedback');
+            document.getElementById('btnModeAvatar').classList.toggle('active', mode === 'avatar');
+            document.getElementById('btnModeWebcam').classList.toggle('active', mode === 'webcam');
+
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+
+            if (mode === 'webcam') {
+                try {
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        throw new Error('Jouw browser ondersteunt geen camera-toegang in deze omgeving.');
+                    }
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    currentStreamMode = 'webcam';
+                    document.getElementById('localVideoCaption').textContent = 'ECHTE WEBCAM & MICROFOON • LIVE';
+                    document.getElementById('chipStream').textContent = 'Bron: Echte Webcam & Microfoon';
+                    feedbackEl.className = 'media-notice';
+                    feedbackEl.textContent = 'Je echte webcam en microfoon zijn actief! Gebruik de Matteklopper als er ouders langslopen.';
+                } catch (err) {
+                    // Duidelijke foutafhandeling en automatische terugval op de Geheime Studio-Avatar
+                    feedbackEl.className = 'media-notice error-msg';
+                    feedbackEl.textContent = `Geen camera of microfoon gevonden (${err.message || err.name}). We schakelen veilig terug naar de Geheime Studio-Avatar!`;
+                    document.getElementById('btnModeAvatar').classList.add('active');
+                    document.getElementById('btnModeWebcam').classList.remove('active');
+                    localStream = avatarCanvas.captureStream(30);
+                    currentStreamMode = 'avatar';
+                    document.getElementById('localVideoCaption').textContent = 'GEHEIME STUDIO-AVATAR (TERUGVAL)';
+                    document.getElementById('chipStream').textContent = 'Bron: Geheime Studio-Avatar (30 fps)';
+                }
+            } else {
+                localStream = avatarCanvas.captureStream(30);
+                currentStreamMode = 'avatar';
+                document.getElementById('localVideoCaption').textContent = 'GEHEIME STUDIO-AVATAR • LOKAAL';
+                document.getElementById('chipStream').textContent = 'Bron: Geheime Studio-Avatar (30 fps)';
+                feedbackEl.className = 'media-notice';
+                feedbackEl.textContent = 'Je zendt momenteel de geanimeerde Geheime Studio-Avatar uit. Schakel hierboven over op je echte webcam als je wilt.';
+            }
+
+            // Pas eventuele mute-status toe op audiotracks
+            localStream.getAudioTracks().forEach(t => { t.enabled = !isMicMuted; });
+            document.getElementById('localVideo').srcObject = localStream;
+
+            // Vervang videostream naadloos als er al een P2P-verbinding openstaat
+            if (pcLocal && localStream) {
+                const newVideoTrack = localStream.getVideoTracks()[0];
+                if (newVideoTrack) {
+                    const sender = pcLocal.getSenders().find(s => s.track && s.track.kind === 'video');
+                    if (sender) {
+                        sender.replaceTrack(newVideoTrack).catch(() => {});
+                    }
+                }
+            }
+        }
+
+        function toggleMicMute() {
+            isMicMuted = !isMicMuted;
+            const btn = document.getElementById('btnToggleMic');
+            btn.textContent = isMicMuted ? 'Microfoon: Gedempt' : 'Microfoon: Aan';
+            if (localStream) {
+                localStream.getAudioTracks().forEach(t => { t.enabled = !isMicMuted; });
+            }
+        }
+
+        /* ---------------------------------------------------------------------
+           5. PEER-TO-PEER WEBRTC (LOOPBACK & HANDMATIGE SDP OFFER / ANSWER)
+           --------------------------------------------------------------------- */
+        function updateConnectionChips(iceState, chatState) {
+            if (iceState) {
+                const chipIce = document.getElementById('chipIce');
+                chipIce.textContent = `ICE-verbinding: ${iceState}`;
+                chipIce.className = 'status-chip ' + ((iceState === 'connected' || iceState === 'completed') ? 'live' : (iceState === 'checking' ? 'busy' : ''));
+            }
+            if (chatState) {
+                const chipChat = document.getElementById('chipChat');
+                chipChat.textContent = `Roddelkanaal (RTCDataChannel): ${chatState}`;
+                chipChat.className = 'status-chip ' + (chatState === 'Open (P2P Live)' ? 'live' : '');
+            }
+        }
+
+        function resetConnections(silent = false) {
+            if (dcLocal) { try { dcLocal.close(); } catch (e) {} dcLocal = null; }
+            if (dcRemote) { try { dcRemote.close(); } catch (e) {} dcRemote = null; }
+            if (pcLocal) { try { pcLocal.close(); } catch (e) {} pcLocal = null; }
+            if (pcRemote) { try { pcRemote.close(); } catch (e) {} pcRemote = null; }
+
+            document.getElementById('remoteVideo').srcObject = null;
+            document.getElementById('remoteVideoCaption').textContent = 'NOG GEEN VERBINDING MET KLETSMAATJE';
+            document.getElementById('remoteNickBadge').textContent = 'Wacht op maatje...';
+            document.getElementById('remoteLiveIndicator').style.display = 'none';
+            updateConnectionChips('Verbroken', 'Lokaal gereed');
+
+            if (!silent) {
+                appendChatBubble('Systeem', 'De WebRTC-verbinding is verbroken.', 'system');
+            }
+        }
+
+        function setupDataChannelHandlers(channel, label) {
+            channel.onopen = () => {
+                updateConnectionChips(null, 'Open (P2P Live)');
+                if (label === 'local') {
+                    appendChatBubble('Systeem', 'Het geheime P2P-roddelkanaal is nu live geopend!', 'system');
+                }
+            };
+            channel.onclose = () => {
+                updateConnectionChips(null, 'Gesloten');
+            };
+            channel.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'matteklopper-alarm') {
+                        // Activeer ook bij de ontvanger de matteklopper-animatie!
+                        swingMatteklopper(
+                            true,
+                            `MATTEKLOPPER-ALARM VAN ${data.sender.toUpperCase()}!`,
+                            'Pas op: er komt mogelijk een vader of moeder aan!'
+                        );
+                        appendChatBubble(
+                            data.sender,
+                            `MATTEKLOPPER-WAARSCHUWING! "${data.sender}" mept met de matteklopper: vaders en moeders gesignaleerd!`,
+                            'alarm'
+                        );
+                    } else if (data.type === 'chat') {
+                        document.getElementById('remoteNickBadge').textContent = data.sender;
+                        appendChatBubble(data.sender, data.text, 'peer');
+                    }
+                } catch (e) {
+                    appendChatBubble('Kletsmaatje', String(event.data), 'peer');
+                }
+            };
+        }
+
+        // 1-klik Directe Lokale Testverbinding (Loopback)
+        async function startLoopbackConnection() {
+            resetConnections(true);
+            if (!localStream) await selectStreamMode(currentStreamMode);
+
+            updateConnectionChips('Verbinden (Loopback)...', 'Opbouwen...');
+
+            const config = { iceServers: [] };
+            pcLocal = new RTCPeerConnection(config);
+            pcRemote = new RTCPeerConnection(config);
+
+            dcLocal = pcLocal.createDataChannel('roddelkanaal', { ordered: true });
+            setupDataChannelHandlers(dcLocal, 'local');
+
+            pcRemote.ondatachannel = (ev) => {
+                dcRemote = ev.channel;
+                setupDataChannelHandlers(dcRemote, 'remote');
+            };
+
+            localStream.getTracks().forEach(track => pcLocal.addTrack(track, localStream));
+
+            pcRemote.ontrack = (ev) => {
+                const remoteVid = document.getElementById('remoteVideo');
+                remoteVid.srcObject = (ev.streams && ev.streams[0]) ? ev.streams[0] : new MediaStream([ev.track]);
+                document.getElementById('remoteVideoCaption').textContent = 'KLETSMAATJE (LOKALE LOOPBACK) • LIVE';
+                document.getElementById('remoteNickBadge').textContent = `${getNickname()} (Echo)`;
+                document.getElementById('remoteLiveIndicator').style.display = 'inline-flex';
+            };
+
+            pcLocal.onicecandidate = (e) => { if (e.candidate) pcRemote.addIceCandidate(e.candidate).catch(() => {}); };
+            pcRemote.onicecandidate = (e) => { if (e.candidate) pcLocal.addIceCandidate(e.candidate).catch(() => {}); };
+            pcLocal.oniceconnectionstatechange = () => updateConnectionChips(pcLocal.iceConnectionState, null);
+
+            const offer = await pcLocal.createOffer();
+            await pcLocal.setLocalDescription(offer);
+            await pcRemote.setRemoteDescription(offer);
+
+            const answer = await pcRemote.createAnswer();
+            await pcRemote.setLocalDescription(answer);
+            await pcLocal.setRemoteDescription(answer);
+
+            document.getElementById('offerInput').value = JSON.stringify(pcLocal.localDescription);
+            document.getElementById('answerInput').value = JSON.stringify(pcRemote.localDescription);
+            showToast('Lokale Loopback-testverbinding actief!');
+        }
+
+        // Handmatige SDP Signaling tussen twee tabbladen/apparaten
+        function waitForIceGathering(pc) {
+            return new Promise((resolve) => {
+                if (pc.iceGatheringState === 'complete') return resolve();
+                const timeout = setTimeout(resolve, 1500);
+                pc.addEventListener('icegatheringstatechange', () => {
+                    if (pc.iceGatheringState === 'complete') {
+                        clearTimeout(timeout);
+                        resolve();
+                    }
+                });
+            });
+        }
+
+        async function createManualOffer() {
+            resetConnections(true);
+            if (!localStream) await selectStreamMode(currentStreamMode);
+
+            pcLocal = new RTCPeerConnection({ iceServers: [] });
+            dcLocal = pcLocal.createDataChannel('roddelkanaal', { ordered: true });
+            setupDataChannelHandlers(dcLocal, 'local');
+
+            localStream.getTracks().forEach(track => pcLocal.addTrack(track, localStream));
+
+            pcLocal.ontrack = (ev) => {
+                document.getElementById('remoteVideo').srcObject = ev.streams[0];
+                document.getElementById('remoteVideoCaption').textContent = 'KLETSMAATJE STREAM • LIVE';
+                document.getElementById('remoteLiveIndicator').style.display = 'inline-flex';
+            };
+            pcLocal.oniceconnectionstatechange = () => updateConnectionChips(pcLocal.iceConnectionState, null);
+
+            const offer = await pcLocal.createOffer();
+            await pcLocal.setLocalDescription(offer);
+            await waitForIceGathering(pcLocal);
+
+            document.getElementById('offerInput').value = JSON.stringify(pcLocal.localDescription);
+            showToast('Aanbod (Offer) gemaakt! Kopieer en stuur naar je kletsmaatje.');
+        }
+
+        async function createAnswerFromOffer() {
+            const rawOffer = document.getElementById('offerInput').value.trim();
+            if (!rawOffer) return showToast('Plak eerst het ontvangen Aanbod (Offer) in het linker vak.');
+
+            let offerObj;
+            try {
+                offerObj = JSON.parse(rawOffer);
+            } catch (e) {
+                return showToast('Ongeldige Offer-tekst. Controleer of je alles hebt gekopieerd.');
+            }
+
+            resetConnections(true);
+            if (!localStream) await selectStreamMode(currentStreamMode);
+
+            pcRemote = new RTCPeerConnection({ iceServers: [] });
+            localStream.getTracks().forEach(track => pcRemote.addTrack(track, localStream));
+
+            pcRemote.ondatachannel = (ev) => {
+                dcRemote = ev.channel;
+                setupDataChannelHandlers(dcRemote, 'remote');
+            };
+            pcRemote.ontrack = (ev) => {
+                document.getElementById('remoteVideo').srcObject = ev.streams[0];
+                document.getElementById('remoteVideoCaption').textContent = 'KLETSMAATJE STREAM • LIVE';
+                document.getElementById('remoteLiveIndicator').style.display = 'inline-flex';
+            };
+            pcRemote.oniceconnectionstatechange = () => updateConnectionChips(pcRemote.iceConnectionState, null);
+
+            await pcRemote.setRemoteDescription(new RTCSessionDescription(offerObj));
+            const answer = await pcRemote.createAnswer();
+            await pcRemote.setLocalDescription(answer);
+            await waitForIceGathering(pcRemote);
+
+            document.getElementById('answerInput').value = JSON.stringify(pcRemote.localDescription);
+            showToast('Antwoord (Answer) gemaakt! Kopieer en stuur terug naar Persoon 1.');
+        }
+
+        async function acceptRemoteAnswer() {
+            if (!pcLocal) return showToast('Maak eerst een Aanbod (Offer) in Stap 1.');
+            const rawAnswer = document.getElementById('answerInput').value.trim();
+            if (!rawAnswer) return showToast('Plak eerst het ontvangen Antwoord (Answer).');
+
+            try {
+                const answerObj = JSON.parse(rawAnswer);
+                await pcLocal.setRemoteDescription(new RTCSessionDescription(answerObj));
+                showToast('Antwoord geaccepteerd! P2P-verbinding wordt opgebouwd.');
+            } catch (e) {
+                showToast('Fout bij verwerken van het Antwoord: ' + e.message);
+            }
+        }
+
+        /* ---------------------------------------------------------------------
+           6. LIVE RODDELCHAT & MATTEKLOPPER-WAARSCHUWING VIA RTCDATACHANNEL
+           --------------------------------------------------------------------- */
+        function getNickname() {
+            const val = document.getElementById('nicknameField').value.trim();
+            return val || 'GeheimeKletser';
+        }
+
+        function updateNicknameDisplay() {
+            document.getElementById('localNickBadge').textContent = getNickname();
+        }
+
+        function appendChatBubble(sender, text, styleType) {
+            const feed = document.getElementById('roddelChatFeed');
+            const bubble = document.createElement('div');
+            bubble.className = `msg-bubble ${styleType}`;
+
+            const timeStr = new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const safeSender = String(sender).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const safeText = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            if (styleType === 'system' || styleType === 'alarm') {
+                bubble.innerHTML = `<div>${safeText} <span style="opacity:0.7; font-size:0.66rem;">(${timeStr})</span></div>`;
+            } else {
+                bubble.innerHTML = `
+                    <div class="msg-header">
+                        <strong>${safeSender}</strong>
+                        <span>${timeStr}</span>
+                    </div>
+                    <div>${safeText}</div>
+                `;
+            }
+
+            feed.appendChild(bubble);
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        function getActiveDataChannel() {
+            if (dcLocal && dcLocal.readyState === 'open') return dcLocal;
+            if (dcRemote && dcRemote.readyState === 'open') return dcRemote;
+            return null;
+        }
+
+        function submitRoddelMessage(event) {
+            event.preventDefault();
+            const input = document.getElementById('roddelInput');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+
+            const sender = getNickname();
+            appendChatBubble(sender, text, 'mine');
+
+            const channel = getActiveDataChannel();
+            if (channel) {
+                channel.send(JSON.stringify({
+                    type: 'chat',
+                    sender: sender,
+                    text: text
+                }));
+            }
+        }
+
+        function sendMatteklopperWarning() {
+            const sender = getNickname();
+            // Mep direct lokaal
+            swingMatteklopper(
+                true,
+                'MATTEKLOPPER-WAARSCHUWING VERZONDEN!',
+                'Ouder-alarm is afgegaan — houd je Ouder-Schild (Esc) gereed!'
+            );
+            appendChatBubble(
+                sender,
+                `MATTEKLOPPER-WAARSCHUWING! "${sender}" slaat alarm: vaders en moeders op afstand houden!`,
+                'alarm'
+            );
+
+            // Stuur ook naar kletsmaatje over RTCDataChannel
+            const channel = getActiveDataChannel();
+            if (channel) {
+                channel.send(JSON.stringify({
+                    type: 'matteklopper-alarm',
+                    sender: sender
+                }));
+            }
+        }
+
+        /* ---------------------------------------------------------------------
+           7. HULPFUNCTIES: KLEMBOORD & TOAST
+           --------------------------------------------------------------------- */
+        function copyTextarea(id, label) {
+            const el = document.getElementById(id);
+            if (!el.value.trim()) return showToast(`${label} is nog leeg.`);
+            el.select();
+            try {
+                document.execCommand('copy');
+                showToast(`${label} gekopieerd naar klembord!`);
+            } catch (e) {
+                showToast('Kopiëren mislukt; selecteer de tekst handmatig.');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastBanner');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        /* ---------------------------------------------------------------------
+           8. OPSTARTEN BIJ LADEN VAN DE PAGINA
+           --------------------------------------------------------------------- */
+        window.onload = function () {
+            updateNicknameDisplay();
+            animateStudioAvatar();
+            selectStreamMode('avatar');
+            appendChatBubble(
+                'Systeem',
+                'Welkom in De Klets- en Roddelruimte! Streng verboden voor vaders en moeders. Druk op Esc voor het Ouder-Schild.',
+                'system'
+            );
+        };
+    </script>
+</body>
+</html>
