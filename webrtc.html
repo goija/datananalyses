@@ -1,0 +1,2410 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrometrische Eclipsanalyse, Riemann-Zeta &amp; WebRTC TeleAPI-Synthese</title>
+    <style>
+        /* =====================================================================
+           ZEEUWS MEEKRAB DESIGN TOKENS & TYPOGRAFIE (100% LOKAAL / ZERO-CDN)
+           ===================================================================== */
+        :root {
+            --meekrab-primary: #8B1E24;
+            --meekrab-accent: #9E2A2B;
+            --meekrab-deep: #631318;
+            --meekrab-soft: #F9F2F2;
+            --meekrab-tint: #FCF9F9;
+            --meekrab-border: #D8C7C8;
+            --ink-primary: #1E1E1E;
+            --ink-secondary: #4A4A4A;
+            --ink-muted: #6B6B6B;
+            --paper-bg: #FFFFFF;
+            --backdrop-bg: #F6F3F3;
+            --status-ok: #1B6B3A;
+            --status-ok-bg: #EDF7F1;
+            --status-warn: #8B5A1E;
+            --status-warn-bg: #FDF7EE;
+
+            --font-serif: Georgia, "Times New Roman", Times, serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-family: var(--font-sans);
+            color: var(--ink-primary);
+            background-color: var(--backdrop-bg);
+            line-height: 1.55;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        h1, h2, h3, h4, .serif {
+            font-family: var(--font-serif);
+            margin-top: 0;
+            color: var(--ink-primary);
+        }
+
+        code, pre, textarea.mono-box, .mono {
+            font-family: var(--font-mono);
+        }
+
+        /* Bovenste archiefbalk */
+        .top-archive-bar {
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--meekrab-deep) 0%, var(--meekrab-primary) 50%, var(--meekrab-accent) 100%);
+        }
+
+        /* Header & Navigatie */
+        header.site-header {
+            background-color: var(--paper-bg);
+            border-bottom: 1px solid var(--meekrab-border);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 2px 10px rgba(30, 30, 30, 0.04);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+        }
+
+        .header-inner {
+            padding: 0.95rem 0 0.7rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+
+        .header-top {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.58rem;
+            border-radius: 5px;
+            font-size: 0.71rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            font-family: var(--font-mono);
+        }
+
+        .badge-primary {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            text-transform: uppercase;
+            font-family: var(--font-sans);
+        }
+
+        .badge-privacy {
+            background-color: var(--status-ok-bg);
+            border: 1px solid #9ED3B2;
+            color: var(--status-ok);
+        }
+
+        .badge-outline {
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            color: var(--meekrab-primary);
+        }
+
+        .site-title {
+            font-size: clamp(1.38rem, 2.5vw, 1.92rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.01em;
+        }
+
+        .site-subtitle {
+            margin: 0;
+            font-size: 0.86rem;
+            color: var(--ink-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            align-items: center;
+        }
+
+        /* Knoppen */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.48rem 0.8rem;
+            border-radius: 7px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.16s ease;
+            border: 1px solid transparent;
+            text-decoration: none;
+            line-height: 1.2;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            border-color: var(--meekrab-primary);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--meekrab-deep);
+            border-color: var(--meekrab-deep);
+        }
+
+        .btn-secondary {
+            background-color: var(--meekrab-soft);
+            color: var(--meekrab-primary);
+            border-color: var(--meekrab-border);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            border-color: var(--meekrab-primary);
+            background-color: #F3E5E5;
+        }
+
+        .btn-outline {
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            border-color: var(--meekrab-border);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            border-color: var(--meekrab-primary);
+            color: var(--meekrab-primary);
+        }
+
+        .btn-sm {
+            padding: 0.34rem 0.62rem;
+            font-size: 0.72rem;
+        }
+
+        /* Navigatiebalk */
+        nav.section-nav {
+            display: flex;
+            gap: 0.4rem;
+            overflow-x: auto;
+            padding-top: 0.55rem;
+            border-top: 1px solid #EFEAEA;
+        }
+
+        .nav-link {
+            white-space: nowrap;
+            padding: 0.34rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.77rem;
+            font-weight: 600;
+            color: var(--ink-secondary);
+            text-decoration: none;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--meekrab-primary);
+            background-color: var(--meekrab-soft);
+        }
+
+        .nav-link.active {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        /* Hoofdsecties */
+        main.main-content {
+            padding: 1.65rem 0 3rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.85rem;
+        }
+
+        section.dossier-section {
+            background-color: var(--paper-bg);
+            border: 1px solid var(--meekrab-border);
+            border-radius: 12px;
+            padding: 1.5rem 1.75rem;
+            box-shadow: 0 2px 10px rgba(30, 30, 30, 0.03);
+            scroll-margin-top: 155px;
+        }
+
+        .section-kicker {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .kicker-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--meekrab-primary);
+        }
+
+        .kicker-meta {
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            color: var(--ink-muted);
+        }
+
+        .section-title {
+            font-size: clamp(1.32rem, 2.2vw, 1.72rem);
+            font-weight: 700;
+            margin-bottom: 0.65rem;
+        }
+
+        .meekrab-rule {
+            height: 2px;
+            background: linear-gradient(90deg, var(--meekrab-primary) 0%, var(--meekrab-accent) 55%, rgba(158, 42, 43, 0.12) 100%);
+            margin-bottom: 1.3rem;
+            border: none;
+        }
+
+        /* Grid helpers */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.2rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .grid-12 {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 1.2rem;
+        }
+
+        .col-span-4 { grid-column: span 4; }
+        .col-span-5 { grid-column: span 5; }
+        .col-span-7 { grid-column: span 7; }
+        .col-span-8 { grid-column: span 8; }
+
+        @media (max-width: 960px) {
+            .grid-12, .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            .col-span-4, .col-span-5, .col-span-7, .col-span-8 {
+                grid-column: span 1;
+            }
+            section.dossier-section {
+                padding: 1.15rem;
+            }
+        }
+
+        /* Kaarten & Panelen */
+        .card {
+            background-color: var(--paper-bg);
+            border: 1px solid var(--meekrab-border);
+            border-radius: 10px;
+            padding: 1.05rem;
+        }
+
+        .card-soft {
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            border-radius: 10px;
+            padding: 1.05rem;
+        }
+
+        .card-accent {
+            background-color: var(--meekrab-soft);
+            border: 2px solid var(--meekrab-primary);
+            border-radius: 10px;
+            padding: 1.05rem;
+        }
+
+        .card-heading {
+            font-size: 0.77rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--meekrab-primary);
+            margin-bottom: 0.5rem;
+            font-family: var(--font-sans);
+        }
+
+        /* WebRTC Video & Status */
+        .video-frame {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #161314;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--meekrab-border);
+        }
+
+        .video-frame video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-overlay-tag {
+            position: absolute;
+            top: 0.6rem;
+            left: 0.6rem;
+            background-color: rgba(24, 20, 21, 0.85);
+            color: #FFFFFF;
+            padding: 0.2rem 0.55rem;
+            border-radius: 5px;
+            font-size: 0.69rem;
+            font-family: var(--font-mono);
+            border-left: 3px solid var(--meekrab-accent);
+        }
+
+        .video-live-pill {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            padding: 0.2rem 0.55rem;
+            border-radius: 5px;
+            font-size: 0.67rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #FFFFFF;
+            animation: pulseAnim 1.4s infinite ease-in-out;
+        }
+
+        @keyframes pulseAnim {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.8); }
+        }
+
+        /* Status indicatoren */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.22rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.71rem;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            border: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+            color: var(--ink-secondary);
+        }
+
+        .status-pill.connected {
+            background-color: var(--status-ok-bg);
+            border-color: #9ED3B2;
+            color: var(--status-ok);
+        }
+
+        .status-pill.connecting {
+            background-color: var(--status-warn-bg);
+            border-color: #E6C79C;
+            color: var(--status-warn);
+        }
+
+        /* SDP Textareas, JSON viewer & Logs */
+        textarea.mono-box, pre.json-preview {
+            width: 100%;
+            min-height: 92px;
+            padding: 0.6rem;
+            border-radius: 7px;
+            border: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            font-size: 0.71rem;
+            resize: vertical;
+            line-height: 1.42;
+            margin: 0;
+        }
+
+        pre.json-preview {
+            background-color: #1E1E1E;
+            color: #F4EFEF;
+            max-height: 215px;
+            overflow: auto;
+            resize: none;
+            border-color: #333333;
+        }
+
+        textarea.mono-box:focus {
+            outline: none;
+            border-color: var(--meekrab-primary);
+            box-shadow: 0 0 0 3px rgba(139, 30, 36, 0.12);
+        }
+
+        .log-box {
+            background-color: #1E1E1E;
+            color: #F4EFEF;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-family: var(--font-mono);
+            font-size: 0.71rem;
+            height: 155px;
+            overflow-y: auto;
+            line-height: 1.45;
+            border: 1px solid #333333;
+        }
+
+        .log-entry-time {
+            color: #E08A8F;
+        }
+
+        .log-entry-data {
+            color: #A7E3B9;
+        }
+
+        /* Uitklapbare details sectie */
+        details.meekrab-details {
+            border: 1px solid var(--meekrab-border);
+            border-radius: 9px;
+            background-color: var(--meekrab-soft);
+            padding: 0.75rem 1rem;
+        }
+
+        details.meekrab-details summary {
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--meekrab-primary);
+            user-select: none;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        details.meekrab-details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.meekrab-details[open] summary {
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.55rem;
+            border-bottom: 1px solid var(--meekrab-border);
+        }
+
+        /* Segmented Switch voor Streambron */
+        .source-switch {
+            display: inline-flex;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 7px;
+            overflow: hidden;
+            background-color: #FFFFFF;
+        }
+
+        .source-switch button {
+            border: none;
+            background: transparent;
+            padding: 0.42rem 0.75rem;
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--ink-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .source-switch button.active {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        /* Riemann Canvas & Controls */
+        .zeta-canvas-box {
+            width: 100%;
+            aspect-ratio: 16 / 11;
+            min-height: 340px;
+            max-height: 520px;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 9px;
+            background-color: #FFFFFF;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .zeta-canvas-box canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        input[type="range"].meekrab-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #E4D4D5;
+            border-radius: 999px;
+            outline: none;
+        }
+
+        input[type="range"].meekrab-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--meekrab-primary);
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+            cursor: pointer;
+        }
+
+        input[type="range"].meekrab-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--meekrab-primary);
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+            cursor: pointer;
+        }
+
+        .readout-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.55rem;
+        }
+
+        .readout-cell {
+            background-color: #FFFFFF;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 7px;
+            padding: 0.52rem 0.7rem;
+        }
+
+        .readout-label {
+            font-size: 0.66rem;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            font-family: var(--font-mono);
+        }
+
+        .readout-value {
+            font-size: 0.94rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--ink-primary);
+            margin-top: 0.12rem;
+        }
+
+        .zero-btn {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.46rem 0.75rem;
+            border-radius: 7px;
+            border: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            cursor: pointer;
+            font-size: 0.77rem;
+            transition: all 0.15s ease;
+            text-align: left;
+        }
+
+        .zero-btn:hover {
+            border-color: var(--meekrab-accent);
+            background-color: var(--meekrab-soft);
+        }
+
+        .zero-btn.active {
+            background-color: var(--meekrab-primary);
+            border-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        .zero-btn.active .zero-tag {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+        }
+
+        .zero-tag {
+            font-family: var(--font-mono);
+            font-size: 0.69rem;
+            padding: 0.12rem 0.45rem;
+            border-radius: 4px;
+            background-color: var(--meekrab-soft);
+            color: var(--meekrab-primary);
+        }
+
+        /* Drag & Drop PDF Zone */
+        .pdf-dropzone {
+            border: 2px dashed var(--meekrab-border);
+            border-radius: 9px;
+            background-color: #FFFFFF;
+            padding: 1rem 1.2rem;
+            transition: all 0.18s ease;
+        }
+
+        .pdf-dropzone.dragover {
+            border-color: var(--meekrab-primary);
+            background-color: #F4E6E7;
+        }
+
+        /* Zoek- en filterbalk */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            align-items: center;
+            margin-bottom: 0.9rem;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 220px;
+            padding: 0.48rem 0.75rem;
+            border-radius: 7px;
+            border: 1px solid var(--meekrab-border);
+            font-size: 0.8rem;
+            font-family: var(--font-sans);
+            color: var(--ink-primary);
+            background-color: #FFFFFF;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--meekrab-primary);
+            box-shadow: 0 0 0 3px rgba(139, 30, 36, 0.1);
+        }
+
+        .filter-chip {
+            padding: 0.36rem 0.68rem;
+            border-radius: 6px;
+            border: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+            color: var(--ink-secondary);
+            font-size: 0.73rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.14s ease;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--meekrab-primary);
+            color: var(--meekrab-primary);
+        }
+
+        .filter-chip.active {
+            background-color: var(--meekrab-primary);
+            border-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        /* Tabellen */
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 9px;
+        }
+
+        table.dossier-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.81rem;
+            text-align: left;
+        }
+
+        table.dossier-table thead {
+            background-color: var(--meekrab-soft);
+            border-bottom: 1.5px solid var(--meekrab-border);
+        }
+
+        table.dossier-table th {
+            padding: 0.62rem 0.85rem;
+            font-size: 0.71rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--meekrab-primary);
+        }
+
+        table.dossier-table td {
+            padding: 0.62rem 0.85rem;
+            border-bottom: 1px solid #EDE3E4;
+            vertical-align: top;
+        }
+
+        table.dossier-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        table.dossier-table tbody tr:hover {
+            background-color: var(--meekrab-tint);
+        }
+
+        /* Formule-kader */
+        .formula-banner {
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            border-left: 4px solid var(--meekrab-primary);
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.15rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .formula-math {
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            color: var(--ink-primary);
+            background-color: #FFFFFF;
+            padding: 0.4rem 0.85rem;
+            border-radius: 6px;
+            border: 1px solid var(--meekrab-border);
+        }
+
+        /* Toast notificatie */
+        .toast-banner {
+            position: fixed;
+            bottom: 1.25rem;
+            right: 1.25rem;
+            z-index: 60;
+            background-color: #1E1E1E;
+            color: #FFFFFF;
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--meekrab-accent);
+            font-size: 0.78rem;
+            font-weight: 500;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toast-banner.visible {
+            display: flex;
+        }
+
+        /* Footer */
+        footer.site-footer {
+            background-color: var(--paper-bg);
+            border-top: 1px solid var(--meekrab-border);
+            padding: 1.25rem 0;
+            font-size: 0.77rem;
+            color: var(--ink-secondary);
+        }
+
+        .footer-inner {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* =====================================================================
+           PRINT STYLES (@media print) VOOR ARCHIEFWAARDIGE PDF-EXPORT
+           ===================================================================== */
+        @media print {
+            @page {
+                size: A4;
+                margin: 15mm 14mm 15mm 14mm;
+            }
+            html, body {
+                background-color: #FFFFFF !important;
+                color: #1E1E1E !important;
+                font-size: 9.5pt;
+            }
+            .no-print {
+                display: none !important;
+            }
+            header.site-header {
+                position: static !important;
+                box-shadow: none !important;
+                border-bottom: 2px solid var(--meekrab-primary) !important;
+            }
+            section.dossier-section {
+                box-shadow: none !important;
+                border: 1px solid #CCCCCC !important;
+                margin-bottom: 12pt !important;
+                padding: 12pt !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .print-avoid {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .zeta-canvas-box {
+                max-height: 310px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Bovenste meekrab-rode archiefbalk -->
+    <div class="top-archive-bar"></div>
+
+    <!-- =======================================================================
+         1. HEADER & ARCHIEF-BALK
+         ======================================================================= -->
+    <header class="site-header">
+        <div class="container">
+            <div class="header-inner">
+                <div class="header-top">
+                    <div style="max-width: 780px;">
+                        <div class="badge-row">
+                            <span class="badge badge-primary">VORTEX OS / Geocentrum-Omgeving</span>
+                            <span class="badge badge-outline">Datum: 25 november 2026</span>
+                            <span class="badge badge-privacy">Privacy-status: PII-gefilterd</span>
+                            <span class="badge badge-outline">100% Lokaal / Zero-Tracker</span>
+                        </div>
+                        <h1 class="site-title">Astrometrische Eclipsanalyse, Riemann-Zeta &amp; WebRTC TeleAPI-Synthese</h1>
+                        <p class="site-subtitle">
+                            Zonsverduistering 12 augustus 2026 (Tafelbergheide) &bull; Kritieke Lijn &zeta;(&frac12; + it) &bull; Gedecentraliseerde W3C WebRTC &amp; IETF vCon Telemetrie
+                        </p>
+                    </div>
+
+                    <div class="header-actions no-print">
+                        <a href="https://substack.com/home/post/p-223790195" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+                            Substack (p-223790195) &nearr;
+                        </a>
+                        <a href="https://blog.tadhack.com/2015/12/15/tadhack-paris-review-1/" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+                            TADHack Paris Review &nearr;
+                        </a>
+                        <a href="https://www.w3.org/groups/cg/orca/former-participants/" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+                            W3C ORCA-Archief &nearr;
+                        </a>
+                        <button type="button" class="btn btn-secondary" onclick="copyFullDossier()">
+                            Kopieer Dossier
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="window.print()">
+                            Print / PDF-Export
+                        </button>
+                    </div>
+                </div>
+
+                <nav class="section-nav no-print" aria-label="Module-navigatie">
+                    <a href="#module-1" class="nav-link active">Module 1: WebRTC Video &amp; TeleAPI / vCon</a>
+                    <a href="#module-2" class="nav-link">Module 2: Riemann-Zeta Plotter &zeta;(&frac12; + it)</a>
+                    <a href="#module-3" class="nav-link">Module 3: PDF-Integratie &amp; 22-Pagina Index</a>
+                    <a href="#module-4" class="nav-link">Module 4: Telecom- &amp; Open-Standaarden Ecosysteem</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Verborgen synth-canvas voor de 30fps WebRTC telemetrie-videostream -->
+    <canvas id="syntheticStreamCanvas" width="640" height="360" style="display:none;"></canvas>
+
+    <!-- Hoofdinhoud -->
+    <main class="container main-content">
+
+        <!-- ===================================================================
+             MODULE 1 — WEBRTC LIVE VIDEO- & TELEAPI-VERBINDING (W3C CLA, TADHACK & VCON)
+             =================================================================== -->
+        <section id="module-1" class="dossier-section">
+            <div class="section-kicker">
+                <span class="kicker-label">Module 01 &bull; W3C CLA, TADHack &amp; IETF vCon</span>
+                <span class="kicker-meta">RTCPeerConnection + RTCDataChannel &bull; Zero-Server P2P (iceServers: [])</span>
+            </div>
+            <h2 class="section-title">WebRTC Live Video- &amp; TeleAPI-Verbinding</h2>
+            <hr class="meekrab-rule">
+
+            <!-- Bovenste Besturingspaneel: Videobron, TeleAPI-adapter & Loopback -->
+            <div class="card-soft print-avoid" style="margin-bottom: 1.2rem;">
+                <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.85rem;">
+                    <!-- Videobron-kiezer -->
+                    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.65rem;">
+                        <span style="font-size:0.75rem; font-weight:700; color:var(--meekrab-primary); text-transform:uppercase;">1. Videobron:</span>
+                        <div class="source-switch no-print" role="group" aria-label="Videobron selectie">
+                            <button type="button" id="btnSourceSynth" class="active" onclick="switchMediaSource('synthetic')">
+                                (a) Synthetische Live-Canvas Stream (30 fps)
+                            </button>
+                            <button type="button" id="btnSourceCam" onclick="switchMediaSource('camera')">
+                                (b) Lokale Camera &amp; Microfoon
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TeleAPI-adapterkiezer & 1-klik Loopback -->
+                    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;" class="no-print">
+                        <label for="teleApiSelect" style="font-size:0.75rem; font-weight:700; color:var(--meekrab-primary); text-transform:uppercase;">2. TeleAPI:</label>
+                        <select id="teleApiSelect" onchange="onTeleApiChange()" style="padding:0.44rem 0.65rem; border-radius:7px; border:1px solid var(--meekrab-border); background:#FFFFFF; font-size:0.75rem; font-weight:600; color:var(--ink-primary);">
+                            <option value="W3C WebRTC / ORCA Native">W3C WebRTC / ORCA Native</option>
+                            <option value="Jambonz Open-Source Voice/WS API">Jambonz Open-Source Voice/WS API</option>
+                            <option value="Asterisk ARI / SIP-WebRTC Gateway">Asterisk ARI / SIP-WebRTC Gateway</option>
+                            <option value="SignalWire SWML / RELAY">SignalWire SWML / RELAY</option>
+                        </select>
+                        <button type="button" id="btnStartLoopback" class="btn btn-primary" onclick="startLocalLoopback()">
+                            Start Lokale Loopback Video- &amp; Dataverbinding
+                        </button>
+                        <button type="button" class="btn btn-outline" onclick="resetWebRTC(false)">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Protocol-, Codec- en DTLS-SRTP Statusbalk -->
+                <div style="display:flex; flex-wrap:wrap; gap:0.55rem; align-items:center; margin-top:0.85rem; padding-top:0.75rem; border-top:1px solid var(--meekrab-border);">
+                    <span class="status-pill" id="pillIce">ICE: Niet verbonden</span>
+                    <span class="status-pill" id="pillDc">DataChannel: Gesloten</span>
+                    <span class="status-pill" id="pillTeleApi">TeleAPI: W3C WebRTC / ORCA Native</span>
+                    <span class="status-pill" id="pillSecurity">Beveiliging: DTLS-SRTP (W3C RF-CLA)</span>
+                    <span class="status-pill" id="pillCodec">Codec: VP8/VP9 + Opus (30 fps)</span>
+                    <span class="status-pill" id="pillPackets">Telemetrie TX/RX: 0 / 0</span>
+                </div>
+            </div>
+
+            <!-- Dubbele Videospeler: Lokaal & Remote Peer -->
+            <div class="grid-2 print-avoid" style="margin-bottom: 1.2rem;">
+                <div class="card">
+                    <div class="card-heading">Lokale Peer (Peer A &mdash; Uitgaande MediaStream)</div>
+                    <div class="video-frame">
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <div class="video-overlay-tag" id="localOverlayTag">PEER A &bull; ASTROMETRIE &amp; RIEMANN CANVAS</div>
+                        <div class="video-live-pill"><span class="pulse-dot"></span> LOKAAL LIVE</div>
+                    </div>
+                    <p style="font-size:0.75rem; color:var(--ink-secondary); margin:0.55rem 0 0 0;">
+                        Bronstream (real-time oscilloscoop, eclips-geometrie en &zeta;-baan of fysieke camera/microfoon) gekoppeld via <code>addTrack()</code>.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div class="card-heading">Remote Peer (Peer B &mdash; Ontvangen P2P WebRTC Video)</div>
+                    <div class="video-frame">
+                        <video id="remoteVideo" autoplay playsinline></video>
+                        <div class="video-overlay-tag" id="remoteOverlayTag">PEER B &bull; WACHT OP LOOPBACK / SDP</div>
+                        <div class="video-live-pill" id="remoteLivePill" style="display:none;"><span class="pulse-dot"></span> P2P VERBONDEN</div>
+                    </div>
+                    <p style="font-size:0.75rem; color:var(--ink-secondary); margin:0.55rem 0 0 0;">
+                        Ontvangt de remote audio/videotracks via het <code>ontrack</code>-event en voedt de real-time <strong>IETF vCon</strong> conversatiecontainer.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Uitklapbare Handmatige SDP Offer / Answer Uitwisseling (voor tweede browsertabblad) -->
+            <details class="meekrab-details no-print" style="margin-bottom: 1.2rem;">
+                <summary>
+                    <span>Handmatige SDP Offer / Answer-uitwisseling (voor verbinding met een tweede browsertabblad of LAN-peer)</span>
+                    <span class="mono" style="font-size:0.7rem;">Klik om uit te klappen &darr;</span>
+                </summary>
+                <p style="font-size:0.79rem; color:var(--ink-secondary); margin-top:0; margin-bottom:0.85rem;">
+                    Zonder centrale signaling-server koppel je twee browsertabbladen door op Peer A een <strong>SDP Offer</strong> te genereren, dit te plakken op Peer B om een <strong>SDP Answer</strong> te maken, en het Answer terug te bevestigen op Peer A.
+                </p>
+                <div class="grid-2">
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.45rem;">
+                            <strong style="font-size:0.79rem; color:var(--meekrab-primary);">1. SDP Offer (Initiator)</strong>
+                            <div style="display:flex; gap:0.35rem;">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="generateManualOffer()">Genereer Offer</button>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="copyField('sdpOfferText', 'SDP Offer')">Kopieer</button>
+                            </div>
+                        </div>
+                        <textarea id="sdpOfferText" class="mono-box" placeholder="Klik op 'Genereer Offer' of plak hier een ontvangen SDP Offer..."></textarea>
+                    </div>
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.45rem;">
+                            <strong style="font-size:0.79rem; color:var(--meekrab-primary);">2. SDP Answer (Ontvanger)</strong>
+                            <div style="display:flex; gap:0.35rem;">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="processOfferCreateAnswer()">Maak Answer</button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="confirmRemoteAnswer()">Bevestig Answer</button>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="copyField('sdpAnswerText', 'SDP Answer')">Kopieer</button>
+                            </div>
+                        </div>
+                        <textarea id="sdpAnswerText" class="mono-box" placeholder="Gegenereerd SDP Answer (of plak ontvangen Answer en klik op 'Bevestig Answer')..."></textarea>
+                    </div>
+                </div>
+            </details>
+
+            <!-- IETF vCon Container-Generator & Realtime Telemetrie-Log -->
+            <div class="grid-2 print-avoid">
+                <!-- IETF vCon Container -->
+                <div class="card-soft">
+                    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.55rem;">
+                        <div class="card-heading" style="margin:0;">IETF vCon (Virtualized Conversation) Container</div>
+                        <div style="display:flex; gap:0.35rem;" class="no-print">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="copyVconJson()">Kopieer vCon</button>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="downloadVconJson()">Download .vcon.json</button>
+                        </div>
+                    </div>
+                    <pre id="vconJsonPreview" class="json-preview" aria-label="Live IETF vCon JSON object"></pre>
+                </div>
+
+                <!-- Live RTCDataChannel Telemetrie- & ICE-log -->
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.55rem;">
+                        <div class="card-heading" style="margin:0;">Live RTCDataChannel Telemetrie &amp; Signaling Log</div>
+                        <button type="button" class="btn btn-outline btn-sm no-print" onclick="transmitTelemetry(true)">Zend Pakket</button>
+                    </div>
+                    <div id="webrtcLogBox" class="log-box" aria-live="polite">
+                        <div><span class="log-entry-time">[INIT]</span> VORTEX WebRTC &amp; vCon telemetriemotor gereed (zero-server modus).</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================
+             MODULE 2 — INTERACTIEVE RIEMANN-ZETA PLOTTER OP DE KRITIEKE LIJN ζ(½ + it)
+             =================================================================== -->
+        <section id="module-2" class="dossier-section">
+            <div class="section-kicker">
+                <span class="kicker-label">Module 02 &bull; Analytische Getaltheorie &amp; Spectrale Nulpunten</span>
+                <span class="kicker-meta">Borwein-Eta Versnelling (N = 28 termen) &bull; Domein t &isin; [0, 35]</span>
+            </div>
+            <h2 class="section-title">Interactieve Riemann-Zeta Plotter op de Kritieke Lijn <span class="serif" style="font-style:italic; color:var(--meekrab-primary);">&zeta;(&frac12; + it)</span></h2>
+            <hr class="meekrab-rule">
+
+            <div class="formula-banner print-avoid">
+                <div class="formula-math">
+                    &zeta;(<i>s</i>) = &sum;<sub><i>n</i>=1</sub><sup>&infin;</sup> 1 / <i>n<sup>s</sup></i>
+                    &nbsp;&nbsp;&hArr;&nbsp;&nbsp;
+                    &zeta;(&frac12; + <i>it</i>) = (1 &minus; 2<sup>&frac12;&minus;<i>it</i></sup>)<sup>&minus;1</sup> &sum;<sub><i>n</i>=1</sub><sup>&infin;</sup> (&minus;1)<sup><i>n</i>&minus;1</sup> / <i>n</i><sup>&frac12;+<i>it</i></sup>
+                </div>
+                <div style="font-size:0.79rem; color:var(--ink-secondary); max-width:540px;">
+                    Berekend via het <strong>Borwein-algoritme</strong> voor versnelde convergentie van de alternerende Dirichlet-eta-functie. Telkens wanneer de parameterkromme <code style="color:var(--meekrab-primary); font-weight:600;">&zeta;(&frac12; + it)</code> exact door de oorsprong <code style="color:var(--meekrab-primary); font-weight:700;">(0, 0)</code> snijdt, ligt daar een <strong>niet-triviaal Riemann-nulpunt</strong>.
+                </div>
+            </div>
+
+            <div class="grid-12">
+                <!-- Linker 8 kolommen: HTML5 Canvas -->
+                <div class="col-span-8">
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.71rem; font-family:var(--font-mono); color:var(--ink-secondary); margin-bottom:0.45rem;">
+                            <span>Complexe vlak: Horizontaal = Re(&zeta;(&frac12; + it)) | Verticaal = Im(&zeta;(&frac12; + it))</span>
+                            <span style="color:var(--meekrab-primary); font-weight:700;">Oorsprong (0,0) = Nulpunt</span>
+                        </div>
+                        <div class="zeta-canvas-box">
+                            <canvas id="zetaCanvas" aria-label="Interactieve grafiek van de Riemann-zeta-functie op de kritieke lijn"></canvas>
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:0.5rem; margin-top:0.55rem; font-size:0.72rem; color:var(--ink-secondary);">
+                            <span><strong>Meekrab-rood:</strong> Actieve trajectorie [0, t] &bull; <strong>Zachtrood:</strong> Volledige baan [0, 35]</span>
+                            <span class="mono" style="font-size:0.7rem;">Klik op (0,0) in de grafiek om door de 5 nulpunten te stappen</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rechter 4 kolommen: Live Uitlezing, Slider & 5 Nulpunten -->
+                <div class="col-span-4" style="display:flex; flex-direction:column; gap:1rem;">
+                    <!-- Live Functiewaarde -->
+                    <div class="card-accent">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.55rem;">
+                            <span class="card-heading" style="margin:0;">Live Functiewaarde</span>
+                            <span id="zeroMatchBadge" class="badge badge-outline" style="font-size:0.68rem;">Buiten oorsprong</span>
+                        </div>
+                        <div class="readout-grid">
+                            <div class="readout-cell">
+                                <div class="readout-label">Parameter t</div>
+                                <div class="readout-value" id="valT" style="color:var(--meekrab-primary);">14.1347</div>
+                            </div>
+                            <div class="readout-cell">
+                                <div class="readout-label">Modulus |&zeta;|</div>
+                                <div class="readout-value" id="valMod">0.0000</div>
+                            </div>
+                            <div class="readout-cell">
+                                <div class="readout-label">Re(&zeta;(&frac12; + it))</div>
+                                <div class="readout-value" id="valRe">0.0000</div>
+                            </div>
+                            <div class="readout-cell">
+                                <div class="readout-label">Im(&zeta;(&frac12; + it))</div>
+                                <div class="readout-value" id="valIm">0.0000</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Schuifregelaar & Play/Pauze -->
+                    <div class="card no-print">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem;">
+                            <label for="tSlider" style="font-size:0.74rem; font-weight:700; text-transform:uppercase;">Imaginaire as <span class="mono" style="color:var(--meekrab-primary);">t &isin; [0, 35]</span></label>
+                            <span class="mono" id="sliderTDisplay" style="font-size:0.74rem; font-weight:700; color:var(--meekrab-primary);">t = 14.1347</span>
+                        </div>
+                        <input type="range" id="tSlider" class="meekrab-slider" min="0" max="35" step="0.005" value="14.1347">
+
+                        <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+                            <button type="button" id="btnAnimateZeta" class="btn btn-primary" style="flex:1;" onclick="toggleZetaAnimation()">
+                                Play / Animeer
+                            </button>
+                            <button type="button" class="btn btn-outline" onclick="setZetaT(35.0)">
+                                Volledig [0, 35]
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Eerste 5 niet-triviale Riemann-nulpunten -->
+                    <div class="card">
+                        <div class="card-heading">Eerste Vijf Niet-Triviale Nulpunten</div>
+                        <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                            <button type="button" class="zero-btn active" id="zbtn-1" onclick="setZetaT(14.13472514)">
+                                <span><strong class="mono">t&#8321; &approx; 14.1347</strong> &mdash; 1e nulpunt</span>
+                                <span class="zero-tag">(0, 0)</span>
+                            </button>
+                            <button type="button" class="zero-btn" id="zbtn-2" onclick="setZetaT(21.02203964)">
+                                <span><strong class="mono">t&#8322; &approx; 21.0220</strong> &mdash; 2e nulpunt</span>
+                                <span class="zero-tag">(0, 0)</span>
+                            </button>
+                            <button type="button" class="zero-btn" id="zbtn-3" onclick="setZetaT(25.01085758)">
+                                <span><strong class="mono">t&#8323; &approx; 25.0109</strong> &mdash; 3e nulpunt</span>
+                                <span class="zero-tag">(0, 0)</span>
+                            </button>
+                            <button type="button" class="zero-btn" id="zbtn-4" onclick="setZetaT(30.42487613)">
+                                <span><strong class="mono">t&#8324; &approx; 30.4249</strong> &mdash; 4e nulpunt</span>
+                                <span class="zero-tag">(0, 0)</span>
+                            </button>
+                            <button type="button" class="zero-btn" id="zbtn-5" onclick="setZetaT(32.93506159)">
+                                <span><strong class="mono">t&#8325; &approx; 32.9351</strong> &mdash; 5e nulpunt</span>
+                                <span class="zero-tag">(0, 0)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================
+             MODULE 3 — INGEBOUWDE PDF-DOCUMENTINTEGRATIE & PAGINA-INDEX (12 AUG 2026)
+             =================================================================== -->
+        <section id="module-3" class="dossier-section">
+            <div class="section-kicker">
+                <span class="kicker-label">Module 03 &bull; Zonsverduistering 12 Augustus 2026 &bull; Tafelbergheide</span>
+                <span class="kicker-meta">52&deg;13&prime; N, 5&deg;11&prime; O (~35 m +NAP) &bull; Saros 126 &bull; 22 Pagina's</span>
+            </div>
+            <h2 class="section-title">Ingebouwde PDF-Documentintegratie &amp; Doorzoekbare 22-Pagina Formule-Index</h2>
+            <hr class="meekrab-rule">
+
+            <!-- Drag & Drop / Bestandskiezer voor lokale PDF-weergave -->
+            <div class="card-soft print-avoid" style="margin-bottom: 1.25rem;">
+                <div id="pdfDropZone" class="pdf-dropzone">
+                    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.85rem;">
+                        <div style="max-width:650px;">
+                            <div class="card-heading" style="margin-bottom:0.25rem;">Lokale PDF-Lezer (Drag &amp; Drop of Bestandskiezer)</div>
+                            <p style="font-size:0.79rem; margin:0; color:var(--ink-secondary);">
+                                Sleep het 22-pagina's tellende PDF-rapport van de zonsverduistering (12 augustus 2026, Tafelbergheide) in dit vlak of selecteer het bestand lokaal. Het document wordt zonder serverupload ingebed via <code>URL.createObjectURL()</code>.
+                            </p>
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" class="no-print">
+                            <label class="btn btn-primary" style="cursor:pointer;">
+                                Open PDF-Rapport
+                                <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" onchange="loadPdfFile(event.target.files[0])">
+                            </label>
+                            <button type="button" class="btn btn-secondary" onclick="window.print()">
+                                Exporteer Synthese als PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Embedded PDF iframe -->
+                    <div id="pdfViewerWrapper" style="display:none; margin-top:1rem; border:1px solid var(--meekrab-border); border-radius:8px; overflow:hidden; background:#FFFFFF;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.45rem 0.75rem; background:var(--meekrab-primary); color:#FFFFFF; font-size:0.73rem; font-family:var(--font-mono);">
+                            <span id="pdfStatusText">PDF geladen</span>
+                            <button type="button" class="btn btn-outline btn-sm" style="padding:0.2rem 0.55rem; font-size:0.68rem;" onclick="unloadPdf()">Sluit PDF</button>
+                        </div>
+                        <iframe id="pdfFrame" type="application/pdf" title="Ingebouwde PDF-lezer Zonsverduistering 12 augustus 2026" style="width:100%; height:560px; border:none; display:block;"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zoek- en filterbalk voor de 22-pagina tellende inhouds- en formule-index -->
+            <div class="filter-bar no-print">
+                <input type="search" id="pdfIndexSearch" class="search-input" placeholder="Zoek op pagina, formule of parameter (bijv. VSOP87, ELP-2000/82, ΔT, Danjon, Chauvenet, Rn, inversie)..." oninput="filterPdfIndex()">
+                <button type="button" class="filter-chip active" data-cat="all" onclick="setPdfCategory('all', this)">Alle (p. 1–22)</button>
+                <button type="button" class="filter-chip" data-cat="ephemeriden" onclick="setPdfCategory('ephemeriden', this)">Ephemeriden &amp; Baan</button>
+                <button type="button" class="filter-chip" data-cat="tijd" onclick="setPdfCategory('tijd', this)">Tijd &amp; &Delta;T</button>
+                <button type="button" class="filter-chip" data-cat="refractie" onclick="setPdfCategory('refractie', this)">Parallax &amp; Refractie</button>
+                <button type="button" class="filter-chip" data-cat="meteo" onclick="setPdfCategory('meteo', this)">Micro-Meteorologie</button>
+            </div>
+
+            <!-- Doorzoekbare 22-pagina tabel -->
+            <div class="table-wrap print-avoid">
+                <table class="dossier-table" id="pdfIndexTable">
+                    <thead>
+                        <tr>
+                            <th style="width:10%;">Pagina</th>
+                            <th style="width:24%;">Sectie &amp; Onderwerp</th>
+                            <th style="width:34%;">Wiskundige Formule / Kernparameter</th>
+                            <th>Fysische &amp; Astrometrische Duiding</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pdfIndexBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===================================================================
+             MODULE 4 — TELECOM- & OPEN-STANDAARDEN ECOSYSTEEM
+             =================================================================== -->
+        <section id="module-4" class="dossier-section">
+            <div class="section-kicker">
+                <span class="kicker-label">Module 04 &bull; Open Standaarden &amp; Interoperabiliteit</span>
+                <span class="kicker-meta">TADHack &bull; W3C ORCA CLA &bull; IETF vCon &bull; Pion &bull; Jambonz &bull; Asterisk &bull; SignalWire</span>
+            </div>
+            <h2 class="section-title">Telecom- &amp; Open-Standaarden Ecosysteem (Vendor Lock-in Preventie)</h2>
+            <hr class="meekrab-rule">
+
+            <div class="table-wrap print-avoid" style="margin-bottom: 1.2rem;">
+                <table class="dossier-table">
+                    <thead>
+                        <tr>
+                            <th style="width:20%;">Component / Standaard</th>
+                            <th style="width:20%;">Domein &amp; Licentiemodel</th>
+                            <th style="width:32%;">Architectonische Functie</th>
+                            <th>Bijdrage aan Vendor Lock-in Preventie</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>W3C WebRTC &amp; ORCA CLA</strong><br><a href="https://www.w3.org/groups/cg/orca/former-participants/" target="_blank" rel="noopener noreferrer" style="font-size:0.72rem; color:var(--meekrab-primary);">W3C ORCA Archief &nearr;</a></td>
+                            <td>Browser-API &amp; Octrooikader<br><code>Royalty-Free (RF) CLA</code></td>
+                            <td>Plugin-vrije peer-to-peer audio-, video- en datakanalen met verplichte DTLS/SRTP-versleuteling en objectgeori&euml;nteerde RTC-transportcontrole.</td>
+                            <td>Wederkerige royalty-free patentverplichtingen voorkomen dat grote telecom- of cloudpartijen basisprotocollen monopoliseren.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TADHack Ecosysteem</strong><br><a href="https://blog.tadhack.com/2015/12/15/tadhack-paris-review-1/" target="_blank" rel="noopener noreferrer" style="font-size:0.72rem; color:var(--meekrab-primary);">TADHack Paris Review &nearr;</a></td>
+                            <td>Open Innovatie &amp; CPaaS<br><code>Open Hackathon &amp; API's</code></td>
+                            <td>Wereldwijd platform voor programmeerbare telecom-applicaties op het snijvlak van WebRTC, spraak, messaging en conversatie-data.</td>
+                            <td>Stimuleert snelle prototyping op basis van open standaarden in plaats van gesloten, propri&euml;taire communicatiesilo's.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IETF vCon</strong><br><span class="mono" style="font-size:0.71rem;">Virtualized Conversation</span></td>
+                            <td>Conversatie-Datacontainer<br><code>Open IETF JSON-Standaard</code></td>
+                            <td>Bundelt media, transcripties, telemetrie, metadata, toestemming (consent) en digitale handtekeningen in &eacute;&eacute;n draagbaar JSON-formaat.</td>
+                            <td>Maakt gespreks- en telemetriedata platformonafhankelijk uitwisselbaar en auditeerbaar conform AVG/GDPR-eisen.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pion WebRTC</strong><br><span class="mono" style="font-size:0.71rem;">Pure Go Implementatie</span></td>
+                            <td>Server-side WebRTC Stack<br><code>MIT Open Source (Go)</code></td>
+                            <td>Volledige, lichtgewicht WebRTC-implementatie in Go voor SFU's, media-gateways, IoT-telemetrie en embedded communicatie-nodes.</td>
+                            <td>Biedt volledige controle over de server- en gatewaylaag zonder afhankelijkheid van gesloten browser- of cloudbinaries.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Jambonz</strong><br><span class="mono" style="font-size:0.71rem;">Voice &amp; AI CPaaS</span></td>
+                            <td>Programmeerbare Spraak<br><code>MIT Open Source</code></td>
+                            <td>Open-source CPaaS-alternatief dat SIP/WebRTC-telefonie via REST- en WebSocket-API's koppelt aan spraak- en AI-diensten (STT/TTS/LLM).</td>
+                            <td>Volledig zelf te hosten en carrier-neutraal: vrije keuze in SIP-trunks en spraakmodellen zonder platform-lock-in.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Asterisk</strong><br><span class="mono" style="font-size:0.71rem;">Open-Source PBX / ARI</span></td>
+                            <td>Telefonie &amp; Media Engine<br><code>GPLv2 Open Source</code></td>
+                            <td>Fundamentele bouwsteen voor PBX, IVR en SIP-naar-WebRTC-bruggen met programmeerbare call flows via AMI, ARI en AGI.</td>
+                            <td>Bewijst op enterprise-schaal dat open SIP/WebRTC-architectuur volledig kan concurreren met gesloten telefooncentrales.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SignalWire</strong><br><span class="mono" style="font-size:0.71rem;">SWML &amp; RELAY</span></td>
+                            <td>Cloud CPaaS (FreeSWITCH)<br><code>Open-Core / Declaratieve API</code></td>
+                            <td>Combineert de open-source FreeSWITCH-mediastack met declaratieve workflows (SWML) en low-latency RELAY-verbindingen.</td>
+                            <td>Geworteld in open-source FreeSWITCH-architectuur met gestandaardiseerde SIP- en WebRTC-interoperabiliteit.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Architectuursynthese -->
+            <div class="card-accent print-avoid">
+                <div class="card-heading">Architectuursynthese: Waarom Browser-Native WebRTC, vCon &amp; Open Standaarden Lock-in Voorkomen</div>
+                <p style="font-size:0.84rem; margin:0; line-height:1.62;">
+                    De samenhang tussen de wiskundige analyse, het astrometrische eclipsrapport en de WebRTC TeleAPI-laag rust op &eacute;&eacute;n gedeeld ontwerpprincipe: <strong>volledige verifieerbaarheid van bron tot ontvanger zonder ondoorzichtige tussenlagen</strong>. Net zoals de analytische voortzetting van <code style="color:var(--meekrab-primary); font-weight:600;">&zeta;(&frac12; + it)</code> en de topocentrische raakvoorwaarden op de Tafelbergheide (<code style="font-weight:600;">52&deg;13&prime; N, 5&deg;11&prime; O</code>) exacte, reproduceerbare grenswaarden defini&euml;ren, elimineert een browser-native WebRTC-architectuur onder het <strong>W3C Royalty-Free CLA</strong> elke afhankelijkheid van centrale cloudbrokers. Door media direct via <code>RTCPeerConnection</code> (DTLS/SRTP) te transporteren, te koppelen aan open telecom-engines (<strong>Pion</strong>, <strong>Jambonz</strong>, <strong>Asterisk</strong>, <strong>SignalWire</strong>) en vast te leggen in draagbare <strong>IETF vCon</strong>-containers, behoudt de onderzoeker blijvend eigenaarschap over zowel het transportkanaal als het archief.
+                </p>
+                <div style="margin-top:0.85rem; padding-top:0.75rem; border-top:1px solid var(--meekrab-border); display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.75rem;">
+                    <span style="font-size:0.77rem; color:var(--ink-secondary);">
+                        <strong>Gekoppelde Archiefbronnen:</strong>
+                        <a href="https://substack.com/home/post/p-223790195" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">Substack Publicatie (p-223790195)</a> &bull;
+                        <a href="https://blog.tadhack.com/2015/12/15/tadhack-paris-review-1/" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">TADHack Paris Review</a> &bull;
+                        <a href="https://www.w3.org/groups/cg/orca/former-participants/" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">W3C ORCA Community Group</a>
+                    </span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div>
+                <strong>VORTEX OS / Geocentrum-Omgeving</strong> &bull; 25 november 2026 &bull;
+                <a href="https://substack.com/home/post/p-223790195" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">Substack</a> &bull;
+                <a href="https://blog.tadhack.com/2015/12/15/tadhack-paris-review-1/" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">TADHack</a> &bull;
+                <a href="https://www.w3.org/groups/cg/orca/former-participants/" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">W3C ORCA</a>
+            </div>
+            <div class="mono" style="color:var(--meekrab-primary);">
+                PII-Gefilterd &bull; Zero-CDN &bull; W3C WebRTC &amp; IETF vCon
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast notificatie -->
+    <div id="toastBanner" class="toast-banner" role="status" aria-live="polite">
+        <span style="width:8px; height:8px; border-radius:50%; background-color:var(--meekrab-accent); display:inline-block;"></span>
+        <span id="toastText">Gekopieerd naar klembord.</span>
+    </div>
+
+    <!-- =======================================================================
+         VOLLEDIGE LOKALE JAVASCRIPT ENGINE (GEEN EXTERNE SCRIPTS OF TRACKERS)
+         ======================================================================= -->
+    <script>
+        /* ---------------------------------------------------------------------
+           1. BORWEIN-VERSNELDE RIEMANN-ZETA ENGINE & HTML5 CANVAS PLOTTER
+           --------------------------------------------------------------------- */
+        const BORWEIN_N = 28;
+        const borweinWeights = (() => {
+            const n = BORWEIN_N;
+            const d = new Float64Array(n + 1);
+            let sum = 0;
+            for (let i = 0; i <= n; i++) {
+                let term = n;
+                for (let j = 1; j <= i; j++) {
+                    term = term * (n + j - 1) * (n - j + 1) * 4 / ((2 * j - 1) * (2 * j));
+                }
+                sum += term;
+                d[i] = sum;
+            }
+            const dn = d[n];
+            const weights = new Float64Array(n);
+            for (let k = 0; k < n; k++) {
+                const sign = (k % 2 === 0) ? 1 : -1;
+                weights[k] = sign * (d[k] - dn) / dn;
+            }
+            return weights;
+        })();
+
+        function evaluateZetaCriticalLine(t) {
+            const n = BORWEIN_N;
+            let etaRe = 0;
+            let etaIm = 0;
+            for (let k = 0; k < n; k++) {
+                const base = k + 1;
+                const invSqrt = 1.0 / Math.sqrt(base);
+                const angle = t * Math.log(base);
+                const w = -borweinWeights[k] * invSqrt;
+                etaRe += w * Math.cos(angle);
+                etaIm += -w * Math.sin(angle);
+            }
+            const sqrt2 = Math.SQRT2;
+            const angle2 = t * Math.LN2;
+            const denomRe = 1.0 - sqrt2 * Math.cos(angle2);
+            const denomIm = sqrt2 * Math.sin(angle2);
+            const denomMagSq = denomRe * denomRe + denomIm * denomIm;
+
+            const re = (etaRe * denomRe + etaIm * denomIm) / denomMagSq;
+            const im = (etaIm * denomRe - etaRe * denomIm) / denomMagSq;
+            const mod = Math.hypot(re, im);
+            return { re, im, mod };
+        }
+
+        const T_MAX = 35.0;
+        const SAMPLE_COUNT = 2600;
+        const curveSamples = [];
+        for (let i = 0; i <= SAMPLE_COUNT; i++) {
+            const t = (i / SAMPLE_COUNT) * T_MAX;
+            const val = evaluateZetaCriticalLine(t);
+            curveSamples.push({ t, re: val.re, im: val.im, mod: val.mod });
+        }
+
+        const RIEMANN_ZEROS = [
+            { idx: 1, t: 14.13472514, label: 't1' },
+            { idx: 2, t: 21.02203964, label: 't2' },
+            { idx: 3, t: 25.01085758, label: 't3' },
+            { idx: 4, t: 30.42487613, label: 't4' },
+            { idx: 5, t: 32.93506159, label: 't5' }
+        ];
+
+        let currentT = 14.13472514;
+        let currentZeta = evaluateZetaCriticalLine(currentT);
+        let isZetaAnimating = false;
+        let zetaAnimFrame = null;
+        let lastZetaFrameTime = null;
+        let lastTelemetryMs = 0;
+
+        const zetaCanvas = document.getElementById('zetaCanvas');
+        const zetaCtx = zetaCanvas.getContext('2d');
+
+        function resizeZetaCanvas() {
+            const rect = zetaCanvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            zetaCanvas.width = Math.max(1, Math.floor(rect.width * dpr));
+            zetaCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
+            zetaCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            drawZetaPlot();
+        }
+
+        function drawZetaPlot() {
+            const rect = zetaCanvas.parentElement.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+            if (w <= 0 || h <= 0) return;
+
+            zetaCtx.clearRect(0, 0, w, h);
+
+            const reMin = -1.65, reMax = 2.85;
+            const imMin = -1.85, imMax = 2.15;
+            const padL = 42, padR = 22, padT = 22, padB = 30;
+            const plotW = w - padL - padR;
+            const plotH = h - padT - padB;
+            const scale = Math.min(plotW / (reMax - reMin), plotH / (imMax - imMin));
+
+            const originX = padL + plotW / 2 - ((reMin + reMax) / 2) * scale;
+            const originY = padT + plotH / 2 + ((imMin + imMax) / 2) * scale;
+            const toX = (re) => originX + re * scale;
+            const toY = (im) => originY - im * scale;
+
+            // Raster
+            zetaCtx.strokeStyle = '#F2ECEC';
+            zetaCtx.lineWidth = 1;
+            for (let r = -1.5; r <= 2.5; r += 0.5) {
+                const x = toX(r);
+                if (x >= padL && x <= w - padR) {
+                    zetaCtx.beginPath();
+                    zetaCtx.moveTo(x, padT);
+                    zetaCtx.lineTo(x, h - padB);
+                    zetaCtx.stroke();
+                }
+            }
+            for (let im = -1.5; im <= 2.0; im += 0.5) {
+                const y = toY(im);
+                if (y >= padT && y <= h - padB) {
+                    zetaCtx.beginPath();
+                    zetaCtx.moveTo(padL, y);
+                    zetaCtx.lineTo(w - padR, y);
+                    zetaCtx.stroke();
+                }
+            }
+
+            // Assen
+            zetaCtx.strokeStyle = '#2B2B2B';
+            zetaCtx.lineWidth = 1.3;
+            zetaCtx.beginPath();
+            zetaCtx.moveTo(padL, originY);
+            zetaCtx.lineTo(w - padR, originY);
+            zetaCtx.stroke();
+
+            zetaCtx.beginPath();
+            zetaCtx.moveTo(originX, padT);
+            zetaCtx.lineTo(originX, h - padB);
+            zetaCtx.stroke();
+
+            // Maatstreepjes
+            zetaCtx.fillStyle = '#4A4A4A';
+            zetaCtx.font = '500 10px monospace';
+            zetaCtx.textAlign = 'center';
+            zetaCtx.textBaseline = 'top';
+            for (let r = -1.5; r <= 2.5; r += 0.5) {
+                const x = toX(r);
+                if (x >= padL && x <= w - padR) {
+                    zetaCtx.beginPath();
+                    zetaCtx.moveTo(x, originY - 3);
+                    zetaCtx.lineTo(x, originY + 3);
+                    zetaCtx.stroke();
+                    if (Math.abs(r) > 0.01) zetaCtx.fillText(r.toString(), x, originY + 6);
+                }
+            }
+
+            zetaCtx.textAlign = 'right';
+            zetaCtx.textBaseline = 'middle';
+            for (let im = -1.5; im <= 2.0; im += 0.5) {
+                const y = toY(im);
+                if (y >= padT && y <= h - padB) {
+                    zetaCtx.beginPath();
+                    zetaCtx.moveTo(originX - 3, y);
+                    zetaCtx.lineTo(originX + 3, y);
+                    zetaCtx.stroke();
+                    if (Math.abs(im) > 0.01) zetaCtx.fillText(im.toString(), originX - 6, y);
+                }
+            }
+
+            // Schaduwbaan [0, 35]
+            zetaCtx.save();
+            zetaCtx.beginPath();
+            zetaCtx.rect(padL, padT, plotW, plotH);
+            zetaCtx.clip();
+
+            zetaCtx.beginPath();
+            zetaCtx.strokeStyle = 'rgba(139, 30, 36, 0.16)';
+            zetaCtx.lineWidth = 1.4;
+            for (let i = 0; i < curveSamples.length; i++) {
+                const pt = curveSamples[i];
+                if (i === 0) zetaCtx.moveTo(toX(pt.re), toY(pt.im));
+                else zetaCtx.lineTo(toX(pt.re), toY(pt.im));
+            }
+            zetaCtx.stroke();
+
+            // Actieve baan [0, currentT]
+            const maxIdx = Math.min(SAMPLE_COUNT, Math.floor((currentT / T_MAX) * SAMPLE_COUNT));
+            zetaCtx.beginPath();
+            zetaCtx.strokeStyle = '#8B1E24';
+            zetaCtx.lineWidth = 2.3;
+            for (let i = 0; i <= maxIdx; i++) {
+                const pt = curveSamples[i];
+                if (i === 0) zetaCtx.moveTo(toX(pt.re), toY(pt.im));
+                else zetaCtx.lineTo(toX(pt.re), toY(pt.im));
+            }
+            const curX = toX(currentZeta.re);
+            const curY = toY(currentZeta.im);
+            zetaCtx.lineTo(curX, curY);
+            zetaCtx.stroke();
+
+            // Voerstraal
+            if (currentZeta.mod > 0.015) {
+                zetaCtx.save();
+                zetaCtx.setLineDash([4, 4]);
+                zetaCtx.strokeStyle = '#9E2A2B';
+                zetaCtx.lineWidth = 1.2;
+                zetaCtx.beginPath();
+                zetaCtx.moveTo(originX, originY);
+                zetaCtx.lineTo(curX, curY);
+                zetaCtx.stroke();
+                zetaCtx.restore();
+            }
+
+            // Oorsprong (0,0) highlight
+            const nearZero = currentZeta.mod < 0.03;
+            zetaCtx.beginPath();
+            zetaCtx.arc(originX, originY, nearZero ? 10 : 5.5, 0, Math.PI * 2);
+            zetaCtx.strokeStyle = nearZero ? '#8B1E24' : 'rgba(139, 30, 36, 0.45)';
+            zetaCtx.lineWidth = nearZero ? 2.2 : 1.2;
+            zetaCtx.stroke();
+
+            // Huidige puntmarkering
+            zetaCtx.fillStyle = '#8B1E24';
+            zetaCtx.strokeStyle = '#FFFFFF';
+            zetaCtx.lineWidth = 2;
+            zetaCtx.beginPath();
+            zetaCtx.arc(curX, curY, 5.5, 0, Math.PI * 2);
+            zetaCtx.fill();
+            zetaCtx.stroke();
+
+            zetaCtx.restore();
+            updateZetaReadout();
+        }
+
+        function updateZetaReadout() {
+            document.getElementById('valT').textContent = currentT.toFixed(4);
+            document.getElementById('sliderTDisplay').textContent = 't = ' + currentT.toFixed(4);
+            document.getElementById('valRe').textContent = (Math.abs(currentZeta.re) < 1e-6 ? 0 : currentZeta.re).toFixed(4);
+            document.getElementById('valIm').textContent = (Math.abs(currentZeta.im) < 1e-6 ? 0 : currentZeta.im).toFixed(4);
+            document.getElementById('valMod').textContent = (currentZeta.mod < 1e-6 ? 0 : currentZeta.mod).toFixed(4);
+
+            const badge = document.getElementById('zeroMatchBadge');
+            document.querySelectorAll('.zero-btn').forEach(b => b.classList.remove('active'));
+
+            const match = RIEMANN_ZEROS.find(z => Math.abs(currentT - z.t) < 0.06);
+            if (match) {
+                badge.textContent = `Nulpunt ${match.label} op (0,0)`;
+                badge.style.backgroundColor = '#8B1E24';
+                badge.style.color = '#FFFFFF';
+                const btn = document.getElementById('zbtn-' + match.idx);
+                if (btn) btn.classList.add('active');
+            } else {
+                badge.textContent = 'Buiten oorsprong';
+                badge.style.backgroundColor = '#F9F2F2';
+                badge.style.color = '#8B1E24';
+            }
+            refreshVconPreview();
+        }
+
+        function setZetaT(newT) {
+            if (isZetaAnimating) stopZetaAnimation();
+            currentT = Math.max(0, Math.min(T_MAX, newT));
+            currentZeta = evaluateZetaCriticalLine(currentT);
+            document.getElementById('tSlider').value = currentT;
+            drawZetaPlot();
+            transmitTelemetry(false);
+        }
+
+        document.getElementById('tSlider').addEventListener('input', (e) => {
+            if (isZetaAnimating) stopZetaAnimation();
+            currentT = parseFloat(e.target.value);
+            currentZeta = evaluateZetaCriticalLine(currentT);
+            drawZetaPlot();
+            transmitTelemetry(false);
+        });
+
+        function toggleZetaAnimation() {
+            if (isZetaAnimating) stopZetaAnimation();
+            else startZetaAnimation();
+        }
+
+        function startZetaAnimation() {
+            if (currentT >= 34.95) currentT = 0;
+            isZetaAnimating = true;
+            lastZetaFrameTime = null;
+            document.getElementById('btnAnimateZeta').textContent = 'Pauzeer Animatie';
+            zetaAnimFrame = requestAnimationFrame(stepZetaAnimation);
+        }
+
+        function stopZetaAnimation() {
+            isZetaAnimating = false;
+            if (zetaAnimFrame) cancelAnimationFrame(zetaAnimFrame);
+            document.getElementById('btnAnimateZeta').textContent = 'Play / Animeer';
+        }
+
+        function stepZetaAnimation(ts) {
+            if (!isZetaAnimating) return;
+            if (!lastZetaFrameTime) lastZetaFrameTime = ts;
+            const dt = (ts - lastZetaFrameTime) / 1000;
+            lastZetaFrameTime = ts;
+
+            currentT += dt * 2.4;
+            if (currentT >= T_MAX) {
+                currentT = T_MAX;
+                currentZeta = evaluateZetaCriticalLine(currentT);
+                document.getElementById('tSlider').value = currentT;
+                drawZetaPlot();
+                transmitTelemetry(true);
+                stopZetaAnimation();
+                return;
+            }
+            currentZeta = evaluateZetaCriticalLine(currentT);
+            document.getElementById('tSlider').value = currentT;
+            drawZetaPlot();
+            transmitTelemetry(false);
+            zetaAnimFrame = requestAnimationFrame(stepZetaAnimation);
+        }
+
+        zetaCanvas.addEventListener('click', () => {
+            const nextZero = RIEMANN_ZEROS.find(z => z.t > currentT + 0.15) || RIEMANN_ZEROS[0];
+            setZetaT(nextZero.t);
+        });
+
+        /* ---------------------------------------------------------------------
+           2. SYNTHETISCHE 30FPS ASTROMETRIE & RIEMANN LIVE-CANVAS STREAM
+           --------------------------------------------------------------------- */
+        const synthCanvas = document.getElementById('syntheticStreamCanvas');
+        const synthCtx = synthCanvas.getContext('2d');
+        let synthFrame = 0;
+
+        function renderSyntheticStream() {
+            const w = synthCanvas.width;
+            const h = synthCanvas.height;
+            synthFrame++;
+
+            synthCtx.fillStyle = '#171314';
+            synthCtx.fillRect(0, 0, w, h);
+
+            synthCtx.fillStyle = '#8B1E24';
+            synthCtx.fillRect(0, 0, w, 6);
+
+            synthCtx.fillStyle = '#FFFFFF';
+            synthCtx.font = 'bold 14px monospace';
+            synthCtx.fillText('VORTEX GEOCENTRUM // TELEAPI LIVE STREAM (30 FPS)', 16, 30);
+
+            synthCtx.fillStyle = '#D8C7C8';
+            synthCtx.font = '11px monospace';
+            synthCtx.fillText(`UTC: ${new Date().toISOString()} | FRAME #${String(synthFrame).padStart(5, '0')}`, 16, 48);
+
+            // Links: Zeta spiraal + oscillerende fase-golfvorm
+            const cx = 165, cy = 185, sc = 52;
+            synthCtx.strokeStyle = '#382C2E';
+            synthCtx.lineWidth = 1;
+            synthCtx.beginPath();
+            synthCtx.moveTo(24, cy);
+            synthCtx.lineTo(306, cy);
+            synthCtx.moveTo(cx, 72);
+            synthCtx.lineTo(cx, 290);
+            synthCtx.stroke();
+
+            synthCtx.strokeStyle = '#D9535A';
+            synthCtx.lineWidth = 2;
+            synthCtx.beginPath();
+            const maxIdx = Math.min(SAMPLE_COUNT, Math.floor((currentT / T_MAX) * SAMPLE_COUNT));
+            for (let i = 0; i <= maxIdx; i += 4) {
+                const pt = curveSamples[i];
+                const px = cx + pt.re * sc;
+                const py = cy - pt.im * sc;
+                if (i === 0) synthCtx.moveTo(px, py);
+                else synthCtx.lineTo(px, py);
+            }
+            synthCtx.stroke();
+
+            const dotX = cx + currentZeta.re * sc;
+            const dotY = cy - currentZeta.im * sc;
+            synthCtx.fillStyle = '#FFFFFF';
+            synthCtx.beginPath();
+            synthCtx.arc(dotX, dotY, 4.5, 0, Math.PI * 2);
+            synthCtx.fill();
+
+            // Oscilloscoop onderaan links (Re & Im golfvorm)
+            synthCtx.strokeStyle = '#8B1E24';
+            synthCtx.strokeRect(24, 300, 282, 44);
+            synthCtx.strokeStyle = '#A7E3B9';
+            synthCtx.lineWidth = 1.4;
+            synthCtx.beginPath();
+            for (let x = 0; x < 276; x += 3) {
+                const phase = (synthFrame * 0.08) + (x * 0.045);
+                const amp = Math.min(16, currentZeta.mod * 7 + 3);
+                const y = 322 + Math.sin(phase) * amp * Math.cos(phase * 0.35);
+                if (x === 0) synthCtx.moveTo(27 + x, y);
+                else synthCtx.lineTo(27 + x, y);
+            }
+            synthCtx.stroke();
+
+            // Rechts: Eclipsgeometrie + Telemetriedata
+            synthCtx.fillStyle = '#221B1C';
+            synthCtx.fillRect(326, 68, 296, 276);
+            synthCtx.strokeStyle = '#8B1E24';
+            synthCtx.lineWidth = 1.5;
+            synthCtx.strokeRect(326, 68, 296, 276);
+
+            // Eclips-schijven (Zon & Maan obscuratie 89.2%)
+            const sunX = 562, sunY = 114, sunR = 24;
+            synthCtx.fillStyle = '#F4B942';
+            synthCtx.beginPath();
+            synthCtx.arc(sunX, sunY, sunR, 0, Math.PI * 2);
+            synthCtx.fill();
+
+            const moonOffset = 5.5 + Math.sin(synthFrame * 0.03) * 1.5;
+            synthCtx.fillStyle = '#171314';
+            synthCtx.beginPath();
+            synthCtx.arc(sunX - moonOffset, sunY - 2, sunR * 0.98, 0, Math.PI * 2);
+            synthCtx.fill();
+
+            synthCtx.fillStyle = '#F29B9F';
+            synthCtx.font = 'bold 11px monospace';
+            synthCtx.fillText('RIEMANN ζ(1/2 + it)', 340, 92);
+
+            synthCtx.fillStyle = '#FFFFFF';
+            synthCtx.font = '12px monospace';
+            synthCtx.fillText(`t        = ${currentT.toFixed(4)}`, 340, 112);
+            synthCtx.fillText(`Re(zeta) = ${currentZeta.re.toFixed(4)}`, 340, 130);
+            synthCtx.fillText(`Im(zeta) = ${currentZeta.im.toFixed(4)}`, 340, 148);
+            synthCtx.fillText(`|zeta|   = ${currentZeta.mod.toFixed(4)}`, 340, 166);
+
+            synthCtx.fillStyle = '#F29B9F';
+            synthCtx.font = 'bold 11px monospace';
+            synthCtx.fillText('ECLIPS 12-08-2026 (TAFELBERGHEIDE)', 340, 198);
+
+            synthCtx.fillStyle = '#E8E0E0';
+            synthCtx.font = '11.5px monospace';
+            synthCtx.fillText('Positie  : 52°13\'N, 5°11\'O (35m)', 340, 218);
+            synthCtx.fillText('Max 20:06: Obscuratie 89.2% (Saros 126)', 340, 236);
+            synthCtx.fillText('Straling : R_n = -58 W/m² (Omslag)', 340, 254);
+            synthCtx.fillText('Inversie : ∂T/∂z > 0 (ΔT = +3.20 °C)', 340, 272);
+
+            synthCtx.fillStyle = '#A7E3B9';
+            synthCtx.font = '11px monospace';
+            synthCtx.fillText(`TeleAPI  : ${activeTeleApi.slice(0, 26)}`, 340, 304);
+            synthCtx.fillText('Security : DTLS-SRTP / W3C RF-CLA', 340, 322);
+
+            requestAnimationFrame(renderSyntheticStream);
+        }
+
+        /* ---------------------------------------------------------------------
+           3. BROWSER-NATIVE WEBRTC LIVE VIDEO + TELEAPI + IETF VCON ENGINE
+           --------------------------------------------------------------------- */
+        let localStream = null;
+        let streamSourceMode = 'synthetic';
+        let activeTeleApi = 'W3C WebRTC / ORCA Native';
+        let pcA = null;
+        let pcB = null;
+        let dcA = null;
+        let dcB = null;
+        let txCount = 0;
+        let rxCount = 0;
+        let heartbeatTimer = null;
+        const sessionUuid = 'vcon-' + Math.random().toString(36).substring(2, 10) + '-20261125';
+
+        const TELEAPI_PROFILES = {
+            'W3C WebRTC / ORCA Native': {
+                codec: 'VP8/VP9 + Opus (30 fps)',
+                security: 'DTLS-SRTP (W3C RF-CLA)',
+                signaling: 'Direct Browser ICE / SDP'
+            },
+            'Jambonz Open-Source Voice/WS API': {
+                codec: 'Opus 48kHz + VP8 (WebSocket/SIP)',
+                security: 'WSS + DTLS-SRTP (MIT Open Source)',
+                signaling: 'Jambonz REST / WebSocket Hook'
+            },
+            'Asterisk ARI / SIP-WebRTC Gateway': {
+                codec: 'G.711/Opus + H.264/VP8 (Asterisk 20+)',
+                security: 'SRTP-DTLS / SIP-TLS (GPLv2)',
+                signaling: 'Asterisk REST Interface (ARI)'
+            },
+            'SignalWire SWML / RELAY': {
+                codec: 'Opus + VP9 Simulcast (FreeSWITCH)',
+                security: 'DTLS-SRTP / RELAY Token',
+                signaling: 'Declarative SWML / RELAY'
+            }
+        };
+
+        function appendLog(msg, isHighlight = false) {
+            const box = document.getElementById('webrtcLogBox');
+            const ts = new Date().toLocaleTimeString('nl-NL', { hour12: false });
+            const row = document.createElement('div');
+            const safeMsg = String(msg).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            row.innerHTML = `<span class="log-entry-time">[${ts}]</span> <span class="${isHighlight ? 'log-entry-data' : ''}">${safeMsg}</span>`;
+            box.appendChild(row);
+            while (box.children.length > 50) {
+                box.removeChild(box.firstChild);
+            }
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function updateStatusPills(iceState, dcState) {
+            if (iceState) {
+                const pIce = document.getElementById('pillIce');
+                pIce.textContent = 'ICE: ' + iceState;
+                pIce.className = 'status-pill ' + ((iceState === 'connected' || iceState === 'completed') ? 'connected' : (iceState === 'checking' ? 'connecting' : ''));
+            }
+            if (dcState) {
+                const pDc = document.getElementById('pillDc');
+                pDc.textContent = 'DataChannel: ' + dcState;
+                pDc.className = 'status-pill ' + (dcState === 'open' ? 'connected' : '');
+            }
+            document.getElementById('pillPackets').textContent = `Telemetrie TX/RX: ${txCount} / ${rxCount}`;
+        }
+
+        function onTeleApiChange() {
+            activeTeleApi = document.getElementById('teleApiSelect').value;
+            const prof = TELEAPI_PROFILES[activeTeleApi] || TELEAPI_PROFILES['W3C WebRTC / ORCA Native'];
+            document.getElementById('pillTeleApi').textContent = 'TeleAPI: ' + activeTeleApi;
+            document.getElementById('pillSecurity').textContent = 'Beveiliging: ' + prof.security;
+            document.getElementById('pillCodec').textContent = 'Codec: ' + prof.codec;
+            appendLog(`TeleAPI-adapter geschakeld naar ${activeTeleApi} (${prof.signaling}).`);
+            refreshVconPreview();
+            transmitTelemetry(true);
+        }
+
+        async function initMediaStream(mode) {
+            if (localStream) {
+                localStream.getTracks().forEach(t => t.stop());
+            }
+
+            if (mode === 'camera') {
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    streamSourceMode = 'camera';
+                    document.getElementById('localOverlayTag').textContent = 'PEER A • FYSIEKE CAMERA + AUDIO';
+                    appendLog('Fysieke camera & microfoon geactiveerd via getUserMedia().');
+                } catch (err) {
+                    appendLog(`Camera/microfoon niet beschikbaar (${err.name}); terugval naar synthetische live-canvas stream.`);
+                    switchMediaSource('synthetic');
+                    return;
+                }
+            } else {
+                localStream = synthCanvas.captureStream(30);
+                streamSourceMode = 'synthetic';
+                document.getElementById('localOverlayTag').textContent = 'PEER A • SYNTHETISCHE LIVE-CANVAS (30 FPS)';
+                appendLog('Synthetische 30fps live-canvas stream geactiveerd via captureStream(30).');
+            }
+
+            document.getElementById('localVideo').srcObject = localStream;
+
+            // Update lopende peer-verbinding indien actief
+            if (pcA && localStream) {
+                const vTrack = localStream.getVideoTracks()[0];
+                if (vTrack) {
+                    const sender = pcA.getSenders().find(s => s.track && s.track.kind === 'video');
+                    if (sender) {
+                        await sender.replaceTrack(vTrack);
+                        appendLog('Actieve videostream bijgewerkt via RTCRtpSender.replaceTrack().');
+                    }
+                }
+            }
+            refreshVconPreview();
+        }
+
+        function switchMediaSource(mode) {
+            document.getElementById('btnSourceSynth').classList.toggle('active', mode === 'synthetic');
+            document.getElementById('btnSourceCam').classList.toggle('active', mode === 'camera');
+            initMediaStream(mode);
+        }
+
+        function bindDataChannel(ch, roleLabel) {
+            ch.onopen = () => {
+                appendLog(`RTCDataChannel "${ch.label}" (${roleLabel}) geopend.`);
+                updateStatusPills(null, 'open');
+                transmitTelemetry(true);
+                if (heartbeatTimer) clearInterval(heartbeatTimer);
+                heartbeatTimer = setInterval(() => transmitTelemetry(true), 3000);
+            };
+            ch.onclose = () => {
+                appendLog(`RTCDataChannel (${roleLabel}) gesloten.`);
+                updateStatusPills(null, 'gesloten');
+                if (heartbeatTimer) clearInterval(heartbeatTimer);
+            };
+            ch.onmessage = (ev) => {
+                rxCount++;
+                updateStatusPills(null, 'open');
+                try {
+                    const data = JSON.parse(ev.data);
+                    appendLog(`RX [${data.teleapi}] t=${data.riemann.t} -> ζ=(${data.riemann.re}, ${data.riemann.im}i)`, true);
+                } catch (e) {
+                    appendLog('RX data: ' + ev.data, true);
+                }
+            };
+        }
+
+        function buildCurrentTelemetry() {
+            return {
+                timestamp: new Date().toISOString(),
+                teleapi: activeTeleApi,
+                riemann: {
+                    t: Number(currentT.toFixed(5)),
+                    re: Number(currentZeta.re.toFixed(5)),
+                    im: Number(currentZeta.im.toFixed(5)),
+                    modulus: Number(currentZeta.mod.toFixed(5))
+                },
+                eclips_2026_08_12: {
+                    locatie: 'Tafelbergheide (52°13\'N, 5°11\'O)',
+                    saros: 126,
+                    obscuratie_pct: 89.2,
+                    nettostraling_Wm2: -58,
+                    grondinversie_dT_C: 3.20
+                }
+            };
+        }
+
+        function buildVconObject() {
+            const prof = TELEAPI_PROFILES[activeTeleApi] || TELEAPI_PROFILES['W3C WebRTC / ORCA Native'];
+            return {
+                vcon: '0.0.1',
+                uuid: sessionUuid,
+                created_at: '2026-11-25T06:41:00+01:00',
+                updated_at: new Date().toISOString(),
+                subject: 'Astrometrische Eclipsanalyse & Riemann-Zeta Telemetrie',
+                parties: [
+                    { name: 'Lokale Waarnemingspost (Peer A)', role: 'initiator' },
+                    { name: 'Remote Archiefnode (Peer B)', role: 'recipient' }
+                ],
+                dialog: [
+                    {
+                        type: 'video',
+                        start: new Date().toISOString(),
+                        mediatype: streamSourceMode === 'camera' ? 'video/webm;codecs=vp8,opus' : 'video/webm;codecs=vp8',
+                        metadata: {
+                            teleapi_adapter: activeTeleApi,
+                            signaling_protocol: prof.signaling,
+                            transport_security: prof.security,
+                            license_framework: 'W3C Royalty-Free Community CLA'
+                        }
+                    }
+                ],
+                analysis: [
+                    {
+                        type: 'astrometry_riemann_telemetry',
+                        encoding: 'json',
+                        body: buildCurrentTelemetry()
+                    }
+                ]
+            };
+        }
+
+        function refreshVconPreview() {
+            const el = document.getElementById('vconJsonPreview');
+            if (el) {
+                el.textContent = JSON.stringify(buildVconObject(), null, 2);
+            }
+        }
+
+        function transmitTelemetry(force) {
+            const now = Date.now();
+            if (!force && now - lastTelemetryMs < 120) return;
+            const ch = (dcA && dcA.readyState === 'open') ? dcA : ((dcB && dcB.readyState === 'open') ? dcB : null);
+            if (!ch) return;
+            lastTelemetryMs = now;
+            ch.send(JSON.stringify(buildCurrentTelemetry()));
+            txCount++;
+            updateStatusPills(null, 'open');
+        }
+
+        function resetWebRTC(silent) {
+            if (heartbeatTimer) clearInterval(heartbeatTimer);
+            if (dcA) { try { dcA.close(); } catch (e) {} dcA = null; }
+            if (dcB) { try { dcB.close(); } catch (e) {} dcB = null; }
+            if (pcA) { try { pcA.close(); } catch (e) {} pcA = null; }
+            if (pcB) { try { pcB.close(); } catch (e) {} pcB = null; }
+
+            document.getElementById('remoteVideo').srcObject = null;
+            document.getElementById('remoteOverlayTag').textContent = 'PEER B • WACHT OP LOOPBACK / SDP';
+            document.getElementById('remoteLivePill').style.display = 'none';
+            txCount = 0;
+            rxCount = 0;
+            updateStatusPills('Niet verbonden', 'Gesloten');
+            if (!silent) appendLog('WebRTC peer-verbindingen en datakanalen gereset.');
+        }
+
+        /* 1-klik Lokale Loopback Video- & Dataverbinding */
+        async function startLocalLoopback() {
+            resetWebRTC(true);
+            if (!localStream) await initMediaStream(streamSourceMode);
+
+            appendLog(`Start Lokale Loopback (${activeTeleApi}) met DTLS-SRTP...`);
+            updateStatusPills('checking', 'verbinden');
+
+            const cfg = { iceServers: [] };
+            pcA = new RTCPeerConnection(cfg);
+            pcB = new RTCPeerConnection(cfg);
+
+            dcA = pcA.createDataChannel('vortex-vcon-telemetrie', { ordered: true });
+            bindDataChannel(dcA, 'Peer A');
+
+            pcB.ondatachannel = (ev) => {
+                dcB = ev.channel;
+                bindDataChannel(dcB, 'Peer B');
+            };
+
+            localStream.getTracks().forEach(track => pcA.addTrack(track, localStream));
+
+            pcB.ontrack = (ev) => {
+                const remVid = document.getElementById('remoteVideo');
+                remVid.srcObject = (ev.streams && ev.streams[0]) ? ev.streams[0] : new MediaStream([ev.track]);
+                document.getElementById('remoteOverlayTag').textContent = 'PEER B • P2P LOOPBACK ACTIEF';
+                document.getElementById('remoteLivePill').style.display = 'inline-flex';
+                appendLog('Remote video/audiotrack ontvangen op Peer B via ontrack().');
+            };
+
+            pcA.onicecandidate = (e) => { if (e.candidate) pcB.addIceCandidate(e.candidate).catch(() => {}); };
+            pcB.onicecandidate = (e) => { if (e.candidate) pcA.addIceCandidate(e.candidate).catch(() => {}); };
+            pcA.oniceconnectionstatechange = () => {
+                updateStatusPills(pcA.iceConnectionState, null);
+                appendLog('ICE-status: ' + pcA.iceConnectionState);
+            };
+
+            const offer = await pcA.createOffer();
+            await pcA.setLocalDescription(offer);
+            await pcB.setRemoteDescription(offer);
+
+            const answer = await pcB.createAnswer();
+            await pcB.setLocalDescription(answer);
+            await pcA.setRemoteDescription(answer);
+
+            document.getElementById('sdpOfferText').value = JSON.stringify(pcA.localDescription);
+            document.getElementById('sdpAnswerText').value = JSON.stringify(pcB.localDescription);
+            refreshVconPreview();
+        }
+
+        /* Handmatige SDP Offer / Answer voor tweede browsertabblad */
+        function waitIceComplete(pc) {
+            return new Promise((resolve) => {
+                if (pc.iceGatheringState === 'complete') return resolve();
+                const timer = setTimeout(resolve, 1600);
+                pc.addEventListener('icegatheringstatechange', () => {
+                    if (pc.iceGatheringState === 'complete') {
+                        clearTimeout(timer);
+                        resolve();
+                    }
+                });
+            });
+        }
+
+        async function generateManualOffer() {
+            resetWebRTC(true);
+            if (!localStream) await initMediaStream(streamSourceMode);
+
+            pcA = new RTCPeerConnection({ iceServers: [] });
+            dcA = pcA.createDataChannel('vortex-vcon-telemetrie', { ordered: true });
+            bindDataChannel(dcA, 'Initiator');
+            localStream.getTracks().forEach(t => pcA.addTrack(t, localStream));
+
+            pcA.ontrack = (ev) => {
+                document.getElementById('remoteVideo').srcObject = ev.streams[0];
+                document.getElementById('remoteOverlayTag').textContent = 'PEER B • REMOTE STREAM';
+                document.getElementById('remoteLivePill').style.display = 'inline-flex';
+            };
+            pcA.oniceconnectionstatechange = () => updateStatusPills(pcA.iceConnectionState, null);
+
+            const offer = await pcA.createOffer();
+            await pcA.setLocalDescription(offer);
+            await waitIceComplete(pcA);
+
+            document.getElementById('sdpOfferText').value = JSON.stringify(pcA.localDescription);
+            appendLog('Handmatig SDP Offer gegenereerd inclusief host ICE-kandidaten.');
+            showToast('SDP Offer gegenereerd.');
+        }
+
+        async function processOfferCreateAnswer() {
+            const raw = document.getElementById('sdpOfferText').value.trim();
+            if (!raw) return showToast('Plak eerst een ontvangen SDP Offer.');
+            let offerDesc;
+            try { offerDesc = JSON.parse(raw); } catch (e) { return showToast('Ongeldige SDP Offer JSON.'); }
+
+            resetWebRTC(true);
+            if (!localStream) await initMediaStream(streamSourceMode);
+
+            pcB = new RTCPeerConnection({ iceServers: [] });
+            localStream.getTracks().forEach(t => pcB.addTrack(t, localStream));
+            pcB.ondatachannel = (ev) => { dcB = ev.channel; bindDataChannel(dcB, 'Ontvanger'); };
+            pcB.ontrack = (ev) => {
+                document.getElementById('remoteVideo').srcObject = ev.streams[0];
+                document.getElementById('remoteOverlayTag').textContent = 'PEER B • REMOTE STREAM';
+                document.getElementById('remoteLivePill').style.display = 'inline-flex';
+            };
+            pcB.oniceconnectionstatechange = () => updateStatusPills(pcB.iceConnectionState, null);
+
+            await pcB.setRemoteDescription(new RTCSessionDescription(offerDesc));
+            const answer = await pcB.createAnswer();
+            await pcB.setLocalDescription(answer);
+            await waitIceComplete(pcB);
+
+            document.getElementById('sdpAnswerText').value = JSON.stringify(pcB.localDescription);
+            appendLog('SDP Answer aangemaakt voor tweede tabblad.');
+            showToast('SDP Answer gegenereerd.');
+        }
+
+        async function confirmRemoteAnswer() {
+            if (!pcA) return showToast('Genereer eerst een SDP Offer op deze peer.');
+            const raw = document.getElementById('sdpAnswerText').value.trim();
+            if (!raw) return showToast('Plak eerst het ontvangen SDP Answer.');
+            try {
+                await pcA.setRemoteDescription(new RTCSessionDescription(JSON.parse(raw)));
+                appendLog('SDP Answer bevestigd; P2P-verbinding actief.');
+                showToast('SDP Answer bevestigd.');
+            } catch (e) {
+                showToast('Fout bij SDP Answer: ' + e.message);
+            }
+        }
+
+        function copyVconJson() {
+            copyTextSafe(JSON.stringify(buildVconObject(), null, 2), 'IETF vCon JSON-container gekopieerd.');
+        }
+
+        function downloadVconJson() {
+            const blob = new Blob([JSON.stringify(buildVconObject(), null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${sessionUuid}.vcon.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('vCon JSON-bestand gedownload.');
+        }
+
+        /* ---------------------------------------------------------------------
+           4. INGEBOUWDE PDF-DOCUMENTINTEGRATIE & DOORZOEKBAAR 22-PAGINA REGISTER
+           --------------------------------------------------------------------- */
+        let currentPdfUrl = null;
+        let currentPdfCat = 'all';
+
+        const PDF_PAGES_DATA = [
+            { page: 'p. 1–2', cat: 'ephemeriden', title: '1.1 Ephemeridentheorieën & Positieberekeningen', formula: 'Bureau des longitudes (Parijs) • Topocentrische reductie', desc: 'Berekening van geocentrische positievectoren van zon en maan met transformatie naar de Tafelbergheide (12 aug 2026).' },
+            { page: 'p. 3–4', cat: 'meteo', title: 'Verificatie- & Controle-suite (Saros 126)', formula: 'Max Eclips 20:06 CEST (89,2%) • C_I 19:10 • C_IV 20:58', desc: 'Overzicht grenslaagparameters Tafelbergheide, tijdreekssimulatie 18:00–21:30 CEST en visuele verificatie van de schaduwprojectie.' },
+            { page: 'p. 5–7', cat: 'ephemeriden', title: 'VSOP87 (Versie Da) & ELP-2000/82 Ephemeriden', formula: 'VSOP87: < 0,001 s | ELP-2000/82: 37.862 termen (~1/40 s)', desc: 'Zon-ephemeride (Bretagnon & Francou, 1988) en maan-ephemeride (Chapront-Touzé & Chapront, 1983: 20.560 lengte-, 7.684 breedte-, 9.618 afstandstermen).' },
+            { page: 'p. 8–9', cat: 'ephemeriden', title: '1.2 Seculaire Acceleratie van de Maan & Baandynamica', formula: 'dL/dt² = −25,858″/cy² • dr/dt = +3,8 cm/jaar (LLR)', desc: 'Getijdenwrijving vertraagt aardrotatie (LOD +2,3 ms/eeuw), draagt hoekmoment over en laat de maanbaan spiraalsgewijs expanderen.' },
+            { page: 'p. 9–11', cat: 'tijd', title: '2.1 Hiërarchie van Tijdsschaaldefinities', formula: 'TD / TT • ET • UT (VLBI) • UTC • GMT', desc: 'Afbakening tussen uniforme relativistische ephemeridetijd (TT/TD op geoïde/TAI) en aardrotatie-afhankelijke Universele Tijd (UT).' },
+            { page: 'p. 12–13', cat: 'tijd', title: '2.2 Polynomiale Berekening van ΔT & Correctieterm c', formula: 'ΔT = 62,92 + 0,32217t + 0,005589t² | c = −0,000012932(y − 1955)²', desc: 'Klokfoutcorrectie (TD − UT) voor 2005–2050 gecorrigeerd voor de LLR-maanversnelling (−25,858″/cy² t.o.v. −26″/cy²).' },
+            { page: 'p. 13–15', cat: 'refractie', title: '3. Astrometrische Geometrie & Topocentrische Parallax', formula: 'WGS84: 52°13′ N, 5°11′ O (~35 m +NAP) • π_m ≈ 1° (~3600″)', desc: 'Contactdefinities C_I t/m C_IV en 4-staps reductie van geocentrische coördinaten naar lijn-van-zicht raakvoorwaarde S(t) = s_s′ ± s_m′.' },
+            { page: 'p. 15–17', cat: 'refractie', title: '4. Atmosferische Refractie & Rayleigh-Verstrooiing', formula: 'Chauvenet (1/50, 1,02×) vs. Danjon (1/85, 1,01×, 75 km) • I ∝ λ⁻⁴', desc: 'Vergelijking schaduwmodellen, stratosferische SO₂/H₂SO₄-aerosolen, optische luchtmassa (AM = 8,63) en troposferische straalbuiging.' },
+            { page: 'p. 18–19', cat: 'meteo', title: '5. Micro-Meteorologie: Stralingsbalans, Eclipse Calm & Inversie', formula: 'R_n = (1 − α)S↓ + L↓ − L↑ (−58 W/m²) • ∂T/∂z > 0 (ΔT = +3,20 °C)', desc: 'Over dekzand (~1,2×10⁶ J m⁻³ K⁻¹) en Calluna vulgaris (α = 0,18): negatieve nettostraling, stijging RH, wegvallen convectie (H → 0) en grondinversie.' },
+            { page: 'p. 20–22', cat: 'ephemeriden', title: 'Spectrale Decompositie, IERS/ITRS & Baanvoorspelling', formula: 'R = U P Vᵀ • IERS/ITRF Referentiekader & VLBI', desc: 'Matrixfactorisatie voor limb-oriëntatie, aardoriëntatieparameters (IERS/ITRS) en satellietbaanvoorspelling met J2-knoopdrift.' }
+        ];
+
+        function renderPdfIndex() {
+            const query = (document.getElementById('pdfIndexSearch').value || '').toLowerCase().trim();
+            const tbody = document.getElementById('pdfIndexBody');
+            tbody.innerHTML = '';
+
+            const filtered = PDF_PAGES_DATA.filter(item => {
+                const matchCat = currentPdfCat === 'all' || item.cat === currentPdfCat;
+                const matchText = !query ||
+                    item.page.toLowerCase().includes(query) ||
+                    item.title.toLowerCase().includes(query) ||
+                    item.formula.toLowerCase().includes(query) ||
+                    item.desc.toLowerCase().includes(query);
+                return matchCat && matchText;
+            });
+
+            if (filtered.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="4" style="text-align:center; color:var(--ink-muted); padding:1rem;">Geen pagina-onderdelen gevonden voor "${query.replace(/</g, '&lt;')}".</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong class="mono" style="color:var(--meekrab-primary);">${item.page}</strong></td>
+                    <td><strong>${item.title}</strong></td>
+                    <td><code style="font-size:0.74rem; color:var(--meekrab-deep); background:var(--meekrab-soft); padding:0.15rem 0.4rem; border-radius:4px; display:inline-block;">${item.formula}</code></td>
+                    <td style="color:var(--ink-secondary);">${item.desc}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function setPdfCategory(cat, btnEl) {
+            currentPdfCat = cat;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            btnEl.classList.add('active');
+            renderPdfIndex();
+        }
+
+        function filterPdfIndex() {
+            renderPdfIndex();
+        }
+
+        function loadPdfFile(file) {
+            if (!file) return;
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                showToast('Selecteer een geldig PDF-bestand.');
+                return;
+            }
+            if (currentPdfUrl) URL.revokeObjectURL(currentPdfUrl);
+            currentPdfUrl = URL.createObjectURL(file);
+            document.getElementById('pdfFrame').src = currentPdfUrl;
+            document.getElementById('pdfStatusText').textContent = `Ingebouwd document: ${file.name} (${Math.round(file.size / 1024)} KB)`;
+            document.getElementById('pdfViewerWrapper').style.display = 'block';
+            appendLog(`PDF-rapport lokaal ingeladen in archiefviewer: ${file.name}`);
+            showToast('PDF-rapport geladen in ingebouwde lezer.');
+        }
+
+        function unloadPdf() {
+            document.getElementById('pdfViewerWrapper').style.display = 'none';
+            document.getElementById('pdfFrame').src = 'about:blank';
+            if (currentPdfUrl) {
+                URL.revokeObjectURL(currentPdfUrl);
+                currentPdfUrl = null;
+            }
+        }
+
+        // Drag & Drop handlers op PDF-dropzone
+        const dropZone = document.getElementById('pdfDropZone');
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                loadPdfFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        /* ---------------------------------------------------------------------
+           5. HULPFUNCTIES VOOR KLEMBOORD, TOAST & NAVIGATIE
+           --------------------------------------------------------------------- */
+        function copyTextSafe(text, toastMsg) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast(toastMsg);
+            } catch (e) {
+                showToast('Kopiëren naar klembord mislukt.');
+            }
+            document.body.removeChild(ta);
+        }
+
+        function copyField(id, label) {
+            const val = document.getElementById(id).value.trim();
+            if (!val) return showToast(`${label} is nog leeg.`);
+            copyTextSafe(val, `${label} gekopieerd naar klembord.`);
+        }
+
+        function copyFullDossier() {
+            const dossierText = [
+                'ASTROMETRISCHE ECLIPSANALYSE, RIEMANN-ZETA & WEBRTC TELEAPI-SYNTHESE',
+                'VORTEX OS / Geocentrum-Omgeving | Datum: 25 november 2026 | Status: PII-gefilterd',
+                '====================================================================================================',
+                '1. WebRTC & TeleAPI / IETF vCon:',
+                `   - Actieve TeleAPI-adapter: ${activeTeleApi}`,
+                '   - Standaarden: W3C WebRTC / ORCA Royalty-Free CLA, TADHack ecosysteem, Pion, Jambonz, Asterisk, SignalWire & IETF vCon.',
+                '2. Riemann-Zeta-Functie op de Kritieke Lijn Re(s) = 1/2:',
+                '   - Borwein-versnelde Dirichlet-eta evaluatie over t ∈ [0, 35].',
+                '   - Eerste vijf niet-triviale nulpunten: t1 ≈ 14.1347, t2 ≈ 21.0220, t3 ≈ 25.0109, t4 ≈ 30.4249, t5 ≈ 32.9351.',
+                '3. Zonsverduistering 12 augustus 2026 (Tafelbergheide, 52°13\' N, 5°11\' O, ~35 m +NAP, Saros 126):',
+                '   - Ephemeriden: VSOP87 (versie Da, < 0,001 s) & ELP-2000/82 (37.862 termen, ~1/40 s, seculaire versnelling -25,858"/cy², LLR +3,8 cm/jaar).',
+                '   - Tijd & ΔT: TD/TT, ET, UT, UTC, GMT; ΔT = 62,92 + 0,32217t + 0,005589t² met correctieterm c.',
+                '   - Refractie & Grenslaag: Danjon (1/85, 75 km luchtlaag) vs. Chauvenet (1/50); max obscuratie 89,2% (20:06 CEST), Rn = -58 W/m², Eclipse Calm (H -> 0) en grondinversie (ΔT = +3,20 °C).',
+                '4. Bronnen: Substack (https://substack.com/home/post/p-223790195), TADHack (https://blog.tadhack.com/2015/12/15/tadhack-paris-review-1/), W3C ORCA (https://www.w3.org/groups/cg/orca/former-participants/).'
+            ].join('\n');
+
+            copyTextSafe(dossierText, 'Gehele onderzoeksdossier gekopieerd naar klembord.');
+        }
+
+        function showToast(msg) {
+            const banner = document.getElementById('toastBanner');
+            document.getElementById('toastText').textContent = msg;
+            banner.classList.add('visible');
+            setTimeout(() => banner.classList.remove('visible'), 3200);
+        }
+
+        window.addEventListener('scroll', () => {
+            const sections = ['module-1', 'module-2', 'module-3', 'module-4'];
+            const scrollPos = window.scrollY + 190;
+            sections.forEach(id => {
+                const sec = document.getElementById(id);
+                const link = document.querySelector(`nav a[href="#${id}"]`);
+                if (sec && link) {
+                    if (scrollPos >= sec.offsetTop && scrollPos < sec.offsetTop + sec.offsetHeight) {
+                        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                }
+            });
+        });
+
+        window.addEventListener('resize', resizeZetaCanvas);
+        window.onload = function () {
+            resizeZetaCanvas();
+            renderSyntheticStream();
+            initMediaStream('synthetic');
+            renderPdfIndex();
+            refreshVconPreview();
+        };
+    </script>
+</body>
+</html>
