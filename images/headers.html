@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netwerkarchitectuur, Protocolgelaagdheid &amp; Forensische Toepassing</title>
+    <!-- Tailwind CSS voor responsieve layout en structuur -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Crimson Pro (Serif voor academische/archiefkoppen), Inter (Sans-serif voor leestekst), JetBrains Mono (Monospace voor bitvelden/headers) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Zeeuws Meekrab Kleurenpalet & Typografische Tokens */
+        :root {
+            --meekrab-primary: #8B1E24;
+            --meekrab-accent: #9E2A2B;
+            --meekrab-deep: #631318;
+            --meekrab-soft: #FBF8F8;
+            --meekrab-border: #D8C7C8;
+            --ink-primary: #1E1E1E;
+            --ink-secondary: #4A4A4A;
+            --paper-bg: #FFFFFF;
+            --page-backdrop: #F7F5F5;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--ink-primary);
+            background-color: var(--page-backdrop);
+        }
+
+        h1, h2, h3, .font-serif-dossier {
+            font-family: 'Crimson Pro', Georgia, serif;
+        }
+
+        code, pre, .font-mono-code {
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+        }
+
+        /* Meekrab-rode scheidingslijn */
+        .meekrab-rule {
+            height: 2px;
+            background: linear-gradient(90deg, var(--meekrab-primary) 0%, var(--meekrab-accent) 55%, rgba(158, 42, 43, 0.12) 100%);
+        }
+
+        .dossier-badge {
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            color: var(--meekrab-primary);
+        }
+
+        /* Interactieve Protocol Laag-knoppen */
+        .layer-selector {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            border: 1.5px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+        }
+
+        .layer-selector:hover {
+            border-color: var(--meekrab-accent);
+            background-color: var(--meekrab-soft);
+            transform: translateX(3px);
+        }
+
+        .layer-selector.active {
+            border-color: var(--meekrab-primary);
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px -2px rgba(139, 30, 36, 0.25);
+        }
+
+        .layer-selector.active .layer-sub {
+            color: #F5E6E7;
+        }
+
+        .layer-selector.active .layer-pill-tag {
+            background-color: #FFFFFF;
+            color: var(--meekrab-primary);
+        }
+
+        /* Navigatie Active State */
+        .nav-pill.active {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            border-color: var(--meekrab-primary);
+        }
+
+        /* Bitveld diagram styling (Figuur 4-40) */
+        .bit-cell {
+            border: 1px solid #8B1E24;
+            background-color: #FFFFFF;
+        }
+
+        /* Print Stijlen voor formeel archiefstuk */
+        @media print {
+            @page {
+                size: A4;
+                margin: 16mm 15mm 16mm 15mm;
+            }
+            html, body {
+                background-color: #FFFFFF !important;
+                color: #1E1E1E !important;
+                font-size: 10pt;
+                line-height: 1.45;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-break-avoid {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .shadow-sm, .shadow-md, .shadow-lg {
+                box-shadow: none !important;
+            }
+            section {
+                border: 1px solid #D8C7C8 !important;
+                margin-bottom: 14pt !important;
+                padding: 14pt !important;
+            }
+            header {
+                position: static !important;
+                border-bottom: 2px solid #8B1E24 !important;
+                padding-bottom: 10pt !important;
+                margin-bottom: 14pt !important;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-[#8B1E24] selection:text-white">
+
+    <!-- Bovenste meekrab-rode archiefbalk -->
+    <div class="w-full h-1.5 bg-[#8B1E24]"></div>
+
+    <!-- Header & Dossier-context -->
+    <header class="bg-white border-b border-[#D8C7C8] sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                <div class="max-w-4xl">
+                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold tracking-wide uppercase bg-[#8B1E24] text-white">
+                            Academische &amp; Forensische Onderlegger
+                        </span>
+                        <span class="dossier-badge px-2.5 py-0.5 rounded text-xs font-mono-code font-medium">
+                            Tanenbaum &amp; Wetherall (5e ed.)
+                        </span>
+                        <span class="dossier-badge px-2.5 py-0.5 rounded text-xs font-mono-code font-medium">
+                            VU cs.vu.nl/~ast/
+                        </span>
+                        <span class="dossier-badge px-2.5 py-0.5 rounded text-xs font-mono-code font-medium">
+                            UvA OS3 (os3.nl)
+                        </span>
+                        <span class="dossier-badge px-2.5 py-0.5 rounded text-xs font-mono-code font-medium">
+                            Dossier D19314 / I68580034
+                        </span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-[#1E1E1E] tracking-tight leading-tight">
+                        Netwerkarchitectuur, Protocolgelaagdheid &amp; Forensische Toepassing
+                    </h1>
+                    <p class="text-xs sm:text-sm text-[#4A4A4A] mt-1 leading-relaxed">
+                        Synthese van Tanenbaum &amp; Wetherall (<em>Computernetwerken</em>, 5e editie), VU Amsterdam (<code class="text-xs text-[#8B1E24]">cs.vu.nl/~ast/</code>), UvA OS3 (<code class="text-xs text-[#8B1E24]">os3.nl</code>) en de BaseNet/Tomcat/AS4-keten
+                    </p>
+                </div>
+
+                <!-- Print/PDF-knop in meekrab-rood -->
+                <div class="flex items-center gap-2.5 no-print shrink-0 pt-1">
+                    <button onclick="copyReferenceToClipboard()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[#D8C7C8] bg-[#FBF8F8] text-[#1E1E1E] text-xs font-medium hover:border-[#8B1E24] transition-colors">
+                        <svg class="w-4 h-4 text-[#8B1E24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                        </svg>
+                        <span>Kopieer Synthese</span>
+                    </button>
+                    <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#8B1E24] text-white text-xs font-semibold hover:bg-[#631318] transition-colors shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                        </svg>
+                        <span>Afdrukken / PDF</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sectie-navigatie -->
+            <nav aria-label="Sectienavigatie" class="flex items-center gap-1.5 overflow-x-auto pt-3 mt-3 border-t border-stone-100 no-print">
+                <a href="#sectie-1" class="nav-pill whitespace-nowrap px-3 py-1.5 rounded-md text-xs font-medium text-[#1E1E1E] border border-transparent hover:border-[#D8C7C8] transition-colors">1. Bronanalyse Vijf Foto's (Tanenbaum 5e ed.)</a>
+                <a href="#sectie-2" class="nav-pill whitespace-nowrap px-3 py-1.5 rounded-md text-xs font-medium text-[#1E1E1E] border border-transparent hover:border-[#D8C7C8] transition-colors">2. VU Amsterdam (~ast) &amp; UvA OS3</a>
+                <a href="#sectie-3" class="nav-pill whitespace-nowrap px-3 py-1.5 rounded-md text-xs font-medium text-[#1E1E1E] border border-transparent hover:border-[#D8C7C8] transition-colors">3. Interactieve Protocol- &amp; Encapsulatie-Inspecteur</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Notificatie-banner bij kopiëren -->
+    <div id="toastBanner" class="hidden fixed bottom-5 right-5 z-50 bg-[#1E1E1E] text-white px-4 py-3 rounded-lg shadow-lg border-l-4 border-[#9E2A2B] text-xs font-medium flex items-center gap-2.5">
+        <span class="w-2 h-2 rounded-full bg-[#9E2A2B]"></span>
+        <span id="toastMessage">Synthese en bibliografische referenties gekopieerd naar klembord.</span>
+    </div>
+
+    <!-- Hoofdinhoud -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- SECTIE 1: Bronanalyse van de Vijf Foto's -->
+        <section id="sectie-1" class="bg-white rounded-xl border border-[#D8C7C8] p-6 sm:p-8 shadow-sm scroll-mt-36">
+            <div class="flex items-center justify-between gap-4 mb-2">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#8B1E24]">Sectie 01</span>
+                <span class="text-xs text-[#4A4A4A] font-mono-code">BRONMATERIAAL: 5 ARCHIEFFOTO'S (PEARSON, 5E EDITIE)</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-[#1E1E1E] mb-3">
+                Bronanalyse van de Vijf Foto's (<em>Computernetwerken</em>, 5e editie)
+            </h2>
+            <div class="meekrab-rule mb-6"></div>
+
+            <!-- Subonderdeel 1.1: Afbeelding 1 (Omslag) -->
+            <div class="mb-8 rounded-xl border border-[#D8C7C8] bg-[#FBF8F8] p-5 sm:p-6 print-break-avoid">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded bg-[#8B1E24] text-white text-xs font-mono-code font-bold">AFBEELDING 1</span>
+                        <h3 class="text-xl font-bold text-[#1E1E1E]">Omslag &amp; Bibliografische Identificatie van het Standaardwerk</h3>
+                    </div>
+                    <span class="text-xs font-mono-code text-[#8B1E24]">ISBN / Pearson Vijfde Editie</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                    <div class="lg:col-span-7 space-y-3 text-sm text-[#1E1E1E] leading-relaxed">
+                        <p>
+                            De eerste foto toont de omslag van het internationale standaardwerk over datacommunicatie en netwerkarchitectuur: <strong>Andrew S. Tanenbaum en David J. Wetherall — <em>Computernetwerken</em></strong> (Nederlandstalige bewerking door <strong>Leo van Moergestel</strong>, <strong>Vijfde Editie</strong>, uitgeverij <strong>Pearson</strong>).
+                        </p>
+                        <p>
+                            Dit werk vormt de theoretische grondslag voor het zogeheten <strong>hybride referentiemodel</strong>, waarin Tanenbaum en Wetherall de conceptuele helderheid van het OSI-model combineren met de praktische protocolrealiteit van de TCP/IP-stack over vijf strikt gescheiden abstractielagen:
+                        </p>
+                    </div>
+
+                    <div class="lg:col-span-5 rounded-lg border border-[#D8C7C8] bg-white p-4">
+                        <div class="text-xs font-bold uppercase tracking-wider text-[#8B1E24] mb-2">Het 5-Laags Hybride Referentiemodel</div>
+                        <ol class="space-y-1.5 text-xs font-mono-code">
+                            <li class="flex items-center justify-between px-2.5 py-1.5 rounded bg-[#FBF8F8] border border-[#D8C7C8]">
+                                <span class="font-bold text-[#8B1E24]">Laag 5</span>
+                                <span class="text-[#1E1E1E]">Toepassingslaag (HTTP, SMTP, AS4)</span>
+                            </li>
+                            <li class="flex items-center justify-between px-2.5 py-1.5 rounded bg-white border border-stone-200">
+                                <span class="font-bold text-[#8B1E24]">Laag 4</span>
+                                <span class="text-[#1E1E1E]">Transportlaag (TCP, UDP)</span>
+                            </li>
+                            <li class="flex items-center justify-between px-2.5 py-1.5 rounded bg-[#FBF8F8] border border-[#D8C7C8]">
+                                <span class="font-bold text-[#8B1E24]">Laag 3</span>
+                                <span class="text-[#1E1E1E]">Netwerklaag (IP, Routing)</span>
+                            </li>
+                            <li class="flex items-center justify-between px-2.5 py-1.5 rounded bg-white border border-stone-200">
+                                <span class="font-bold text-[#8B1E24]">Laag 2</span>
+                                <span class="text-[#1E1E1E]">Datalinklaag (Ethernet, Bridges)</span>
+                            </li>
+                            <li class="flex items-center justify-between px-2.5 py-1.5 rounded bg-[#FBF8F8] border border-[#D8C7C8]">
+                                <span class="font-bold text-[#8B1E24]">Laag 1</span>
+                                <span class="text-[#1E1E1E]">Fysieke laag (Glasvezel, UTP, Radio)</span>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subonderdeel 1.2: Afbeelding 2 & 3 (Pagina 336-337, Hoofdstuk 4) -->
+            <div class="mb-8 rounded-xl border border-[#D8C7C8] bg-white p-5 sm:p-6 print-break-avoid">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded bg-[#8B1E24] text-white text-xs font-mono-code font-bold">AFBEELDING 2 &amp; 3</span>
+                        <h3 class="text-xl font-bold text-[#1E1E1E]">Pagina 336–337: Hoofdstuk 4 — De sublaag Medium Access Control (MAC)</h3>
+                    </div>
+                    <span class="text-xs font-mono-code text-[#8B1E24]">Figuur 4-40 &amp; Paragraaf 4.8 / 4.8.1</span>
+                </div>
+
+                <!-- Deel A: Figuur 4-40 RFID Query-bericht & IoT -->
+                <div class="mb-6 pb-6 border-b border-[#D8C7C8]">
+                    <h4 class="text-base font-bold text-[#8B1E24] mb-2">
+                        A. Figuur 4-40: Bitstructuur van het RFID Query-bericht (22 bits) &amp; Internet van dingen
+                    </h4>
+                    <p class="text-sm text-[#1E1E1E] leading-relaxed mb-4">
+                        Op pagina 336 (Afbeelding 3) toont <strong>Figuur 4-40</strong> het exacte protocolformaat op bitniveau van een <em>RFID Query-bericht</em> (EPC Gen 2) van in totaal <strong>22 bits</strong>, gevolgd door de wetenschappelijke duiding van het <strong>&lsquo;Internet van dingen&rsquo;</strong> (waarbij fysieke objecten met sensoren en kleine programma's aan het internet worden gekoppeld; met verwijzingen naar <em>Sample et al., 2008</em>; <em>Welbourne et al., 2009</em>; en <em>Gershenfeld et al., 2004</em>). De belangrijkste parameter is het 4-bits veld <strong>Q</strong>, dat het bereik aan tijdslots definieert waarover tags reageren: van <code>0</code> tot <code>2<sup>Q</sup> - 1</code>. Een 5-bits <strong>CRC</strong> beschermt de integriteit van de velden.
+                    </p>
+
+                    <!-- Visuele reconstructie Figuur 4-40 -->
+                    <div class="overflow-x-auto rounded-lg border border-[#D8C7C8] bg-[#FBF8F8] p-4">
+                        <div class="text-[11px] font-mono-code uppercase tracking-wider text-[#8B1E24] font-bold mb-2">
+                            Bitveld-reconstructie Figuur 4-40 — Format van het Query-bericht (Totaal: 22 bits)
+                        </div>
+                        <div class="min-w-[680px]">
+                            <!-- Bit aantallen rij -->
+                            <div class="grid grid-cols-12 text-center font-mono-code text-[11px] text-[#4A4A4A] mb-1">
+                                <div class="col-span-2">4 bits</div>
+                                <div class="col-span-1">1 bit</div>
+                                <div class="col-span-1">2 bits</div>
+                                <div class="col-span-1">1 bit</div>
+                                <div class="col-span-1">2 bits</div>
+                                <div class="col-span-2">2 bits</div>
+                                <div class="col-span-1">1 bit</div>
+                                <div class="col-span-1">4 bits</div>
+                                <div class="col-span-1">5 bits</div>
+                            </div>
+                            <!-- Veldnamen rij -->
+                            <div class="grid grid-cols-12 text-center font-mono-code text-xs font-semibold text-[#1E1E1E]">
+                                <div class="col-span-2 bit-cell py-2 px-1 bg-white">Command<br><span class="text-[#8B1E24]">1000</span></div>
+                                <div class="col-span-1 bit-cell py-2 px-1 bg-white">DR</div>
+                                <div class="col-span-1 bit-cell py-2 px-1 bg-white">M</div>
+                                <div class="col-span-1 bit-cell py-2 px-1 bg-white">TR</div>
+                                <div class="col-span-1 bit-cell py-2 px-1 bg-white">Sel</div>
+                                <div class="col-span-2 bit-cell py-2 px-1 bg-white">Session</div>
+                                <div class="col-span-1 bit-cell py-2 px-1 bg-white">Target</div>
+                                <div class="col-span-1 bit-cell py-2 px-1 bg-[#FBF8F8] text-[#8B1E24]">Q<br><span class="text-[10px]">0..2<sup>Q</sup>-1</span></div>
+                                <div class="col-span-1 bit-cell py-2 px-1 bg-white">CRC</div>
+                            </div>
+                            <!-- Groepering onderaan -->
+                            <div class="grid grid-cols-12 text-center text-[11px] text-[#4A4A4A] mt-1.5">
+                                <div class="col-span-2"></div>
+                                <div class="col-span-3 border-t border-[#8B1E24] pt-0.5 text-[#8B1E24] font-medium">Fysieke parameters</div>
+                                <div class="col-span-4 border-t border-[#8B1E24] pt-0.5 text-[#8B1E24] font-medium">Tag-selectie</div>
+                                <div class="col-span-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deel B: Paragraaf 4.8 & 4.8.1 Switchen en bridges -->
+                <div>
+                    <h4 class="text-base font-bold text-[#8B1E24] mb-2">
+                        B. Paragraaf 4.8 &amp; 4.8.1: Switchen en Bridges in de Datalinklaag (Laag 2) vs. Routers (Laag 3)
+                    </h4>
+                    <p class="text-sm text-[#1E1E1E] leading-relaxed mb-4">
+                        Op pagina 336–337 (Afbeelding 2 &amp; 3) behandelen Tanenbaum en Wetherall hoe meerdere lokale netwerken (LAN's) worden gekoppeld of gepartitioneerd met behulp van <strong>bridges</strong> (in moderne Ethernet-omgevingen <strong>switches</strong> genoemd) en <strong>Virtual LAN's (VLAN's)</strong>:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                        <div class="rounded-lg border border-[#D8C7C8] bg-[#FBF8F8] p-4">
+                            <div class="text-xs font-bold uppercase tracking-wider text-[#8B1E24] mb-1">Laag 2: Bridges &amp; Ethernet-switches</div>
+                            <p class="text-xs text-[#1E1E1E] leading-relaxed">
+                                Opereren uitsluitend in de <strong>datalinklaag</strong>. Zij onderzoeken enkel de datalinklaagadressen (MAC-frames) om te bepalen naar welke poort een frame moet worden doorgestuurd, en <strong>inspecteren het payloadveld niet</strong>. Daardoor zijn zij volledig protocol-agnostisch: zij kunnen zowel IP-pakketten als AppleTalk- of andere netwerkpakketten transparant verwerken.
+                            </p>
+                        </div>
+                        <div class="rounded-lg border border-[#D8C7C8] bg-white p-4">
+                            <div class="text-xs font-bold uppercase tracking-wider text-[#8B1E24] mb-1">Laag 3: Routers (Netwerklaag)</div>
+                            <p class="text-xs text-[#1E1E1E] leading-relaxed">
+                                Opereren in de <strong>netwerklaag</strong>. Routers strippen de datalinkheader, onderzoeken expliciet de netwerklaagadressen (IP-headers) in het pakket en bepalen op basis daarvan de verdere route. Zij werken daardoor uitsluitend met de specifieke netwerkprotocollen waarvoor zij zijn geconfigureerd.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-lg border border-[#D8C7C8]">
+                        <table class="min-w-full divide-y divide-[#D8C7C8] text-xs sm:text-sm">
+                            <thead class="bg-[#FBF8F8]">
+                                <tr>
+                                    <th class="px-4 py-2.5 text-left font-bold uppercase tracking-wider text-[#8B1E24] w-1/4">Reden (Par. 4.8.1)</th>
+                                    <th class="px-4 py-2.5 text-left font-bold uppercase tracking-wider text-[#8B1E24]">Organisatorische &amp; Fysieke Noodzaak</th>
+                                    <th class="px-4 py-2.5 text-left font-bold uppercase tracking-wider text-[#8B1E24]">Netwerktechnische Oplossing</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#D8C7C8] bg-white">
+                                <tr>
+                                    <td class="px-4 py-3 font-semibold text-[#1E1E1E] align-top">1. Autonome afdelingen</td>
+                                    <td class="px-4 py-3 text-[#1E1E1E] leading-relaxed">
+                                        Verschillende afdelingen binnen universiteiten of ondernemingen bouwen onafhankelijk hun eigen LAN voor eigen pc's, servers en printers, maar krijgen later behoefte aan onderlinge interactie.
+                                    </td>
+                                    <td class="px-4 py-3 text-[#4A4A4A] leading-relaxed">
+                                        Koppeling van autonome LAN's via een <strong>bridge/switch</strong> tot één logisch netwerk zonder elkaars interne opzet te verstoren.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 font-semibold text-[#1E1E1E] align-top">2. Fysieke afstand &amp; kabellengte</td>
+                                    <td class="px-4 py-3 text-[#1E1E1E] leading-relaxed">
+                                        Gebouwen staan verspreid en koperkabels kennen strikte lengtelimieten (bijv. <strong>maximaal 200 m voor twisted-pair gigabit Ethernet</strong>) wegens signaaldemping en rondreisvertraging.
+                                    </td>
+                                    <td class="px-4 py-3 text-[#4A4A4A] leading-relaxed">
+                                        Partitionering in lokale LAN's per gebouw, onderling verbonden met bridges en <strong>lange-afstandsglasvezelverbindingen</strong>.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 font-semibold text-[#1E1E1E] align-top">3. Capaciteit &amp; betrouwbaarheid</td>
+                                    <td class="px-4 py-3 text-[#1E1E1E] leading-relaxed">
+                                        Duizenden werkstations op één gedeeld Ethernet-segment (hub) delen dezelfde vaste bandbreedte, waardoor de gemiddelde doorvoer per station instort.
+                                    </td>
+                                    <td class="px-4 py-3 text-[#4A4A4A] leading-relaxed">
+                                        Splitsing in afzonderlijke LAN's via bridges/switches: twee gescheiden LAN's leveren samen <strong>tweemaal de capaciteit</strong> doordat lokaal verkeer niet onnodig naar andere poorten wordt gestuurd, wat tevens de betrouwbaarheid verhoogt.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subonderdeel 1.3: Afbeelding 4 (Figuur 1-15) -->
+            <div class="mb-8 rounded-xl border border-[#D8C7C8] bg-white p-5 sm:p-6 print-break-avoid">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded bg-[#8B1E24] text-white text-xs font-mono-code font-bold">AFBEELDING 4</span>
+                        <h3 class="text-xl font-bold text-[#1E1E1E]">Figuur 1-15: Informatiestroom, Encapsulatie &amp; Virtuele Communicatie</h3>
+                    </div>
+                    <span class="text-xs font-mono-code text-[#8B1E24]">Hoofdstuk 1 • Bronmachine &rarr; Bestemmingsmachine</span>
+                </div>
+
+                <p class="text-sm text-[#1E1E1E] leading-relaxed mb-4">
+                    <strong>Figuur 1-15</strong> (<em>&ldquo;Voorbeeld van de informatiestroom voor het ondersteunen van virtuele communicatie op laag 5&rdquo;</em>) illustreert het kernmechanisme van elke gelaagde netwerkarchitectuur: <strong>encapsulatie</strong> (inkapseling) bij de zender, fysieke bittransmissie over het medium, en <strong>decapsulatie</strong> (uitpakken en verifiëren) bij de ontvanger. Hoewel laag 5 op de bronmachine logisch een <em>virtueel peer-to-peer protocol</em> spreekt met laag 5 op de bestemmingsmachine, stroomt de werkelijke data verticaal omlaag en weer omhoog:
+                </p>
+
+                <div class="overflow-x-auto rounded-lg border border-[#D8C7C8]">
+                    <table class="min-w-full divide-y divide-[#D8C7C8] text-xs sm:text-sm">
+                        <thead class="bg-[#FBF8F8]">
+                            <tr>
+                                <th class="px-3.5 py-2.5 text-left font-bold uppercase tracking-wider text-[#8B1E24] w-24">Laag</th>
+                                <th class="px-3.5 py-2.5 text-left font-bold uppercase tracking-wider text-[#8B1E24] w-1/3">Protocol Data Unit (PDU)</th>
+                                <th class="px-3.5 py-2.5 text-left font-bold uppercase tracking-wider text-[#8B1E24]">Werking bij Bronmachine &amp; Bestemmingsmachine</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#D8C7C8] bg-white">
+                            <tr>
+                                <td class="px-3.5 py-3 font-mono-code font-bold text-[#8B1E24] align-top">Laag 5</td>
+                                <td class="px-3.5 py-3 font-mono-code text-xs align-top">
+                                    <span class="inline-block px-2 py-0.5 border border-[#8B1E24] bg-[#FBF8F8]">B</span>
+                                </td>
+                                <td class="px-3.5 py-3 text-[#1E1E1E] leading-relaxed">
+                                    <strong>Toepassingslaag:</strong> Het applicatieproces produceert bericht <code>B</code> en geeft dit via de laag-4/5-interface omlaag. Logisch communiceert laag 5 rechtstreeks met zijn tegenhanger volgens het <em>Protocol van laag 5</em>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-3.5 py-3 font-mono-code font-bold text-[#8B1E24] align-top">Laag 4</td>
+                                <td class="px-3.5 py-3 font-mono-code text-xs align-top">
+                                    <span class="inline-block px-1.5 py-0.5 border border-[#8B1E24] bg-[#8B1E24] text-white">H<sub>4</sub></span><span class="inline-block px-2 py-0.5 border border-[#8B1E24] bg-white">B</span>
+                                </td>
+                                <td class="px-3.5 py-3 text-[#1E1E1E] leading-relaxed">
+                                    <strong>Transportlaag:</strong> Voegt transportheader <code>H<sub>4</sub></code> toe (met poortnummers, volgnummers en betrouwbaarheidscontrole voor het <em>Protocol van laag 4</em>) en levert het segment door aan laag 3.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-3.5 py-3 font-mono-code font-bold text-[#8B1E24] align-top">Laag 3</td>
+                                <td class="px-3.5 py-3 font-mono-code text-xs align-top space-y-1">
+                                    <div><span class="inline-block px-1.5 py-0.5 border border-[#8B1E24] bg-[#8B1E24] text-white">H<sub>3</sub></span><span class="inline-block px-1.5 py-0.5 border border-[#8B1E24] bg-[#FBF8F8]">H<sub>4</sub></span><span class="inline-block px-1.5 py-0.5 border border-[#8B1E24] bg-white">B<sub>1</sub></span></div>
+                                    <div><span class="inline-block px-1.5 py-0.5 border border-[#8B1E24] bg-[#8B1E24] text-white">H<sub>3</sub></span><span class="inline-block px-1.5 py-0.5 border border-[#8B1E24] bg-white">B<sub>2</sub></span></div>
+                                </td>
+                                <td class="px-3.5 py-3 text-[#1E1E1E] leading-relaxed">
+                                    <strong>Netwerklaag:</strong> Splitst het transportsegment wegens maximale pakketgrootte (MTU) op in twee pakketten (<code>B<sub>1</sub></code> en <code>B<sub>2</sub></code>) en voorziet elk pakket van een netwerkheader <code>H<sub>3</sub></code> (routeringsinformatie voor het <em>Protocol van laag 3</em>).
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-3.5 py-3 font-mono-code font-bold text-[#8B1E24] align-top">Laag 2</td>
+                                <td class="px-3.5 py-3 font-mono-code text-xs align-top space-y-1">
+                                    <div><span class="inline-block px-1 py-0.5 border border-[#8B1E24] bg-[#8B1E24] text-white">H<sub>2</sub></span><span class="inline-block px-1 py-0.5 border border-[#8B1E24] bg-[#FBF8F8]">H<sub>3</sub></span><span class="inline-block px-1 py-0.5 border border-[#8B1E24] bg-white">H<sub>4</sub></span><span class="inline-block px-1 py-0.5 border border-[#8B1E24] bg-white">B<sub>1</sub></span><span class="inline-block px-1 py-0.5 border border-[#8B1E24] bg-[#8B1E24] text-white">T<sub>2</sub></span></div>
+                                    <div><span class="inline-block px-1 py-0.5 border border-[#8B1E24] bg-[#8B1E24] text-white">H<sub>2</sub></span><span class="inline-block px-1 py-0.5 border border-[#8B1E24] bg-[#FBF8F8]">H<sub>3</sub></span><span class="inline-block px-1 py-0.5 border border-[#8B1E24] bg-white">B<sub>2</sub></span><span class="inline-block px-1 py-0.5 border border-[#8B1E24] bg-[#8B1E24] text-white">T<sub>2</sub></span></div>
+                                </td>
+                                <td class="px-3.5 py-3 text-[#1E1E1E] leading-relaxed">
+                                    <strong>Datalinklaag:</strong> Omsluit elk netwerkpakket met zowel een frameheader <code>H<sub>2</sub></code> (MAC-adressering) als een frametrailer <code>T<sub>2</sub></code> (foutdetectie/CRC) voor betrouwbare overdracht over de directe verbinding (<em>Protocol van laag 2</em>).
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-3.5 py-3 font-mono-code font-bold text-[#8B1E24] align-top">Laag 1</td>
+                                <td class="px-3.5 py-3 font-mono-code text-xs align-top">
+                                    <span class="text-[#8B1E24] font-semibold">01011011001...</span> (Bitstroom)
+                                </td>
+                                <td class="px-3.5 py-3 text-[#1E1E1E] leading-relaxed">
+                                    <strong>Fysieke laag:</strong> Zet de frames om in fysieke signalen over het transmissiemedium naar de bestemmingsmachine. Daar verwijdert en controleert elke laag opwaarts zijn eigen header/trailer (<code>H<sub>2</sub>/T<sub>2</sub></code> &rarr; <code>H<sub>3</sub></code> &rarr; <code>H<sub>4</sub></code>), totdat laag 5 het oorspronkelijke bericht <code>B</code> ontvangt.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Subonderdeel 1.4: Afbeelding 5 (De Filosoof-Vertaler-Secretaresse analogie) -->
+            <div class="rounded-xl border border-[#D8C7C8] bg-[#FBF8F8] p-5 sm:p-6 print-break-avoid">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded bg-[#8B1E24] text-white text-xs font-mono-code font-bold">AFBEELDING 5</span>
+                        <h3 class="text-xl font-bold text-[#1E1E1E]">De Filosoof–Vertaler–Secretaresse Analogie (Interfaces vs. Protocollen)</h3>
+                    </div>
+                    <span class="text-xs font-mono-code text-[#8B1E24]">Hoofdstuk 1 • Gelaagde Dienstenmodel</span>
+                </div>
+
+                <p class="text-sm text-[#1E1E1E] leading-relaxed mb-4">
+                    De vijfde foto toont Tanenbaums beroemde pedagogische illustratie van een Engelstalige filosoof (locatie A) en een Franstalige filosoof (locatie B) die over konijnen willen communiceren zonder elkaars taal te spreken. Deze analogie maakt het fundamentele architectuuronderscheid zichtbaar tussen <strong>interfaces</strong> (de verticale dienstverlening tussen aangrenzende lagen op dezelfde machine) en <strong>protocollen</strong> (de horizontale afspraken en controlevelden tussen gelijke lagen op verschillende machines):
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="rounded-lg border border-[#D8C7C8] bg-white p-4">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold uppercase tracking-wider text-[#8B1E24]">Laag 3 • Filosoof</span>
+                            <span class="text-[11px] font-mono-code text-[#4A4A4A]">Peer-to-peer inhoud</span>
+                        </div>
+                        <p class="text-xs text-[#1E1E1E] leading-relaxed mb-2">
+                            De filosoof op locatie A formuleert het bericht <code>&ldquo;I like rabbits&rdquo;</code> en geeft dit via de interface door aan zijn vertaler. De filosoof op locatie B ontvangt <code>&ldquo;J'aime bien les lapins&rdquo;</code>. Beiden verkeren in de veronderstelling rechtstreeks met elkaar te spreken.
+                        </p>
+                    </div>
+
+                    <div class="rounded-lg border border-[#D8C7C8] bg-white p-4">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold uppercase tracking-wider text-[#8B1E24]">Laag 2 • Vertaler</span>
+                            <span class="text-[11px] font-mono-code text-[#4A4A4A]">Taalprotocol (Header)</span>
+                        </div>
+                        <p class="text-xs text-[#1E1E1E] leading-relaxed mb-2">
+                            Beide vertalers hebben onderling als <em>Laag-2-protocol</em> afgesproken het Nederlands als tussentaal te gebruiken. De vertaler op locatie A vertaalt de zin en voegt een <strong>protocolheader</strong> toe: <code>[L: Dutch | Ik vind konijnen leuk]</code>. Op locatie B gebruikt de vertaler die header om de tussentaal te herkennen en naar het Frans te vertalen.
+                        </p>
+                    </div>
+
+                    <div class="rounded-lg border border-[#D8C7C8] bg-white p-4">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold uppercase tracking-wider text-[#8B1E24]">Laag 1 • Secretaresse</span>
+                            <span class="text-[11px] font-mono-code text-[#4A4A4A]">Transportprotocol (Header)</span>
+                        </div>
+                        <p class="text-xs text-[#1E1E1E] leading-relaxed mb-2">
+                            De secretaresse op locatie A ontvangt het pakket van de vertaler, voegt haar eigen <strong>transportheader</strong> met bestemmingsadres toe (<code>[Fax #---- | L: Dutch | Ik vind konijnen leuk]</code>) en verzendt het fysiek via de faxlijn naar de secretaresse op locatie B, die de faxheader verwijdert en het bericht omhoog doorgeeft.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTIE 2: Academische & Vakinhoudelijke Verankering -->
+        <section id="sectie-2" class="bg-white rounded-xl border border-[#D8C7C8] p-6 sm:p-8 shadow-sm scroll-mt-36">
+            <div class="flex items-center justify-between gap-4 mb-2">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#8B1E24]">Sectie 02</span>
+                <span class="text-xs text-[#4A4A4A] font-mono-code">VU AMSTERDAM (~AST) &amp; UVA MASTER OS3</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-[#1E1E1E] mb-3">
+                Academische &amp; Vakinhoudelijke Verankering (<code class="text-xl text-[#8B1E24]">cs.vu.nl/~ast/</code> &amp; <code class="text-xl text-[#8B1E24]">os3.nl</code>)
+            </h2>
+            <div class="meekrab-rule mb-6"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Kaart 1: Prof. dr. Andrew S. Tanenbaum (VU Amsterdam) -->
+                <div class="rounded-xl border border-[#D8C7C8] bg-[#FBF8F8] p-6 flex flex-col justify-between print-break-avoid">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="px-2.5 py-0.5 rounded bg-[#8B1E24] text-white text-xs font-bold uppercase tracking-wider">
+                                Vrije Universiteit Amsterdam
+                            </span>
+                            <span class="text-xs font-mono-code text-[#8B1E24]">cs.vu.nl/~ast/</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-[#1E1E1E] mb-2">
+                            Prof. dr. Andrew S. Tanenbaum — Leerstoel Computer Systems
+                        </h3>
+                        <p class="text-xs font-mono-code text-[#4A4A4A] mb-3">
+                            Archiefbron: web.archive.org/web/20170831191440/https://www.cs.vu.nl/~ast/
+                        </p>
+                        <div class="space-y-3 text-sm text-[#1E1E1E] leading-relaxed">
+                            <p>
+                                Als hoogleraar Computer Systems aan de Vrije Universiteit Amsterdam legde Andrew S. Tanenbaum de fundamenten onder de moderne systeem- en netwerkwetenschap. Naast zijn trilogiën van standaardwerken (<em>Computernetwerken</em>, <em>Modern Operating Systems</em> en <em>Distributed Systems</em>) verwierf hij wereldfaam als grondlegger van <strong>MINIX</strong> (met name het zelfherstellende microkernel-besturingssysteem <strong>MINIX 3</strong>).
+                            </p>
+                            <p>
+                                <strong>Kernprincipe van de VU-school:</strong> Betrouwbare en veilige softwaresystemen vereisen een <em>minimale Trusted Computing Base (TCB)</em>, strikte modulaire isolatie van componenten (zoals netwerkdrivers en filesystems in user-space) en transparante, formeel verifieerbare protocolgrenzen. Complexiteit die in één ondoorzichtige monoliet wordt verborgen, ondermijnt zowel de fouttolerantie als de controleerbaarheid van het systeem.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-[#D8C7C8] text-xs text-[#4A4A4A]">
+                        <strong>Architectuurnorm:</strong> Strikte scheiding van lagen en verifieerbare interfacecontracten tussen systeemcomponenten.
+                    </div>
+                </div>
+
+                <!-- Kaart 2: UvA Master Security and Network Engineering (OS3) -->
+                <div class="rounded-xl border border-[#D8C7C8] bg-white p-6 flex flex-col justify-between print-break-avoid">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="px-2.5 py-0.5 rounded bg-[#9E2A2B] text-white text-xs font-bold uppercase tracking-wider">
+                                Universiteit van Amsterdam
+                            </span>
+                            <span class="text-xs font-mono-code text-[#8B1E24]">os3.nl</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-[#1E1E1E] mb-2">
+                            Master Security and Network Engineering (OS3)
+                        </h3>
+                        <p class="text-xs font-mono-code text-[#4A4A4A] mb-3">
+                            Bron: https://www.os3.nl/ (Amsterdamse SNE-traditie)
+                        </p>
+                        <div class="space-y-3 text-sm text-[#1E1E1E] leading-relaxed">
+                            <p>
+                                Voortbouwend op het Amsterdamse computerwetenschappelijke ecosysteem (VU en UvA) leidt de praktijkgerichte, onderzoeksgedreven masteropleiding <strong>Security and Network Engineering (OS3)</strong> specialisten op om complexe infrastructuren tot op het laagste protocol- en bitniveau te ontleden.
+                            </p>
+                            <p>
+                                Binnen het OS3-curriculum vormen de exacte bouwstenen uit Tanenbaum en Wetherall — <strong>L1–L7 protocolanalyse, IP-routing, Ethernet switching &amp; VLAN's, cryptografie, PKI/TLS, DNSSEC, systeembeveiliging en digitaal forensisch onderzoek</strong> — het dagelijkse gereedschap.
+                            </p>
+                            <p>
+                                <strong>De empirische OS3-methodiek:</strong> Een system &amp; network engineer gaat nooit af op abstracte verkoopbrochures, marketingclaims of oppervlakkige statusmeldingen in een gebruikersinterface. De waarheid van een systeem ligt uitsluitend in het <em>werkelijke netwerkverkeer, de ruwe pakket- en MIME-headers, de routeringstabellen en de cryptografische handtekeningen</em>.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-5 pt-3 border-t border-[#D8C7C8] text-xs text-[#4A4A4A]">
+                        <strong>Forensische norm:</strong> Empirische verificatie op pakket-, header- en protocolniveau boven administratieve schijn.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTIE 3: Interactieve Protocol- & Encapsulatie-Inspecteur -->
+        <section id="sectie-3" class="bg-white rounded-xl border border-[#D8C7C8] p-6 sm:p-8 shadow-sm scroll-mt-36">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#8B1E24]">Sectie 03</span>
+                <span class="text-xs text-[#4A4A4A] no-print">Selecteer een protocollaag om theorie (Tanenbaum) en dossierbewijs (BaseNet/AS4) te vergelijken</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-[#1E1E1E] mb-3">
+                Interactieve Protocol- &amp; Encapsulatie-Inspecteur (Theorie &harr; BaseNet-Dossier)
+            </h2>
+            <div class="meekrab-rule mb-6"></div>
+
+            <p class="text-sm text-[#1E1E1E] leading-relaxed mb-6">
+                Onderstaande interactieve matrix vertaalt de gelaagde architectuurprincipes van Tanenbaum &amp; Wetherall (Figuur 1-15, de Filosoof–Vertaler–Secretaresse analogie en Hoofdstuk 4.8) en de empirische OS3-onderzoeksmethode rechtstreeks naar de technische bewijsstukken in dossier <strong>D19314 / Item I68580034</strong>:
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Linker kolom: Laag-kiezer (Laag 5/7 t/m Laag 1 & 2) -->
+                <div class="lg:col-span-5 space-y-2.5">
+                    <div onclick="selectProtocolLayer('layer5')" id="btn-layer5" class="layer-selector active rounded-lg p-3.5">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="layer-pill-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-[#8B1E24] text-white">LAAG 5 / 7 • TOEPASSING</span>
+                            <span class="layer-sub text-[11px] font-mono-code text-[#4A4A4A]">Fig. 1-15 &amp; Filosoof/Vertaler</span>
+                        </div>
+                        <div class="font-bold text-sm">Virtuele Communicatie &amp; Protocolheaders</div>
+                        <div class="layer-sub text-xs text-[#4A4A4A] mt-0.5">HTTP Servlets, MIME-headers, UBL &amp; AS4 ConversationId</div>
+                    </div>
+
+                    <div onclick="selectProtocolLayer('layer4')" id="btn-layer4" class="layer-selector rounded-lg p-3.5">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="layer-pill-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-[#FBF8F8] text-[#8B1E24] border border-[#D8C7C8]">LAAG 4 • TRANSPORT</span>
+                            <span class="layer-sub text-[11px] font-mono-code text-[#4A4A4A]">Segmentatie &amp; Header H4</span>
+                        </div>
+                        <div class="font-bold text-sm">Transportlaag: TCP, Coyote HTTP &amp; mTLS</div>
+                        <div class="layer-sub text-xs text-[#4A4A4A] mt-0.5">Betrouwbare sessieopbouw (with HTTP, SMTP, eConnect)</div>
+                    </div>
+
+                    <div onclick="selectProtocolLayer('layer3')" id="btn-layer3" class="layer-selector rounded-lg p-3.5">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="layer-pill-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-[#FBF8F8] text-[#8B1E24] border border-[#D8C7C8]">LAAG 3 • NETWERK</span>
+                            <span class="layer-sub text-[11px] font-mono-code text-[#4A4A4A]">Pakketten &amp; Header H3</span>
+                        </div>
+                        <div class="font-bold text-sm">Netwerklaag: IP-Routing &amp; RFC 1918 Pod-IP</div>
+                        <div class="layer-sub text-xs text-[#4A4A4A] mt-0.5">Pod 10.244.3.181 &rarr; postfix-out-int.mail</div>
+                    </div>
+
+                    <div onclick="selectProtocolLayer('layer12')" id="btn-layer12" class="layer-selector rounded-lg p-3.5">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="layer-pill-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-[#FBF8F8] text-[#8B1E24] border border-[#D8C7C8]">LAAG 1 &amp; 2 • DATALINK / FYSIEK</span>
+                            <span class="layer-sub text-[11px] font-mono-code text-[#4A4A4A]">Hfdst. 4.8 • Bridges &amp; VLAN's</span>
+                        </div>
+                        <div class="font-bold text-sm">Bridges, Switches, VLAN's &amp; Kubernetes CNI</div>
+                        <div class="layer-sub text-xs text-[#4A4A4A] mt-0.5">Overlay-netwerk 10.244.0.0/16 &amp; transparante frames</div>
+                    </div>
+                </div>
+
+                <!-- Rechter kolom: Detailweergave (Theorie vs. Forensisch Bewijs) -->
+                <div class="lg:col-span-7 rounded-xl border-2 border-[#8B1E24] bg-[#FBF8F8] p-5 sm:p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#D8C7C8]">
+                        <span id="inspBadge" class="px-2.5 py-0.5 rounded text-xs font-mono-code font-bold bg-[#8B1E24] text-white">
+                            LAAG 5 / 7 • TOEPASSINGSLAAG
+                        </span>
+                        <span id="inspRef" class="text-xs font-mono-code text-[#8B1E24] font-semibold">
+                            Ref: Figuur 1-15 &amp; Filosoof–Vertaler–Secretaresse
+                        </span>
+                    </div>
+
+                    <h3 id="inspTitle" class="text-xl font-bold text-[#1E1E1E] mb-4">
+                        Virtuele Communicatie &amp; Protocolheaders in BaseNet / Tomcat / AS4
+                    </h3>
+
+                    <!-- Blok 1: Tanenbaum & OS3 Theorie -->
+                    <div class="rounded-lg bg-white border border-[#D8C7C8] p-4 mb-4">
+                        <div class="text-xs font-bold uppercase tracking-wider text-[#8B1E24] mb-1.5">
+                            1. Theoretisch Kader (Tanenbaum &amp; Wetherall / OS3)
+                        </div>
+                        <p id="inspTheory" class="text-xs sm:text-sm text-[#1E1E1E] leading-relaxed">
+                            In Figuur 1-15 en de analogie van de Filosoof, Vertaler en Secretaresse voegt elke dienstverlenende laag zijn eigen identificerende protocolmetadata toe aan het oorspronkelijke bericht B (zoals <code>&ldquo;L: Dutch&rdquo;</code> door de vertaler en <code>&ldquo;Fax #----&rdquo;</code> door de secretaresse). Bij de ontvangende partij maken deze ingekapselde headers onweerlegbaar inzichtelijk welke tussenschakels het bericht hebben vertaald, gerouteerd en verzonden.
+                        </p>
+                    </div>
+
+                    <!-- Blok 2: Forensische Manifestatie BaseNet -->
+                    <div class="rounded-lg bg-white border border-[#D8C7C8] p-4 mb-4">
+                        <div class="text-xs font-bold uppercase tracking-wider text-[#8B1E24] mb-1.5">
+                            2. Forensische Manifestatie in Dossier D19314 / I68580034
+                        </div>
+                        <p id="inspForensic" class="text-xs sm:text-sm text-[#1E1E1E] leading-relaxed mb-3">
+                            Precies zoals de vertaler en secretaresse hun stempel drukken op het bericht van de filosoof, injecteert de Apache Tomcat-middleware (<code>tomcat-live-64f7774688-dtj5k</code>) samen met Postfix en eConnect dwingende applicatie- en transportheaders: <code>X-Originating-Host</code>, <code>Received</code>, de servlet-URL <code>/servlets/objects/rela.archivedemail/print</code> en de cryptografische <code>AS4 ConversationId</code>.
+                        </p>
+                        <div class="rounded bg-[#1E1E1E] text-amber-50 p-3 font-mono-code text-xs overflow-x-auto">
+                            <pre id="inspCode">X-Originating-Host: from [interne client/sessie]
+    by tomcat-live-64f7774688-dtj5k [10.244.3.181] with HTTP
+URL: https://crm.basenet.nl/servlets/objects/rela.archivedemail/print
+Keten: D19314 + I68580034 -> eConnect API -> AS4 ConversationId</pre>
+                        </div>
+                    </div>
+
+                    <!-- Blok 3: Bewijsconclusie -->
+                    <div class="rounded-lg bg-[#8B1E24] text-white p-3.5 text-xs leading-relaxed">
+                        <strong>Conclusie voor de bewijsvoering:</strong> <span id="inspConclusion">De UI-status &ldquo;inactief&rdquo; bevindt zich uitsluitend op het oppervlak van de presentatielaag, terwijl de protocolheaders op laag 5/7 en de AS4-envelop aantonen dat de onderliggende Java-servlets en API-koppelingen daadwerkelijk actieve transacties hebben uitgevoerd.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Volledig overzicht voor printweergave (alle 4 lagen compact onder elkaar zodat niets verborgen blijft op papier) -->
+            <div class="mt-8 pt-6 border-t border-[#D8C7C8]">
+                <h3 class="text-lg font-bold text-[#1E1E1E] mb-3">
+                    Samenvattende Synthesetabel: Van Tanenbaum &amp; OS3 naar Forensisch Dossierbewijs
+                </h3>
+                <div class="overflow-x-auto rounded-lg border border-[#D8C7C8]">
+                    <table class="min-w-full divide-y divide-[#D8C7C8] text-xs">
+                        <thead class="bg-[#FBF8F8]">
+                            <tr>
+                                <th class="px-3.5 py-2.5 text-left font-bold uppercase tracking-wider text-[#8B1E24]">Laag</th>
+                                <th class="px-3.5 py-2.5 text-left font-bold uppercase tracking-wider text-[#8B1E24]">Tanenbaum &amp; Wetherall (5e ed.)</th>
+                                <th class="px-3.5 py-2.5 text-left font-bold uppercase tracking-wider text-[#8B1E24]">OS3 Empirische Inspectie</th>
+                                <th class="px-3.5 py-2.5 text-left font-bold uppercase tracking-wider text-[#8B1E24]">Bewijs in BaseNet / AS4-keten</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#D8C7C8] bg-white">
+                            <tr>
+                                <td class="px-3.5 py-2.5 font-mono-code font-bold text-[#8B1E24] align-top">Laag 5/7</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top">Virtuele peer-to-peer communicatie (Fig. 1-15); vertaler voegt taalheader <code>L: Dutch</code> toe.</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top">Inspectie van HTTP-endpoints, MIME-headers, UBL-payloads en XML-DSig/AS4-enveloppen.</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top"><code>/servlets/objects/rela.archivedemail/print</code>, <code>X-Originating-Host</code>, <code>AS4 ConversationId</code> &amp; MDN.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-3.5 py-2.5 font-mono-code font-bold text-[#8B1E24] align-top">Laag 4</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top">Transportlaag voegt header <code>H<sub>4</sub></code> toe voor betrouwbare sessies en foutloze aflevering.</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top">Analyse van TCP-sessies, HTTP-connectoren en wederzijdse PKI-authenticatie (mTLS).</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top">Tomcat Coyote connector (<code>with HTTP</code>), SMTP-overdracht naar Postfix en mTLS naar eConnect API.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-3.5 py-2.5 font-mono-code font-bold text-[#8B1E24] align-top">Laag 3</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top">Netwerklaag (routers) inspecteert header <code>H<sub>3</sub></code> voor routering over subnetten.</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top">Traceerbaarheid van interne RFC 1918-adressering en cluster-routeringstabellen.</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top">Kubernetes pod-IP <code>10.244.3.181</code> (<code>tomcat-live-64f7774688-dtj5k</code>) naar <code>postfix-out-int.mail</code>.</td>
+                            </tr>
+                            <tr>
+                                <td class="px-3.5 py-2.5 font-mono-code font-bold text-[#8B1E24] align-top">Laag 1 &amp; 2</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top">Bridges/switches &amp; VLAN's (Par. 4.8) schakelen frames (<code>H<sub>2</sub>/T<sub>2</sub></code>) zonder payload-inspectie.</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top">Ontleding van virtuele switches, CNI-overlaynetwerken en gescheiden broadcastdomeinen.</td>
+                                <td class="px-3.5 py-2.5 text-[#1E1E1E] align-top">Kubernetes CNI-subnet <code>10.244.0.0/16</code> transporteert encapsulated frames transparant tussen worker nodes.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Archief-footer -->
+    <footer class="bg-white border-t border-[#D8C7C8] mt-12 py-6">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#4A4A4A]">
+            <div>
+                <span class="font-semibold text-[#1E1E1E]">Netwerkarchitectuur, Protocolgelaagdheid &amp; Forensische Toepassing</span> &bull; Tanenbaum &amp; Wetherall (5e ed.) / VU / UvA OS3
+            </div>
+            <div class="font-mono-code text-[#8B1E24]">
+                Dossier D19314 &bull; Item I68580034 &bull; Classificatie C1 + L2, L4
+            </div>
+        </div>
+    </footer>
+
+    <!-- Vanilla JavaScript voor interactieve protocollaag-inspecteur, scroll-navigatie en klembord -->
+    <script>
+        const protocolLayersData = {
+            layer5: {
+                badge: 'LAAG 5 / 7 • TOEPASSINGSLAAG',
+                ref: 'Ref: Figuur 1-15 & Filosoof–Vertaler–Secretaresse',
+                title: 'Virtuele Communicatie & Protocolheaders in BaseNet / Tomcat / AS4',
+                theory: 'In Figuur 1-15 en de analogie van de Filosoof, Vertaler en Secretaresse voegt elke dienstverlenende laag zijn eigen identificerende protocolmetadata toe aan het oorspronkelijke bericht B (zoals "L: Dutch" door de vertaler en "Fax #----" door de secretaresse). Bij de ontvangende partij maken deze ingekapselde headers onweerlegbaar inzichtelijk welke tussenschakels het bericht hebben vertaald, gerouteerd en verzonden.',
+                forensic: 'Precies zoals de vertaler en secretaresse hun stempel drukken op het bericht van de filosoof, injecteert de Apache Tomcat-middleware (tomcat-live-64f7774688-dtj5k) samen met Postfix en eConnect dwingende applicatie- en transportheaders: X-Originating-Host, Received, de servlet-URL /servlets/objects/rela.archivedemail/print en de cryptografische AS4 ConversationId.',
+                code: 'X-Originating-Host: from [interne client/sessie]\n    by tomcat-live-64f7774688-dtj5k [10.244.3.181] with HTTP\nURL: https://crm.basenet.nl/servlets/objects/rela.archivedemail/print\nKeten: D19314 + I68580034 -> eConnect API -> AS4 ConversationId',
+                conclusion: 'De UI-status "inactief" bevindt zich uitsluitend op het oppervlak van de presentatielaag, terwijl de protocolheaders op laag 5/7 en de AS4-envelop aantonen dat de onderliggende Java-servlets en API-koppelingen daadwerkelijk actieve transacties hebben uitgevoerd.'
+            },
+            layer4: {
+                badge: 'LAAG 4 • TRANSPORTLAAG',
+                ref: 'Ref: Figuur 1-15 (Header H4) & OS3 PKI/TLS-analyse',
+                title: 'Transportlaag: TCP-sessies, Coyote HTTP-connector & mTLS',
+                theory: 'Volgens Figuur 1-15 ontvangt de transportlaag het toepassingsbericht B en voorziet dit van transportheader H4. Deze laag garandeert betrouwbare end-to-end verbindingen, poortadressering en integriteit tussen de communicerende processen, onafhankelijk van de onderliggende fysieke netwerktopologie.',
+                forensic: 'In de BaseNet-architectuur manifesteert laag 4 zich op drie cruciale overgangspunten: (1) de Coyote HTTP-connector van Apache Tomcat die interne HTTP-verzoeken afhandelt ("with HTTP"), (2) de SMTP-transactie tussen Tomcat en de interne mailrelay postfix-out-int.mail, en (3) de met Mutual TLS (mTLS) beveiligde API-sessie tussen Tomcat en het eConnect Peppol Access Point.',
+                code: 'Connector: Apache Tomcat Coyote HTTP/1.1 ("with HTTP")\nMailrelay: TCP/SMTP -> postfix-out-int.mail -> out.basenet.nl\nPeppol AP: HTTPS + Mutual TLS (mTLS PKI) -> eConnect API',
+                conclusion: 'Elke geauthenticeerde TCP/mTLS-sessie naar eConnect laat een onuitwisbaar transactielog na; een dergelijke transportverbinding komt uitsluitend tot stand door een actieve aanroep vanuit de Tomcat-applicatielaag.'
+            },
+            layer3: {
+                badge: 'LAAG 3 • NETWERKLAAG',
+                ref: 'Ref: Figuur 1-15 (Header H3) & Par. 4.8 (Routers)',
+                title: 'Netwerklaag: IP-Routering & Private RFC 1918 Pod-Adressering',
+                theory: 'Tanenbaum en Wetherall maken op pagina 336 een scherp onderscheid tussen bridges (laag 2) en routers (laag 3): routers onderzoeken de netwerklaagadressen (header H3) in pakketten en routeren deze tussen afzonderlijke subnetten. In Figuur 1-15 splitst laag 3 grotere segmenten op in pakketten B1 en B2, elk voorzien van een eigen IP-header H3.',
+                forensic: 'In de ruwe MIME-headers van out.basenet.nl is het interne IP-adres [10.244.3.181] vastgelegd. Dit adres behoort tot de gereserveerde private RFC 1918-adresruimte (10.0.0.0/8) en specifiek tot het Kubernetes pod-subnet 10.244.0.0/16. Het identificeert op netwerklaagniveau de exacte Tomcat-pod die het pakket naar de mailrelay heeft gerouteerd.',
+                code: 'Bron-IP (Pod): 10.244.3.181 (tomcat-live-64f7774688-dtj5k)\nSubnetmasker : 10.244.0.0/16 (RFC 1918 Private Cluster-CIDR)\nDoel-routing : Interne mailrelay (postfix-out-int.mail) & API-gateway',
+                conclusion: 'Het IP-adres 10.244.3.181 bewijst dat de transactie niet afkomstig is van een externe partij of spookproces, maar rechtstreeks is gerouteerd vanuit een actieve productie-pod binnen het BaseNet-cluster.'
+            },
+            layer12: {
+                badge: 'LAAG 1 & 2 • DATALINK & FYSIEK',
+                ref: 'Ref: Hoofdstuk 4.8 & 4.8.1 (Bridges, Switches & VLAN\'s)',
+                title: 'Bridges, Switches, VLAN\'s & het Kubernetes CNI-Overlaynetwerk',
+                theory: 'In paragraaf 4.8 en 4.8.1 (p. 336–337) leggen Tanenbaum en Wetherall uit dat bridges en switches in de datalinklaag (laag 2) frames (header H2 en trailer T2) schakelen op basis van MAC-adressen zonder de payload (IP-pakketten) te inspecteren. Door LAN\'s te partitioneren en Virtual LAN\'s (VLAN\'s) in te zetten, worden botsingsdomeinen gescheiden, bandbreedte verdubbeld en fysieke afstanden overbrugd.',
+                forensic: 'Moderne cloud- en Kubernetes-clusters zoals dat van BaseNet passen exact ditzelfde principe toe via virtuele Ethernet-bridges (zoals cni0 / veth-pairs) en Container Network Interfaces (Flannel/Calico op 10.244.0.0/16). Net als fysieke bridges in Hoofdstuk 4.8 schakelen deze virtuele switches de ingekapselde frames tussen worker nodes zonder de inhoud van de HTTP- of UBL-payload te filteren of tegen te houden.',
+                code: 'Virtuele Switch / Bridge: Kubernetes CNI (veth <-> cni0 bridge)\nEncapsulatie (Laag 2)   : [H2 (MAC/VXLAN) | H3 (10.244.3.181) | H4 | Payload | T2]\nFunctie (Par. 4.8)      : Transparante frame-switching zonder payload-inspectie',
+                conclusion: 'Omdat laag 2 (bridges/switches/CNI) volgens het Tanenbaum-ontwerp bewust protocol-agnostisch is en geen applicatiepayloads inspecteert, kan netwerkisolatie op laag 2 nooit een inhoudelijke applicatiestatus ("inactief") afdwingen.'
+            }
+        };
+
+        function selectProtocolLayer(layerKey) {
+            const data = protocolLayersData[layerKey];
+            if (!data) return;
+
+            // Reset alle knoppen
+            document.querySelectorAll('.layer-selector').forEach(btn => {
+                btn.classList.remove('active');
+                const pill = btn.querySelector('.layer-pill-tag');
+                if (pill) {
+                    pill.className = 'layer-pill-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-[#FBF8F8] text-[#8B1E24] border border-[#D8C7C8]';
+                }
+            });
+
+            // Activeer geselecteerde knop
+            const activeBtn = document.getElementById('btn-' + layerKey);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                const activePill = activeBtn.querySelector('.layer-pill-tag');
+                if (activePill) {
+                    activePill.className = 'layer-pill-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-white text-[#8B1E24]';
+                }
+            }
+
+            // Update detailpaneel
+            document.getElementById('inspBadge').textContent = data.badge;
+            document.getElementById('inspRef').textContent = data.ref;
+            document.getElementById('inspTitle').textContent = data.title;
+            document.getElementById('inspTheory').textContent = data.theory;
+            document.getElementById('inspForensic').textContent = data.forensic;
+            document.getElementById('inspCode').textContent = data.code;
+            document.getElementById('inspConclusion').textContent = data.conclusion;
+        }
+
+        // Kopieer synthese naar klembord (iFrame-veilig via textarea + execCommand)
+        function copyReferenceToClipboard() {
+            const text = [
+                'NETWERKARCHITECTUUR, PROTOCOLGELAAGDHEID & FORENSISCHE TOEPASSING',
+                'Bronnen: Tanenbaum & Wetherall (Computernetwerken, 5e ed., Pearson), VU Amsterdam (cs.vu.nl/~ast/), UvA OS3 (os3.nl)',
+                'Dossier: D19314 | Item: I68580034 | Classificatie: C1 + L2, L4',
+                '----------------------------------------------------------------------------------------------------',
+                '1. Bronanalyse (5 foto\'s): Hybride 5-laags referentiemodel, RFID Query 22-bits formaat (Fig. 4-40) & IoT, bridges/switches vs. routers & 3 redenen voor LAN-partitionering (Par. 4.8/4.8.1), encapsulatie H2/H3/H4/T2 (Fig. 1-15) en Filosoof-Vertaler-Secretaresse analogie.',
+                '2. Academisch kader: Prof. dr. A.S. Tanenbaum (VU Amsterdam, MINIX/microkernel-isolatie) en UvA Master OS3 (empirische protocol- en pakketinspectie L1-L7).',
+                '3. Forensische toepassing: UI-status "inactief" op presentatielaag weerlegt niet de harde protocolheaders op L3-L7 (tomcat-live-64f7774688-dtj5k [10.244.3.181], /servlets/objects/rela.archivedemail/print, eConnect API en AS4 ConversationId).'
+            ].join('\n');
+
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                showToast('Synthese en academische referenties gekopieerd naar klembord.');
+            } catch (e) {
+                showToast('Kopiëren mislukt; selecteer de tekst handmatig.');
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function showToast(message) {
+            const banner = document.getElementById('toastBanner');
+            document.getElementById('toastMessage').textContent = message;
+            banner.classList.remove('hidden');
+            setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 3200);
+        }
+
+        // Scroll-gebaseerde navigatie-highlight
+        window.addEventListener('scroll', () => {
+            const sections = ['sectie-1', 'sectie-2', 'sectie-3'];
+            const scrollPos = window.scrollY + 190;
+
+            sections.forEach(id => {
+                const sec = document.getElementById(id);
+                const link = document.querySelector(`nav a[href="#${id}"]`);
+                if (sec && link) {
+                    if (scrollPos >= sec.offsetTop && scrollPos < sec.offsetTop + sec.offsetHeight) {
+                        document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
