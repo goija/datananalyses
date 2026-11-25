@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tholen-Schakerloo | Integraal Archief, Gastenboek &amp; Contactportaal</title>
+    <style>
+        :root {
+            --meekrab: #9E2A2B;
+            --meekrab-dark: #7A1E1F;
+            --meekrab-light: #FDF6F6;
+            --bg-page: #FFFFFF;
+            --bg-card: #FAFAFA;
+            --text-main: #1F2421;
+            --text-muted: #5A625E;
+            --border: #DCDFE0;
+            --accent-blue: #1D4E89;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.65;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--meekrab);
+            color: #FFFFFF;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            border-bottom: 4px solid var(--meekrab-dark);
+        }
+
+        header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 1rem;
+            opacity: 0.92;
+        }
+
+        .dev-badge {
+            display: inline-block;
+            margin-top: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-family: monospace;
+        }
+
+        nav {
+            background-color: #F4F5F6;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+        }
+
+        nav button {
+            background: #FFFFFF;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        nav button:hover, nav button.active {
+            background: var(--meekrab);
+            color: #FFFFFF;
+            border-color: var(--meekrab);
+        }
+
+        main {
+            max-width: 1050px;
+            margin: 2rem auto;
+            padding: 0 1.25rem;
+        }
+
+        .tab-section {
+            display: none;
+        }
+
+        .tab-section.active {
+            display: block;
+        }
+
+        article, .card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.75rem;
+            margin-bottom: 1.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        h2 {
+            color: var(--meekrab);
+            border-bottom: 2px solid var(--meekrab);
+            padding-bottom: 0.4rem;
+            margin-top: 0;
+            font-size: 1.45rem;
+        }
+
+        h3 {
+            color: var(--text-main);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.15rem;
+        }
+
+        ul {
+            padding-left: 1.3rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0;
+            font-size: 0.92rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: var(--meekrab-light);
+            color: var(--meekrab-dark);
+            font-weight: 700;
+        }
+
+        /* Formulieren */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            font-size: 0.92rem;
+        }
+
+        input[type="text"], input[type="email"], select, textarea, input[type="file"] {
+            width: 100%;
+            padding: 0.65rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--meekrab);
+        }
+
+        .btn-primary {
+            background-color: var(--meekrab);
+            color: #FFFFFF;
+            border: none;
+            padding: 0.75rem 1.4rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--meekrab-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-blue);
+            color: #FFFFFF;
+            border: none;
+            padding: 0.65rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Gastenboek & Vragen */
+        .search-bar {
+            margin-bottom: 1.25rem;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .entry-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--meekrab);
+            border-radius: 4px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .entry-card.question-card {
+            border-left-color: var(--accent-blue);
+            background: #F4F8FC;
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #E5E7E9;
+            padding-bottom: 0.45rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .entry-author {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        .entry-body {
+            white-space: pre-line;
+            font-size: 0.95rem;
+        }
+
+        .entry-photo {
+            max-width: 100%;
+            max-height: 360px;
+            margin-top: 0.85rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            display: block;
+        }
+
+        /* TADHack WebRTC Bel-API Paneel */
+        .webrtc-box {
+            background: #1A1D20;
+            color: #E2E8F0;
+            padding: 1.25rem;
+            border-radius: 6px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.88rem;
+        }
+
+        .webrtc-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #22C55E;
+            margin-right: 6px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Tholen-Schakerloo &amp; Het Verdronken Land</h1>
+    <p>Historische en Bestuursrechtelijke Analyse, Genealogische Archieven &amp; Gastenboek</p>
+    <div class="dev-badge">Architectuur &amp; Ontwikkeling: Rianne Goijarts | TADHack WebRTC &amp; Lokaal Archiefportaal</div>
+</header>
+
+<nav>
+    <button class="tab-btn active" onclick="openTab('tab-visserij', this)">1. Visserijrechten &amp; Oosterschelde</button>
+    <button class="tab-btn" onclick="openTab('tab-genealogie', this)">2. Archiefstukken (Turcq, Pottey &amp; Hutspot)</button>
+    <button class="tab-btn" onclick="openTab('tab-gastenboek', this)">3. Volledig Gastenboek &amp; Foto-upload</button>
+    <button class="tab-btn" onclick="openTab('tab-hosts', this)">4. Vragen aan de Hosts &amp; TADHack Bel-API</button>
+</nav>
+
+<main>
+
+    <!-- TAB 1: HISTORISCHE EN BESTUURSRECHTELIJKE ANALYSE -->
+    <section id="tab-visserij" class="tab-section active">
+        <article>
+            <h2>Historische en Bestuursrechtelijke Analyse van de Visserijrechten van Tholen en Reimerswaal</h2>
+            <p>De visserij- en kweekrechten in het voormalige verdronken land van Reimerswaal en de Oosterschelde kennen een rijke, gelaagde geschiedenis. Dit document biedt een integraal en chronologisch overzicht van de ontwikkeling van deze rechten: van de verhuizing van de Reimerswaalse vissers naar Tholen in de zeventiende eeuw, het achttiende-eeuwse conflict met Bergen op Zoom, de invoering van het rijksbeheer en de weervisserij op de Molenplaat, tot de opkomst van grote oestermaatschappijen, de status van de Bol van Lodijke, de bescherming van de Speelmansplaten als Rijksmonument en de geldende archiefrechtelijke kaders.</p>
+
+            <h3>1. Historische Context &amp; De Zeeuwse Exclusiviteit (1631
