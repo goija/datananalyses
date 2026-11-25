@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="nl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Technische Architectuuranalyse: NORA &amp; De WOZ-Keten (LV WOZ)</title>
+
+  <!-- Tailwind CSS via CDN voor responsieve lay-out en verfijnde typografie -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Playfair Display (Serif koppen), Inter (Body) & JetBrains Mono (Protocollen/Codes) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'Cambria', '"Times New Roman"', 'serif'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+          },
+          colors: {
+            meekrap: {
+              DEFAULT: '#A31C1C',
+              deep: '#821414',
+              light: '#B92B2B',
+              tint: '#F9EFEF',
+              border: '#E5C5C5',
+            },
+            parchment: '#FAF7F2',
+            linen: '#E4DDD3',
+            ink: '#1E1E1E',
+            taupe: '#5A524A',
+            brass: '#A67C37',
+            archival: {
+              green: '#245940',
+              greenBg: '#EEF6F1',
+              greenBorder: '#C5DEC9',
+              ochre: '#8F5B1E',
+              ochreBg: '#FBF5EA',
+              ochreBorder: '#E8D3AD',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Standaard basis leesbaarheid A+ (19px), dynamisch instelbaar via data-font-size op <html> */
+    html {
+      font-size: 19px;
+    }
+    html[data-font-size="sm"] {
+      font-size: 16px;
+    }
+    html[data-font-size="md"] {
+      font-size: 19px;
+    }
+    html[data-font-size="lg"] {
+      font-size: 21px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #FFFFFF;
+      color: #1E1E1E;
+      line-height: 1.62;
+    }
+
+    h1, h2, h3, h4, .font-editorial {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    /* Zeeuwse Meekrap dossierrug op de zijbalk */
+    .dossier-spine {
+      box-shadow: inset 6px 0 0 0 #A31C1C;
+    }
+
+    /* Interactieve SVG-laag markering */
+    .svg-layer-group {
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      cursor: pointer;
+    }
+    .svg-layer-group:hover rect.layer-frame {
+      stroke: #A31C1C;
+      stroke-width: 2.2;
+    }
+
+    /* Print- en PDF-optimalisatie */
+    @media print {
+      html,
+      html[data-font-size="sm"],
+      html[data-font-size="md"],
+      html[data-font-size="lg"] {
+        font-size: 10.5pt !important;
+      }
+      body {
+        background-color: #FFFFFF !important;
+        color: #1E1E1E !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-full {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      .print-avoid-break {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .print-page-break {
+        break-before: page;
+        page-break-before: always;
+      }
+      .print-color {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .shadow-sm, .shadow-md, .shadow-lg {
+        box-shadow: none !important;
+      }
+      a[href^="http"]::after {
+        content: " (" attr(href) ")";
+        font-size: 7.5pt;
+        font-family: 'JetBrains Mono', monospace;
+        color: #5A524A;
+        word-break: break-all;
+      }
+    }
+  </style>
+</head>
+<body class="bg-white text-ink antialiased selection:bg-meekrap-tint selection:text-meekrap-deep">
+
+  <!-- ===================================================================== -->
+  <!-- MOBIELE BOVENBALK (Compact samengeklapt onder lg-breakpoint)          -->
+  <!-- ===================================================================== -->
+  <header class="no-print lg:hidden sticky top-0 z-40 bg-parchment/95 backdrop-blur-md border-b border-linen">
+    <div class="h-1.5 w-full bg-meekrap"></div>
+    <div class="px-4 py-3 flex items-center justify-between gap-2">
+      <div class="min-w-0">
+        <span class="block text-[10px] font-mono uppercase tracking-widest text-meekrap font-semibold">Geanonimiseerd &bull; Architectuur</span>
+        <span class="block font-editorial font-bold text-base text-ink truncate">NORA &amp; LV WOZ-Keten</span>
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <!-- Tekstgrootte-schakelaar (Mobiel) -->
+        <div class="inline-flex items-center rounded-lg border border-linen bg-white p-0.5" role="group" aria-label="Tekstgrootte">
+          <button type="button" data-size-btn="sm" onclick="setFontSize('sm')" class="size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md text-taupe hover:text-meekrap transition cursor-pointer">A-</button>
+          <button type="button" data-size-btn="md" onclick="setFontSize('md')" class="size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md bg-meekrap text-white transition cursor-pointer">A+</button>
+          <button type="button" data-size-btn="lg" onclick="setFontSize('lg')" class="size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md text-taupe hover:text-meekrap transition cursor-pointer">A++</button>
+        </div>
+
+        <button type="button" onclick="exportSourcesJson()" class="p-2 rounded-lg border border-linen bg-white text-ink hover:border-meekrap hover:text-meekrap transition cursor-pointer" title="Exporteer Bronnen (JSON)" aria-label="Exporteer Bronnen (JSON)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+        </button>
+
+        <button type="button" onclick="window.print()" class="inline-flex items-center gap-1 px-2.5 py-2 rounded-lg bg-meekrap hover:bg-meekrap-deep text-white text-xs font-semibold transition cursor-pointer">
+          PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobiele horizontale sectie-navigatie -->
+    <nav aria-label="Mobiele sectienavigatie" class="px-4 pb-2.5 pt-2 flex items-center gap-2 overflow-x-auto text-xs font-medium text-taupe border-t border-linen/80">
+      <a href="#overzicht" class="shrink-0 px-2.5 py-1 rounded-md bg-meekrap-tint text-meekrap font-semibold">Overzicht</a>
+      <a href="#sectie-01" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">01. NORA 4-Niveaus</a>
+      <a href="#sectie-02" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">02. 3-Lagenmodel</a>
+      <a href="#sectie-03" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">03. Kwaliteitstoets</a>
+      <a href="#sectie-04" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">04. Bewijsmatrix</a>
+      <a href="#sectie-05" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">05. Bronnen (12)</a>
+    </nav>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- HOOFDLAYOUT: VASTE LINKER ZIJBALK (DESKTOP) + WITTE HOOFDKOLOM        -->
+  <!-- ===================================================================== -->
+  <div class="min-h-screen flex flex-col lg:flex-row max-w-[1640px] mx-auto">
+
+    <!-- =================================================================== -->
+    <!-- LINKER ZIJBALK (Warm perkament + Meekrap dossierrug)                -->
+    <!-- =================================================================== -->
+    <aside class="no-print hidden lg:flex lg:flex-col lg:w-80 xl:w-[340px] shrink-0 bg-parchment border-r border-linen dossier-spine sticky top-0 h-screen overflow-y-auto">
+      <div class="p-7 flex flex-col h-full justify-between gap-6">
+        <div class="space-y-6">
+          <!-- Dossier-kop -->
+          <div class="pb-5 border-b border-linen">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-meekrap-tint border border-meekrap-border text-meekrap text-[11px] font-mono font-semibold uppercase tracking-wider">
+              <span class="w-1.5 h-1.5 rounded-full bg-meekrap"></span>
+              Zeeuwse Meekrap Editie
+            </div>
+            <h2 class="mt-3 font-editorial text-xl font-bold text-ink leading-snug">
+              NORA &amp; De WOZ-Keten
+            </h2>
+            <p class="mt-1.5 text-xs text-taupe leading-relaxed">
+              Volledig geanonimiseerde technische architectuuranalyse van de Landelijke Voorziening WOZ (LV WOZ) en BIO2-auditlogging.
+            </p>
+          </div>
+
+          <!-- Tekstgrootte-schakelaar (Desktop) -->
+          <div class="bg-white rounded-xl border border-linen p-3.5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-mono uppercase tracking-wider text-taupe font-semibold">Leesbaarheid</span>
+              <span id="fontSizeLabel" class="text-[11px] font-mono text-meekrap font-semibold">19px (A+)</span>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5" role="group" aria-label="Tekstgrootte aanpassen">
+              <button type="button" data-size-btn="sm" onclick="setFontSize('sm')" class="size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer">A-</button>
+              <button type="button" data-size-btn="md" onclick="setFontSize('md')" class="size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-meekrap bg-meekrap text-white transition cursor-pointer">A+</button>
+              <button type="button" data-size-btn="lg" onclick="setFontSize('lg')" class="size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer">A++</button>
+            </div>
+          </div>
+
+          <!-- Sectie-navigatie -->
+          <nav aria-label="Dossier-index" class="space-y-1">
+            <div class="text-[11px] font-mono uppercase tracking-widest text-brass font-semibold mb-2 px-2">
+              Inhoudsopgave
+            </div>
+            <a href="#overzicht" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition group">
+              <span>Overzicht &amp; KPI&rsquo;s</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">00</span>
+            </a>
+            <a href="#sectie-01" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition group">
+              <span>Governance &amp; 4 Niveaus</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">01</span>
+            </a>
+            <a href="#sectie-02" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition group">
+              <span>Drie-lagenmodel &amp; SVG</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">02</span>
+            </a>
+            <a href="#sectie-03" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition group">
+              <span>Verificatie &amp; Aanscherping</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">03</span>
+            </a>
+            <a href="#sectie-04" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition group">
+              <span>Bewijsmatrix &amp; BIO2</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">04</span>
+            </a>
+            <a href="#sectie-05" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition group">
+              <span>Bronnenregister (12)</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">05</span>
+            </a>
+          </nav>
+
+          <!-- Functionele Entiteiten Legenda -->
+          <div class="bg-white rounded-xl border border-linen p-4">
+            <div class="text-[11px] font-mono uppercase tracking-widest text-brass font-semibold mb-2.5">
+              Geanonimiseerde Entiteiten
+            </div>
+            <ul class="space-y-1.5 text-xs text-taupe">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-meekrap shrink-0"></span> Gemeentelijke Bronhouder</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brass shrink-0"></span> Regionaal Belastingsamenwerkingsverband</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-archival-green shrink-0"></span> Waterschap (WILMA)</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-meekrap-deep shrink-0"></span> Kadaster / LV WOZ</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-ink shrink-0"></span> Belastingdienst (RORA / MARIJ)</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Actieknoppen onderaan zijbalk -->
+        <div class="pt-5 border-t border-linen space-y-2.5">
+          <button type="button" onclick="window.print()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-meekrap hover:bg-meekrap-deep text-white text-sm font-semibold shadow-sm transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659" />
+            </svg>
+            Afdrukken / PDF
+          </button>
+
+          <button type="button" onclick="exportSourcesJson()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-meekrap-tint text-ink hover:text-meekrap border border-linen hover:border-meekrap-border text-sm font-semibold transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Exporteer Bronnen (JSON)
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- =================================================================== -->
+    <!-- RECHTER HOOFDKOLOM (Helder wit #FFFFFF)                             -->
+    <!-- =================================================================== -->
+    <main class="print-full flex-1 min-w-0 bg-white px-5 sm:px-9 lg:px-14 py-8 lg:py-12 space-y-16">
+
+      <!-- ================================================================= -->
+      <!-- HEADER & 4 KPI-KAARTEN                                            -->
+      <!-- ================================================================= -->
+      <section id="overzicht" class="scroll-mt-24 space-y-7">
+        <div class="bg-parchment rounded-2xl border border-linen overflow-hidden">
+          <div class="h-2 bg-gradient-to-r from-meekrap via-meekrap-deep to-brass print-color"></div>
+          <div class="p-6 sm:p-10">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-meekrap-tint border border-meekrap-border text-meekrap font-mono text-xs font-semibold uppercase tracking-wider print-color">
+                <span class="w-2 h-2 rounded-full bg-meekrap"></span>
+                VOLLEDIG GEANONIMISEERD &bull; TECHNISCHE ARCHITECTUURANALYSE
+              </span>
+              <span class="text-xs font-mono text-taupe bg-white border border-linen px-2.5 py-1 rounded-md">
+                NORA &bull; Wet WOZ &bull; BIO2 &bull; Cbw
+              </span>
+            </div>
+
+            <h1 class="font-editorial text-3xl sm:text-4xl xl:text-[44px] font-bold text-ink leading-tight tracking-tight">
+              NORA &amp; De Landelijke Voorziening WOZ (LV WOZ)
+            </h1>
+            <p class="mt-3 text-base sm:text-lg text-taupe leading-relaxed max-w-4xl">
+              Ketenarchitectuur, Koppelvlakstandaarden, BIO2-Auditlogging en Bewijstechnische Doorkracht binnen het Nederlandse Stelsel van Basisregistraties.
+            </p>
+
+            <div class="mt-6 rounded-xl bg-white border border-linen p-4 flex items-start gap-3">
+              <div class="w-7 h-7 rounded-lg bg-meekrap text-white flex items-center justify-center shrink-0 mt-0.5 print-color">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+              </div>
+              <p class="text-xs sm:text-sm text-taupe leading-relaxed">
+                <strong class="text-ink">Volledige abstractie:</strong> Deze analyse bevat geen persoonsgegevens, adressen, specifieke gemeentenamen of namen van regionale samenwerkingsverbanden. Alle actoren zijn weergegeven als functionele overheidsentiteiten (<em>Gemeentelijke Bronhouder, Regionaal Belastingsamenwerkingsverband, Waterschap, Kadaster / LV WOZ, Belastingdienst</em>).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 KPI-Kaarten -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div class="print-avoid-break bg-parchment rounded-xl border border-linen p-5">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-taupe">Architectuurhi&euml;rarchie</div>
+            <div class="mt-2 font-editorial text-2xl font-bold text-meekrap">4 NORA-Niveaus</div>
+            <div class="mt-1 font-mono text-xs text-ink bg-white border border-linen inline-block px-2 py-0.5 rounded">5 &rarr; 20 &rarr; 17 &rarr; ~90</div>
+            <p class="mt-2 text-xs text-taupe">Van kernwaarden naar technische implicaties.</p>
+          </div>
+
+          <div class="print-avoid-break bg-parchment rounded-xl border border-linen p-5">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-taupe">Stelselopbouw</div>
+            <div class="mt-2 font-editorial text-2xl font-bold text-ink">3 Ketenlagen</div>
+            <div class="mt-1 font-mono text-xs text-meekrap bg-white border border-linen inline-block px-2 py-0.5 rounded">NORA &rarr; Dochters &rarr; API/StUF</div>
+            <p class="mt-2 text-xs text-taupe">GEMMA, WILMA, PETRA, RORA/MARIJ &amp; LV WOZ.</p>
+          </div>
+
+          <div class="print-avoid-break bg-parchment rounded-xl border border-linen p-5">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-taupe">Informatiebeveiliging</div>
+            <div class="mt-2 font-editorial text-2xl font-bold text-meekrap-deep">BIO2 &amp; Cbw</div>
+            <div class="mt-1 font-mono text-xs text-archival-green bg-archival-greenBg border border-archival-greenBorder inline-block px-2 py-0.5 rounded">Verplichte Auditlogging</div>
+            <p class="mt-2 text-xs text-taupe">Traceerbaarheid als dwingende ontwerpeis.</p>
+          </div>
+
+          <div class="print-avoid-break bg-parchment rounded-xl border border-meekrap-border p-5">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-meekrap font-semibold">Verificatie</div>
+            <div class="mt-2 font-editorial text-2xl font-bold text-ink">12 Bronnen</div>
+            <div class="mt-1 font-mono text-xs text-brass bg-white border border-linen inline-block px-2 py-0.5 rounded">Rijk / VNG / Kadaster</div>
+            <p class="mt-2 text-xs text-taupe">Direct klikbaar en exporteerbaar als JSON.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 01: GOVERNANCE, NORMERING & HET 4-NIVEAUMODEL VAN NORA     -->
+      <!-- ================================================================= -->
+      <section id="sectie-01" class="scroll-mt-24 space-y-6">
+        <div class="pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 01 &bull; Bestuurlijk &amp; Normatief Kader</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            Governance, Normering &amp; het 4-Niveaumodel van NORA
+          </h2>
+        </div>
+
+        <!-- Governance-blok -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="print-avoid-break bg-parchment rounded-xl border border-linen p-5">
+            <div class="text-xs font-mono uppercase tracking-wider text-meekrap font-semibold">Beheer &amp; Opdrachtgever</div>
+            <p class="mt-2 text-sm text-ink">
+              Beheerd door <strong>Stichting ICTU</strong> in opdracht van het <strong>Ministerie van Binnenlandse Zaken en Koninkrijksrelaties (BZK)</strong>.
+            </p>
+          </div>
+          <div class="print-avoid-break bg-parchment rounded-xl border border-linen p-5">
+            <div class="text-xs font-mono uppercase tracking-wider text-meekrap font-semibold">Formele Status</div>
+            <p class="mt-2 text-sm text-ink">
+              Rijksbrede referentiearchitectuur sinds <strong>2008</strong>; bestuurlijk herbevestigd in het <strong>Overheidsbreed Beleidsoverleg Digitale Overheid (OBDO)</strong>.
+            </p>
+          </div>
+          <div class="print-avoid-break bg-parchment rounded-xl border border-linen p-5">
+            <div class="text-xs font-mono uppercase tracking-wider text-meekrap font-semibold">Normatief Principe</div>
+            <p class="mt-2 text-sm text-ink">
+              <strong>&ldquo;Pas toe of leg uit&rdquo;</strong> (<em>comply or explain</em>): elke overheidsorganisatie toetst systeemwijzigingen verplicht aan de verbindende NORA-afspraken.
+            </p>
+          </div>
+        </div>
+
+        <!-- Interactieve 4-Stappen Visualisatie -->
+        <div class="bg-parchment rounded-2xl border border-linen p-5 sm:p-7 space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 class="font-editorial text-xl font-bold text-ink">De 4 Niveaus van Verbindende Architectuurafspraken</h3>
+              <p class="text-xs sm:text-sm text-taupe mt-0.5">Klik op een niveau om de concrete betekenis voor de LV WOZ-keten te bekijken.</p>
+            </div>
+            <span class="no-print text-xs font-mono text-meekrap bg-meekrap-tint border border-meekrap-border px-2.5 py-1 rounded-md self-start sm:self-auto">
+              Interactieve selectie
+            </span>
+          </div>
+
+          <!-- 4 Niveau-knoppen -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3" role="tablist" aria-label="NORA 4-Niveaumodel">
+            <button type="button" role="tab" data-nora-level="1" onclick="selectNoraLevel(1)" class="nora-step-btn text-left p-4 rounded-xl border-2 border-meekrap bg-white shadow-sm transition cursor-pointer">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-meekrap text-white print-color">NIVEAU 1</span>
+                <span class="font-mono text-xs font-semibold text-meekrap">5 waarden</span>
+              </div>
+              <div class="mt-2.5 font-editorial font-bold text-base text-ink">Kernwaarden van Dienstverlening</div>
+              <div class="mt-1 text-xs text-taupe">Fundament voor burger &amp; bestuur</div>
+            </button>
+
+            <button type="button" role="tab" data-nora-level="2" onclick="selectNoraLevel(2)" class="nora-step-btn text-left p-4 rounded-xl border border-linen bg-white hover:border-meekrap-border transition cursor-pointer">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-parchment text-taupe border border-linen">NIVEAU 2</span>
+                <span class="font-mono text-xs font-semibold text-taupe">20 doelen</span>
+              </div>
+              <div class="mt-2.5 font-editorial font-bold text-base text-ink">Kwaliteitsdoelen</div>
+              <div class="mt-1 text-xs text-taupe">Gekoppeld aan beleidskaders</div>
+            </button>
+
+            <button type="button" role="tab" data-nora-level="3" onclick="selectNoraLevel(3)" class="nora-step-btn text-left p-4 rounded-xl border border-linen bg-white hover:border-meekrap-border transition cursor-pointer">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-parchment text-taupe border border-linen">NIVEAU 3</span>
+                <span class="font-mono text-xs font-semibold text-taupe">17 principes</span>
+              </div>
+              <div class="mt-2.5 font-editorial font-bold text-base text-ink">Architectuurprincipes</div>
+              <div class="mt-1 text-xs text-taupe">Bindende ontwerpnormen</div>
+            </button>
+
+            <button type="button" role="tab" data-nora-level="4" onclick="selectNoraLevel(4)" class="nora-step-btn text-left p-4 rounded-xl border border-linen bg-white hover:border-meekrap-border transition cursor-pointer">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-parchment text-taupe border border-linen">NIVEAU 4</span>
+                <span class="font-mono text-xs font-semibold text-taupe">~90 implicaties</span>
+              </div>
+              <div class="mt-2.5 font-editorial font-bold text-base text-ink">Implicaties (Vijflaagsmodel)</div>
+              <div class="mt-1 text-xs text-taupe">Concrete API&rsquo;s &amp; protocollen</div>
+            </button>
+          </div>
+
+          <!-- Dynamisch Detailpaneel -->
+          <div id="noraLevelDetail" class="print-avoid-break bg-white rounded-xl border border-meekrap-border p-5 sm:p-6">
+            <!-- Gevuld door JavaScript -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 02: HET DRIE-LAGENMODEL IN DE WOZ-KETEN (SVG + KAARTEN)    -->
+      <!-- ================================================================= -->
+      <section id="sectie-02" class="scroll-mt-24 print-page-break space-y-6">
+        <div class="pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 02 &bull; Stelsel- &amp; Koppelvlakarchitectuur</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            Het Drie-lagenmodel in de WOZ-Keten
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-taupe max-w-4xl">
+            Hoe de generieke NORA-bovenlaag via sectorale dochterarchitecturen landt in concrete koppelvlakken rond de Landelijke Voorziening WOZ (LV WOZ).
+          </p>
+        </div>
+
+        <!-- Interactief, schaalbaar SVG-architectuurdiagram -->
+        <div class="print-avoid-break bg-parchment rounded-2xl border border-linen p-4 sm:p-6 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-mono text-xs font-semibold uppercase tracking-wider text-meekrap">SVG-Architectuurdiagram (3 Ketenlagen)</span>
+            <span class="no-print text-xs text-taupe">Klik op een laag in het diagram om deze uit te lichten.</span>
+          </div>
+
+          <div class="w-full overflow-x-auto bg-white rounded-xl border border-linen p-3 sm:p-4">
+            <svg viewBox="0 0 960 520" class="w-full h-auto min-w-[680px]" role="img" aria-label="Drie-lagenmodel van NORA in de LV WOZ-keten">
+              <defs>
+                <marker id="arrRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#A31C1C" />
+                </marker>
+                <marker id="arrDark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#5A524A" />
+                </marker>
+              </defs>
+
+              <!-- LAAG 1: NORA -->
+              <g class="svg-layer-group" onclick="highlightLayerCard('layer-1')">
+                <rect class="layer-frame" x="20" y="16" width="920" height="96" rx="12" fill="#F9EFEF" stroke="#A31C1C" stroke-width="2" />
+                <rect x="34" y="30" width="110" height="24" rx="5" fill="#A31C1C" />
+                <text x="89" y="46" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#FFFFFF">LAAG 1 &bull; NORA</text>
+                <text x="160" y="47" font-family="Playfair Display, Georgia, serif" font-size="17" font-weight="700" fill="#1E1E1E">Generieke Referentiearchitectuur (ICTU / BZK &mdash; Pas toe of leg uit)</text>
+                <text x="36" y="76" font-family="Inter, sans-serif" font-size="12.5" fill="#1E1E1E">&bull; Eenmalige gegevensvastlegging bij de bronhouder, meervoudig gebruik door afnemers</text>
+                <text x="36" y="96" font-family="Inter, sans-serif" font-size="12.5" fill="#5A524A">&bull; Betrouwbare gegevensuitwisseling, open standaarden &amp; verifieerbare auditlogging (BIO2)</text>
+              </g>
+
+              <!-- Pijl Laag 1 -> Laag 2 -->
+              <line x1="480" y1="112" x2="480" y2="142" stroke="#A31C1C" stroke-width="2" marker-end="url(#arrRed)" />
+
+              <!-- LAAG 2: DOCHTERARCHITECTUREN & LV WOZ -->
+              <g class="svg-layer-group" onclick="highlightLayerCard('layer-2')">
+                <rect class="layer-frame" x="20" y="146" width="920" height="196" rx="12" fill="#FAF7F2" stroke="#E4DDD3" stroke-width="1.8" />
+                <rect x="34" y="160" width="188" height="24" rx="5" fill="#821414" />
+                <text x="128" y="176" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#FFFFFF">LAAG 2 &bull; DOCHTERARCHITECTUREN</text>
+                <text x="236" y="177" font-family="Playfair Display, Georgia, serif" font-size="16" font-weight="700" fill="#1E1E1E">Sectorale Ketenuitwerking rond de Centrale LV WOZ</text>
+
+                <!-- 4 Dochter-boxen -->
+                <rect x="36" y="196" width="206" height="58" rx="8" fill="#FFFFFF" stroke="#E5C5C5" stroke-width="1.5" />
+                <text x="48" y="216" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#A31C1C">GEMMA (Gemeenten)</text>
+                <text x="48" y="234" font-family="Inter, sans-serif" font-size="11" fill="#1E1E1E">Gemeentelijke Bronhouder</text>
+                <text x="48" y="247" font-family="Inter, sans-serif" font-size="10" fill="#5A524A">Stelt WOZ-waarde vast (BAG/BRP)</text>
+
+                <rect x="262" y="196" width="206" height="58" rx="8" fill="#FFFFFF" stroke="#C5DEC9" stroke-width="1.5" />
+                <text x="274" y="216" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#245940">WILMA (Waterschappen)</text>
+                <text x="274" y="234" font-family="Inter, sans-serif" font-size="11" fill="#1E1E1E">Waterschap &amp; Reg. Samenw.</text>
+                <text x="274" y="247" font-family="Inter, sans-serif" font-size="10" fill="#5A524A">Watersysteemheffing gebouwd</text>
+
+                <rect x="488" y="196" width="206" height="58" rx="8" fill="#FFFFFF" stroke="#E8D3AD" stroke-width="1.5" />
+                <text x="500" y="216" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#8F5B1E">PETRA (Provincies)</text>
+                <text x="500" y="234" font-family="Inter, sans-serif" font-size="11" fill="#1E1E1E">Provinciale Ketenpartners</text>
+                <text x="500" y="247" font-family="Inter, sans-serif" font-size="10" fill="#5A524A">Ruimtelijk &amp; bestuurlijk kader</text>
+
+                <rect x="714" y="196" width="210" height="58" rx="8" fill="#FFFFFF" stroke="#E4DDD3" stroke-width="1.5" />
+                <text x="726" y="216" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#1E1E1E">RORA / MARIJ (Rijk)</text>
+                <text x="726" y="234" font-family="Inter, sans-serif" font-size="11" fill="#1E1E1E">Belastingdienst (Afnemer)</text>
+                <text x="726" y="247" font-family="Inter, sans-serif" font-size="10" fill="#5A524A">IB, Erfbelasting (art. 21 lid 5 SW)</text>
+
+                <!-- Centrale LV WOZ Hub -->
+                <rect x="262" y="274" width="432" height="54" rx="10" fill="#A31C1C" />
+                <text x="478" y="297" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-size="15.5" font-weight="700" fill="#FFFFFF">Landelijke Voorziening WOZ (LV WOZ &mdash; Beheer: Kadaster)</text>
+                <text x="478" y="316" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#F9EFEF">Authentieke distributiehub &bull; Autorisatiematrix &bull; Waarderingskamer (toezicht)</text>
+
+                <!-- Koppellijnen naar LV WOZ -->
+                <path d="M 139 254 L 139 301 L 256 301" fill="none" stroke="#A31C1C" stroke-width="1.6" marker-end="url(#arrRed)" />
+                <line x1="365" y1="274" x2="365" y2="258" stroke="#5A524A" stroke-width="1.5" marker-end="url(#arrDark)" />
+                <line x1="591" y1="274" x2="591" y2="258" stroke="#5A524A" stroke-width="1.5" marker-end="url(#arrDark)" />
+                <path d="M 694 301 L 819 301 L 819 258" fill="none" stroke="#A31C1C" stroke-width="1.6" marker-end="url(#arrRed)" />
+              </g>
+
+              <!-- Pijl Laag 2 -> Laag 3 -->
+              <line x1="480" y1="342" x2="480" y2="372" stroke="#A31C1C" stroke-width="2" marker-end="url(#arrRed)" />
+
+              <!-- LAAG 3: KOPPELVLAKKEN & PROTOCOLEN -->
+              <g class="svg-layer-group" onclick="highlightLayerCard('layer-3')">
+                <rect class="layer-frame" x="20" y="376" width="920" height="126" rx="12" fill="#FFFFFF" stroke="#E4DDD3" stroke-width="1.8" />
+                <rect x="34" y="390" width="214" height="24" rx="5" fill="#1E1E1E" />
+                <text x="141" y="406" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#FFFFFF">LAAG 3 &bull; KOPPELVLAKKEN &amp; TRUST</text>
+                <text x="262" y="407" font-family="Playfair Display, Georgia, serif" font-size="16" font-weight="700" fill="#1E1E1E">Technische Realisatie, API&rsquo;s &amp; Terugmeldvoorziening</text>
+
+                <!-- 4 Protocol-chips -->
+                <rect x="36" y="426" width="214" height="60" rx="8" fill="#FAF7F2" stroke="#E4DDD3" stroke-width="1.2" />
+                <text x="48" y="445" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#A31C1C">StUF-WOZ 03.12 / StUF-BG</text>
+                <text x="48" y="462" font-family="Inter, sans-serif" font-size="10.5" fill="#1E1E1E">Digikoppeling ebMS2</text>
+                <text x="48" y="476" font-family="Inter, sans-serif" font-size="10" fill="#5A524A">Koppeling via CPA-register</text>
+
+                <rect x="262" y="426" width="214" height="60" rx="8" fill="#FAF7F2" stroke="#E4DDD3" stroke-width="1.2" />
+                <text x="274" y="445" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#245940">Haal Centraal WOZ API</text>
+                <text x="274" y="462" font-family="Inter, sans-serif" font-size="10.5" fill="#1E1E1E">RESTful JSON Bevragen</text>
+                <text x="274" y="476" font-family="Inter, sans-serif" font-size="10" fill="#5A524A">Direct bij de bron, geen kopie</text>
+
+                <rect x="488" y="426" width="214" height="60" rx="8" fill="#FAF7F2" stroke="#E4DDD3" stroke-width="1.2" />
+                <text x="500" y="445" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#8F5B1E">Digimelding (DMKS)</text>
+                <text x="500" y="462" font-family="Inter, sans-serif" font-size="10.5" fill="#1E1E1E">Art. 37f Wet WOZ</text>
+                <text x="500" y="476" font-family="Inter, sans-serif" font-size="10" fill="#5A524A">Wettelijke terugmeldplicht</text>
+
+                <rect x="714" y="426" width="210" height="60" rx="8" fill="#FAF7F2" stroke="#E4DDD3" stroke-width="1.2" />
+                <text x="726" y="445" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#1E1E1E">Digipoort &amp; PKIoverheid</text>
+                <text x="726" y="462" font-family="Inter, sans-serif" font-size="10.5" fill="#1E1E1E">WUS 2.0 / ebMS2 / mTLS</text>
+                <text x="726" y="476" font-family="Inter, sans-serif" font-size="10" fill="#5A524A">Certificaten gekoppeld aan OIN</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Detailkaarten per laag -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <article id="layer-1" class="layer-card print-avoid-break bg-parchment rounded-xl border border-linen p-5 transition">
+            <div class="font-mono text-xs font-bold text-meekrap uppercase">Laag 1 &bull; Ketenprincipes</div>
+            <h3 class="mt-1 font-editorial text-lg font-bold text-ink">NORA-Bovenlaag</h3>
+            <p class="mt-2 text-sm text-taupe leading-relaxed">
+              Legt vast dat gegevens eenmalig worden vastgesteld door de wettelijk aangewezen <strong>Gemeentelijke Bronhouder</strong> en via geauthenticeerde kanalen meervoudig worden hergebruikt door afnemers zonder schaduwadministraties.
+            </p>
+          </article>
+
+          <article id="layer-2" class="layer-card print-avoid-break bg-parchment rounded-xl border border-linen p-5 transition">
+            <div class="font-mono text-xs font-bold text-meekrap-deep uppercase">Laag 2 &bull; Dochterarchitecturen</div>
+            <h3 class="mt-1 font-editorial text-lg font-bold text-ink">GEMMA, WILMA, PETRA &amp; RORA/MARIJ</h3>
+            <p class="mt-2 text-sm text-taupe leading-relaxed">
+              <strong>GEMMA</strong> stuurt gemeenten aan, <strong>WILMA</strong> structureert waterschappen en regionale belastingsamenwerkingsverbanden, <strong>PETRA</strong> de provincies en <strong>RORA/MARIJ</strong> de Rijksoverheid en Belastingdienst &mdash; allen aangesloten op de centrale <strong>LV WOZ</strong> bij het Kadaster.
+            </p>
+          </article>
+
+          <article id="layer-3" class="layer-card print-avoid-break bg-parchment rounded-xl border border-linen p-5 transition">
+            <div class="font-mono text-xs font-bold text-ink uppercase">Laag 3 &bull; Koppelvlakken</div>
+            <h3 class="mt-1 font-editorial text-lg font-bold text-ink">StUF-WOZ, Haal Centraal &amp; DMKS</h3>
+            <p class="mt-2 text-sm text-taupe leading-relaxed">
+              Aanlevering verloopt via <code class="text-xs bg-white px-1 py-0.5 rounded border border-linen">StUF-WOZ 03.12</code> / <code class="text-xs bg-white px-1 py-0.5 rounded border border-linen">ebMS2</code> en het CPA-register; moderne bevraging via de <strong>Haal Centraal WOZ API</strong> (JSON). Terugmeldingen lopen verplicht via <strong>Digimelding (DMKS)</strong> onder <code class="text-xs bg-white px-1 py-0.5 rounded border border-linen">PKIoverheid</code> en <code class="text-xs bg-white px-1 py-0.5 rounded border border-linen">OIN</code>.
+            </p>
+          </article>
+        </div>
+
+        <!-- Expliciete Afbakeningskaart: Peppol ≠ LV WOZ -->
+        <div class="print-avoid-break rounded-2xl border-2 border-meekrap bg-meekrap-tint p-6 flex flex-col sm:flex-row items-start gap-4 print-color">
+          <div class="w-10 h-10 rounded-xl bg-meekrap text-white flex items-center justify-center shrink-0 font-mono font-bold text-lg">
+            &ne;
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 class="font-editorial text-xl font-bold text-meekrap-deep">Afbakening: Peppol (NPa / Logius) &ne; LV WOZ</h3>
+              <span class="font-mono text-[11px] font-semibold px-2 py-0.5 rounded bg-white border border-meekrap-border text-meekrap">Geen koppelvlak in WOZ-keten</span>
+            </div>
+            <p class="text-sm text-ink leading-relaxed">
+              Het <strong>Peppol-netwerk</strong> (beheerd door de Nederlandse Peppolautoriteit / Logius) is een Europees <em>4-corner-model</em> voor elektronisch inkopen (<em>e-procurement</em>) en e-facturatie (B2G/B2B via Access Points en OIN). Peppol heeft <strong>geen enkele technische koppeling</strong> met de WOZ-waarderings-, aanlever- of bevragingsketen; die loopt uitsluitend via StUF-WOZ, Digikoppeling (ebMS2/WUS), Digipoort, DMKS en de Haal Centraal API&rsquo;s.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 03: TECHNISCHE VERIFICATIE & AANSCHERPINGEN                -->
+      <!-- ================================================================= -->
+      <section id="sectie-03" class="scroll-mt-24 print-page-break space-y-6">
+        <div class="pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 03 &bull; Kwaliteitstoets &amp; Bronverificatie</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            Technische Verificatie &amp; Aanscherpingen
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-taupe max-w-4xl">
+            Kritische toetsing van veelvoorkomende aannames in juridisch-technische notities tegen de geverifieerde overheidsstandaarden van BZK, ICTU, Kadaster, Waarderingskamer en VNG.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-linen overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-parchment border-b border-linen text-xs font-mono uppercase tracking-wider text-taupe">
+                  <th class="py-4 px-5 w-1/5">Onderwerp</th>
+                  <th class="py-4 px-5 w-[35%] text-meekrap">Veelvoorkomende aanname</th>
+                  <th class="py-4 px-5 w-[45%] text-archival-green">Geverifieerde technische realiteit</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-linen text-sm align-top">
+                <tr class="print-avoid-break hover:bg-parchment/40 transition">
+                  <td class="py-4 px-5 font-semibold text-ink">
+                    1. Logging-normenkader
+                    <span class="block mt-1 font-mono text-[11px] font-normal text-taupe">Informatiebeveiliging</span>
+                  </td>
+                  <td class="py-4 px-5 text-taupe">
+                    Verwijzing naar &ldquo;PvIB&rdquo; als formeel NORA-normenkader voor verplichte auditlogging.
+                  </td>
+                  <td class="py-4 px-5 text-ink leading-relaxed">
+                    <strong>PvIB</strong> is een beroepsvereniging (Platform voor InformatieBeveiliging), geen wettelijke norm. Het verplichte normenkader voor de overheid is de <strong>BIO2</strong> (<em>Baseline Informatiebeveiliging Overheid 2</em>, gekoppeld aan de <strong>Cyberbeveiligingswet / NIS2</strong>), gebaseerd op <code class="font-mono text-xs bg-parchment px-1.5 py-0.5 rounded border border-linen">NEN-ISO/IEC 27002</code> en uitgewerkt in de <strong>NORA Handreiking Logging (dec. 2025)</strong>.
+                  </td>
+                </tr>
+
+                <tr class="print-avoid-break hover:bg-parchment/40 transition">
+                  <td class="py-4 px-5 font-semibold text-ink">
+                    2. Dochterarchitecturen
+                    <span class="block mt-1 font-mono text-[11px] font-normal text-taupe">Belastingsamenwerking</span>
+                  </td>
+                  <td class="py-4 px-5 text-taupe">
+                    Alleen GEMMA, PETRA en RORA benoemen bij een regionaal belastingsamenwerkingsverband.
+                  </td>
+                  <td class="py-4 px-5 text-ink leading-relaxed">
+                    Bij gemeentelijk-waterschappelijke belastingsamenwerkingsverbanden is naast GEMMA en PETRA vooral <strong>WILMA</strong> (<em>Waterschap Informatie en Logisch Model Architectuur</em>) leidend. Binnen de Rijksoverheid is naast <strong>RORA</strong> tevens <strong>MARIJ</strong> (<em>Model Architectuur Rijksoverheid</em>) relevant.
+                  </td>
+                </tr>
+
+                <tr class="print-avoid-break hover:bg-parchment/40 transition">
+                  <td class="py-4 px-5 font-semibold text-ink">
+                    3. StUF-terminologie
+                    <span class="block mt-1 font-mono text-[11px] font-normal text-taupe">Berichtstandaard</span>
+                  </td>
+                  <td class="py-4 px-5 text-taupe">
+                    Generieke aanduiding als &ldquo;StUF-TAX&rdquo; zonder versie- of transportkader.
+                  </td>
+                  <td class="py-4 px-5 text-ink leading-relaxed">
+                    De offici&euml;le standaard voor WOZ-berichtenverkeer is het <strong>Sectormodel StUF-WOZ</strong> (actuele versie <code class="font-mono text-xs bg-parchment px-1.5 py-0.5 rounded border border-linen">03.12.04</code>) op basis van <code class="font-mono text-xs bg-parchment px-1.5 py-0.5 rounded border border-linen">StUF-BG</code>, getransporteerd via <strong>Digikoppeling ebMS2</strong> en geconfigureerd in het <strong>CPA-register</strong> (met modernisering richting Haal Centraal API&rsquo;s).
+                  </td>
+                </tr>
+
+                <tr class="print-avoid-break hover:bg-parchment/40 transition">
+                  <td class="py-4 px-5 font-semibold text-ink">
+                    4. Fiscaal vs. Civiel
+                    <span class="block mt-1 font-mono text-[11px] font-normal text-taupe">Waarderingsgrondslag</span>
+                  </td>
+                  <td class="py-4 px-5 text-taupe">
+                    Dat de LV WOZ-waarde of een commerci&euml;le taxatie automatisch doorwerkt in zowel de erfbelasting als de civiele verdeling.
+                  </td>
+                  <td class="py-4 px-5 text-ink leading-relaxed">
+                    De <strong>LV WOZ-waarde</strong> is dwingend voor de <strong>erfbelasting</strong> (<code class="font-mono text-xs bg-parchment px-1.5 py-0.5 rounded border border-linen">art. 21 lid 5 SW</code>, keuze uit jaar van overlijden of jaar erna), maar bindt de <strong>civiele verdeling</strong> niet automatisch. In het civiele spoor geldt de <em>waarde in het economisch verkeer (WEV)</em>, waarbij het gemeentelijke WOZ-taxatieverslag als objectief referentiekader dient.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 04: BEWIJSMATRIX & AUDITTRAIL ALS ONTWERPEIS               -->
+      <!-- ================================================================= -->
+      <section id="sectie-04" class="scroll-mt-24 print-page-break space-y-6">
+        <div class="pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 04 &bull; Bewijsrechtelijke &amp; Forensische Doorkracht</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            Bewijsmatrix &amp; Audittrail als Dwingende Ontwerpeis
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Blok A: Authentieke Bron vs. Particuliere Taxatie -->
+          <article class="print-avoid-break bg-parchment rounded-2xl border border-linen border-t-4 border-t-meekrap p-6 space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-xs font-semibold uppercase text-meekrap">4.1 Authentieke Bron</span>
+              <span class="font-mono text-[11px] bg-white border border-linen px-2 py-0.5 rounded text-taupe">art. 37f Wet WOZ &bull; DMKS</span>
+            </div>
+            <h3 class="font-editorial text-xl font-bold text-ink">LV WOZ vs. Particuliere Taxatie</h3>
+            <ul class="space-y-3 text-sm text-taupe leading-relaxed">
+              <li class="bg-white rounded-xl border border-linen p-3.5">
+                <strong class="text-ink block">Geobjectiveerde bronhoudervaststelling:</strong>
+                De Gemeentelijke Bronhouder stelt de WOZ-waarde vast op basis van feitelijke objectkenmerken en referentieverkopen onder toezicht van de Waarderingskamer.
+              </li>
+              <li class="bg-white rounded-xl border border-linen p-3.5">
+                <strong class="text-ink block">Uitsluiting van niet-geverifieerde schone-grondficties:</strong>
+                Waar een particuliere taxatie kan leunen op hypothetische aannames (zoals een niet-onderbouwde <em>schone-grondfictie</em>), dwingt de publiekrechtelijke waarderingsketen tot toetsing aan de werkelijke staat en kadastrale beperkingen.
+              </li>
+              <li class="bg-white rounded-xl border border-linen p-3.5">
+                <strong class="text-ink block">Verplichte terugmeldplicht (art. 37f Wet WOZ):</strong>
+                Bestuursorganen die gerede twijfel hebben over een authentiek gegeven in de LV WOZ, zijn wettelijk verplicht een terugmelding in te dienen via <strong>Digimelding (DMKS)</strong>.
+              </li>
+            </ul>
+          </article>
+
+          <!-- Blok B: Auditlogging onder BIO2 & NORA -->
+          <article class="print-avoid-break bg-parchment rounded-2xl border border-linen border-t-4 border-t-meekrap-deep p-6 space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-xs font-semibold uppercase text-meekrap-deep">4.2 Non-Repudiation</span>
+              <span class="font-mono text-[11px] bg-white border border-linen px-2 py-0.5 rounded text-taupe">BIO2 &bull; NORA Logging 2025</span>
+            </div>
+            <h3 class="font-editorial text-xl font-bold text-ink">Auditlogging als Dwingende Ontwerpeis</h3>
+            <p class="text-sm text-taupe leading-relaxed">
+              Onder de <strong>BIO2</strong> en de <strong>NORA Handreiking Logging (dec. 2025)</strong> is transactielogging geen vrijblijvend bijproduct, maar een verplicht beveiligings- en verantwoordingsmechanisme:
+            </p>
+            <div class="space-y-2.5 text-xs font-mono">
+              <div class="bg-white rounded-xl border border-linen p-3 flex flex-col gap-1">
+                <span class="text-meekrap font-semibold">PKIoverheid mTLS &amp; Digikoppeling ebMS2-ACK</span>
+                <span class="font-sans text-taupe text-xs">Cryptografische wederzijdse authenticatie met OIN en onweerlegbare ontvangstbevestigingen (acknowledgements) tussen ketenpartners.</span>
+              </div>
+              <div class="bg-white rounded-xl border border-linen p-3 flex flex-col gap-1">
+                <span class="text-meekrap font-semibold">DKIM (&lsquo;Pas toe of leg uit&rsquo;), SMTP Received-hops &amp; RFC-tijdstempels</span>
+                <span class="font-sans text-taupe text-xs">DKIM staat op de verplichte NORA-standaardenlijst en borgt samen met SMTP-routeringshops en RFC-timestamps de integriteit van externe overheids- en procescorrespondentie.</span>
+              </div>
+              <div class="bg-meekrap-tint rounded-xl border border-meekrap-border p-3 flex flex-col gap-1 print-color">
+                <span class="text-meekrap-deep font-semibold">Forensische waarde van afwijkingen</span>
+                <span class="font-sans text-ink text-xs">Tijdsverschillen, ontbrekende acknowledgements of <strong>handmatige bevragingen buiten geautomatiseerde batches</strong> tonen objectief aan dat een handeling buiten het reguliere ketenproces heeft plaatsgevonden.</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 05: GEVERIFIEERD BRONNEN- & STANDAARDENREGISTER (12)       -->
+      <!-- ================================================================= -->
+      <section id="sectie-05" class="scroll-mt-24 print-page-break space-y-6">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-3 border-b border-linen">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 05 &bull; Offici&euml;le Overheidsbronnen</span>
+            <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+              Geverifieerd Bronnen- &amp; Standaardenregister
+            </h2>
+            <p class="mt-2 text-sm sm:text-base text-taupe max-w-3xl">
+              Alle 12 geverifieerde primaire bronnen van ICTU/BZK, Kadaster, Waarderingskamer, Geonovum, VNG en Logius. Doorzoekbaar, filterbaar op categorie en direct exporteerbaar als JSON.
+            </p>
+          </div>
+          <div class="no-print text-xs font-mono text-taupe bg-parchment border border-linen px-3 py-1.5 rounded-lg self-start md:self-auto">
+            Getoond: <strong id="sourceCount" class="text-ink">12</strong> / 12 bronnen
+          </div>
+        </div>
+
+        <!-- Zoekbalk & Categoriefilters -->
+        <div class="no-print bg-parchment rounded-2xl border border-linen p-4 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
+          <div class="relative flex-grow max-w-md">
+            <svg class="w-4 h-4 text-taupe absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input
+              type="text"
+              id="sourceSearch"
+              placeholder="Zoek op titel, uitgever, BIO2, StUF-WOZ, DKIM, Peppol..."
+              class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-white border border-linen text-ink placeholder-taupe/70 focus:outline-none focus:ring-2 focus:ring-meekrap/25 focus:border-meekrap transition"
+            />
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filter bronnen op categorie">
+            <button type="button" data-src-filter="all" onclick="setSourceFilter('all')" class="src-filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-meekrap text-white transition cursor-pointer">
+              Alle (12)
+            </button>
+            <button type="button" data-src-filter="NORA/BIO2" onclick="setSourceFilter('NORA/BIO2')" class="src-filter-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              NORA / BIO2
+            </button>
+            <button type="button" data-src-filter="Kadaster/WOZ" onclick="setSourceFilter('Kadaster/WOZ')" class="src-filter-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              Kadaster / WOZ
+            </button>
+            <button type="button" data-src-filter="Koppelvlakken/Logius" onclick="setSourceFilter('Koppelvlakken/Logius')" class="src-filter-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              Koppelvlakken / Logius
+            </button>
+            <button type="button" data-src-filter="Wetgeving" onclick="setSourceFilter('Wetgeving')" class="src-filter-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              Wetgeving &amp; Beleid
+            </button>
+          </div>
+        </div>
+
+        <!-- Bronnenlijst (Kaartengrid) -->
+        <div id="sourcesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamisch gevuld door JavaScript -->
+        </div>
+
+        <div id="emptySourcesState" class="hidden py-10 px-6 text-center bg-parchment rounded-2xl border border-linen">
+          <p class="text-taupe font-medium">Geen bronnen gevonden voor deze zoekterm of categorie.</p>
+          <button type="button" onclick="resetSourceFilters()" class="mt-3 px-4 py-2 rounded-xl bg-meekrap hover:bg-meekrap-deep text-white text-xs font-semibold transition cursor-pointer">
+            Filters herstellen
+          </button>
+        </div>
+
+        <!-- Voetnoot -->
+        <footer class="print-avoid-break bg-parchment rounded-2xl border border-linen border-l-4 border-l-meekrap p-6">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-taupe">
+            <span class="font-semibold text-ink">Technische Architectuuranalyse: NORA &amp; De WOZ-Keten (LV WOZ) &mdash; Zeeuwse Meekrap Editie</span>
+            <span class="font-mono text-[11px]">Volledig geanonimiseerd &bull; Geen externe JS-libraries &bull; Print/PDF-gereed</span>
+          </div>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast-melding (vervangt alert()) -->
+  <div id="toast" class="no-print fixed bottom-5 right-5 z-50 hidden items-center gap-2.5 px-4 py-3 rounded-xl bg-ink text-white text-sm font-medium shadow-xl border border-brass/50">
+    <span class="w-2 h-2 rounded-full bg-meekrap-light shrink-0"></span>
+    <span id="toastMessage">Actie uitgevoerd</span>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PURE VANILLA JAVASCRIPT (Geen externe JS-libraries)                   -->
+  <!-- ===================================================================== -->
+  <script>
+    /**
+     * Veilige HTML-escaping.
+     */
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * Data voor de interactieve 4 NORA-niveaus (Sectie 01).
+     */
+    const noraLevelsData = {
+      1: {
+        badge: 'NIVEAU 1 — 5 KERNWAARDEN VAN DIENSTVERLENING',
+        title: 'Kernwaarden als moreel en bestuurlijk kompas',
+        summary: 'NORA vertrekt vanuit vijf kernwaarden voor publieke dienstverlening: vertrouwen, openheid, wendbaarheid, dienstbaarheid en zorgvuldigheid.',
+        wozMeaning: 'Voor de LV WOZ-keten betekent dit dat burgers en erfgenamen moeten kunnen vertrouwen op één eenduidige, controleerbare en onafhankelijk vastgestelde woningwaarde, zonder dat bestuursorganen tegenstrijdige eigen waarderingen hanteren.',
+        bullets: [
+          'Eenduidige overheidswaarde voor OZB, watersysteemheffing en erfbelasting',
+          'Transparante herleidbaarheid via het gemeentelijke WOZ-taxatieverslag',
+          'Rechtsbescherming via formele bezwaar- en terugmeldprocedures'
+        ]
+      },
+      2: {
+        badge: 'NIVEAU 2 — 20 KWALITEITSDOELEN',
+        title: 'Meetbare kwaliteitsdoelen gekoppeld aan beleidskaders',
+        summary: 'De 20 NORA-kwaliteitsdoelen concretiseren de kernwaarden in toetsbare eisen zoals betrouwbaarheid, traceerbaarheid, integriteit, vertrouwelijkheid en dataminimalisatie.',
+        wozMeaning: 'In de WOZ-keten koppelen deze doelen direct aan de Wet WOZ, de AVG en de BIO2: gegevens moeten juist, actueel en volledig zijn, en iedere bevraging op de LV WOZ moet herleidbaar zijn.',
+        bullets: [
+          'Integriteit: gevalideerde waardevaststelling door de Gemeentelijke Bronhouder',
+          'Traceerbaarheid: verplichte vastlegging van raadplegingen en terugmeldingen',
+          'Vertrouwelijkheid: strikte toegang via de LV WOZ-Autorisatiematrix'
+        ]
+      },
+      3: {
+        badge: 'NIVEAU 3 — 17 ARCHITECTUURPRINCIPES',
+        title: 'Bindende ontwerpnormen ("Pas toe of leg uit")',
+        summary: 'De 17 verbindende architectuurprincipes schrijven voor hoe overheidsorganisaties hun informatiehuishouding en ketenkoppelingen moeten inrichten.',
+        wozMeaning: 'Drie principes zijn doorslaggevend voor de WOZ-keten: (1) Eenmalige vastlegging, meervoudig gebruik; (2) Open standaarden toepassen; en (3) Betrouwbare gegevens met een aantoonbare audittrail.',
+        bullets: [
+          'Afnemers (Belastingdienst, Waterschappen) hergebruiken de gemeentelijke LV WOZ-waarde',
+          'Geen schaduwadministraties of afwijkende private taxaties als publieke grondslag',
+          'Verplichte terugmelding (art. 37f Wet WOZ) bij twijfel aan de juistheid van een gegeven'
+        ]
+      },
+      4: {
+        badge: 'NIVEAU 4 — BIJNA 90 IMPLICATIES (NORA VIJFLAAGSMODEL)',
+        title: 'Concrete technische vertaling naar protocollen en API’s',
+        summary: 'De bijna 90 implicaties verdelen de architectuurprincipes over de vijf lagen van het NORA Vijflaagsmodel (Organisatie, Proces, Informatie, Applicatie en Infrastructuur).',
+        wozMeaning: 'Op dit niveau worden de concrete standaarden afgedwongen: StUF-WOZ 03.12.04 via Digikoppeling ebMS2 & CPA-register, Haal Centraal WOZ Bevragen API (REST/JSON), Digimelding (DMKS), PKIoverheid-certificaten met OIN en DKIM-ondertekening.',
+        bullets: [
+          'StUF-WOZ 03.12.04 + Digikoppeling ebMS2 voor aanlevering en synchronisatie',
+          'Haal Centraal WOZ Bevragen API (RESTful JSON) voor directe bronbevraging',
+          'PKIoverheid mTLS, OIN en BIO2-auditlogging op infrastructuurniveau'
+        ]
+      }
+    };
+
+    /**
+     * Alle 12 geverifieerde primaire overheidsbronnen (Sectie 05).
+     */
+    const verifiedSources = [
+      {
+        id: 'SRC-01',
+        title: 'Vier niveaus architectuurafspraken uitgelegd',
+        publisher: 'NORA Online (ICTU / BZK)',
+        category: 'NORA/BIO2',
+        description: 'Uitleg over de vier hiërarchische niveaus van de verbindende NORA-architectuurafspraken (5 kernwaarden, 20 kwaliteitsdoelen, 17 principes, ~90 implicaties).',
+        url: 'https://www.noraonline.nl/wiki/Vier_niveaus_architectuurafspraken_uitgelegd'
+      },
+      {
+        id: 'SRC-02',
+        title: 'Standaardenoverzicht incl. DKIM ("Pas toe of leg uit")',
+        publisher: 'NORA Online (ICTU / BZK)',
+        category: 'NORA/BIO2',
+        description: 'Overzicht van verplichte open standaarden op de "Pas toe of leg uit"-lijst, waaronder DKIM voor cryptografische e-mailauthenticatie.',
+        url: 'https://www.noraonline.nl/wiki/Standaarden/overzicht/alle_eigenschappen'
+      },
+      {
+        id: 'SRC-03',
+        title: 'Vormen van logging / Handreiking Logging (dec. 2025)',
+        publisher: 'NORA Online (ICTU / BZK)',
+        category: 'NORA/BIO2',
+        description: 'Richtlijn voor het inrichten van auditlogging, toegangscontrole en forensische traceerbaarheid binnen overheidsarchitecturen.',
+        url: 'https://www.noraonline.nl/wiki/Vormen%20van%20logging%20Handreiking%20Logging'
+      },
+      {
+        id: 'SRC-04',
+        title: 'BIO (Baseline Informatiebeveiliging Overheid 2)',
+        publisher: 'NORA Online (BZK / CIP)',
+        category: 'NORA/BIO2',
+        description: 'Overzicht van de BIO2 als verplicht normenkader voor informatiebeveiliging en logging in de publieke sector (NEN-ISO/IEC 27002).',
+        url: 'https://www.noraonline.nl/wiki/BIO_(Baseline_Informatiebeveiliging_Overheid)'
+      },
+      {
+        id: 'SRC-05',
+        title: 'Baseline Informatiebeveiliging Overheid (BIO2 & Cyberbeveiligingswet)',
+        publisher: 'Digitale Overheid (Ministerie van BZK, sept. 2026)',
+        category: 'Wetgeving',
+        description: 'Beleids- en wettelijk kader waarin BIO2 wordt gekoppeld aan de Cyberbeveiligingswet (Cbw / NIS2) voor overheidsorganisaties.',
+        url: 'https://www.digitaleoverheid.nl/overzicht-van-alle-onderwerpen/cybersecurity/bio-en-ensia/baseline-informatiebeveiliging-overheid/'
+      },
+      {
+        id: 'SRC-06',
+        title: 'WOZ voor bronhouders (LV-WOZ, Haal Centraal API, CPA, PKIoverheid, OIN, DMKS)',
+        publisher: 'Kadaster',
+        category: 'Kadaster/WOZ',
+        description: 'Technische aansluitvoorwaarden voor Gemeentelijke Bronhouders op de LV WOZ, inclusief CPA-register, PKIoverheid, OIN en Digimelding.',
+        url: 'https://www.kadaster.nl/zakelijk/registraties/landelijke-voorzieningen/woz/woz-voor-bronhouders'
+      },
+      {
+        id: 'SRC-07',
+        title: 'Landelijke Voorziening WOZ (Catalogus, Autorisatiematrix, art. 37f Wet WOZ)',
+        publisher: 'Waarderingskamer',
+        category: 'Wetgeving',
+        description: 'Toezichtkader van de Waarderingskamer met de LV WOZ-catalogus, de Autorisatiematrix en de wettelijke terugmeldplicht ex art. 37f Wet WOZ.',
+        url: 'https://www.waarderingskamer.nl/voor-gemeenten/gegevensbeheer/lv-woz'
+      },
+      {
+        id: 'SRC-08',
+        title: 'Gegevenswoordenboek StUF-WOZ 03.12.04 (PDF)',
+        publisher: 'Waarderingskamer',
+        category: 'Kadaster/WOZ',
+        description: 'Officiële technische specificatie van het Sectormodel StUF-WOZ (versie 03.12.04) op basis van StUF-BG voor WOZ-berichtenverkeer.',
+        url: 'https://www.waarderingskamer.nl/uploads/documents/03.-Voor-gemeenten/04.-Gegevensbeheer/Gegevenswoordenboek_StUF_woz_03_12_04__2023_07_01.pdf'
+      },
+      {
+        id: 'SRC-09',
+        title: 'Implementatie-advies modernisering gegevensaanlevering LV-WOZ (sept. 2026)',
+        publisher: 'Geonovum / KBI',
+        category: 'Kadaster/WOZ',
+        description: 'Actueel architectuur- en implementatieadvies voor de transitie van klassieke StUF-aanlevering naar moderne API-gestuurde LV WOZ-uitwisseling.',
+        url: 'https://docs.geostandaarden.nl/kbi/cv-hr-woz-advies-20260902/'
+      },
+      {
+        id: 'SRC-10',
+        title: 'Haal Centraal: gegevens ophalen bij basisregistraties (WOZ, BRP, BRK, BAG API’s)',
+        publisher: 'VNG',
+        category: 'Koppelvlakken/Logius',
+        description: 'Overzicht van de gestandaardiseerde RESTful JSON-API’s (Haal Centraal) waarmee afnemers actuele gegevens rechtstreeks bij de bron bevragen.',
+        url: 'https://vng.nl/projecten/haal-centraal-gegevens-ophalen-bij-basisregistraties'
+      },
+      {
+        id: 'SRC-11',
+        title: 'Koppelvlakken Digipoort (Digikoppeling WUS 2.0, ebMS2, FTP)',
+        publisher: 'Logius',
+        category: 'Koppelvlakken/Logius',
+        description: 'Technische beschrijving van Digipoort als overheidsrouteringsknoop met ondersteuning voor Digikoppeling WUS 2.0 en ebMS2.',
+        url: 'https://www.logius.nl/onze-dienstverlening/gegevensuitwisseling/digipoort/wat-is-het/koppelvlakken'
+      },
+      {
+        id: 'SRC-12',
+        title: 'Peppol e-procurement & e-facturatie (Afbakening buiten LV WOZ)',
+        publisher: 'Logius / Nederlandse Peppolautoriteit (NPa)',
+        category: 'Koppelvlakken/Logius',
+        description: 'Officiële duiding van het Peppol-netwerk als e-procurement/e-facturatiestandaard, waarmee de volledige scheiding met de LV WOZ-keten wordt aangetoond.',
+        url: 'https://www.peppolautoriteit.nl/over-de-nederlandse-peppolautoriteit'
+      }
+    ];
+
+    let activeSourceFilter = 'all';
+    let toastTimer = null;
+
+    /**
+     * Stelt de basis-tekstgrootte in (A- = 16px, A+ = 19px, A++ = 21px).
+     */
+    function setFontSize(sizeKey) {
+      document.documentElement.setAttribute('data-font-size', sizeKey);
+
+      const labelMap = { sm: '16px (A-)', md: '19px (A+)', lg: '21px (A++)' };
+      const labelEl = document.getElementById('fontSizeLabel');
+      if (labelEl) labelEl.textContent = labelMap[sizeKey] || '19px (A+)';
+
+      document.querySelectorAll('.size-btn').forEach((btn) => {
+        const isCurrent = btn.getAttribute('data-size-btn') === sizeKey;
+        const isMobile = btn.closest('header') !== null;
+
+        if (isMobile) {
+          btn.className = isCurrent
+            ? 'size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md bg-meekrap text-white transition cursor-pointer'
+            : 'size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md text-taupe hover:text-meekrap transition cursor-pointer';
+        } else {
+          btn.className = isCurrent
+            ? 'size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-meekrap bg-meekrap text-white transition cursor-pointer'
+            : 'size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer';
+        }
+      });
+    }
+
+    /**
+     * Selecteert en rendert een van de 4 NORA-niveaus in Sectie 01.
+     */
+    function selectNoraLevel(levelNum) {
+      const data = noraLevelsData[levelNum];
+      if (!data) return;
+
+      document.querySelectorAll('.nora-step-btn').forEach((btn) => {
+        const isSelected = Number(btn.getAttribute('data-nora-level')) === levelNum;
+        const badge = btn.querySelector('span');
+        if (isSelected) {
+          btn.className = 'nora-step-btn text-left p-4 rounded-xl border-2 border-meekrap bg-white shadow-sm transition cursor-pointer';
+          if (badge) badge.className = 'font-mono text-xs font-bold px-2 py-0.5 rounded bg-meekrap text-white print-color';
+        } else {
+          btn.className = 'nora-step-btn text-left p-4 rounded-xl border border-linen bg-white hover:border-meekrap-border transition cursor-pointer';
+          if (badge) badge.className = 'font-mono text-xs font-bold px-2 py-0.5 rounded bg-parchment text-taupe border border-linen';
+        }
+      });
+
+      const detailContainer = document.getElementById('noraLevelDetail');
+      detailContainer.innerHTML = `
+        <div class="space-y-3">
+          <div class="font-mono text-xs font-bold text-meekrap tracking-wide">${escapeHtml(data.badge)}</div>
+          <h4 class="font-editorial text-xl font-bold text-ink">${escapeHtml(data.title)}</h4>
+          <p class="text-sm text-taupe leading-relaxed">${escapeHtml(data.summary)}</p>
+          <div class="rounded-xl bg-meekrap-tint/70 border border-meekrap-border p-4 print-color">
+            <div class="font-mono text-[11px] font-bold uppercase tracking-wider text-meekrap-deep mb-1">Concrete betekenis voor de LV WOZ-keten</div>
+            <p class="text-sm text-ink leading-relaxed">${escapeHtml(data.wozMeaning)}</p>
+          </div>
+          <ul class="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
+            ${data.bullets.map((b) => `
+              <li class="bg-parchment rounded-lg border border-linen p-3 text-xs text-ink flex items-start gap-2">
+                <span class="text-meekrap font-bold">&bull;</span>
+                <span>${escapeHtml(b)}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      `;
+    }
+
+    /**
+     * Licht bij klik op het SVG-diagram de bijbehorende detailkaart in Sectie 02 uit.
+     */
+    function highlightLayerCard(cardId) {
+      document.querySelectorAll('.layer-card').forEach((card) => {
+        card.classList.remove('ring-2', 'ring-meekrap', 'bg-white');
+        card.classList.add('bg-parchment');
+      });
+      const target = document.getElementById(cardId);
+      if (target) {
+        target.classList.remove('bg-parchment');
+        target.classList.add('ring-2', 'ring-meekrap', 'bg-white');
+        target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    /**
+     * Rendert het doorzoekbare en filterbare Bronnenregister (Sectie 05).
+     */
+    function renderSources() {
+      const grid = document.getElementById('sourcesGrid');
+      const emptyState = document.getElementById('emptySourcesState');
+      const countEl = document.getElementById('sourceCount');
+      const query = (document.getElementById('sourceSearch').value || '').toLowerCase().trim();
+
+      const filtered = verifiedSources.filter((src) => {
+        const matchesCat = activeSourceFilter === 'all' || src.category === activeSourceFilter;
+        const searchable = `${src.id} ${src.title} ${src.publisher} ${src.category} ${src.description} ${src.url}`.toLowerCase();
+        return matchesCat && (!query || searchable.includes(query));
+      });
+
+      countEl.textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      grid.innerHTML = filtered.map((src) => {
+        let badgeStyle = 'bg-meekrap-tint text-meekrap border-meekrap-border';
+        if (src.category === 'Kadaster/WOZ') badgeStyle = 'bg-archival-greenBg text-archival-green border-archival-greenBorder';
+        if (src.category === 'Koppelvlakken/Logius') badgeStyle = 'bg-archival-ochreBg text-archival-ochre border-archival-ochreBorder';
+        if (src.category === 'Wetgeving') badgeStyle = 'bg-white text-ink border-linen';
+
+        return `
+          <article class="print-avoid-break bg-parchment rounded-xl border border-linen p-5 flex flex-col justify-between gap-4 hover:border-meekrap-border transition">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono text-[11px] font-semibold px-2 py-0.5 rounded border print-color ${badgeStyle}">${escapeHtml(src.category)}</span>
+                <span class="font-mono text-[11px] text-taupe">${escapeHtml(src.id)}</span>
+              </div>
+              <h3 class="font-editorial text-lg font-bold text-ink leading-snug">${escapeHtml(src.title)}</h3>
+              <div class="text-xs font-mono text-meekrap font-medium">${escapeHtml(src.publisher)}</div>
+              <p class="text-xs sm:text-sm text-taupe leading-relaxed">${escapeHtml(src.description)}</p>
+            </div>
+            <div class="pt-3 border-t border-linen/80 flex items-center justify-between gap-2">
+              <a href="${escapeHtml(src.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-semibold text-meekrap hover:text-meekrap-deep hover:underline">
+                <span>Open offici&euml;le bron</span>
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+              </a>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function setSourceFilter(category) {
+      activeSourceFilter = category;
+      document.querySelectorAll('.src-filter-btn').forEach((btn) => {
+        const isCurrent = btn.getAttribute('data-src-filter') === category;
+        btn.className = isCurrent
+          ? 'src-filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-meekrap text-white transition cursor-pointer'
+          : 'src-filter-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer';
+      });
+      renderSources();
+    }
+
+    function resetSourceFilters() {
+      document.getElementById('sourceSearch').value = '';
+      setSourceFilter('all');
+    }
+
+    /**
+     * Exporteert alle geverifieerde bronnen en metadata als downloadbaar JSON-bestand.
+     */
+    function exportSourcesJson() {
+      try {
+        const payload = {
+          titel: 'Technische Architectuuranalyse: NORA & De WOZ-Keten (LV WOZ)',
+          geanonimiseerd: true,
+          export_utc: new Date().toISOString(),
+          aantal_bronnen: verifiedSources.length,
+          bronnen: verifiedSources
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'nora-lv-woz-geverifieerde-bronnen.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('Bronnenregister gedownload als JSON (12 bronnen)');
+      } catch (err) {
+        showToast('JSON-export kon niet worden gestart');
+      }
+    }
+
+    /**
+     * Toont een subtiele toast-melding.
+     */
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = msg;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 2800);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('sourceSearch').addEventListener('input', renderSources);
+      setFontSize('md');
+      selectNoraLevel(1);
+      renderSources();
+    });
+  </script>
+</body>
+</html>
