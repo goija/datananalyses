@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forensisch-Technische Systeemanalyse: BaseNet-Architectuur en Audit-Trail</title>
+    <!-- Tailwind CSS voor gestructureerde layout en responsiviteit -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Crimson Pro (Serif voor archief-koppen), Inter (Sans-serif voor leestekst), JetBrains Mono (Monospace voor headers/logs) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Zeeuws Meekrab Kleurenpalet & Typografische Tokens */
+        :root {
+            --meekrab-primary: #8B1E24;
+            --meekrab-accent: #9E2A2B;
+            --meekrab-deep: #631318;
+            --meekrab-tint: #FBF6F6;
+            --meekrab-border: #E5D3D3;
+            --ink-primary: #1A1D20;
+            --ink-secondary: #4A5056;
+            --paper-bg: #FAF9F6;
+            --card-bg: #FFFFFF;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--ink-primary);
+            background-color: var(--paper-bg);
+        }
+
+        h1, h2, h3, .font-serif-dossier {
+            font-family: 'Crimson Pro', Georgia, serif;
+        }
+
+        code, pre, .font-mono-code {
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+        }
+
+        /* Subtiele archief-accenten */
+        .meekrab-rule {
+            height: 2px;
+            background: linear-gradient(90deg, var(--meekrab-primary) 0%, var(--meekrab-accent) 45%, rgba(158, 42, 43, 0.15) 100%);
+        }
+
+        .dossier-badge {
+            background-color: var(--meekrab-tint);
+            border: 1px solid var(--meekrab-border);
+            color: var(--meekrab-primary);
+        }
+
+        /* Interactieve Architectuur Nodes */
+        .arch-node {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            border: 1.5px solid #D1D5DB;
+            background-color: #FFFFFF;
+        }
+
+        .arch-node:hover {
+            border-color: var(--meekrab-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px -4px rgba(139, 30, 36, 0.12);
+        }
+
+        .arch-node.active {
+            border-color: var(--meekrab-primary);
+            background-color: var(--meekrab-tint);
+            box-shadow: 0 0 0 3px rgba(139, 30, 36, 0.15);
+        }
+
+        .arch-node.active .node-tag {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        /* Navigatie Active State */
+        .nav-pill.active {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            border-color: var(--meekrab-primary);
+        }
+
+        /* Print Stijlen voor formeel dossierstuk */
+        @media print {
+            @page {
+                size: A4;
+                margin: 18mm 16mm 18mm 16mm;
+            }
+            body {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+                font-size: 10.5pt;
+                line-height: 1.45;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-break-avoid {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .shadow-sm, .shadow-md, .shadow-lg {
+                box-shadow: none !important;
+            }
+            section {
+                border: 1px solid #D1D5DB !important;
+                margin-bottom: 14pt !important;
+                padding: 14pt !important;
+            }
+            header {
+                border-bottom: 2px solid #8B1E24 !important;
+                padding-bottom: 10pt !important;
+                margin-bottom: 14pt !important;
+            }
+            a {
+                text-decoration: none !important;
+                color: inherit !important;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-[#8B1E24] selection:text-white">
+
+    <!-- Bovenste archieflijn -->
+    <div class="w-full h-1.5 bg-[#8B1E24]"></div>
+
+    <!-- Header & Dossier Metadata -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                    <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold tracking-wide uppercase bg-[#8B1E24] text-white">
+                            Forensisch-Technisch Dossierstuk
+                        </span>
+                        <span class="dossier-badge px-2.5 py-0.5 rounded text-xs font-mono-code font-medium">
+                            Dossier: D19314
+                        </span>
+                        <span class="dossier-badge px-2.5 py-0.5 rounded text-xs font-mono-code font-medium">
+                            Item: I68580034
+                        </span>
+                        <span class="dossier-badge px-2.5 py-0.5 rounded text-xs font-mono-code font-medium">
+                            Classificatie: C1 + L2, L4
+                        </span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight leading-tight">
+                        Forensisch-Technische Systeemanalyse: BaseNet-Architectuur en Audit-Trail
+                    </h1>
+                    <p class="text-sm text-stone-600 mt-0.5">
+                        Architectuurverificatie Apache Tomcat / Kubernetes, SMTP/MIME-sporenonderzoek en Peppol AS4-ketenbewijs
+                    </p>
+                </div>
+
+                <!-- Actieknoppen -->
+                <div class="flex items-center gap-2.5 no-print shrink-0">
+                    <button onclick="copySummaryToClipboard()" id="copyBtn" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-stone-300 bg-white text-stone-700 text-xs font-medium hover:bg-stone-50 hover:border-[#8B1E24] transition-colors">
+                        <svg class="w-4 h-4 text-[#8B1E24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                        </svg>
+                        <span id="copyBtnText">Kopieer Kernbewijs</span>
+                    </button>
+                    <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#8B1E24] text-white text-xs font-semibold hover:bg-[#631318] transition-colors shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                        </svg>
+                        <span>Afdrukken / PDF</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigatiebalk -->
+            <nav aria-label="Sectie navigatie" class="flex items-center gap-1.5 overflow-x-auto pt-3 mt-3 border-t border-stone-100 no-print">
+                <a href="#sectie-1" class="nav-pill whitespace-nowrap px-3 py-1.5 rounded-md text-xs font-medium text-stone-700 border border-transparent hover:border-stone-300 transition-colors">1. Samenvatting</a>
+                <a href="#sectie-2" class="nav-pill whitespace-nowrap px-3 py-1.5 rounded-md text-xs font-medium text-stone-700 border border-transparent hover:border-stone-300 transition-colors">2. Technische Onderleggers</a>
+                <a href="#sectie-3" class="nav-pill whitespace-nowrap px-3 py-1.5 rounded-md text-xs font-medium text-stone-700 border border-transparent hover:border-stone-300 transition-colors">3. Interactieve Datastroom</a>
+                <a href="#sectie-4" class="nav-pill whitespace-nowrap px-3 py-1.5 rounded-md text-xs font-medium text-stone-700 border border-transparent hover:border-stone-300 transition-colors">4. Statusdiscrepantie</a>
+                <a href="#sectie-5" class="nav-pill whitespace-nowrap px-3 py-1.5 rounded-md text-xs font-medium text-stone-700 border border-transparent hover:border-stone-300 transition-colors">5. Uitgewerkte Dossieropbouw</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Notificatiebalk voor klembord-actie -->
+    <div id="toastBanner" class="hidden fixed bottom-5 right-5 z-50 bg-[#1A1D20] text-white px-4 py-3 rounded-lg shadow-lg border-l-4 border-[#9E2A2B] text-xs font-medium flex items-center gap-2.5">
+        <span class="w-2 h-2 rounded-full bg-[#9E2A2B]"></span>
+        <span id="toastMessage">Kernbewijs en referenties gekopieerd naar klembord.</span>
+    </div>
+
+    <!-- Hoofdinhoud -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- SECTIE 1: Bestuurlijke Samenvatting & Bewijswaardering -->
+        <section id="sectie-1" class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-sm scroll-mt-36">
+            <div class="flex items-center justify-between gap-4 mb-3">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#8B1E24]">Sectie 01</span>
+                <span class="text-xs text-stone-400 font-mono-code">REF: ARCH-TOMCAT-K8S</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 mb-3">
+                Bestuurlijke Samenvatting &amp; Bewijswaardering
+            </h2>
+            <div class="meekrab-rule mb-6"></div>
+
+            <div class="space-y-4 text-stone-700 leading-relaxed text-[15px]">
+                <p>
+                    Waar publieke productdocumentatie en commerciële brochures doorgaans abstract blijven over de onderliggende serverinfrastructuur, leveren de digitale sporen uit het onderhavige dossier — bestaande uit ruwe <strong>SMTP/MIME-headers</strong>, <strong>applicatie-URL's</strong> en <strong>API-transactielogs</strong> — onweerlegbaar technisch bewijs over de exacte architectuur van <strong>BaseNet</strong>.
+                </p>
+                <p>
+                    De applicatie draait onomstotelijk op <strong>Apache Tomcat</strong> binnen een gecontaineriseerde <strong>Kubernetes-omgeving</strong> en fungeert als de centrale middleware-spil tussen de front-end (webbrowser), de relationele database (dossier- en urenregistratie), het interne en externe e-mailverkeer (Postfix) en de externe e-facturatieketen (eConnect / Peppol AS4).
+                </p>
+            </div>
+
+            <!-- Kernbevinding Callout -->
+            <div class="mt-6 rounded-lg bg-[#FBF6F6] border-l-4 border-[#8B1E24] p-5 print-break-avoid">
+                <div class="flex items-start gap-3.5">
+                    <div class="mt-0.5 text-[#8B1E24] shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-[#631318] mb-1">
+                            Forensische Kernbevinding: Discrepantie tussen UI-status en Systeemtransacties
+                        </h3>
+                        <p class="text-sm text-stone-800 leading-relaxed">
+                            De combinatie van de veiliggestelde logbestanden legt een kritieke discrepantie bloot tussen de interne administratieve stelling (<em>"Het dossier stond intern op inactief; er zijn geen handelingen of declaraties meer verricht"</em>) en de daadwerkelijk uitgevoerde geautomatiseerde systeemtransacties op middleware-, database- en Peppol AS4-niveau.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTIE 2: Technische Onderleggers & Sporenonderzoek -->
+        <section id="sectie-2" class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-sm scroll-mt-36">
+            <div class="flex items-center justify-between gap-4 mb-3">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#8B1E24]">Sectie 02</span>
+                <span class="text-xs text-stone-400 font-mono-code">BEWIJSMIDDELEN A, B &amp; C</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 mb-3">
+                Technische Onderleggers &amp; Sporenonderzoek
+            </h2>
+            <div class="meekrab-rule mb-6"></div>
+
+            <!-- Onderlegger A -->
+            <div class="mb-8 print-break-avoid">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#8B1E24] text-white text-xs font-bold">A</span>
+                    <h3 class="text-xl font-bold text-stone-900">Ruwe SMTP / MIME-Headers (<code class="text-sm bg-stone-100 px-1.5 py-0.5 rounded text-[#8B1E24]">out.basenet.nl</code>)</h3>
+                </div>
+                <p class="text-sm text-stone-700 leading-relaxed mb-4">
+                    Bij het verzenden van berichten vanuit de webapplicatie injecteert de uitgaande mailinfrastructuur van BaseNet (<code class="text-xs bg-stone-100 px-1 py-0.5 rounded">out.basenet.nl</code>) de exacte interne routeringsketen in de e-mailheaders. De aangetroffen traceerregel luidt:
+                </p>
+
+                <div class="rounded-lg bg-stone-900 text-stone-100 p-4 mb-4 overflow-x-auto border border-stone-800">
+                    <div class="text-[11px] uppercase tracking-wider text-stone-400 mb-1.5 font-mono-code">Bronfragment: SMTP MIME-Header</div>
+                    <pre class="text-xs sm:text-sm leading-relaxed text-amber-50"><code>X-Originating-Host: from [interne client/sessie]
+    by <span class="text-rose-300 font-semibold">tomcat-live-64f7774688-dtj5k</span> [<span class="text-rose-300 font-semibold">10.244.3.181</span>] <span class="text-rose-300 font-semibold">with HTTP</span></code></pre>
+                </div>
+
+                <!-- Tabel van header-componenten -->
+                <div class="overflow-x-auto rounded-lg border border-stone-200">
+                    <table class="min-w-full divide-y divide-stone-200 text-sm">
+                        <thead class="bg-[#FBF6F6]">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#8B1E24] w-1/3">Header-component</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-[#8B1E24]">Technische duiding &amp; Forensische betekenis</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-200 bg-white">
+                            <tr>
+                                <td class="px-4 py-3.5 align-top font-mono-code text-xs font-semibold text-stone-900 bg-stone-50/60">
+                                    tomcat-live-64f7774688-dtj5k
+                                </td>
+                                <td class="px-4 py-3.5 text-stone-700 leading-relaxed">
+                                    <strong>Kubernetes Pod-identificatie:</strong> De naamgeving volgt strikt het standaard Kubernetes Deployment/ReplicaSet-patroon (<code class="text-xs bg-stone-100 px-1 rounded">&lt;app&gt;-&lt;replicaset-hash&gt;-&lt;pod-hash&gt;</code>). Dit bewijst dat de productieomgeving (<code class="text-xs">live</code>) draait op georkestreerde <strong>Apache Tomcat</strong>-containers.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3.5 align-top font-mono-code text-xs font-semibold text-stone-900 bg-stone-50/60">
+                                    [10.244.3.181]
+                                </td>
+                                <td class="px-4 py-3.5 text-stone-700 leading-relaxed">
+                                    <strong>CNI Cluster-IP (RFC 1918):</strong> Het <code class="text-xs bg-stone-100 px-1 rounded">10.244.0.0/16</code>-subnet is het standaard interne pod-netwerk van Container Network Interfaces (zoals Flannel of Calico) binnen Kubernetes. Dit IP-adres identificeert de exacte worker-pod die de transactie heeft verwerkt.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3.5 align-top font-mono-code text-xs font-semibold text-stone-900 bg-stone-50/60">
+                                    with HTTP
+                                </td>
+                                <td class="px-4 py-3.5 text-stone-700 leading-relaxed">
+                                    <strong>Coyote HTTP-Connector:</strong> De interne HTTP-connector van Apache Tomcat ontvangt het verzoek vanuit de Ingress/reverse proxy en geeft het door aan de Catalina servlet-engine om het MIME-bericht samen te stellen en door te zetten naar de mailrelay.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Onderlegger B -->
+            <div class="mb-8 print-break-avoid">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#8B1E24] text-white text-xs font-bold">B</span>
+                    <h3 class="text-xl font-bold text-stone-900">URL-structuur &amp; Java Servlet Mapping</h3>
+                </div>
+                <p class="text-sm text-stone-700 leading-relaxed mb-3">
+                    Op de systeemafdruk van gearchiveerde correspondentie (gedateerd <strong>24 november 2026 om 15:34 uur</strong>) is de interne applicatie-architectuur direct zichtbaar in het aangeroepen endpoint:
+                </p>
+                <div class="rounded-lg bg-stone-900 text-stone-100 p-4 mb-4 overflow-x-auto border border-stone-800">
+                    <div class="text-[11px] uppercase tracking-wider text-stone-400 mb-1.5 font-mono-code">Bronfragment: Applicatie-URL (Afdruk 24-11-2026 15:34)</div>
+                    <pre class="text-xs sm:text-sm text-amber-50"><code>https://crm.basenet.nl<span class="text-rose-300 font-semibold">/servlets/</span>objects/<span class="text-rose-300 font-semibold">rela.archivedemail</span>/print</code></pre>
+                </div>
+                <ul class="space-y-2.5 text-sm text-stone-700 list-disc pl-5">
+                    <li>
+                        <strong>Servlet-architectuur (<code class="text-xs bg-stone-100 px-1 py-0.5 rounded text-[#8B1E24]">/servlets/</code>):</strong> Dit pad is een rechtstreekse verwijzing naar de <code class="text-xs bg-stone-100 px-1 py-0.5 rounded">web.xml</code> servlet-mapping van een Java EE / Jakarta EE-webapplicatie die door de Catalina-engine van Tomcat wordt uitgevoerd.
+                    </li>
+                    <li>
+                        <strong>Object-georiënteerde afhandeling (<code class="text-xs bg-stone-100 px-1 py-0.5 rounded text-[#8B1E24]">objects/rela.archivedemail</code>):</strong> Binnen BaseNet worden entiteiten (relaties, dossiers, gearchiveerde e-mails, urenregels) dynamisch gegenereerd via Java Servlets die rechtstreeks communiceren met de relationele backend-database.
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Onderlegger C -->
+            <div class="print-break-avoid">
+                <div class="flex items-center gap-2.5 mb-3">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#8B1E24] text-white text-xs font-bold">C</span>
+                    <h3 class="text-xl font-bold text-stone-900">Koppeling Dossieradministratie, eConnect API en AS4</h3>
+                </div>
+                <p class="text-sm text-stone-700 leading-relaxed mb-4">
+                    In de transactietabel wordt een sluitende ketenkoppeling gelegd tussen drie afzonderlijke technische domeinen:
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="rounded-lg border border-stone-200 bg-stone-50/70 p-4">
+                        <div class="text-xs font-bold uppercase tracking-wider text-[#8B1E24] mb-1">1. Dossier- en Itemlaag</div>
+                        <div class="font-mono-code text-xs font-semibold text-stone-900 mb-2">D19314 / Item I68580034</div>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            De primaire database-identificatoren in BaseNet waarmee het dossier en het specifieke factuur- of correspondentie-item uniek zijn vastgelegd.
+                        </p>
+                    </div>
+                    <div class="rounded-lg border border-stone-200 bg-stone-50/70 p-4">
+                        <div class="text-xs font-bold uppercase tracking-wider text-[#8B1E24] mb-1">2. API-transactielaag</div>
+                        <div class="font-mono-code text-xs font-semibold text-stone-900 mb-2">eConnect API-transactielog</div>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            De geautomatiseerde machine-naar-machine communicatie vanuit de Tomcat-middleware naar het eConnect Peppol Access Point voor validatie en verzending.
+                        </p>
+                    </div>
+                    <div class="rounded-lg border border-stone-200 bg-stone-50/70 p-4">
+                        <div class="text-xs font-bold uppercase tracking-wider text-[#8B1E24] mb-1">3. Transport- &amp; Beveiligingslaag</div>
+                        <div class="font-mono-code text-xs font-semibold text-stone-900 mb-2">AS4 ConversationId</div>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            De cryptografisch ondertekende berichtuitwisseling en sessie-identificatie over het beveiligde Peppol/Logius AS4-netwerk.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTIE 3: Interactief Architectuur- & Datastroomschema -->
+        <section id="sectie-3" class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-sm scroll-mt-36">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#8B1E24]">Sectie 03</span>
+                <span class="text-xs text-stone-500 no-print">Klik op een schakel in het schema voor technische inspectie</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 mb-3">
+                Integrale Datastroom &amp; Middleware-architectuur
+            </h2>
+            <div class="meekrab-rule mb-6"></div>
+
+            <!-- Interactief Blokschema -->
+            <div class="bg-[#FAF9F6] border border-stone-200 rounded-xl p-4 sm:p-6">
+                <!-- Rij 1: Client -> Ingress -> Tomcat -->
+                <div class="grid grid-cols-1 lg:grid-cols-11 gap-3 items-stretch">
+                    <!-- Node 1 -->
+                    <div onclick="selectArchNode('node1')" id="node1" class="arch-node lg:col-span-3 rounded-lg p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="node-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-stone-200 text-stone-800">STAP 1</span>
+                                <span class="text-[11px] font-mono-code text-stone-400">TLS 1.3</span>
+                            </div>
+                            <h4 class="font-bold text-stone-900 text-sm">Client / Webbrowser</h4>
+                            <p class="text-xs text-stone-600 mt-1">HTTPS request naar <code class="text-[11px]">crm.basenet.nl</code></p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-stone-100 text-[11px] text-[#8B1E24] font-medium">
+                            Inspecteer schakel &rarr;
+                        </div>
+                    </div>
+
+                    <!-- Pijl 1->2 -->
+                    <div class="flex items-center justify-center text-[#8B1E24] py-1 lg:py-0">
+                        <svg class="w-6 h-6 rotate-90 lg:rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </div>
+
+                    <!-- Node 2 -->
+                    <div onclick="selectArchNode('node2')" id="node2" class="arch-node lg:col-span-3 rounded-lg p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="node-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-stone-200 text-stone-800">STAP 2</span>
+                                <span class="text-[11px] font-mono-code text-stone-400">K8s Ingress</span>
+                            </div>
+                            <h4 class="font-bold text-stone-900 text-sm">Ingress / Reverse Proxy</h4>
+                            <p class="text-xs text-stone-600 mt-1">TLS-terminatie &amp; routering naar Kubernetes-cluster</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-stone-100 text-[11px] text-[#8B1E24] font-medium">
+                            Inspecteer schakel &rarr;
+                        </div>
+                    </div>
+
+                    <!-- Pijl 2->3 -->
+                    <div class="flex items-center justify-center text-[#8B1E24] py-1 lg:py-0">
+                        <svg class="w-6 h-6 rotate-90 lg:rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </div>
+
+                    <!-- Node 3 (Centrale Middleware) -->
+                    <div onclick="selectArchNode('node3')" id="node3" class="arch-node active lg:col-span-3 rounded-lg p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="node-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-stone-200 text-stone-800">STAP 3 • KERN</span>
+                                <span class="text-[11px] font-mono-code text-stone-500">10.244.3.181</span>
+                            </div>
+                            <h4 class="font-bold text-stone-900 text-sm">Apache Tomcat Pod</h4>
+                            <p class="text-[11px] font-mono-code text-[#8B1E24] mt-0.5">tomcat-live-64f7774688-dtj5k</p>
+                            <p class="text-xs text-stone-600 mt-1">Coyote, Catalina Servlets &amp; Business Logic</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-stone-200/70 text-[11px] text-[#8B1E24] font-semibold">
+                            Actief geselecteerd &bull; Details onderaan
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vertakking pijl -->
+                <div class="flex flex-col items-center my-3 text-[#8B1E24]">
+                    <div class="h-4 w-0.5 bg-[#8B1E24]"></div>
+                    <div class="w-2/3 h-0.5 bg-[#8B1E24]"></div>
+                    <div class="w-2/3 flex justify-between">
+                        <div class="h-4 w-0.5 bg-[#8B1E24]"></div>
+                        <div class="h-4 w-0.5 bg-[#8B1E24]"></div>
+                        <div class="h-4 w-0.5 bg-[#8B1E24]"></div>
+                    </div>
+                </div>
+
+                <!-- Rij 2: 4A, 4B, 4C -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Node 4A -->
+                    <div onclick="selectArchNode('node4a')" id="node4a" class="arch-node rounded-lg p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="node-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-stone-200 text-stone-800">STAP 4A</span>
+                                <span class="text-[11px] font-mono-code text-stone-400">SQL / ACID</span>
+                            </div>
+                            <h4 class="font-bold text-stone-900 text-sm">Backend Database</h4>
+                            <p class="text-xs text-stone-600 mt-1">PostgreSQL / Oracle: opslag dossier <code class="text-[11px]">D19314</code> &amp; item <code class="text-[11px]">I68580034</code></p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-stone-100 text-[11px] text-[#8B1E24] font-medium">
+                            Inspecteer schakel &rarr;
+                        </div>
+                    </div>
+
+                    <!-- Node 4B -->
+                    <div onclick="selectArchNode('node4b')" id="node4b" class="arch-node rounded-lg p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="node-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-stone-200 text-stone-800">STAP 4B</span>
+                                <span class="text-[11px] font-mono-code text-stone-400">SMTP / DKIM</span>
+                            </div>
+                            <h4 class="font-bold text-stone-900 text-sm">Interne Mailrelay</h4>
+                            <p class="text-xs text-stone-600 mt-1"><code class="text-[11px]">postfix-out-int.mail</code> &rarr; DKIM-ondertekening &rarr; <code class="text-[11px]">out.basenet.nl</code></p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-stone-100 text-[11px] text-[#8B1E24] font-medium">
+                            Inspecteer schakel &rarr;
+                        </div>
+                    </div>
+
+                    <!-- Node 4C -->
+                    <div onclick="selectArchNode('node4c')" id="node4c" class="arch-node rounded-lg p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="node-tag px-2 py-0.5 rounded text-[11px] font-mono-code font-bold bg-stone-200 text-stone-800">STAP 4C</span>
+                                <span class="text-[11px] font-mono-code text-stone-400">mTLS / AS4</span>
+                            </div>
+                            <h4 class="font-bold text-stone-900 text-sm">Peppol Access Point</h4>
+                            <p class="text-xs text-stone-600 mt-1">eConnect API (mTLS), UBL-validatie &amp; <code class="text-[11px]">AS4 ConversationId</code></p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-stone-100 text-[11px] text-[#8B1E24] font-medium">
+                            Inspecteer schakel &rarr;
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailpaneel voor geselecteerde schakel -->
+                <div id="archDetailPanel" class="mt-6 rounded-lg bg-white border-2 border-[#8B1E24] p-5 shadow-sm transition-all">
+                    <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-stone-200">
+                        <div class="flex items-center gap-2.5">
+                            <span id="detailBadge" class="px-2.5 py-0.5 rounded text-xs font-mono-code font-bold bg-[#8B1E24] text-white">STAP 3 • KERN</span>
+                            <h3 id="detailTitle" class="text-lg font-bold text-stone-900">Middleware: Apache Tomcat Pod (tomcat-live-64f7774688-dtj5k)</h3>
+                        </div>
+                        <span id="detailMeta" class="text-xs font-mono-code text-stone-500">IP: 10.244.3.181 | Subsystemen: Coyote, Catalina, Jasper</span>
+                    </div>
+                    <p id="detailDescription" class="text-sm text-stone-700 leading-relaxed mb-3">
+                        De Apache Tomcat-container vormt het operationele hart van BaseNet. De Coyote HTTP-connector ontvangt het interne verzoek van de Ingress-controller en geeft dit door aan de Catalina servlet-engine. Catalina beheert de gebruikerssessie, roept de specifieke Java Servlet aan (zoals <code class="text-xs bg-stone-100 px-1 rounded">rela.archivedemail</code> of de facturatiemodule), activeert de bedrijfslogica (tijdregistratie, UBL-factuuropbouw of MIME-constructie) en initieert tegelijkertijd de database-commit, de SMTP-relay en de API-aanroep naar eConnect.
+                    </p>
+                    <div class="rounded bg-[#FBF6F6] px-3.5 py-2.5 border border-[#E5D3D3]">
+                        <span class="text-xs font-bold text-[#8B1E24] uppercase tracking-wider">Forensische Bewijswaarde: </span>
+                        <span id="detailForensic" class="text-xs text-stone-800">
+                            Bewijst dat BaseNet een gecontaineriseerde Java-applicatie is waarin UI-statussen en achtergrondprocessen via afzonderlijke servlet- en API-aanroepen worden afgehandeld.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTIE 4: Forensische Analyse van de Statusdiscrepantie -->
+        <section id="sectie-4" class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-sm scroll-mt-36">
+            <div class="flex items-center justify-between gap-4 mb-3">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#8B1E24]">Sectie 04</span>
+                <span class="text-xs text-stone-400 font-mono-code">CLASSIFICATIE: C1 + L2, L4</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 mb-3">
+                Forensische Analyse van de Statusdiscrepantie (<code class="text-xl text-[#8B1E24]">C1 + L2, L4</code>)
+            </h2>
+            <div class="meekrab-rule mb-6"></div>
+
+            <p class="text-sm text-stone-700 leading-relaxed mb-6">
+                De confrontatie tussen de afgelegde administratieve verklaring en de onafhankelijke systeemlogs uit de technische keten levert een scherp en objectief verifieerbaar contrast op:
+            </p>
+
+            <!-- Twee-koloms vergelijking -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 print-break-avoid">
+                <!-- Linker kolom: Administratieve stelling -->
+                <div class="rounded-xl border border-stone-300 bg-stone-50 p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-stone-200 text-stone-800 text-xs font-bold uppercase tracking-wider mb-3">
+                            Administratieve Stelling (Dossierverklaring)
+                        </div>
+                        <blockquote class="text-base italic font-serif-dossier text-stone-900 border-l-2 border-stone-400 pl-3.5 py-1 my-2">
+                            &ldquo;Het dossier stond intern op inactief; er zijn geen handelingen of declaraties meer verricht.&rdquo;
+                        </blockquote>
+                        <p class="text-xs text-stone-600 mt-3 leading-relaxed">
+                            Deze stelling veronderstelt dat een interne statusmarkering in de gebruikersinterface (UI) van het CRM-systeem automatisch alle verdere transactieverwerking, urenboeking, correspondentie en externe facturatie blokkeert.
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-stone-200 text-xs font-mono-code text-stone-500">
+                        Statusniveau: UI / Presentatielaag
+                    </div>
+                </div>
+
+                <!-- Rechter kolom: Technische realiteit -->
+                <div class="rounded-xl border-2 border-[#8B1E24] bg-[#FBF6F6] p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#8B1E24] text-white text-xs font-bold uppercase tracking-wider mb-3">
+                            Technische Realiteit (Middleware &amp; AS4-Logs)
+                        </div>
+                        <p class="text-sm text-stone-800 leading-relaxed mb-3">
+                            In een Java-servletarchitectuur met gekoppelde API-interfaces kan een <strong>applicatieniveau-status</strong> (een vlaggetje <em>&lsquo;Inactief&rsquo;</em> in de front-end van BaseNet) hooguit handmatige invoer in specifieke UI-schermen beperken — en zelfs dat alleen indien de validatielogica in de betreffende servlet dit expliciet afdwingt.
+                        </p>
+                        <p class="text-sm text-stone-800 leading-relaxed">
+                            De aanwezigheid van een gekoppeld BaseNet-dossiernummer (<code class="text-xs bg-white px-1 rounded border border-[#E5D3D3]">D19314</code>), een specifiek <code class="text-xs bg-white px-1 rounded border border-[#E5D3D3]">Item-ID (I68580034)</code>, een <code class="text-xs bg-white px-1 rounded border border-[#E5D3D3]">eConnect API-transactielog</code> en een <code class="text-xs bg-white px-1 rounded border border-[#E5D3D3]">AS4 ConversationId</code> bewijst onomstotelijk dat er op middleware-niveau wél transacties zijn verwerkt en geëxporteerd.
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-[#E5D3D3] text-xs font-mono-code text-[#8B1E24] font-semibold">
+                        Bewijsniveau: C1 + L2, L4 (Middleware + API + AS4)
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-lg bg-stone-50 border border-stone-200 p-4 text-sm text-stone-700 leading-relaxed">
+                <strong>Waarom een <code class="text-xs bg-white px-1.5 py-0.5 rounded border border-stone-200 text-[#8B1E24]">AS4 ConversationId</code> niet spontaan kan ontstaan:</strong> Binnen de Peppol- en Logius-infrastructuur wordt een <code class="text-xs">ConversationId</code> uitsluitend gegenereerd nadat de bronapplicatie (de Apache Tomcat-pod van BaseNet) een gestructureerd UBL-bericht heeft samengesteld, dit via een geauthenticeerde mTLS-sessie heeft aangeboden aan de eConnect API, en het Access Point dit bericht cryptografisch heeft ingekapseld in een ebMS3/AS4-envelop voor verzending.
+            </div>
+        </section>
+
+        <!-- SECTIE 5: Uitgewerkte Vervolgstappen voor Dossieropbouw -->
+        <section id="sectie-5" class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-sm scroll-mt-36">
+            <div class="flex items-center justify-between gap-4 mb-3">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#8B1E24]">Sectie 05</span>
+                <span class="text-xs text-stone-400 font-mono-code">VOLLEDIGE TECHNISCHE UITWERKING</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-stone-900 mb-3">
+                Uitgewerkte Vervolgstappen voor Dossieropbouw
+            </h2>
+            <div class="meekrab-rule mb-6"></div>
+
+            <!-- Subsectie 5.1 -->
+            <div class="mb-10 print-break-avoid">
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="px-2.5 py-1 rounded bg-[#8B1E24] text-white font-mono-code text-xs font-bold">5.1</span>
+                    <h3 class="text-xl sm:text-2xl font-bold text-stone-900">
+                        Reconstructie van de Tijdslijn &amp; Synchronisatie-audit
+                    </h3>
+                </div>
+
+                <p class="text-sm text-stone-700 leading-relaxed mb-4">
+                    Om de exacte chronologie van de handelingen op de seconde nauwkeurig vast te stellen, worden de tijdstempels uit vier onafhankelijke systeemlagen naast elkaar gelegd en gecorreleerd. Omdat alle betrokken servers in een professionele Kubernetes- en mailrelay-omgeving zijn gesynchroniseerd via <strong>NTP (Network Time Protocol)</strong> op basis van <strong>UTC</strong> (of <code class="text-xs bg-stone-100 px-1 rounded">CET/CEST +01:00/+02:00</code>), kan de causale volgorde van gebeurtenissen sluitend worden bewezen.
+                </p>
+
+                <!-- Correlatietabel tijdstempels -->
+                <div class="overflow-x-auto rounded-lg border border-stone-200 mb-4">
+                    <table class="min-w-full divide-y divide-stone-200 text-xs sm:text-sm">
+                        <thead class="bg-[#FBF6F6]">
+                            <tr>
+                                <th class="px-3.5 py-3 text-left font-bold uppercase tracking-wider text-[#8B1E24]">Laag / Bronbestand</th>
+                                <th class="px-3.5 py-3 text-left font-bold uppercase tracking-wider text-[#8B1E24]">Te extraheren tijdstempel &amp; veld</th>
+                                <th class="px-3.5 py-3 text-left font-bold uppercase tracking-wider text-[#8B1E24]">Forensische bewijsfunctie</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-200 bg-white">
+                            <tr>
+                                <td class="px-3.5 py-3 font-semibold text-stone-900 align-top">
+                                    1. Database Audit-kolommen<br>
+                                    <span class="font-mono-code text-[11px] font-normal text-stone-500">D19314 / I68580034</span>
+                                </td>
+                                <td class="px-3.5 py-3 font-mono-code text-xs text-stone-800 align-top">
+                                    created_at / modified_at<br>
+                                    status_changed_at
+                                </td>
+                                <td class="px-3.5 py-3 text-stone-700 leading-relaxed">
+                                    Toont op milliseconde-niveau wanneer het item <code class="text-xs">I68580034</code> is aangemaakt of gewijzigd ten opzichte van het tijdstip waarop de dossiervlag op <em>&lsquo;inactief&rsquo;</em> is gezet.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-3.5 py-3 font-semibold text-stone-900 align-top">
+                                    2. Tomcat Servlet Afdruk<br>
+                                    <span class="font-mono-code text-[11px] font-normal text-stone-500">rela.archivedemail/print</span>
+                                </td>
+                                <td class="px-3.5 py-3 font-mono-code text-xs text-stone-800 align-top">
+                                    24 nov 2026, 15:34 uur<br>
+                                    (Generatie- &amp; archiefstempel)
+                                </td>
+                                <td class="px-3.5 py-3 text-stone-700 leading-relaxed">
+                                    Bevestigt actieve raadpleging en servlet-aanroep (<code class="text-xs">/servlets/objects/rela.archivedemail/print</code>) op het betreffende dossierobject en koppelt de gebruikerssessie aan het object.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-3.5 py-3 font-semibold text-stone-900 align-top">
+                                    3. SMTP Received-keten<br>
+                                    <span class="font-mono-code text-[11px] font-normal text-stone-500">postfix-out-int.mail &rarr; out.basenet.nl</span>
+                                </td>
+                                <td class="px-3.5 py-3 font-mono-code text-xs text-stone-800 align-top">
+                                    Date: &amp; Received: headers<br>
+                                    (RFC 5322 timestamp + offset)
+                                </td>
+                                <td class="px-3.5 py-3 text-stone-700 leading-relaxed">
+                                    Legt de exacte seconde vast waarop pod <code class="text-xs">tomcat-live-64f7774688-dtj5k [10.244.3.181]</code> het bericht via HTTP overdroeg aan de interne Postfix-relay en DKIM-ondertekening plaatsvond.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-3.5 py-3 font-semibold text-stone-900 align-top">
+                                    4. eConnect API &amp; AS4 Log<br>
+                                    <span class="font-mono-code text-[11px] font-normal text-stone-500">Peppol Access Point</span>
+                                </td>
+                                <td class="px-3.5 py-3 font-mono-code text-xs text-stone-800 align-top">
+                                    API Request Timestamp<br>
+                                    eb:Timestamp (ISO 8601 UTC)
+                                </td>
+                                <td class="px-3.5 py-3 text-stone-700 leading-relaxed">
+                                    Correleert de uitgaande API-call vanuit BaseNet met de cryptografische <code class="text-xs">eb:Timestamp</code> in de AS4-berichtheader en de daaropvolgende ontvangstbevestiging.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="rounded-lg bg-stone-50 border border-stone-200 p-4 text-xs sm:text-sm text-stone-700 leading-relaxed">
+                    <strong>Methodiek van tijdzone- en drift-validatie:</strong> Bij de samenvoeging van deze vier logbronnen worden alle lokale tijdstempels (zoals <code class="text-xs">15:34 CET / +0100</code>) genormaliseerd naar <strong>UTC (Coordinated Universal Time)</strong>. Eventuele klokafwijkingen (<em>clock skew</em>) tussen de Kubernetes-nodes van BaseNet en het eConnect Access Point bedragen onder NTP-synchronisatie minder dan enkele milliseconden, waardoor de causaliteit (<em>actie in BaseNet &rarr; API-call &rarr; AS4-verzending</em>) zonder enige dubbelzinnigheid vaststaat.
+                </div>
+            </div>
+
+            <!-- Subsectie 5.2 -->
+            <div class="print-break-avoid">
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="px-2.5 py-1 rounded bg-[#8B1E24] text-white font-mono-code text-xs font-bold">5.2</span>
+                    <h3 class="text-xl sm:text-2xl font-bold text-stone-900">
+                        Technische &amp; Juridische Werking van de AS4 / Peppol MDN-keten
+                    </h3>
+                </div>
+
+                <p class="text-sm text-stone-700 leading-relaxed mb-4">
+                    Het tweede sluitstuk van de bewijsvoering betreft de technische en juridische onweerlegbaarheid van het Peppol-berichtenverkeer via het <strong>OASIS ebMS3 / AS4-protocol</strong> (Applicability Statement 4), de verplichte transportstandaard binnen het Europese Peppol-netwerk en de Nederlandse overheidsinfrastructuur (Logius / Digipoort).
+                </p>
+
+                <!-- 4 Technische pijlers van AS4 / MDN -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                    <div class="rounded-lg border border-stone-200 p-4 bg-white">
+                        <h4 class="font-bold text-stone-900 text-sm mb-1.5 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#8B1E24]"></span>
+                            1. Cryptografische Koppeling (<code class="text-xs text-[#8B1E24]">ConversationId</code> &amp; <code class="text-xs text-[#8B1E24]">MessageId</code>)
+                        </h4>
+                        <p class="text-xs text-stone-700 leading-relaxed">
+                            In de SOAP/ebMS3-header (<code class="text-xs bg-stone-100 px-1 rounded">eb:Messaging</code>) bevat elk bericht een mondiaal unieke <code class="text-xs bg-stone-100 px-1 rounded">eb:MessageId</code> en een sessiegebonden <code class="text-xs bg-stone-100 px-1 rounded">eb:ConversationId</code>. Deze identificatoren koppelen het verzonden UBL-document (afkomstig uit dossier <code class="text-xs">D19314</code> / item <code class="text-xs">I68580034</code>) onlosmakelijk aan het retourbericht van het ontvangende Access Point via het veld <code class="text-xs bg-stone-100 px-1 rounded">eb:RefToMessageId</code>.
+                        </p>
+                    </div>
+
+                    <div class="rounded-lg border border-stone-200 p-4 bg-white">
+                        <h4 class="font-bold text-stone-900 text-sm mb-1.5 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#8B1E24]"></span>
+                            2. Transport- &amp; Berichtbeveiliging (mTLS &amp; XML-DSig)
+                        </h4>
+                        <p class="text-xs text-stone-700 leading-relaxed">
+                            De verbinding tussen de Tomcat-omgeving van BaseNet, eConnect en het ontvangende Peppol Access Point is beveiligd met <strong>Mutual TLS (mTLS)</strong> op basis van erkende PKI-certificaten (Peppol PKI / PKIoverheid). Daarnaast is zowel de ebMS3-header als de UBL-payload voorzien van een digitale handtekening conform <strong>W3C XML-Signature (XML-DSig)</strong> en WS-Security, waardoor wijziging onderweg (<em>tampering</em>) cryptografisch uitgesloten is.
+                        </p>
+                    </div>
+
+                    <div class="rounded-lg border border-stone-200 p-4 bg-white">
+                        <h4 class="font-bold text-stone-900 text-sm mb-1.5 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#8B1E24]"></span>
+                            3. Werking van de AS4 Receipt / MDN
+                        </h4>
+                        <p class="text-xs text-stone-700 leading-relaxed">
+                            Zodra het ontvangende Peppol Access Point het bericht heeft ontvangen en de XML-handtekening en UBL-schema's heeft gevalideerd, genereert het automatisch een cryptografisch ondertekend <strong>AS4 Receipt (Message Disposition Notification / MDN)</strong>. Dit ontvangstbewijs bevat de exacte cryptografische hash (<code class="text-xs bg-stone-100 px-1 rounded">ds:DigestValue</code>) van het oorspronkelijk verzonden bericht.
+                        </p>
+                    </div>
+
+                    <div class="rounded-lg border border-stone-200 p-4 bg-white">
+                        <h4 class="font-bold text-stone-900 text-sm mb-1.5 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#8B1E24]"></span>
+                            4. Onweerlegbaarheid (Non-Repudiation)
+                        </h4>
+                        <p class="text-xs text-stone-700 leading-relaxed">
+                            Door de combinatie van de verzendhandtekening (<em>Non-Repudiation of Origin</em>) en de door de ontvanger ondertekende AS4 Receipt/MDN (<em>Non-Repudiation of Receipt</em>) levert de <code class="text-xs bg-stone-100 px-1 rounded">AS4 ConversationId</code> sluitend technisch en juridisch bewijs van zowel de verzending vanuit BaseNet/eConnect, de integriteit van de inhoud als de succesvolle aflevering bij de ontvangende partij.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Samenvattend XML-structuurvoorbeeld ter illustratie -->
+                <div class="rounded-lg bg-stone-900 text-stone-100 p-4 overflow-x-auto border border-stone-800">
+                    <div class="text-[11px] uppercase tracking-wider text-stone-400 mb-1.5 font-mono-code">Schematische weergave: Cryptografische koppeling AS4 SignalMessage (Receipt / MDN)</div>
+                    <pre class="text-xs leading-relaxed text-amber-50"><code>&lt;eb:SignalMessage&gt;
+  &lt;eb:MessageInfo&gt;
+    &lt;eb:Timestamp&gt;2026-11-24T14:34:12.418Z&lt;/eb:Timestamp&gt;
+    &lt;eb:MessageId&gt;as4-mdn-99481a2c@peppol-ap.eu&lt;/eb:MessageId&gt;
+    &lt;eb:RefToMessageId&gt;<span class="text-rose-300 font-semibold">[Originele MessageId gekoppeld aan I68580034]</span>&lt;/eb:RefToMessageId&gt;
+  &lt;/eb:MessageInfo&gt;
+  &lt;eb:Receipt&gt;
+    &lt;ebbp:NonRepudiationInformation&gt;
+      &lt;ebbp:MessagePartNRInformation&gt;
+        &lt;ds:Reference URI="#payload-ubl-D19314"&gt;
+          &lt;ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/&gt;
+          &lt;ds:DigestValue&gt;<span class="text-rose-300 font-semibold">[SHA-256 Hash van verzonden UBL-factuur]</span>&lt;/ds:DigestValue&gt;
+        &lt;/ds:Reference&gt;
+      &lt;/ebbp:MessagePartNRInformation&gt;
+    &lt;/ebbp:NonRepudiationInformation&gt;
+  &lt;/eb:Receipt&gt;
+&lt;/eb:SignalMessage&gt;</code></pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-stone-200 mt-12 py-6">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
+            <div>
+                <span class="font-semibold text-stone-800">Forensisch-Technische Systeemanalyse</span> &bull; Dossier <span class="font-mono-code text-[#8B1E24]">D19314</span> / Item <span class="font-mono-code text-[#8B1E24]">I68580034</span>
+            </div>
+            <div class="font-mono-code">
+                Classificatie: C1 + L2, L4 &bull; Zelfstandig Archiefdocument
+            </div>
+        </div>
+    </footer>
+
+    <!-- Vanilla JavaScript voor interactieve architectuur-inspectie, navigatie-highlight en klembord -->
+    <script>
+        // Databank voor de interactieve schakels in het architectuurschema
+        const archNodesData = {
+            node1: {
+                badge: 'STAP 1 • FRONT-END',
+                title: 'Client / Webbrowser (Gebruikerssessie)',
+                meta: 'Protocol: HTTPS (TLS 1.3) | Doel: crm.basenet.nl',
+                description: 'De eindgebruiker benadert de BaseNet-webapplicatie via een versleutelde HTTPS-verbinding. Elke handeling in de browser — zoals het openen van een dossier, het afdrukken van een gearchiveerde e-mail (/servlets/objects/rela.archivedemail/print) of het vrijgeven van een declaratie — stuurt een HTTP-request voorzien van een uniek sessiecookie naar de serveromgeving.',
+                forensic: 'De client-side sessie genereert de oorspronkelijke gebruikersactie en vormt het startpunt van de audit-trail, inclusief IP- en sessie-attributie in de X-Originating-Host header.'
+            },
+            node2: {
+                badge: 'STAP 2 • INGRESS',
+                title: 'Ingress Controller / Reverse Proxy',
+                meta: 'Laag: Kubernetes Edge Routing | TLS-terminatie',
+                description: 'Het binnenkomende HTTPS-verkeer op crm.basenet.nl wordt opgevangen door de load balancer / Kubernetes Ingress-controller. Deze laag handelt de externe TLS-encryptie af (TLS-terminatie) en routeert het interne HTTP-verzoek door naar een actieve backend-pod in het Kubernetes-cluster op basis van load balancing.',
+                forensic: 'Verklaart waarom het interne verkeer tussen de Ingress en de Tomcat-pod als "with HTTP" in de SMTP/MIME-headers van BaseNet verschijnt.'
+            },
+            node3: {
+                badge: 'STAP 3 • KERN',
+                title: 'Middleware: Apache Tomcat Pod (tomcat-live-64f7774688-dtj5k)',
+                meta: 'IP: 10.244.3.181 | Subsystemen: Coyote, Catalina, Jasper',
+                description: 'De Apache Tomcat-container vormt het operationele hart van BaseNet. De Coyote HTTP-connector ontvangt het interne verzoek van de Ingress-controller en geeft dit door aan de Catalina servlet-engine. Catalina beheert de gebruikerssessie, roept de specifieke Java Servlet aan (zoals rela.archivedemail of de facturatiemodule), activeert de bedrijfslogica (tijdregistratie, UBL-factuuropbouw of MIME-constructie) en initieert tegelijkertijd de database-commit, de SMTP-relay en de API-aanroep naar eConnect.',
+                forensic: 'Bewijst onweerlegbaar dat BaseNet een gecontaineriseerde Java-applicatie is waarin UI-statussen en achtergrondprocessen via afzonderlijke servlet- en API-aanroepen worden afgehandeld.'
+            },
+            node4a: {
+                badge: 'STAP 4A • OPSLAG',
+                title: 'Backend Database (PostgreSQL / Oracle)',
+                meta: 'Entiteiten: Dossier D19314 | Item I68580034',
+                description: 'De relationele database slaat alle gestructureerde dossiergegevens, relaties, tijdregels, correspondentie-items (I68580034) en statusvlaggen permanent op. De Java Servlets in Tomcat communiceren via JDBC-connection pools met deze database om transacties vast te leggen.',
+                forensic: 'Bevat de exacte mutatie-timestamps en statushistorie waaruit blijkt dat item I68580034 actief is verwerkt ondanks de administratieve status "inactief".'
+            },
+            node4b: {
+                badge: 'STAP 4B • E-MAIL',
+                title: 'Interne Mailrelay & DKIM-ondertekening (Postfix)',
+                meta: 'Relay: postfix-out-int.mail -> out.basenet.nl',
+                description: 'Wanneer Tomcat een uitgaande e-mail of kennisgeving opbouwt, wordt het MIME-bericht aangeboden aan de interne mailrelay (postfix-out-int.mail). Deze relay voegt de Received-headers toe, voorziet het bericht van een cryptografische DKIM-handtekening en verzendt het via out.basenet.nl.',
+                forensic: 'Levert de harde SMTP-header "X-Originating-Host: ... by tomcat-live-64f7774688-dtj5k [10.244.3.181] with HTTP" als direct infrastructuurbewijs.'
+            },
+            node4c: {
+                badge: 'STAP 4C • PEPPOL / AS4',
+                title: 'Peppol Access Point (eConnect API & AS4-transport)',
+                meta: 'Beveiliging: mTLS + XML-DSig | Identificatie: AS4 ConversationId',
+                description: 'Voor e-facturatie en gestructureerd berichtenverkeer communiceert de Tomcat-middleware via een met mTLS beveiligde REST/SOAP-API met het eConnect Peppol Access Point. eConnect valideert het UBL-bericht, verpakt dit in een OASIS ebMS3/AS4-envelop met een unieke ConversationId en ontvangt na aflevering een ondertekende AS4 Receipt (MDN).',
+                forensic: 'Vormt het sluitende ketenbewijs (C1 + L2, L4): een AS4 ConversationId bewijst dat er daadwerkelijk een factuur- of statustransactie vanuit BaseNet is geëxporteerd en afgeleverd.'
+            }
+        };
+
+        function selectArchNode(nodeKey) {
+            const data = archNodesData[nodeKey];
+            if (!data) return;
+
+            // Update actieve kaartstijl
+            document.querySelectorAll('.arch-node').forEach(el => {
+                el.classList.remove('active');
+                const footerHint = el.querySelector('div:last-child');
+                if (footerHint) {
+                    footerHint.innerHTML = 'Inspecteer schakel &rarr;';
+                    footerHint.classList.remove('font-semibold');
+                    footerHint.classList.add('font-medium');
+                }
+            });
+
+            const selectedEl = document.getElementById(nodeKey);
+            if (selectedEl) {
+                selectedEl.classList.add('active');
+                const activeHint = selectedEl.querySelector('div:last-child');
+                if (activeHint) {
+                    activeHint.innerHTML = 'Actief geselecteerd &bull; Details onderaan';
+                    activeHint.classList.remove('font-medium');
+                    activeHint.classList.add('font-semibold');
+                }
+            }
+
+            // Vul detailpaneel
+            document.getElementById('detailBadge').textContent = data.badge;
+            document.getElementById('detailTitle').textContent = data.title;
+            document.getElementById('detailMeta').textContent = data.meta;
+            document.getElementById('detailDescription').textContent = data.description;
+            document.getElementById('detailForensic').textContent = data.forensic;
+        }
+
+        // Kopieer samenvatting naar klembord (iFrame-veilig via textarea + execCommand)
+        function copySummaryToClipboard() {
+            const summaryText = [
+                'FORENSISCH-TECHNISCHE SYSTEEMANALYSE: BASENET-ARCHITECTUUR EN AUDIT-TRAIL',
+                'Dossier: D19314 | Item: I68580034 | Classificatie: C1 + L2, L4',
+                '------------------------------------------------------------------------',
+                '1. Infrastructuurbewijs (SMTP/MIME): X-Originating-Host: by tomcat-live-64f7774688-dtj5k [10.244.3.181] with HTTP (out.basenet.nl).',
+                '2. Applicatie-architectuur (URL): https://crm.basenet.nl/servlets/objects/rela.archivedemail/print (afdruk 24 nov 2026, 15:34 uur).',
+                '3. Ketenbewijs: Koppeling D19314 / I68580034 aan eConnect API-transactielog en AS4 ConversationId / Peppol MDN weerlegt de stelling dat het dossier inactief was zonder systeemhandelingen.'
+            ].join('\n');
+
+            const textArea = document.createElement('textarea');
+            textArea.value = summaryText;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                showToast('Kernbewijs en dossierreferenties gekopieerd naar klembord.');
+            } catch (err) {
+                showToast('Kopiëren mislukt; selecteer de tekst handmatig.');
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function showToast(message) {
+            const banner = document.getElementById('toastBanner');
+            const msgEl = document.getElementById('toastMessage');
+            msgEl.textContent = message;
+            banner.classList.remove('hidden');
+            setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 3200);
+        }
+
+        // Highlight actieve navigatie-pill tijdens scrollen
+        window.addEventListener('scroll', () => {
+            const sections = ['sectie-1', 'sectie-2', 'sectie-3', 'sectie-4', 'sectie-5'];
+            const scrollPos = window.scrollY + 180;
+
+            sections.forEach(id => {
+                const sec = document.getElementById(id);
+                const link = document.querySelector(`nav a[href="#${id}"]`);
+                if (sec && link) {
+                    if (scrollPos >= sec.offsetTop && scrollPos < sec.offsetTop + sec.offsetHeight) {
+                        document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
