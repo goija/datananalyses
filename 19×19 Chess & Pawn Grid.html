@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Het 19×19 Pionnenschaakbord &amp; Zeeuws Voorleesboekje</title>
+    <style>
+        /* =====================================================================
+           ZEEUWS MEEKRAB DESIGN TOKENS & TYPOGRAFIE (100% LOKAAL / ZERO-CDN)
+           ===================================================================== */
+        :root {
+            --meekrab-primary: #8B1E24;
+            --meekrab-accent: #9E2A2B;
+            --meekrab-deep: #631318;
+            --meekrab-soft: #FAF3F3;
+            --meekrab-tint: #FDF9F9;
+            --meekrab-border: #DECACC;
+            --ink-primary: #1E1A1A;
+            --ink-secondary: #4E4546;
+            --ink-muted: #766B6C;
+            --paper-bg: #FFFFFF;
+            --backdrop-bg: #FAF8F6;
+            --board-light: #FFFFFF;
+            --board-dark: #F2E2E3;
+            --ok-green: #1B6B3A;
+            --ok-bg: #EDF8F1;
+            --warn-amber: #8A5314;
+            --warn-bg: #FEF6EC;
+
+            --font-serif: Georgia, "Times New Roman", Times, serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            color: var(--ink-primary);
+            background-color: var(--backdrop-bg);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        h1, h2, h3, h4, .serif {
+            font-family: var(--font-serif);
+            margin-top: 0;
+        }
+
+        .mono {
+            font-family: var(--font-mono);
+        }
+
+        .top-stripe {
+            height: 7px;
+            width: 100%;
+            background: linear-gradient(90deg, var(--meekrab-deep) 0%, var(--meekrab-primary) 50%, var(--meekrab-accent) 100%);
+        }
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+        }
+
+        /* =====================================================================
+           HEADER & NAVIGATIE
+           ===================================================================== */
+        header.site-header {
+            background-color: var(--paper-bg);
+            border-bottom: 1.5px solid var(--meekrab-border);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 3px 14px rgba(99, 19, 24, 0.05);
+        }
+
+        .header-flex {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.95rem 0;
+        }
+
+        .badge-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.22rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .badge-primary {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            font-family: var(--font-sans);
+            letter-spacing: 0.02em;
+        }
+
+        .badge-soft {
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            color: var(--meekrab-primary);
+        }
+
+        .site-title {
+            font-size: clamp(1.45rem, 2.6vw, 2.05rem);
+            font-weight: 700;
+            color: var(--ink-primary);
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .site-subtitle {
+            margin: 0.15rem 0 0 0;
+            font-size: 0.88rem;
+            color: var(--ink-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        /* Knoppen */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.42rem;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            text-decoration: none;
+            transition: transform 0.12s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+            user-select: none;
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .btn-meekrab {
+            background: linear-gradient(180deg, var(--meekrab-accent) 0%, var(--meekrab-primary) 100%);
+            color: #FFFFFF;
+            border-color: var(--meekrab-deep);
+            box-shadow: 0 3px 10px rgba(139, 30, 36, 0.22);
+        }
+
+        .btn-meekrab:hover:not(:disabled) {
+            background: linear-gradient(180deg, var(--meekrab-primary) 0%, var(--meekrab-deep) 100%);
+        }
+
+        .btn-soft {
+            background-color: var(--meekrab-soft);
+            color: var(--meekrab-primary);
+            border-color: var(--meekrab-border);
+        }
+
+        .btn-soft:hover:not(:disabled) {
+            border-color: var(--meekrab-primary);
+            background-color: #F3E4E5;
+        }
+
+        .btn-white {
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            border-color: var(--meekrab-border);
+        }
+
+        .btn-white:hover:not(:disabled) {
+            border-color: var(--meekrab-primary);
+            color: var(--meekrab-primary);
+        }
+
+        .btn-lg {
+            padding: 0.72rem 1.2rem;
+            font-size: 0.9rem;
+            border-radius: 11px;
+        }
+
+        /* =====================================================================
+           MAIN WORKSPACE & PANELEN
+           ===================================================================== */
+        main.workspace {
+            padding: 1.6rem 0 3.2rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        section.panel {
+            background-color: var(--paper-bg);
+            border: 1px solid var(--meekrab-border);
+            border-radius: 16px;
+            padding: 1.6rem 1.8rem;
+            box-shadow: 0 4px 18px rgba(30, 26, 26, 0.04);
+            scroll-margin-top: 110px;
+        }
+
+        .panel-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.65rem;
+        }
+
+        .panel-title {
+            font-size: clamp(1.35rem, 2.2vw, 1.72rem);
+            font-weight: 700;
+            margin: 0;
+            color: var(--ink-primary);
+        }
+
+        .meekrab-divider {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, var(--meekrab-primary) 0%, var(--meekrab-accent) 55%, rgba(158, 42, 43, 0.12) 100%);
+            margin: 0 0 1.35rem 0;
+        }
+
+        /* =====================================================================
+           DEEL 1: ZEEUWS VOORLEESBOEKJE (MET DOLORES OPDRACHT & WEB SPEECH API)
+           ===================================================================== */
+        .dedication-banner {
+            background: linear-gradient(135deg, var(--meekrab-soft) 0%, #FFFFFF 100%);
+            border: 1.5px solid var(--meekrab-border);
+            border-left: 5px solid var(--meekrab-primary);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.35rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .dedication-text {
+            font-family: var(--font-serif);
+            font-size: 1.04rem;
+            color: var(--ink-primary);
+            margin: 0;
+            max-width: 760px;
+        }
+
+        .storybook-shell {
+            border: 2px solid var(--meekrab-border);
+            border-radius: 16px;
+            background-color: var(--meekrab-tint);
+            padding: 1.35rem;
+            box-shadow: inset 0 0 0 4px #FFFFFF;
+        }
+
+        .book-topbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 0.9rem;
+            margin-bottom: 1.15rem;
+            border-bottom: 1px dashed var(--meekrab-border);
+        }
+
+        .chapter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+        }
+
+        .chapter-pill {
+            padding: 0.4rem 0.78rem;
+            border-radius: 999px;
+            border: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+            color: var(--ink-secondary);
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .chapter-pill:hover {
+            border-color: var(--meekrab-primary);
+            color: var(--meekrab-primary);
+        }
+
+        .chapter-pill.active {
+            background-color: var(--meekrab-primary);
+            border-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        .book-spread {
+            display: grid;
+            grid-template-columns: 1fr 1.12fr;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        @media (max-width: 900px) {
+            .book-spread {
+                grid-template-columns: 1fr;
+            }
+            section.panel {
+                padding: 1.15rem;
+            }
+        }
+
+        .illustration-frame {
+            background-color: #FFFFFF;
+            border: 2px solid var(--meekrab-primary);
+            border-radius: 14px;
+            padding: 1rem;
+            box-shadow: 0 6px 18px rgba(139, 30, 36, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .illustration-frame svg {
+            width: 100%;
+            max-width: 420px;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .illustration-caption {
+            margin-top: 0.65rem;
+            font-size: 0.78rem;
+            font-family: var(--font-mono);
+            color: var(--meekrab-primary);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .story-page-text {
+            background-color: #FFFFFF;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 14px;
+            padding: 1.45rem 1.6rem;
+        }
+
+        .story-chapter-kicker {
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--meekrab-primary);
+            margin-bottom: 0.35rem;
+        }
+
+        .story-chapter-title {
+            font-size: clamp(1.35rem, 2.3vw, 1.75rem);
+            color: var(--ink-primary);
+            margin-bottom: 0.85rem;
+            line-height: 1.25;
+        }
+
+        .story-body p {
+            font-family: var(--font-serif);
+            font-size: 1.12rem;
+            line-height: 1.78;
+            color: var(--ink-primary);
+            margin: 0 0 0.95rem 0;
+        }
+
+        .story-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .zeeuws-word {
+            color: var(--meekrab-primary);
+            font-weight: 700;
+            background-color: var(--meekrab-soft);
+            padding: 0.05rem 0.32rem;
+            border-radius: 4px;
+        }
+
+        .glossary-strip {
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #EFEAEA;
+            font-size: 0.8rem;
+            color: var(--ink-secondary);
+        }
+
+        /* Voorlees-bediening & Bladerbalk */
+        .tts-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.6rem;
+            margin-top: 1.15rem;
+            padding-top: 0.95rem;
+            border-top: 1px solid var(--meekrab-border);
+        }
+
+        .tts-status-msg {
+            font-size: 0.78rem;
+            font-family: var(--font-mono);
+            color: var(--ink-secondary);
+            background-color: var(--meekrab-soft);
+            padding: 0.35rem 0.7rem;
+            border-radius: 7px;
+            border: 1px solid var(--meekrab-border);
+        }
+
+        .tts-status-msg.warn {
+            background-color: var(--warn-bg);
+            border-color: #E7C69C;
+            color: var(--warn-amber);
+        }
+
+        .book-nav-footer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.85rem;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1.5px solid var(--meekrab-border);
+        }
+
+        /* =====================================================================
+           DEEL 2: INTERACTIEF 19x19 SCHAAK- EN ROOSTERBORD (361 PIONNEN)
+           ===================================================================== */
+        .board-layout {
+            display: grid;
+            grid-template-columns: 1.38fr 0.82fr;
+            gap: 1.4rem;
+            align-items: start;
+        }
+
+        @media (max-width: 980px) {
+            .board-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .board-wrapper-card {
+            background-color: var(--meekrab-tint);
+            border: 1.5px solid var(--meekrab-border);
+            border-radius: 14px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .board-grid-frame {
+            width: 100%;
+            max-width: 680px;
+            aspect-ratio: 1 / 1;
+            display: grid;
+            /* 1 kolom linker coördinaten + 19 speelkolommen + 1 kolom rechter coördinaten */
+            grid-template-columns: 24px repeat(19, minmax(0, 1fr)) 24px;
+            grid-template-rows: 24px repeat(19, minmax(0, 1fr)) 24px;
+            background-color: var(--meekrab-primary);
+            border: 2.5px solid var(--meekrab-deep);
+            border-radius: 8px;
+            overflow: hidden;
+            user-select: none;
+            box-shadow: 0 8px 24px rgba(99, 19, 24, 0.14);
+        }
+
+        .coord-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: clamp(0.55rem, 1vw, 0.72rem);
+            font-weight: 700;
+            color: #FFFFFF;
+            background-color: var(--meekrab-primary);
+        }
+
+        .board-square {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 0.5px solid rgba(139, 30, 36, 0.14);
+            transition: background-color 0.1s ease;
+            padding: 1px;
+        }
+
+        .board-square.light {
+            background-color: var(--board-light);
+        }
+
+        .board-square.dark {
+            background-color: var(--board-dark);
+        }
+
+        .board-square:hover {
+            outline: 2px solid var(--meekrab-primary);
+            outline-offset: -2px;
+            z-index: 3;
+        }
+
+        .board-square.selected {
+            background-color: #FDE047 !important;
+            outline: 2.5px solid var(--meekrab-deep);
+            outline-offset: -2px;
+            z-index: 4;
+        }
+
+        /* Sterpunt (hoshi) markering voor lege velden */
+        .star-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: rgba(139, 30, 36, 0.45);
+            pointer-events: none;
+        }
+
+        /* Pionnen (Krijtwit met meekrab-rood hartje & Zeeuws Meekrab-rood) */
+        .pawn-piece {
+            width: 82%;
+            height: 82%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            transition: transform 0.12s ease;
+        }
+
+        .pawn-piece.white-pawn {
+            background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, #F7EFEF 100%);
+            border: 1.8px solid var(--meekrab-primary);
+            box-shadow: 0 2px 4px rgba(30, 26, 26, 0.25);
+        }
+
+        .pawn-piece.red-pawn {
+            background: radial-gradient(circle at 35% 30%, #B33238 0%, var(--meekrab-primary) 75%, var(--meekrab-deep) 100%);
+            border: 1.5px solid #FFFFFF;
+            box-shadow: 0 2px 4px rgba(30, 26, 26, 0.3);
+        }
+
+        .pawn-piece svg {
+            width: 62%;
+            height: 62%;
+            display: block;
+        }
+
+        /* Bedieningspaneel naast het bord */
+        .board-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .ctrl-card {
+            border: 1px solid var(--meekrab-border);
+            border-radius: 12px;
+            padding: 1rem 1.1rem;
+            background-color: #FFFFFF;
+        }
+
+        .ctrl-card-accent {
+            border: 2px solid var(--meekrab-primary);
+            border-radius: 12px;
+            padding: 1rem 1.1rem;
+            background-color: var(--meekrab-soft);
+        }
+
+        .ctrl-heading {
+            font-size: 0.77rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--meekrab-primary);
+            margin-bottom: 0.6rem;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.45rem;
+        }
+
+        .preset-btn {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.55rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.14s ease;
+            text-align: left;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--meekrab-primary);
+            background-color: var(--meekrab-soft);
+        }
+
+        .preset-btn.active {
+            background-color: var(--meekrab-primary);
+            border-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        .preset-btn.active span.tag {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+        }
+
+        .preset-btn span.tag {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            padding: 0.14rem 0.45rem;
+            border-radius: 4px;
+            background-color: var(--meekrab-soft);
+            color: var(--meekrab-primary);
+        }
+
+        .tool-selector {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.45rem;
+        }
+
+        .tool-btn {
+            padding: 0.5rem 0.6rem;
+            border-radius: 8px;
+            border: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.14s ease;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--meekrab-primary);
+        }
+
+        .tool-btn.active {
+            background-color: var(--meekrab-primary);
+            border-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.55rem;
+        }
+
+        .stat-box {
+            background-color: #FFFFFF;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 8px;
+            padding: 0.55rem 0.7rem;
+        }
+
+        .stat-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            font-family: var(--font-mono);
+        }
+
+        .stat-val {
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--ink-primary);
+            margin-top: 0.1rem;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 1.25rem;
+            right: 1.25rem;
+            z-index: 90;
+            background-color: #1E1A1A;
+            color: #FFFFFF;
+            padding: 0.72rem 1.05rem;
+            border-radius: 9px;
+            border-left: 4px solid var(--meekrab-accent);
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        footer.site-footer {
+            background-color: var(--paper-bg);
+            border-top: 1px solid var(--meekrab-border);
+            padding: 1.3rem 0;
+            font-size: 0.8rem;
+            color: var(--ink-secondary);
+        }
+
+        /* =====================================================================
+           PRINT STYLES (@media print): ZEEUWS VOORLEESBOEKJE ALS PRINTBAAR BOEKJE
+           ===================================================================== */
+        .print-booklet-only {
+            display: none;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 16mm 15mm 16mm 15mm;
+            }
+            html, body {
+                background-color: #FFFFFF !important;
+                color: #1E1A1A !important;
+            }
+            .no-print, header.site-header, main.workspace, footer.site-footer {
+                display: none !important;
+            }
+            .print-booklet-only {
+                display: block !important;
+            }
+            .print-page {
+                border: 2px solid #8B1E24;
+                border-radius: 12px;
+                padding: 18mm 16mm;
+                margin-bottom: 12mm;
+                break-after: page;
+                page-break-after: always;
+                background-color: #FFFFFF !important;
+            }
+            .print-page:last-child {
+                break-after: auto;
+                page-break-after: auto;
+            }
+            .print-illus-box {
+                width: 240px;
+                margin: 0 auto 14pt auto;
+                border: 1.5px solid #8B1E24;
+                border-radius: 10px;
+                padding: 8pt;
+            }
+            .print-illus-box svg {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-stripe no-print"></div>
+
+    <!-- =======================================================================
+         HEADER
+         ======================================================================= -->
+    <header class="site-header no-print">
+        <div class="container">
+            <div class="header-flex">
+                <div>
+                    <div class="badge-strip">
+                        <span class="badge badge-primary">Voor het Nieuwe Kleine Zusje &amp; Broertje</span>
+                        <span class="badge badge-soft">Zeeuws Voorleesboekje</span>
+                        <span class="badge badge-soft">19&times;19 Bord &bull; 361 Pionnen</span>
+                    </div>
+                    <h1 class="site-title">Zeeuws Voorleesboekje &amp; Het 19&times;19 Pionnenschaakbord</h1>
+                    <p class="site-subtitle">
+                        Lieve verhaaltjes aan de Zeeuwse kust &bull; Met een warme opdracht van Dolores &amp; samen spelen op 361 velden
+                    </p>
+                </div>
+
+                <div class="header-actions">
+                    <a href="#sectie-voorleesboek" class="btn btn-soft">Voorleesboekje</a>
+                    <a href="#sectie-schaakbord" class="btn btn-soft">19&times;19 Pionnenbord</a>
+                    <button type="button" class="btn btn-meekrab" onclick="printStoryBooklet()">
+                        Print Voorleesboekje (PDF / Papier)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- =======================================================================
+         HOOFDINHOUD (INTERACTIEVE SCHERMWEERGAVE)
+         ======================================================================= -->
+    <main class="container workspace no-print">
+
+        <!-- ===================================================================
+             DEEL 1: ZEEUWS VOORLEESBOEKJE VOOR HET NIEUWE KLEINE ZUSJE EN BROERTJE
+             =================================================================== -->
+        <section id="sectie-voorleesboek" class="panel" aria-labelledby="heading-book">
+            <div class="panel-header">
+                <h2 id="heading-book" class="panel-title">1. Zeeuws Voorleesboekje: <em>Van de Diek tot de Sterretjes</em></h2>
+                <span class="badge badge-soft" id="pageIndicatorBadge">Bladzijde 1 van 4</span>
+            </div>
+            <hr class="meekrab-divider">
+
+            <!-- Warme opdracht voor het nieuwe kleine zusje en broertje + link naar Dolores -->
+            <div class="dedication-banner">
+                <p class="dedication-text">
+                    <strong>Voor ons lieve nieuwe kleine zusje en broertje:</strong> Welkom op de wereld, vlak achter de Zeeuwse dijk waar de wind zachtjes door het helmgras waait. Speciaal voor jullie zijn deze vier verhaaltjes geschreven om samen voor te lezen, te luisteren naar de golven en straks samen te tellen tot 361.
+                </p>
+                <a href="https://www.facebook.com/dolores.vansplunter" target="_blank" rel="noopener noreferrer" class="btn btn-soft">
+                    Met liefs van Dolores &nearr;
+                </a>
+            </div>
+
+            <!-- Bladerbaar Prentenboek -->
+            <div class="storybook-shell">
+                <!-- Hoofdstuk-kiezer -->
+                <div class="book-topbar">
+                    <div class="chapter-pills" id="chapterPillsContainer" role="tablist" aria-label="Hoofdstukken van het voorleesboekje"></div>
+
+                    <button type="button" class="btn btn-meekrab" onclick="printStoryBooklet()">
+                        Druk boekje af
+                    </button>
+                </div>
+
+                <!-- Prentenboek Spreiding: Links SVG-Illustratie, Rechts Voorleestekst -->
+                <div class="book-spread">
+                    <!-- Illustratiekaart -->
+                    <div class="illustration-frame">
+                        <div id="storyIllustrationContainer" style="width:100%;"></div>
+                        <div class="illustration-caption" id="storyIllustrationCaption">
+                            Illustratie 1: Het wiegje op de diek met schaapjes
+                        </div>
+                    </div>
+
+                    <!-- Tekstkaart -->
+                    <div class="story-page-text">
+                        <div class="story-chapter-kicker" id="storyChapterKicker">Hoofdstuk 1 &bull; Welkom in Zeeland</div>
+                        <h3 class="story-chapter-title" id="storyChapterTitle">Een Wiegje Achter de Diek</h3>
+
+                        <div class="story-body" id="storyBodyContainer"></div>
+
+                        <div class="glossary-strip" id="storyGlossary"></div>
+
+                        <!-- Browser-native Web Speech API Voorleesfunctie -->
+                        <div class="tts-toolbar">
+                            <button type="button" id="btnReadAloud" class="btn btn-meekrab" onclick="toggleReadAloud()">
+                                Lees dit hoofdstuk voor (nl-NL)
+                            </button>
+                            <button type="button" id="btnStopAloud" class="btn btn-white" onclick="stopReadAloud()" disabled>
+                                Stop voorlezen
+                            </button>
+                            <span id="ttsStatusBox" class="tts-status-msg">Spraaksynthese gereed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grote bladerknoppen onderaan -->
+                <div class="book-nav-footer">
+                    <button type="button" id="btnPrevPage" class="btn btn-soft btn-lg" onclick="changeStoryPage(-1)">
+                        &larr; Vorige bladzijde
+                    </button>
+                    <span class="mono" style="font-size:0.84rem; font-weight:700; color:var(--meekrab-primary);" id="footerPageCounter">
+                        Bladzijde 1 / 4
+                    </span>
+                    <button type="button" id="btnNextPage" class="btn btn-meekrab btn-lg" onclick="changeStoryPage(1)">
+                        Volgende bladzijde &rarr;
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================
+             DEEL 2: INTERACTIEF 19x19 SCHAAK- EN ROOSTERBORD (361 PIONNEN)
+             =================================================================== -->
+        <section id="sectie-schaakbord" class="panel" aria-labelledby="heading-board">
+            <div class="panel-header">
+                <h2 id="heading-board" class="panel-title">2. Het Grote 19&times;19 Pionnenschaakbord (361 Velden &amp; Pionnen)</h2>
+                <span class="mono" style="font-size:0.78rem; color:var(--meekrab-primary); font-weight:700;">
+                    19 &times; 19 = 361 &bull; Co&ouml;rdinaten A t/m S &amp; 1 t/m 19
+                </span>
+            </div>
+            <hr class="meekrab-divider">
+
+            <div class="board-layout">
+                <!-- Linker kolom: Het 19x19 Schaak- en Roosterbord -->
+                <div class="board-wrapper-card">
+                    <div id="boardGrid" class="board-grid-frame" role="grid" aria-label="19 bij 19 schaak- en roosterbord"></div>
+                    <p style="font-size:0.79rem; color:var(--ink-secondary); margin:0.75rem 0 0 0; text-align:center;">
+                        Klik op een veld om een pion te plaatsen of aan te passen. Het middelpunt is <strong>J10 (0, 0)</strong>.
+                    </p>
+                </div>
+
+                <!-- Rechter kolom: Presets, Gereedschap & Live Telling -->
+                <div class="board-controls">
+                    <!-- Presets -->
+                    <div class="ctrl-card">
+                        <div class="ctrl-heading">1. Kies een Opstelling (Preset)</div>
+                        <div class="preset-grid">
+                            <button type="button" class="preset-btn active" id="preset-full361" onclick="applyBoardPreset('full361', this)">
+                                <span>Volledig 19&times;19 (361 pionnen)</span>
+                                <span class="tag">361 pionnen</span>
+                            </button>
+                            <button type="button" class="preset-btn" id="preset-start76" onclick="applyBoardPreset('start76', this)">
+                                <span>Startopstelling (2&times;38 pionnen)</span>
+                                <span class="tag">76 pionnen</span>
+                            </button>
+                            <button type="button" class="preset-btn" id="preset-circle9" onclick="applyBoardPreset('circle9', this)">
+                                <span>Cirkel R=9 (sin&sup2;+cos&sup2;)</span>
+                                <span class="tag">253 pionnen</span>
+                            </button>
+                            <button type="button" class="preset-btn" id="preset-empty" onclick="applyBoardPreset('empty', this)">
+                                <span>Leeg bord</span>
+                                <span class="tag">0 pionnen</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Klik-actie op velden -->
+                    <div class="ctrl-card">
+                        <div class="ctrl-heading">2. Actie bij Klikken op een Veld</div>
+                        <div class="tool-selector">
+                            <button type="button" class="tool-btn active" id="tool-cycle" onclick="setBoardTool('cycle', this)">
+                                Wissel (Wit &rarr; Rood &rarr; Leeg)
+                            </button>
+                            <button type="button" class="tool-btn" id="tool-move" onclick="setBoardTool('move', this)">
+                                Verplaats Pion (Klik &amp; Klik)
+                            </button>
+                            <button type="button" class="tool-btn" id="tool-white" onclick="setBoardTool('white', this)">
+                                Plaats Krijtwit (Hartje)
+                            </button>
+                            <button type="button" class="tool-btn" id="tool-red" onclick="setBoardTool('red', this)">
+                                Plaats Zeeuws Meekrab-rood
+                            </button>
+                        </div>
+                        <p id="toolHelpText" style="font-size:0.75rem; color:var(--ink-secondary); margin:0.55rem 0 0 0;">
+                            Klik op elk veld om te wisselen tussen een krijtwitte pion, een meekrab-rode pion of een leeg veld.
+                        </p>
+                    </div>
+
+                    <!-- Live Telling & Coördinaat -->
+                    <div class="ctrl-card-accent">
+                        <div class="ctrl-heading">3. Live Telling &amp; Co&ouml;rdinaat</div>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-label">Krijtwitte Pionnen</div>
+                                <div class="stat-val" id="countWhite">181</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Meekrab-Rode Pionnen</div>
+                                <div class="stat-val" id="countRed" style="color:var(--meekrab-primary);">180</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Lege Velden</div>
+                                <div class="stat-val" id="countEmpty">0</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Laatst Aangeklikt</div>
+                                <div class="stat-val" id="lastCoordDisplay" style="color:var(--meekrab-primary);">J10 (0,0)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =======================================================================
+         PRINT-ALLEEN WEERGAVE: VOLLEDIG ZEEUWS VOORLEESBOEKJE (4 BLADZIJDEN)
+         ======================================================================= -->
+    <div id="printBookletContainer" class="print-booklet-only"></div>
+
+    <!-- Toast -->
+    <div id="toastBanner" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- Footer -->
+    <footer class="site-footer no-print">
+        <div class="container" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.75rem;">
+            <div>
+                <strong>Zeeuws Voorleesboekje &amp; Het 19&times;19 Pionnenschaakbord</strong> &bull;
+                Opgedragen aan het nieuwe kleine zusje en broertje &bull;
+                <a href="https://www.facebook.com/dolores.vansplunter" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:700; text-decoration:underline;">Profiel van Dolores &nearr;</a>
+            </div>
+            <div class="mono" style="color:var(--meekrab-primary);">
+                19&times;19 = 361 Velden &bull; Zeeuws Meekrab-Rood &amp; Krijtwit &bull; 100% Lokaal
+            </div>
+        </div>
+    </footer>
+
+    <!-- =======================================================================
+         VOLLEDIGE LOKALE JAVASCRIPT (VOORLEESBOEKJE, TTS & 19x19 BORD)
+         ======================================================================= -->
+    <script>
+        /* ---------------------------------------------------------------------
+           1. DATA & SVG-ILLUSTRATIES VOOR HET ZEEUWS VOORLEESBOEKJE
+           --------------------------------------------------------------------- */
+        const STORY_CHAPTERS = [
+            {
+                id: 1,
+                pillTitle: '1. Wiegje op de Diek',
+                kicker: 'Hoofdstuk 1 • Welkom in Zeeland',
+                title: 'Een Wiegje Achter de Diek',
+                caption: 'Illustratie 1: Het wiegje achter de Zeeuwse diek met twee lieve schaapjes',
+                paragraphs: [
+                    'Achter de hoge groene <span class="zeeuws-word">diek</span>, waar de zilte wind zachtjes door het helmgras fluit, staat een warm wiegje klaar. Daarin liggen een <span class="zeeuws-word">lief zusje</span> en een <span class="zeeuws-word">klein broertje</span> heel dicht tegen elkaar aan te slapen.',
+                    'Boven op de kruin van de <span class="zeeuws-word">diek</span> kijken twee wollige schaapjes nieuwsgierig over de rand. "Bèèh," fluisteren ze zacht, "welkom in ons mooie Zeeland, waar de <span class="zeeuws-word">meekrab</span> dieprood kleurt in de zon en iedereen blij is dat jullie er zijn."'
+                ],
+                glossary: 'Zeeuwse woorden: diek = dijk • meekrab = oude Zeeuwse plant waarmee dieprode verf werd gemaakt',
+                svg: `
+                    <svg viewBox="0 0 400 280" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Wiegje achter de Zeeuwse dijk met twee schaapjes">
+                        <rect width="400" height="280" rx="12" fill="#FAF3F3"/>
+                        <!-- Zachte zon & wolkjes -->
+                        <circle cx="325" cy="54" r="24" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2.5"/>
+                        <path d="M55 62 C55 52, 70 48, 78 54 C85 45, 102 48, 104 58 C113 59, 116 70, 106 74 L58 74 C49 74, 48 64, 55 62 Z" fill="#FFFFFF" stroke="#DECACC" stroke-width="2"/>
+                        <!-- De Zeeuwse Diek -->
+                        <path d="M0 175 Q140 115 280 155 T400 145 L400 280 L0 280 Z" fill="#FFFFFF" stroke="#8B1E24" stroke-width="3"/>
+                        <path d="M0 210 Q180 175 400 205 L400 280 L0 280 Z" fill="#FAF3F3" stroke="#9E2A2B" stroke-width="2"/>
+                        <!-- Schaapje 1 op de diek -->
+                        <g transform="translate(88, 114)">
+                            <ellipse cx="26" cy="22" rx="20" ry="13" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2.5"/>
+                            <circle cx="44" cy="17" r="8" fill="#8B1E24"/>
+                            <circle cx="46" cy="15" r="1.5" fill="#FFFFFF"/>
+                            <line x1="16" y1="33" x2="16" y2="44" stroke="#8B1E24" stroke-width="2.5" stroke-linecap="round"/>
+                            <line x1="34" y1="33" x2="34" y2="44" stroke="#8B1E24" stroke-width="2.5" stroke-linecap="round"/>
+                        </g>
+                        <!-- Schaapje 2 op de diek -->
+                        <g transform="translate(275, 118)">
+                            <ellipse cx="22" cy="20" rx="17" ry="11" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2.5"/>
+                            <circle cx="6" cy="16" r="7" fill="#8B1E24"/>
+                            <circle cx="4" cy="14" r="1.4" fill="#FFFFFF"/>
+                            <line x1="15" y1="30" x2="15" y2="40" stroke="#8B1E24" stroke-width="2.5" stroke-linecap="round"/>
+                            <line x1="29" y1="30" x2="29" y2="40" stroke="#8B1E24" stroke-width="2.5" stroke-linecap="round"/>
+                        </g>
+                        <!-- Wiegje in de luwte van de diek -->
+                        <g transform="translate(148, 165)">
+                            <!-- Schommelpoten -->
+                            <path d="M12 68 Q52 84 92 68" stroke="#631318" stroke-width="4" stroke-linecap="round" fill="none"/>
+                            <!-- Mand van het wiegje -->
+                            <path d="M10 26 L94 26 L84 64 L20 64 Z" fill="#FFFFFF" stroke="#8B1E24" stroke-width="3" stroke-linejoin="round"/>
+                            <!-- Kap van het wiegje -->
+                            <path d="M10 26 C10 2, 46 2, 46 26 Z" fill="#9E2A2B" stroke="#631318" stroke-width="2.5"/>
+                            <!-- Meekrab-rood dekentje met hartje -->
+                            <path d="M22 36 L86 36 L80 58 L26 58 Z" fill="#8B1E24"/>
+                            <path d="M54 52 C54 52, 46 46, 46 42 C46 39.5, 48.5 38, 51 38 C52.5 38, 53.5 39, 54 40 C54.5 39, 55.5 38, 57 38 C59.5 38, 62 39.5, 62 42 C62 46, 54 52, 54 52 Z" fill="#FFFFFF"/>
+                            <!-- Twee kleine hoofdjes (zusje en broertje) -->
+                            <circle cx="58" cy="27" r="7" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2"/>
+                            <circle cx="74" cy="27" r="7" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2"/>
+                        </g>
+                    </svg>
+                `
+            },
+            {
+                id: 2,
+                pillTitle: '2. De Hoogaars & Krabbetjes',
+                kicker: 'Hoofdstuk 2 • Op de Oosterschelde',
+                title: 'Met de Hoogaars langs het Strant',
+                caption: 'Illustratie 2: Een kleine Zeeuwse hoogaars en vrolijke krabbetjes aan het strant',
+                paragraphs: [
+                    'Op het glinsterende water van de Oosterschelde vaart een echte Zeeuwse <span class="zeeuws-word">hoogaars</span> met een bol zeil in de kleur van <span class="zeeuws-word">meekrab</span>. De golven klotsen zachtjes: <em>klots-klots</em>, als een slaapliedje voor ons <span class="zeeuws-word">lief zusje</span> en <span class="zeeuws-word">klein broertje</span>.',
+                    'Op het natte zand van het <span class="zeeuws-word">strant</span> dribbelen twee kleine <span class="zeeuws-word">krabbetjes</span> zijwaarts voorbij. Ze zwaaien met hun schaartjes naar de boot en maken kleine sporen in het zand, net zo lang tot de vloed ze weer schoonspoelt.'
+                ],
+                glossary: 'Zeeuwse woorden: hoogaars = platbodem vissersschip uit Zeeland • strant = strand • krabbetjes = kleine krabben',
+                svg: `
+                    <svg viewBox="0 0 400 280" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zeeuwse hoogaars op de golven en krabbetjes op het strand">
+                        <rect width="400" height="280" rx="12" fill="#FFFFFF"/>
+                        <!-- Lucht en zeemeeuwen -->
+                        <path d="M70 55 Q80 45 90 55 Q100 45 110 55" stroke="#8B1E24" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        <path d="M125 40 Q132 33 140 40 Q148 33 155 40" stroke="#9E2A2B" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+                        <!-- De Zeeuwse Hoogaars -->
+                        <g transform="translate(135, 38)">
+                            <!-- Mast & Wimpel -->
+                            <line x1="72" y1="14" x2="72" y2="122" stroke="#631318" stroke-width="3.5" stroke-linecap="round"/>
+                            <path d="M72 14 L106 20 L72 26 Z" fill="#8B1E24"/>
+                            <!-- Grootzeil in meekrab-rood -->
+                            <path d="M72 28 L128 112 L72 112 Z" fill="#8B1E24" stroke="#631318" stroke-width="2.5" stroke-linejoin="round"/>
+                            <!-- Fokzeil in krijtwit -->
+                            <path d="M68 36 L22 110 L68 110 Z" fill="#FAF3F3" stroke="#8B1E24" stroke-width="2.5" stroke-linejoin="round"/>
+                            <!-- Romp van de hoogaars -->
+                            <path d="M10 116 L142 116 L124 142 L26 142 Z" fill="#631318" stroke="#1E1A1A" stroke-width="2.5" stroke-linejoin="round"/>
+                            <line x1="20" y1="125" x2="132" y2="125" stroke="#FFFFFF" stroke-width="2"/>
+                        </g>
+                        <!-- Golven -->
+                        <path d="M0 176 Q50 162 100 176 T200 176 T300 176 T400 176 L400 220 L0 220 Z" fill="#FAF3F3" stroke="#8B1E24" stroke-width="2.5"/>
+                        <!-- Strant vooraan -->
+                        <path d="M0 206 Q200 192 400 210 L400 280 L0 280 Z" fill="#FFFFFF" stroke="#9E2A2B" stroke-width="2.5"/>
+                        <!-- Krabbetje links -->
+                        <g transform="translate(95, 226)">
+                            <ellipse cx="22" cy="18" rx="14" ry="10" fill="#9E2A2B" stroke="#631318" stroke-width="2"/>
+                            <circle cx="17" cy="9" r="2.5" fill="#FFFFFF" stroke="#631318" stroke-width="1.5"/>
+                            <circle cx="27" cy="9" r="2.5" fill="#FFFFFF" stroke="#631318" stroke-width="1.5"/>
+                            <path d="M8 14 C2 8, 6 2, 12 8" stroke="#8B1E24" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                            <path d="M36 14 C42 8, 38 2, 32 8" stroke="#8B1E24" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                            <path d="M10 24 L4 30 M16 26 L12 32 M28 26 L32 32 M34 24 L40 30" stroke="#631318" stroke-width="2" stroke-linecap="round"/>
+                        </g>
+                        <!-- Krabbetje rechts -->
+                        <g transform="translate(255, 232)">
+                            <ellipse cx="18" cy="15" rx="12" ry="8.5" fill="#8B1E24" stroke="#631318" stroke-width="2"/>
+                            <circle cx="14" cy="7" r="2.2" fill="#FFFFFF" stroke="#631318" stroke-width="1.5"/>
+                            <circle cx="22" cy="7" r="2.2" fill="#FFFFFF" stroke="#631318" stroke-width="1.5"/>
+                            <path d="M6 12 C1 7, 5 2, 10 7" stroke="#8B1E24" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                            <path d="M30 12 C35 7, 31 2, 26 7" stroke="#8B1E24" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                            <path d="M9 21 L4 26 M27 21 L32 26" stroke="#631318" stroke-width="2" stroke-linecap="round"/>
+                        </g>
+                    </svg>
+                `
+            },
+            {
+                id: 3,
+                pillTitle: '3. De Zeêuwse Knop & 361 Sterren',
+                kicker: 'Hoofdstuk 3 • Avondlicht boven de Polder',
+                title: 'De Zeêuwse Knop en 361 Sterretjes',
+                caption: 'Illustratie 3: Een zilveren Zeêuwse knop als maan en 361 fonkelende sterretjes',
+                paragraphs: [
+                    'Als de avond valt over de Zeeuwse polders, verschijnt aan de hemel een glanzende <span class="zeeuws-word">zeêuwse knop</span>, net zo mooi versierd als op een oude Zeeuwse klederdracht. Rondom haar twinkelen precies <strong>361</strong> sterretjes — negentien rijtjes van negentien!',
+                    'Elk sterretje fluistert een wens voor ons <span class="zeeuws-word">lief zusje</span> en <span class="zeeuws-word">klein broertje</span>: dat jullie altijd nieuwsgierig blijven, samen lachen en veilig opgroeien onder dezelfde heldere sterrenhemel.'
+                ],
+                glossary: 'Zeeuwse woorden: zeêuwse knop = traditioneel Zeeuws sieraad in de vorm van een bloemknop',
+                svg: `
+                    <svg viewBox="0 0 400 280" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zeêuwse knop aan de avondhemel omringd door sterretjes">
+                        <rect width="400" height="280" rx="12" fill="#631318"/>
+                        <!-- Cirkel van sterretjes (19x19 patroon hint) -->
+                        <g fill="#FFFFFF">
+                            <circle cx="52" cy="42" r="2.5"/><circle cx="95" cy="30" r="1.8"/><circle cx="145" cy="26" r="2.2"/>
+                            <circle cx="260" cy="28" r="2.2"/><circle cx="312" cy="36" r="2.8"/><circle cx="355" cy="58" r="2"/>
+                            <circle cx="42" cy="96" r="2"/><circle cx="88" cy="84" r="2.6"/><circle cx="315" cy="88" r="2.4"/>
+                            <circle cx="362" cy="112" r="2.5"/><circle cx="58" cy="148" r="2.4"/><circle cx="342" cy="155" r="2"/>
+                            <circle cx="110" cy="168" r="1.8"/><circle cx="290" cy="164" r="2.2"/>
+                        </g>
+                        <!-- Centrale Zeêuwse Knop (filigraan rozet) -->
+                        <g transform="translate(200, 112)">
+                            <circle cx="0" cy="0" r="56" fill="#8B1E24" stroke="#FFFFFF" stroke-width="2.5"/>
+                            <circle cx="0" cy="0" r="44" fill="#FAF3F3" stroke="#8B1E24" stroke-width="2"/>
+                            <!-- 8 bloembladen van de Zeêuwse knop -->
+                            <circle cx="0" cy="-26" r="10" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2"/>
+                            <circle cx="18.4" cy="-18.4" r="10" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2"/>
+                            <circle cx="26" cy="0" r="10" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2"/>
+                            <circle cx="18.4" cy="18.4" r="10" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2"/>
+                            <circle cx="0" cy="26" r="10" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2"/>
+                            <circle cx="-18.4" cy="18.4" r="10" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2"/>
+                            <circle cx="-26" cy="0" r="10" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2"/>
+                            <circle cx="-18.4" cy="-18.4" r="10" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2"/>
+                            <!-- Middelpunt -->
+                            <circle cx="0" cy="0" r="13" fill="#8B1E24" stroke="#FFFFFF" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="5" fill="#FFFFFF"/>
+                        </g>
+                        <!-- Polderhorizon met kerkje & molentje -->
+                        <path d="M0 218 Q200 198 400 218 L400 280 L0 280 Z" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2.5"/>
+                        <path d="M68 212 L68 184 L76 172 L84 184 L84 212 Z" fill="#8B1E24"/>
+                        <path d="M312 212 L318 186 L326 186 L332 212 Z" fill="#8B1E24"/>
+                        <line x1="306" y1="174" x2="338" y2="202" stroke="#8B1E24" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="338" y1="174" x2="306" y2="202" stroke="#8B1E24" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
+                `
+            },
+            {
+                id: 4,
+                pillTitle: '4. Samen Spelen op 19×19',
+                kicker: 'Hoofdstuk 4 • Groot Worden & Tellen',
+                title: 'Samen Spelen op het 19×19 Bord',
+                caption: 'Illustratie 4: Zusje en broertje spelen samen met krijtwitte en meekrab-rode pionnen',
+                paragraphs: [
+                    'Als ons <span class="zeeuws-word">lief zusje</span> en <span class="zeeuws-word">klein broertje</span> straks groot genoeg zijn om rechtop te zitten, leggen we het grote bord met 19 bij 19 vakjes op tafel. Krijtwitte pionnen met een rood hartje voor de een, en dieprode <span class="zeeuws-word">meekrab</span>-pionnen voor de ander.',
+                    'Want of je nu een torentje bouwt, een cirkel legt rond het middelpunt <span class="mono">J10</span>, of gewoon alle 361 pionnen netjes op een rij zet: samen spelen achter de <span class="zeeuws-word">diek</span> is het allerfijnste wat er bestaat.'
+                ],
+                glossary: 'Tip: Scroll hieronder naar Deel 2 om meteen zelf met alle 361 pionnen te spelen!',
+                svg: `
+                    <svg viewBox="0 0 400 280" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Twee kinderen spelen samen aan een roosterbord met witte en rode pionnen">
+                        <rect width="400" height="280" rx="12" fill="#FAF3F3"/>
+                        <!-- Roosterbord op tafel -->
+                        <rect x="85" y="138" width="230" height="96" rx="10" fill="#FFFFFF" stroke="#8B1E24" stroke-width="3"/>
+                        <!-- Rasterlijnen op het bord -->
+                        <g stroke="#DECACC" stroke-width="1.5">
+                            <line x1="115" y1="138" x2="115" y2="234"/><line x1="145" y1="138" x2="145" y2="234"/>
+                            <line x1="175" y1="138" x2="175" y2="234"/><line x1="205" y1="138" x2="205" y2="234"/>
+                            <line x1="235" y1="138" x2="235" y2="234"/><line x1="265" y1="138" x2="265" y2="234"/>
+                            <line x1="295" y1="138" x2="295" y2="234"/>
+                            <line x1="85" y1="162" x2="315" y2="162"/><line x1="85" y1="186" x2="315" y2="186"/>
+                            <line x1="85" y1="210" x2="315" y2="210"/>
+                        </g>
+                        <!-- Krijtwitte en Meekrab-rode pionnen op het bord -->
+                        <circle cx="130" cy="174" r="9" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2.5"/>
+                        <circle cx="190" cy="174" r="9" fill="#8B1E24" stroke="#631318" stroke-width="2"/>
+                        <circle cx="250" cy="198" r="9" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2.5"/>
+                        <circle cx="160" cy="198" r="9" fill="#9E2A2B" stroke="#631318" stroke-width="2"/>
+                        <circle cx="220" cy="150" r="9" fill="#8B1E24" stroke="#631318" stroke-width="2"/>
+                        <circle cx="280" cy="174" r="9" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2.5"/>
+                        <!-- Zusje links -->
+                        <g transform="translate(105, 42)">
+                            <circle cx="32" cy="36" r="24" fill="#FFFFFF" stroke="#8B1E24" stroke-width="3"/>
+                            <path d="M12 28 C16 10, 48 10, 52 28" fill="#8B1E24"/>
+                            <circle cx="24" cy="36" r="2.2" fill="#1E1A1A"/>
+                            <circle cx="40" cy="36" r="2.2" fill="#1E1A1A"/>
+                            <path d="M26 44 Q32 50 38 44" stroke="#8B1E24" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                            <path d="M10 86 C10 66, 54 66, 54 86 Z" fill="#9E2A2B"/>
+                        </g>
+                        <!-- Broertje rechts -->
+                        <g transform="translate(230, 46)">
+                            <circle cx="32" cy="34" r="22" fill="#FFFFFF" stroke="#8B1E24" stroke-width="3"/>
+                            <path d="M14 24 Q32 8 50 24" stroke="#631318" stroke-width="5" fill="none" stroke-linecap="round"/>
+                            <circle cx="25" cy="34" r="2.2" fill="#1E1A1A"/>
+                            <circle cx="39" cy="34" r="2.2" fill="#1E1A1A"/>
+                            <path d="M26 42 Q32 48 38 42" stroke="#8B1E24" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                            <path d="M12 82 C12 64, 52 64, 52 82 Z" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2.5"/>
+                        </g>
+                    </svg>
+                `
+            }
+        ];
+
+        let currentChapterIndex = 0;
+
+        function renderChapterPills() {
+            const container = document.getElementById('chapterPillsContainer');
+            container.innerHTML = '';
+            STORY_CHAPTERS.forEach((ch, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'chapter-pill' + (idx === currentChapterIndex ? ' active' : '');
+                btn.textContent = ch.pillTitle;
+                btn.onclick = () => selectStoryChapter(idx);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectStoryChapter(idx) {
+            stopReadAloud();
+            currentChapterIndex = Math.max(0, Math.min(STORY_CHAPTERS.length - 1, idx));
+            const ch = STORY_CHAPTERS[currentChapterIndex];
+
+            document.getElementById('pageIndicatorBadge').textContent = `Bladzijde ${ch.id} van ${STORY_CHAPTERS.length}`;
+            document.getElementById('footerPageCounter').textContent = `Bladzijde ${ch.id} / ${STORY_CHAPTERS.length}`;
+            document.getElementById('storyChapterKicker').textContent = ch.kicker;
+            document.getElementById('storyChapterTitle').textContent = ch.title;
+            document.getElementById('storyIllustrationContainer').innerHTML = ch.svg;
+            document.getElementById('storyIllustrationCaption').textContent = ch.caption;
+            document.getElementById('storyGlossary').textContent = ch.glossary;
+
+            const bodyEl = document.getElementById('storyBodyContainer');
+            bodyEl.innerHTML = ch.paragraphs.map(p => `<p>${p}</p>`).join('');
+
+            document.getElementById('btnPrevPage').disabled = (currentChapterIndex === 0);
+            document.getElementById('btnNextPage').disabled = (currentChapterIndex === STORY_CHAPTERS.length - 1);
+
+            renderChapterPills();
+        }
+
+        function changeStoryPage(delta) {
+            selectStoryChapter(currentChapterIndex + delta);
+        }
+
+        /* ---------------------------------------------------------------------
+           2. WEB SPEECH API (nl-NL) VOORLEESFUNCTIE MET GRACEFUL FALLBACK
+           --------------------------------------------------------------------- */
+        let isSpeaking = false;
+
+        function toggleReadAloud() {
+            const statusBox = document.getElementById('ttsStatusBox');
+            if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
+                statusBox.textContent = 'Spraaksynthese wordt door deze browser niet ondersteund.';
+                statusBox.classList.add('warn');
+                showToast('Deze browser ondersteunt geen ingebouwde spraaksynthese (Web Speech API).');
+                return;
+            }
+
+            if (isSpeaking) {
+                stopReadAloud();
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            const ch = STORY_CHAPTERS[currentChapterIndex];
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `${ch.title}. ${ch.paragraphs.join(' ')}`;
+            const cleanText = tempDiv.textContent || tempDiv.innerText || '';
+
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'nl-NL';
+            utterance.rate = 0.94;
+            utterance.pitch = 1.04;
+
+            const voices = window.speechSynthesis.getVoices();
+            const nlVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('nl'));
+            if (nlVoice) utterance.voice = nlVoice;
+
+            utterance.onstart = () => {
+                isSpeaking = true;
+                document.getElementById('btnReadAloud').textContent = 'Bezig met voorlezen...';
+                document.getElementById('btnStopAloud').disabled = false;
+                statusBox.textContent = 'Voorlezen actief (nl-NL)';
+                statusBox.classList.remove('warn');
+            };
+
+            utterance.onend = () => {
+                isSpeaking = false;
+                document.getElementById('btnReadAloud').textContent = 'Lees dit hoofdstuk voor (nl-NL)';
+                document.getElementById('btnStopAloud').disabled = true;
+                statusBox.textContent = 'Hoofdstuk voorgelezen';
+            };
+
+            utterance.onerror = () => {
+                isSpeaking = false;
+                document.getElementById('btnReadAloud').textContent = 'Lees dit hoofdstuk voor (nl-NL)';
+                document.getElementById('btnStopAloud').disabled = true;
+                statusBox.textContent = 'Spraaksynthese niet beschikbaar op dit apparaat.';
+                statusBox.classList.add('warn');
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function stopReadAloud() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            isSpeaking = false;
+            document.getElementById('btnReadAloud').textContent = 'Lees dit hoofdstuk voor (nl-NL)';
+            document.getElementById('btnStopAloud').disabled = true;
+            document.getElementById('ttsStatusBox').textContent = 'Spraaksynthese gereed';
+        }
+
+        /* ---------------------------------------------------------------------
+           3. PRINTBAAR BOEKJE OPBOUWEN VOOR @media print
+           --------------------------------------------------------------------- */
+        function buildPrintableBooklet() {
+            const container = document.getElementById('printBookletContainer');
+            let html = `
+                <div class="print-page">
+                    <div style="text-align:center; padding-top:20mm;">
+                        <p style="font-family:monospace; color:#8B1E24; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase;">Zeeuws Prenten- &amp; Voorleesboekje</p>
+                        <h1 style="font-family:Georgia, serif; font-size:26pt; color:#1E1A1A; margin:10pt 0;">Van de Diek tot de Sterretjes</h1>
+                        <p style="font-family:Georgia, serif; font-size:13pt; color:#4E4546; max-width:440pt; margin:0 auto 24pt auto;">
+                            Voor ons nieuwe lieve kleine zusje en broertje &mdash; met liefs van Dolores (facebook.com/dolores.vansplunter)
+                        </p>
+                        <div class="print-illus-box">${STORY_CHAPTERS[0].svg}</div>
+                        <p style="font-family:monospace; font-size:9pt; color:#8B1E24; margin-top:20pt;">
+                            Inclusief het Grote 19&times;19 Pionnenschaakbord (361 velden)
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            STORY_CHAPTERS.forEach(ch => {
+                html += `
+                    <div class="print-page">
+                        <div style="font-family:monospace; font-size:9pt; color:#8B1E24; font-weight:bold; text-transform:uppercase; margin-bottom:4pt;">
+                            ${ch.kicker} (Bladzijde ${ch.id} van ${STORY_CHAPTERS.length})
+                        </div>
+                        <h2 style="font-family:Georgia, serif; font-size:20pt; color:#1E1A1A; border-bottom:1.5pt solid #8B1E24; padding-bottom:6pt; margin-bottom:14pt;">
+                            ${ch.title}
+                        </h2>
+                        <div class="print-illus-box">${ch.svg}</div>
+                        <div style="font-family:Georgia, serif; font-size:13pt; line-height:1.75; color:#1E1A1A;">
+                            ${ch.paragraphs.map(p => `<p style="margin-bottom:12pt;">${p}</p>`).join('')}
+                        </div>
+                        <div style="margin-top:16pt; padding-top:8pt; border-top:1pt dashed #DECACC; font-size:9.5pt; color:#4E4546;">
+                            ${ch.glossary}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function printStoryBooklet() {
+            buildPrintableBooklet();
+            window.print();
+        }
+
+        /* ---------------------------------------------------------------------
+           4. INTERACTIEF 19x19 SCHAAK- EN ROOSTERBORD (361 VELDEN & PIONNEN)
+           --------------------------------------------------------------------- */
+        const BOARD_SIZE = 19;
+        const COL_LETTERS = 'ABCDEFGHIJKLMNOPQRS'.split(''); // 19 kolommen: A t/m S (J = kolom 10, middelpunt)
+        // Bordstatus: null = leeg, 'W' = Krijtwit met hartje, 'R' = Zeeuws Meekrab-rood
+        const boardState = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(null));
+
+        let activeTool = 'cycle'; // 'cycle' | 'move' | 'white' | 'red'
+        let selectedCell = null;  // { r, c } bij verplaatsen
+
+        // Sterpunten (hoshi) op een 19x19 bord (indices 3, 9, 15 -> 4e, 10e en 16e lijn)
+        function isStarPoint(r, c) {
+            const stars = [3, 9, 15];
+            return stars.includes(r) && stars.includes(c);
+        }
+
+        // Converteer rij/kolom naar schaakcoördinaat (bijv. J10) + relatief roosterpunt (x, y) rond middelpunt (0,0)
+        function formatBoardCoord(r, c) {
+            const colLetter = COL_LETTERS[c];
+            const rowNumber = BOARD_SIZE - r; // Bovenste rij = 19, middelste rij (r=9) = 10, onderste rij = 1
+            const relX = c - 9;               // J (c=9) => 0
+            const relY = 9 - r;               // Rij 10 (r=9) => 0
+            return `${colLetter}${rowNumber} (${relX},${relY})`;
+        }
+
+        function createPawnMarkup(team) {
+            if (team === 'W') {
+                return `
+                    <div class="pawn-piece white-pawn" title="Krijtwitte pion">
+                        <svg viewBox="0 0 24 24" fill="#8B1E24" aria-hidden="true">
+                            <path d="M12 20.5C12 20.5 4 15.2 4 9.5C4 6.8 6.1 5 8.5 5C10.1 5 11.4 5.8 12 7C12.6 5.8 13.9 5 15.5 5C17.9 5 20 6.8 20 9.5C20 15.2 12 20.5 12 20.5Z"/>
+                        </svg>
+                    </div>
+                `;
+            }
+            if (team === 'R') {
+                return `
+                    <div class="pawn-piece red-pawn" title="Zeeuws Meekrab-rode pion">
+                        <svg viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true">
+                            <circle cx="12" cy="12" r="4"/>
+                        </svg>
+                    </div>
+                `;
+            }
+            return '';
+        }
+
+        function buildAndRenderBoard() {
+            const grid = document.getElementById('boardGrid');
+            grid.innerHTML = '';
+
+            // 21x21 grid: rij 0 en 20 zijn coördinaatranden, kolom 0 en 20 zijn coördinaatranden
+            for (let gr = 0; gr < 21; gr++) {
+                for (let gc = 0; gc < 21; gc++) {
+                    const isTopOrBottom = (gr === 0 || gr === 20);
+                    const isLeftOrRight = (gc === 0 || gc === 20);
+
+                    if (isTopOrBottom || isLeftOrRight) {
+                        const labelCell = document.createElement('div');
+                        labelCell.className = 'coord-cell';
+                        if (isTopOrBottom && !isLeftOrRight) {
+                            labelCell.textContent = COL_LETTERS[gc - 1];
+                        } else if (isLeftOrRight && !isTopOrBottom) {
+                            labelCell.textContent = String(BOARD_SIZE - (gr - 1));
+                        }
+                        grid.appendChild(labelCell);
+                    } else {
+                        const r = gr - 1;
+                        const c = gc - 1;
+                        const sq = document.createElement('div');
+                        const isLight = (r + c) % 2 === 0;
+                        sq.className = 'board-square ' + (isLight ? 'light' : 'dark');
+                        if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
+                            sq.classList.add('selected');
+                        }
+                        sq.setAttribute('role', 'gridcell');
+                        sq.setAttribute('aria-label', `Veld ${formatBoardCoord(r, c)}`);
+                        sq.dataset.r = r;
+                        sq.dataset.c = c;
+
+                        const piece = boardState[r][c];
+                        if (piece) {
+                            sq.innerHTML = createPawnMarkup(piece);
+                        } else if (isStarPoint(r, c)) {
+                            sq.innerHTML = '<span class="star-dot"></span>';
+                        }
+
+                        sq.addEventListener('click', () => handleSquareClick(r, c));
+                        grid.appendChild(sq);
+                    }
+                }
+            }
+
+            updateBoardStats();
+        }
+
+        function handleSquareClick(r, c) {
+            document.getElementById('lastCoordDisplay').textContent = formatBoardCoord(r, c);
+            const current = boardState[r][c];
+
+            if (activeTool === 'cycle') {
+                // Wissel: Leeg -> Wit -> Rood -> Leeg (of als bezet: Wit -> Rood -> Leeg)
+                if (current === null) boardState[r][c] = 'W';
+                else if (current === 'W') boardState[r][c] = 'R';
+                else boardState[r][c] = null;
+                selectedCell = null;
+            } else if (activeTool === 'white') {
+                boardState[r][c] = (current === 'W') ? null : 'W';
+                selectedCell = null;
+            } else if (activeTool === 'red') {
+                boardState[r][c] = (current === 'R') ? null : 'R';
+                selectedCell = null;
+            } else if (activeTool === 'move') {
+                if (!selectedCell) {
+                    if (current !== null) {
+                        selectedCell = { r, c };
+                    } else {
+                        showToast(`Veld ${formatBoardCoord(r, c)} is leeg. Klik eerst op een pion om te verplaatsen.`);
+                    }
+                } else {
+                    if (selectedCell.r === r && selectedCell.c === c) {
+                        selectedCell = null;
+                    } else {
+                        boardState[r][c] = boardState[selectedCell.r][selectedCell.c];
+                        boardState[selectedCell.r][selectedCell.c] = null;
+                        selectedCell = null;
+                    }
+                }
+            }
+
+            buildAndRenderBoard();
+        }
+
+        function setBoardTool(tool, btnEl) {
+            activeTool = tool;
+            selectedCell = null;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+
+            const helpTexts = {
+                cycle: 'Klik op elk veld om te wisselen tussen een krijtwitte pion, een meekrab-rode pion of een leeg veld.',
+                move: 'Klik eerst op een pion om deze op te pakken (geel veld), en klik daarna op het doelveld.',
+                white: 'Klik op een veld om een krijtwitte pion met hartje te plaatsen of weer weg te halen.',
+                red: 'Klik op een veld om een Zeeuws meekrab-rode pion te plaatsen of weer weg te halen.'
+            };
+            document.getElementById('toolHelpText').textContent = helpTexts[tool];
+            buildAndRenderBoard();
+        }
+
+        function applyBoardPreset(presetName, btnEl) {
+            selectedCell = null;
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    boardState[r][c] = null;
+                }
+            }
+
+            if (presetName === 'full361') {
+                // Alle 361 velden gevuld (181 Krijtwit + 180 Meekrab-rood in schaakpatroon)
+                for (let r = 0; r < BOARD_SIZE; r++) {
+                    for (let c = 0; c < BOARD_SIZE; c++) {
+                        boardState[r][c] = ((r + c) % 2 === 0) ? 'W' : 'R';
+                    }
+                }
+            } else if (presetName === 'start76') {
+                // 2 rijen boven (2 x 19 = 38 Rood) en 2 rijen onder (2 x 19 = 38 Wit)
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    boardState[0][c] = 'R';
+                    boardState[1][c] = 'R';
+                    boardState[17][c] = 'W';
+                    boardState[18][c] = 'W';
+                }
+            } else if (presetName === 'circle9') {
+                // Cirkel met straal R = 9 rond middelpunt J10 (r=9, c=9): dx^2 + dy^2 <= 81 (253 roosterpunten)
+                for (let r = 0; r < BOARD_SIZE; r++) {
+                    for (let c = 0; c < BOARD_SIZE; c++) {
+                        const dx = c - 9;
+                        const dy = 9 - r;
+                        const distSq = dx * dx + dy * dy;
+                        if (distSq <= 81) {
+                            // Buitenste rand (72 <= distSq <= 81) in Meekrab-rood, binnenschijf in Krijtwit
+                            boardState[r][c] = (distSq >= 65) ? 'R' : 'W';
+                        }
+                    }
+                }
+            }
+
+            buildAndRenderBoard();
+        }
+
+        function updateBoardStats() {
+            let whiteCount = 0;
+            let redCount = 0;
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    if (boardState[r][c] === 'W') whiteCount++;
+                    else if (boardState[r][c] === 'R') redCount++;
+                }
+            }
+            const emptyCount = 361 - whiteCount - redCount;
+            document.getElementById('countWhite').textContent = whiteCount;
+            document.getElementById('countRed').textContent = redCount;
+            document.getElementById('countEmpty').textContent = emptyCount;
+        }
+
+        /* ---------------------------------------------------------------------
+           5. TOAST & INITIALISATIE
+           --------------------------------------------------------------------- */
+        function showToast(msg) {
+            const toast = document.getElementById('toastBanner');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+        }
+
+        window.onload = function () {
+            selectStoryChapter(0);
+            applyBoardPreset('full361', document.getElementById('preset-full361'));
+        };
+    </script>
+</body>
+</html>
