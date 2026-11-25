@@ -1,0 +1,2247 @@
+<!DOCTYPE html>
+<html lang="nl" data-font-size="md">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fictief Dossier: Audit Trail, OIDC 1.0, WOZ-Keten &amp; Officiële Onderleggers</title>
+  <style>
+    /* =========================================================================
+       ZEEUWSE MEEKRAP DESIGN TOKENS & ZELFSTANDIGE STYLING (ZERO-CDN / OFFLINE)
+       ========================================================================= */
+    :root {
+      --meekrap: #A31C1C;
+      --meekrap-deep: #821414;
+      --meekrap-light: #C02A2A;
+      --meekrap-tint: #F9EFEF;
+      --meekrap-border: #E5C5C5;
+      --parchment: #FAF7F2;
+      --linen: #E4DDD3;
+      --white: #FFFFFF;
+      --ink: #1E2022;
+      --taupe: #59524B;
+      --brass: #A67C37;
+      --green: #245940;
+      --green-bg: #EEF6F1;
+      --green-border: #C5DEC9;
+      --ochre: #8F5B1E;
+      --ochre-bg: #FBF5EA;
+      --ochre-border: #E8D3AD;
+      --font-serif: Georgia, Cambria, "Times New Roman", Times, serif;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 3px rgba(30, 32, 34, 0.06);
+      --shadow-md: 0 6px 20px rgba(30, 32, 34, 0.08);
+    }
+
+    /* Basis leesbaarheid: standaard 19px (A+), schakelbaar naar 16px (A-) en 22px (A++) */
+    html {
+      font-size: 19px;
+      scroll-behavior: smooth;
+      box-sizing: border-box;
+    }
+    html[data-font-size="sm"] { font-size: 16px; }
+    html[data-font-size="md"] { font-size: 19px; }
+    html[data-font-size="lg"] { font-size: 22px; }
+
+    *, *::before, *::after {
+      box-sizing: inherit;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--white);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-serif);
+      color: var(--ink);
+      margin: 0;
+      line-height: 1.25;
+    }
+
+    p { margin: 0; }
+    code, pre, .mono { font-family: var(--font-mono); }
+
+    a {
+      color: var(--meekrap);
+      text-decoration: none;
+    }
+    a:hover {
+      color: var(--meekrap-deep);
+      text-decoration: underline;
+    }
+
+    /* =========================================================================
+       LAYOUT: VASTE LINKER ZIJBALK (DESKTOP) + HELDER WIT HOOFDPANEEL
+       ========================================================================= */
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+      max-width: 1660px;
+      margin: 0 auto;
+    }
+
+    /* Mobiele topbalk (verborgen op desktop) */
+    .mobile-header {
+      display: block;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(250, 247, 242, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--linen);
+    }
+    .mobile-spine {
+      height: 5px;
+      background: var(--meekrap);
+    }
+    .mobile-bar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.65rem 1rem;
+    }
+    .mobile-title-wrap { min-width: 0; }
+    .mobile-kicker {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--meekrap);
+      font-weight: 700;
+    }
+    .mobile-title {
+      display: block;
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mobile-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+    .mobile-nav {
+      display: flex;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding: 0.45rem 1rem 0.6rem;
+      border-top: 1px solid rgba(228, 221, 211, 0.75);
+      font-size: 0.72rem;
+    }
+    .mobile-nav a {
+      flex-shrink: 0;
+      padding: 0.25rem 0.6rem;
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      border: 1px solid var(--linen);
+      color: var(--taupe);
+      font-weight: 600;
+    }
+    .mobile-nav a:hover {
+      border-color: var(--meekrap-border);
+      color: var(--meekrap);
+      text-decoration: none;
+    }
+
+    /* Vaste linker zijbalk (desktop) */
+    .sidebar {
+      display: none;
+      width: 330px;
+      flex-shrink: 0;
+      background-color: var(--parchment);
+      border-right: 1px solid var(--linen);
+      box-shadow: inset 6px 0 0 0 var(--meekrap);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-inner {
+      padding: 1.5rem 1.35rem 1.5rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100%;
+      gap: 1.25rem;
+    }
+
+    /* Hoofdpaneel */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+      background-color: var(--white);
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    @media (min-width: 640px) {
+      .main-content { padding: 2rem 1.8rem 4rem; }
+    }
+    @media (min-width: 1024px) {
+      .mobile-header { display: none; }
+      .sidebar { display: block; }
+      .main-content { padding: 2.5rem 3rem 4.5rem; }
+    }
+
+    /* =========================================================================
+       HERBRUIKBARE COMPONENTEN
+       ========================================================================= */
+    .section-block {
+      margin-bottom: 3.5rem;
+      scroll-margin-top: 1.5rem;
+    }
+    .section-header {
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--linen);
+      margin-bottom: 1.35rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .section-kicker {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--brass);
+      margin-bottom: 0.25rem;
+    }
+    .section-title {
+      font-size: 1.55rem;
+      font-weight: 700;
+    }
+    .section-lead {
+      margin-top: 0.45rem;
+      font-size: 0.88rem;
+      color: var(--taupe);
+      max-width: 78ch;
+    }
+
+    /* Badges & Tags */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 700;
+      padding: 0.22rem 0.55rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--linen);
+      background: var(--parchment);
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .badge-meekrap {
+      background: var(--meekrap-tint);
+      border-color: var(--meekrap-border);
+      color: var(--meekrap);
+    }
+    .badge-solid-meekrap {
+      background: var(--meekrap);
+      border-color: var(--meekrap-deep);
+      color: var(--white);
+    }
+    .badge-green {
+      background: var(--green-bg);
+      border-color: var(--green-border);
+      color: var(--green);
+    }
+    .badge-ochre {
+      background: var(--ochre-bg);
+      border-color: var(--ochre-border);
+      color: var(--ochre);
+    }
+    .dot-meekrap {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--meekrap);
+      display: inline-block;
+    }
+
+    /* Knoppen */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.52rem 0.9rem;
+      border-radius: var(--radius-md);
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid var(--linen);
+      background: var(--white);
+      color: var(--ink);
+      cursor: pointer;
+      transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .btn:hover {
+      border-color: var(--meekrap-border);
+      color: var(--meekrap);
+      background: var(--meekrap-tint);
+    }
+    .btn-primary {
+      background: var(--meekrap);
+      border-color: var(--meekrap-deep);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: var(--meekrap-deep);
+      color: var(--white);
+    }
+    .btn-tint {
+      background: var(--meekrap-tint);
+      border-color: var(--meekrap-border);
+      color: var(--meekrap);
+    }
+    .btn-tint:hover {
+      background: var(--meekrap);
+      color: var(--white);
+    }
+    .btn-sm {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.72rem;
+    }
+    .btn-full { width: 100%; }
+
+    /* Tekstgrootte-schakelaar */
+    .size-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.3rem;
+    }
+    .size-btn {
+      padding: 0.32rem 0.4rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--linen);
+      background: var(--parchment);
+      color: var(--taupe);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .size-btn.active {
+      background: var(--meekrap);
+      border-color: var(--meekrap-deep);
+      color: var(--white);
+    }
+
+    /* Zijbalk navigatie & boxen */
+    .side-box {
+      background: var(--white);
+      border: 1px solid var(--linen);
+      border-radius: var(--radius-md);
+      padding: 0.85rem;
+    }
+    .side-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .side-nav a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.45rem 0.65rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .side-nav a:hover,
+    .side-nav a.active {
+      background: var(--white);
+      color: var(--meekrap);
+      font-weight: 600;
+      box-shadow: inset 3px 0 0 0 var(--meekrap);
+    }
+    .side-nav a span.num {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--taupe);
+    }
+
+    /* Hero-kaart */
+    .hero-card {
+      background: var(--parchment);
+      border: 1px solid var(--linen);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+    }
+    .hero-top-bar {
+      height: 7px;
+      background: linear-gradient(90deg, var(--meekrap) 0%, var(--meekrap-deep) 60%, var(--brass) 100%);
+    }
+    .hero-body {
+      padding: 1.65rem 1.8rem;
+    }
+    .hero-title {
+      font-size: 1.95rem;
+      margin-top: 0.65rem;
+    }
+    .hero-sub {
+      margin-top: 0.6rem;
+      font-size: 0.92rem;
+      color: var(--taupe);
+      max-width: 74ch;
+    }
+    .fictive-banner {
+      margin-top: 1.15rem;
+      background: var(--white);
+      border: 1px solid var(--meekrap-border);
+      border-left: 4px solid var(--meekrap);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      font-size: 0.78rem;
+      color: var(--ink);
+    }
+
+    /* Grids */
+    .grid-kpi {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 0.85rem;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 1.1rem;
+    }
+
+    /* Kaarten */
+    .card {
+      background: var(--parchment);
+      border: 1px solid var(--linen);
+      border-radius: var(--radius-lg);
+      padding: 1.2rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-white {
+      background: var(--white);
+      border: 1px solid var(--linen);
+      border-radius: var(--radius-lg);
+      padding: 1.2rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-top-meekrap { border-top: 4px solid var(--meekrap); }
+    .card-top-deep { border-top: 4px solid var(--meekrap-deep); }
+    .card-top-brass { border-top: 4px solid var(--brass); }
+    .card-top-green { border-top: 4px solid var(--green); }
+
+    .kpi-value {
+      font-family: var(--font-serif);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--meekrap);
+      margin: 0.25rem 0;
+    }
+    .kpi-label {
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--taupe);
+    }
+    .kpi-sub {
+      font-size: 0.72rem;
+      color: var(--taupe);
+    }
+
+    /* Zoek- en filterbalk */
+    .toolbar {
+      background: var(--parchment);
+      border: 1px solid var(--linen);
+      border-radius: var(--radius-lg);
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .search-input {
+      flex: 1 1 260px;
+      max-width: 420px;
+      padding: 0.5rem 0.8rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--linen);
+      background: var(--white);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+    }
+    .search-input:focus {
+      outline: 2px solid rgba(163, 28, 28, 0.25);
+      border-color: var(--meekrap);
+    }
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .filter-pill {
+      padding: 0.42rem 0.72rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--linen);
+      background: var(--white);
+      color: var(--taupe);
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .filter-pill:hover {
+      border-color: var(--meekrap-border);
+      color: var(--meekrap);
+    }
+    .filter-pill.active {
+      background: var(--meekrap);
+      border-color: var(--meekrap-deep);
+      color: var(--white);
+    }
+
+    /* Tabellen */
+    .table-wrap {
+      background: var(--white);
+      border: 1px solid var(--linen);
+      border-radius: var(--radius-lg);
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.78rem;
+    }
+    thead tr {
+      background: var(--parchment);
+      border-bottom: 1px solid var(--linen);
+    }
+    th {
+      padding: 0.7rem 0.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--taupe);
+      white-space: nowrap;
+    }
+    td {
+      padding: 0.75rem 0.8rem;
+      border-bottom: 1px solid var(--linen);
+      vertical-align: top;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(250, 247, 242, 0.65); }
+
+    .code-box {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      background: var(--parchment);
+      border: 1px solid var(--linen);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.6rem;
+      white-space: pre-wrap;
+      margin: 0;
+    }
+
+    /* Hash box */
+    .hash-bar {
+      margin-top: 0.85rem;
+      background: var(--parchment);
+      border: 1px solid var(--linen);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      font-size: 0.72rem;
+    }
+    .hash-value {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--meekrap-deep);
+      word-break: break-all;
+      background: var(--white);
+      border: 1px solid var(--meekrap-border);
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Checklist & Voortgang */
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      background: var(--white);
+      border: 1px solid var(--linen);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.55rem;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--meekrap), var(--meekrap-light));
+      transition: width 0.25s ease;
+    }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.7rem 0.8rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--linen);
+      background: var(--white);
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .check-item:hover { border-color: var(--meekrap-border); }
+    .check-item.checked {
+      background: var(--meekrap-tint);
+      border-color: var(--meekrap-border);
+    }
+    .check-item input[type="checkbox"] {
+      margin-top: 0.2rem;
+      width: 17px;
+      height: 17px;
+      accent-color: var(--meekrap);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .blocked-card {
+      border: 2px solid var(--meekrap);
+      background: var(--meekrap-tint);
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1rem;
+      margin-top: 0.85rem;
+      color: var(--meekrap-deep);
+      font-size: 0.8rem;
+    }
+
+    /* Quote */
+    .editorial-quote {
+      margin: 0.85rem 0 0;
+      padding: 0.85rem 1rem;
+      border-left: 4px solid var(--meekrap);
+      background: var(--white);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-style: italic;
+      font-size: 0.84rem;
+    }
+
+    /* SVG-container */
+    .svg-box {
+      background: var(--white);
+      border: 1px solid var(--linen);
+      border-radius: var(--radius-md);
+      padding: 0.8rem;
+      overflow-x: auto;
+    }
+    .svg-box svg {
+      width: 100%;
+      min-width: 680px;
+      height: auto;
+      display: block;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(30, 32, 34, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-panel {
+      background: var(--white);
+      border: 1px solid var(--linen);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 780px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    .modal-head {
+      background: var(--meekrap);
+      color: var(--white);
+      padding: 0.95rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .modal-body {
+      padding: 1.25rem;
+      overflow-y: auto;
+      background: var(--parchment);
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      font-size: 0.82rem;
+    }
+    .modal-json {
+      background: #1B1D1F;
+      color: #F4EBE0;
+      padding: 0.9rem;
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      overflow-x: auto;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .modal-foot {
+      background: var(--white);
+      border-top: 1px solid var(--linen);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    /* Toast (vervangt alert()) */
+    .toast {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      z-index: 70;
+      background: var(--ink);
+      color: var(--white);
+      border: 1px solid var(--brass);
+      border-radius: var(--radius-md);
+      padding: 0.65rem 1rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: var(--shadow-md);
+    }
+    .toast.show { display: inline-flex; }
+
+    /* Voetnoot */
+    .dossier-footer {
+      background: var(--parchment);
+      border: 1px solid var(--linen);
+      border-left: 4px solid var(--meekrap);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.2rem;
+      font-size: 0.74rem;
+      color: var(--taupe);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    /* =========================================================================
+       PRINT- & PDF-OPTIMALISATIE
+       ========================================================================= */
+    @media print {
+      html, html[data-font-size="sm"], html[data-font-size="md"], html[data-font-size="lg"] {
+        font-size: 10pt !important;
+      }
+      body { background: #FFFFFF !important; color: #1E2022 !important; }
+      .no-print, .sidebar, .mobile-header, .modal-backdrop, .toast { display: none !important; }
+      .app-shell { display: block; max-width: 100%; }
+      .main-content { padding: 0 !important; width: 100% !important; }
+      .card, .card-white, .table-wrap, .hero-card, tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+      }
+      .print-break {
+        break-before: page;
+        page-break-before: always;
+      }
+      .badge, .hero-top-bar, .blocked-card, .progress-fill, .fictive-banner {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      a[href^="http"]::after {
+        content: " (" attr(href) ")";
+        font-family: var(--font-mono);
+        font-size: 7.5pt;
+        color: #59524B;
+        word-break: break-all;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================================= -->
+  <!-- MOBIELE TOPBALK                                                         -->
+  <!-- ======================================================================= -->
+  <header class="mobile-header no-print">
+    <div class="mobile-spine"></div>
+    <div class="mobile-bar-inner">
+      <div class="mobile-title-wrap">
+        <span class="mobile-kicker">100% Fictieve Casus &bull; Zero-CDN</span>
+        <span class="mobile-title">Audit Trail &amp; Offici&euml;le Onderleggers</span>
+      </div>
+      <div class="mobile-actions">
+        <button type="button" class="size-btn" data-size="sm" onclick="setFontSize('sm')">A-</button>
+        <button type="button" class="size-btn active" data-size="md" onclick="setFontSize('md')">A+</button>
+        <button type="button" class="size-btn" data-size="lg" onclick="setFontSize('lg')">A++</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="window.print()">PDF</button>
+      </div>
+    </div>
+    <nav class="mobile-nav" aria-label="Mobiele navigatie">
+      <a href="#overzicht">00. Overzicht</a>
+      <a href="#sectie-01">01. Pijlers</a>
+      <a href="#sectie-02">02. Audit Trail</a>
+      <a href="#sectie-03">03. LegalTrack</a>
+      <a href="#sectie-04">04. WOZ &amp; NORA</a>
+      <a href="#sectie-05">05. Checklist</a>
+      <a href="#sectie-06">06. Beroepsrecht</a>
+      <a href="#sectie-07">07. Bronnen</a>
+    </nav>
+  </header>
+
+  <div class="app-shell">
+    <!-- ===================================================================== -->
+    <!-- VASTE LINKER DOSSIER-ZIJBALK (DESKTOP)                                -->
+    <!-- ===================================================================== -->
+    <aside class="sidebar no-print" aria-label="Dossier zijbalk">
+      <div class="sidebar-inner">
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+          <div style="padding-bottom:0.85rem; border-bottom:1px solid var(--linen);">
+            <span class="badge badge-meekrap"><span class="dot-meekrap"></span> Zeeuwse Meekrap Editie</span>
+            <h2 style="font-size:1.15rem; margin-top:0.55rem;">Fictief Audit-Dossier</h2>
+            <p style="font-size:0.72rem; color:var(--taupe); margin-top:0.25rem;">
+              OIDC 1.0, LegalTrack CRM, WOZ/NORA-keten &amp; 14 offici&euml;le internet-onderleggers.
+            </p>
+          </div>
+
+          <!-- Tekstgrootte-schakelaar -->
+          <div class="side-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem;">
+              <span class="mono" style="font-size:0.62rem; text-transform:uppercase; color:var(--taupe); font-weight:700;">Leesbaarheid</span>
+              <span id="fontSizeLabel" class="mono" style="font-size:0.65rem; color:var(--meekrap); font-weight:700;">19px (A+)</span>
+            </div>
+            <div class="size-group" role="group" aria-label="Tekstgrootte">
+              <button type="button" class="size-btn" data-size="sm" onclick="setFontSize('sm')">A-</button>
+              <button type="button" class="size-btn active" data-size="md" onclick="setFontSize('md')">A+</button>
+              <button type="button" class="size-btn" data-size="lg" onclick="setFontSize('lg')">A++</button>
+            </div>
+          </div>
+
+          <!-- Sectie-index -->
+          <nav class="side-nav" aria-label="Sectie-index">
+            <span class="mono" style="font-size:0.62rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--brass); font-weight:700; padding:0 0.5rem 0.2rem;">Dossier-Index</span>
+            <a href="#overzicht" class="nav-item active" data-target="overzicht"><span>Overzicht &amp; KPI&rsquo;s</span><span class="num">00</span></a>
+            <a href="#sectie-01" class="nav-item" data-target="sectie-01"><span>De Drie Pijlers</span><span class="num">01</span></a>
+            <a href="#sectie-02" class="nav-item" data-target="sectie-02"><span>Audit Trail (8 TRX)</span><span class="num">02</span></a>
+            <a href="#sectie-03" class="nav-item" data-target="sectie-03"><span>LegalTrack CRM (18)</span><span class="num">03</span></a>
+            <a href="#sectie-04" class="nav-item" data-target="sectie-04"><span>Fiscaal, WOZ &amp; NORA</span><span class="num">04</span></a>
+            <a href="#sectie-05" class="nav-item" data-target="sectie-05"><span>Checklist (12)</span><span class="num">05</span></a>
+            <a href="#sectie-06" class="nav-item" data-target="sectie-06"><span>Beroeps- &amp; Procesrecht</span><span class="num">06</span></a>
+            <a href="#sectie-07" class="nav-item" data-target="sectie-07"><span>Internet-Bronnen (14)</span><span class="num">07</span></a>
+          </nav>
+
+          <!-- Fictieve Rollen Legenda -->
+          <div class="side-box" style="font-size:0.68rem;">
+            <div class="mono" style="font-size:0.62rem; text-transform:uppercase; color:var(--brass); font-weight:700; margin-bottom:0.45rem;">Fictieve Casus-Entiteiten</div>
+            <div style="display:flex; flex-direction:column; gap:0.3rem; color:var(--taupe);">
+              <div><strong style="color:var(--ink);">Erflater:</strong> Dhr. H.J. Vermeulen (&dagger; okt 2024)</div>
+              <div><strong style="color:var(--ink);">Partij A:</strong> Mw. Vermeer (Rijnmond / D90014200)</div>
+              <div><strong style="color:var(--ink);">Partij B:</strong> Mw. De Vries (Noordzee / D10014)</div>
+              <div><strong style="color:var(--ink);">Object B:</strong> Dijkweg 3, Gemeente Dijkland</div>
+              <div><strong style="color:var(--ink);">Checklist:</strong> <span id="sideChecklistStatus" class="mono" style="color:var(--meekrap); font-weight:700;">0 / 12</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actieknoppen onderaan zijbalk -->
+        <div style="padding-top:0.85rem; border-top:1px solid var(--linen); display:flex; flex-direction:column; gap:0.45rem;">
+          <button type="button" class="btn btn-primary btn-full" onclick="window.print()">Afdrukken / PDF</button>
+          <button type="button" class="btn btn-tint btn-full" onclick="exportFullDossierJson()">Exporteer Volledig Dossier (JSON)</button>
+          <button type="button" class="btn btn-full" onclick="downloadCrmCsv(false)">Download CRM CSV (UTF-8)</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===================================================================== -->
+    <!-- RECHTER HOOFDPANEEL (HELDER WIT #FFFFFF)                              -->
+    <!-- ===================================================================== -->
+    <main class="main-content">
+
+      <!-- =================================================================== -->
+      <!-- OVERZICHT & KPI-BALK                                                -->
+      <!-- =================================================================== -->
+      <section id="overzicht" class="section-block">
+        <div class="hero-card">
+          <div class="hero-top-bar"></div>
+          <div class="hero-body">
+            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.5rem;">
+              <span class="badge badge-meekrap"><span class="dot-meekrap"></span> 100% FICTIEVE CASUS &bull; MODELARCHITECTUUR</span>
+              <span class="badge">OIDC Core 1.0 &bull; RFC 6376 &bull; art. 156a &amp; 674 Rv &bull; NORA</span>
+            </div>
+
+            <h1 class="hero-title">Fictief Procesdossier: Audit Trail, OIDC 1.0, WOZ-Keten &amp; Offici&euml;le Onderleggers</h1>
+            <p class="hero-sub">
+              Volledig zelfstandige juridisch-technische referentiepagina over de nalatenschap van <strong>Dhr. H.J. Vermeulen</strong> (&dagger; oktober 2024, Dijkweg 3, Gemeente Dijkland), waarin <strong>LegalTrack CRM</strong>-logging, cryptografische headers, het gecorrigeerde fiscale versus civiele waarderingsspoor en geverifieerde overheidsbronnen samenkomen.
+            </p>
+
+            <div class="fictive-banner">
+              <strong>Strikte Fictieve Regel:</strong> Alle personen (<em>Mw. Vermeer, Mw. De Vries, mr. drs. J. Bakker, mr. L. Hendriks, mr. S. Kuipers, Notaris Van Vliet</em>), kantoren (<em>Advocatenkantoor Rijnmond, Advocatenkantoor Noordzee, RB-Collectief, Taxatiekantoor Van Dijk, Bouwkundig Bureau Sterk, Notariskantoor De Brug / De Haven</em>), adressen (<em>Dijkweg 3, Gemeente Dijkland</em>), zaaknummers (<em>F-11043000, T 2026/0012</em>), domeinen (<em>*.example</em>) en het IPv6-blok (<em>2001:db8:45a:27d8::/48</em>, RFC 3849) zijn <strong>100% fictief</strong>. De wet- en regelgeving en overheidsbronnen in Sectie 07 zijn echte, offici&euml;le internet-onderleggers.
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 KPI-Kaarten -->
+        <div class="grid-kpi">
+          <div class="card">
+            <div class="kpi-label">Kerntransacties</div>
+            <div class="kpi-value">8</div>
+            <div class="kpi-sub">TRX-001 t/m TRX-008 (OIDC &amp; fysiek)</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">CRM-Referenties</div>
+            <div class="kpi-value" style="color:var(--ink);">18</div>
+            <div class="kpi-sub">LegalTrack D10014, D10041, D90014200</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Dossier-Onderleggers</div>
+            <div class="kpi-value" style="color:var(--green);">12</div>
+            <div class="kpi-sub">Art. 674 Rv &amp; art. 194 Rv + 1 blokkade</div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">Internet-Bronnen</div>
+            <div class="kpi-value" style="color:var(--brass);">14</div>
+            <div class="kpi-sub">Offici&euml;le wetten, Kadaster, NORA &amp; RFC</div>
+          </div>
+          <div class="card" style="border-color:var(--meekrap-border);">
+            <div class="kpi-label" style="color:var(--meekrap);">Privacy &amp; Casus</div>
+            <div class="kpi-value">100%</div>
+            <div class="kpi-sub">Fictieve entiteiten &bull; Zero-CDN</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SECTIE 01: DE DRIE PIJLERS VAN EEN JURIDISCH GELDIGE AUDIT TRAIL    -->
+      <!-- =================================================================== -->
+      <section id="sectie-01" class="section-block">
+        <div class="section-header">
+          <div>
+            <span class="section-kicker">Sectie 01 &bull; Referentie-architectuur</span>
+            <h2 class="section-title">De Drie Pijlers van een Juridisch Geldige Audit Trail</h2>
+            <p class="section-lead">
+              Een digitale audit trail verkrijgt in rechte pas sluitende bewijskracht wanneer identiteit, cryptografische integriteit en een controleerbare duurzame drager onlosmakelijk aan elkaar zijn gekoppeld.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <article class="card card-top-meekrap">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.7rem;">
+              <span class="badge badge-solid-meekrap">PIJLER I</span>
+              <span class="badge">OIDC Core 1.0</span>
+            </div>
+            <h3 style="font-size:1.15rem;">Identiteit &amp; Autorisatie</h3>
+            <p class="mono" style="font-size:0.7rem; color:var(--meekrap); font-weight:700; margin-top:0.25rem;">WIE handelde?</p>
+            <p style="font-size:0.82rem; color:var(--taupe); margin-top:0.55rem;">
+              Koppelt iedere systeemactie in <strong>LegalTrack CRM</strong> via OpenID Connect Core 1.0 aan de unieke gebruiker, de client-applicatie en de toegekende machtigingsscope.
+            </p>
+            <pre class="code-box" style="margin-top:0.75rem;">iss: https://idp.legaltrack.example
+sub: usr_hendriks_noordzee
+client_id: legaltrack-mail-relay
+scope: mail:send dossier:edit</pre>
+          </article>
+
+          <article class="card card-top-deep">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.7rem;">
+              <span class="badge badge-solid-meekrap">PIJLER II</span>
+              <span class="badge">RFC 6376 / SHA-256</span>
+            </div>
+            <h3 style="font-size:1.15rem;">Transactie-integriteit</h3>
+            <p class="mono" style="font-size:0.7rem; color:var(--meekrap); font-weight:700; margin-top:0.25rem;">WAT werd verzonden / bewerkt?</p>
+            <p style="font-size:0.82rem; color:var(--taupe); margin-top:0.55rem;">
+              Borgt onwijzigbaarheid van verzonden berichten en statuswijzigingen via cryptografische body-hashes (<code>DKIM bh=</code>), server-side UTC-tijdstempels en Kubernetes pod-headers.
+            </p>
+            <pre class="code-box" style="margin-top:0.75rem;">DKIM: s=lt2026; d=noordzee-advocaten.example
+Hash: SHA-256 (bh=eF7a9c...=)
+Relay: out.legaltrack.example
+Pod: app-live-pod-alpha</pre>
+          </article>
+
+          <article class="card card-top-brass">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.7rem;">
+              <span class="badge badge-ochre">PIJLER III</span>
+              <span class="badge">Art. 156a Rv / eIDAS</span>
+            </div>
+            <h3 style="font-size:1.15rem;">Onderlegger &amp; Duurzame Drager</h3>
+            <p class="mono" style="font-size:0.7rem; color:var(--ochre); font-weight:700; margin-top:0.25rem;">WAAR staat het origineel?</p>
+            <p style="font-size:0.82rem; color:var(--taupe); margin-top:0.55rem;">
+              Verankert logregels in verifieerbare primaire bronstukken die voldoen aan het schriftelijkheids- en integriteitsvereiste van <strong>art. 156a Rv</strong> en <strong>art. 674 Rv</strong>.
+            </p>
+            <pre class="code-box" style="margin-top:0.75rem;">RFC MIME-headers &amp; boundaries
+Gecertificeerde ontvangst (eIDAS/post)
+Bankafschriften, akten &amp; Hyp4/Wbb
+Proces-verbaal met griffiestempel</pre>
+          </article>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SECTIE 02: INTERACTIEVE AUDIT TRAIL (TRX-001 t/m TRX-008)           -->
+      <!-- =================================================================== -->
+      <section id="sectie-02" class="section-block print-break">
+        <div class="section-header">
+          <div>
+            <span class="section-kicker">Sectie 02 &bull; Sluitende Bewijsketen</span>
+            <h2 class="section-title">Interactieve Audit Trail (TRX-001 t/m TRX-008)</h2>
+            <p class="section-lead">
+              Filter op categorie of zoek op trefwoord. Klik op <strong>OIDC / JSON</strong> om de volledige claims en technische onderleggers per transactie te inspecteren en te kopi&euml;ren.
+            </p>
+          </div>
+          <span class="badge no-print">Getoond: <strong id="trxVisibleCount">8</strong> / 8</span>
+        </div>
+
+        <div class="toolbar no-print">
+          <input type="text" id="trxSearch" class="search-input" placeholder="Zoek op TRX, Noordzee, Rijnmond, € 20.000, art. 21 Rv..." />
+          <div class="filter-row" role="group" aria-label="Filter transacties">
+            <button type="button" class="filter-pill active" data-trx-filter="all" onclick="setTrxFilter('all')">Alle (8)</button>
+            <button type="button" class="filter-pill" data-trx-filter="oidc" onclick="setTrxFilter('oidc')">OIDC / Systeem (5)</button>
+            <button type="button" class="filter-pill" data-trx-filter="fysiek" onclick="setTrxFilter('fysiek')">Fysiek / Gerechtelijk (3)</button>
+            <button type="button" class="filter-pill" data-trx-filter="risico" onclick="setTrxFilter('risico')">Schending / Risico (3)</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ref / UTC</th>
+                <th>Evenement &amp; Actor</th>
+                <th>OIDC / Autorisatie</th>
+                <th>Primaire Onderlegger</th>
+                <th>Bewijsrechtelijke Betekenis</th>
+                <th class="no-print" style="text-align:right;">Inspectie</th>
+              </tr>
+            </thead>
+            <tbody id="trxTableBody"></tbody>
+          </table>
+          <div id="trxEmpty" style="display:none; padding:2rem; text-align:center; color:var(--taupe);">
+            Geen transacties gevonden. <button type="button" class="btn btn-sm btn-tint" onclick="resetTrxFilters()">Filters herstellen</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SECTIE 03: CHRONOLOGISCHE LEGALTRACK CRM-REFERENTIELIJST (18 ITEMS) -->
+      <!-- =================================================================== -->
+      <section id="sectie-03" class="section-block print-break">
+        <div class="section-header">
+          <div>
+            <span class="section-kicker">Sectie 03 &bull; Praktijkbeheersysteem LegalTrack CRM</span>
+            <h2 class="section-title">Chronologische LegalTrack CRM-Referentielijst (18 Items)</h2>
+            <p class="section-lead">
+              Alle 18 fictieve dossierregistraties (18-03-2025 t/m eind nov 2026) verdeeld over hoofddossier <code>D10014</code> (13), tuchtdossier <code>D10041</code> (1) en dossier gedaagde <code>D90014200</code> (4).
+            </p>
+          </div>
+          <div class="no-print" style="display:flex; gap:0.45rem; flex-wrap:wrap;">
+            <button type="button" class="btn btn-primary btn-sm" onclick="downloadCrmCsv(false)">Download CSV (fictieve-audit-trail.csv)</button>
+            <button type="button" class="btn btn-sm" onclick="downloadCrmCsv(true)">CSV huidige selectie</button>
+          </div>
+        </div>
+
+        <div class="toolbar no-print">
+          <input type="text" id="crmSearch" class="search-input" placeholder="Zoek op Item-ID, D10014, D10041, D90014200, Van Dijk..." />
+          <div class="filter-row" role="group" aria-label="Filter op CRM-dossier">
+            <button type="button" class="filter-pill active" data-crm-filter="all" onclick="setCrmFilter('all')">Alle (18)</button>
+            <button type="button" class="filter-pill" data-crm-filter="D10014" onclick="setCrmFilter('D10014')">D10014 (13)</button>
+            <button type="button" class="filter-pill" data-crm-filter="D10041" onclick="setCrmFilter('D10041')">D10041 (1)</button>
+            <button type="button" class="filter-pill" data-crm-filter="D90014200" onclick="setCrmFilter('D90014200')">D90014200 (4)</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Datum / Tijd</th>
+                <th>Dossier</th>
+                <th>Item-ID</th>
+                <th>Kantoor / Actor</th>
+                <th>Categorie</th>
+                <th>Omschrijving</th>
+              </tr>
+            </thead>
+            <tbody id="crmTableBody"></tbody>
+          </table>
+          <div id="crmEmpty" style="display:none; padding:2rem; text-align:center; color:var(--taupe);">
+            Geen CRM-items gevonden. <button type="button" class="btn btn-sm btn-tint" onclick="resetCrmFilters()">Filters herstellen</button>
+          </div>
+        </div>
+
+        <!-- Client-side Web Crypto SHA-256 integriteitscheck van de CSV-export -->
+        <div class="hash-bar">
+          <div>
+            <strong>Integriteitscheck CSV-export (Web Crypto SHA-256):</strong>
+            <span style="color:var(--taupe);"> berekend over de exacte UTF-8 CSV-inhoud van de <span id="hashRowCount">18</span> getoonde rijen.</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+            <code id="csvSha256Hash" class="hash-value">Berekenen...</code>
+            <button type="button" class="btn btn-sm no-print" onclick="copyTextToClipboard(document.getElementById('csvSha256Hash').textContent, 'SHA-256 hash gekopieerd')">Kopieer hash</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SECTIE 04: FISCAAL VS. CIVIEL SPOOR, WOZ-PEILDATUMS & NORA-KETEN    -->
+      <!-- =================================================================== -->
+      <section id="sectie-04" class="section-block print-break">
+        <div class="section-header">
+          <div>
+            <span class="section-kicker">Sectie 04 &bull; Waardering, Objectscheiding &amp; Basisregistraties</span>
+            <h2 class="section-title">Fiscaal vs. Civiel Spoor, WOZ-Peildatums &amp; Waarderingskloof</h2>
+            <p class="section-lead">
+              Correctie van de WOZ-waardepeildatums, duiding van de onverklaarde kloof van <strong>&euro;&nbsp;5.000,-</strong> (&euro;&nbsp;241.000 vs. &euro;&nbsp;246.000) voor <strong>Dijkweg 3, Gemeente Dijkland (Object B)</strong> en de strikte scheiding tussen het fiscale spoor (art. 21 lid 5 SW) en het civiele verdelingsspoor (art. 3:185 BW / art. 674 Rv).
+            </p>
+          </div>
+        </div>
+
+        <!-- Objectscheiding A vs B -->
+        <div class="grid-2" style="margin-bottom:1.1rem;">
+          <article class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem;">
+              <span class="badge">OBJECT A &bull; BUITEN BOEDEL</span>
+              <span class="badge badge-green">Energielabel A</span>
+            </div>
+            <h3 style="font-size:1.05rem;">Niet-gerelateerde tussenwoning</h3>
+            <p style="font-size:0.8rem; color:var(--taupe); margin-top:0.35rem;">
+              Het aangetroffen energielabel A behoort tot een ander, niet-gerelateerd pand en speelt geen rol in de nalatenschap van Dhr. H.J. Vermeulen.
+            </p>
+          </article>
+
+          <article class="card" style="border-color:var(--meekrap-border);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem;">
+              <span class="badge badge-solid-meekrap">OBJECT B &bull; BOEDELWONING</span>
+              <span class="badge badge-meekrap">Geen geldig label (verwacht F/G)</span>
+            </div>
+            <h3 style="font-size:1.05rem;">Dijkweg 3, Gemeente Dijkland</h3>
+            <p style="font-size:0.8rem; color:var(--taupe); margin-top:0.35rem;">
+              NWWI-taxatie <strong>Taxatiekantoor Van Dijk</strong> (&euro;&nbsp;280.000,-) hanteert een <em>schone-grondfictie</em> en negeert de Wbb-beperking (Hyp4), <strong>&euro;&nbsp;82.500,-</strong> herstelkosten (<strong>Bouwkundig Bureau Sterk</strong>) en het ontbrekende energielabel.
+            </p>
+          </article>
+        </div>
+
+        <!-- Gecorrigeerde WOZ-peildatumtabel -->
+        <div class="table-wrap" style="margin-bottom:1.1rem;">
+          <table>
+            <thead>
+              <tr>
+                <th>WOZ-Belastingjaar</th>
+                <th>Wettelijke Waardepeildatum</th>
+                <th>Geregistreerd Bedrag &amp; Bron</th>
+                <th>Juridische / Dossierstatus</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>WOZ-jaar 2023</strong></td>
+                <td class="mono">1 januari 2022</td>
+                <td><strong>&euro;&nbsp;230.000,-</strong> (Aangifte IB 2023 erflater)</td>
+                <td>Historische referentie voorafgaand aan overlijdensjaar.</td>
+              </tr>
+              <tr style="background:rgba(249,239,239,0.55);">
+                <td><strong>WOZ-jaar 2024</strong></td>
+                <td class="mono">1 januari 2023</td>
+                <td>
+                  <strong>&euro;&nbsp;241.000,-</strong> (WOZ-waardeloket)<br />
+                  vs. <strong style="color:var(--meekrap);">&euro;&nbsp;246.000,-</strong> (aangifte erfbelasting Mw. De Vries)
+                </td>
+                <td>
+                  <span class="badge badge-meekrap">Kloof &euro;&nbsp;5.000,-</span>
+                  <div style="margin-top:0.25rem;">Onverklaard verschil (invoerfout, art. 17 Wet WOZ-mutatie of verkeerd jaar). <strong>Eerst via RBK documentair ophelderen</strong> v&oacute;&oacute;r processtelling.</div>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>WOZ-jaar 2025</strong></td>
+                <td class="mono">1 januari 2024</td>
+                <td><strong>Op te vragen bij RBK</strong></td>
+                <td>
+                  Keuzeoptie 2 ex <strong>art. 21 lid 5 SW</strong> (overlijden okt 2024). Opvragen via <strong>art. 28 Wet WOZ</strong> (medebelanghebbendebeschikking &rarr; nieuwe bezwaartermijn 6 weken).
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Strikte scheiding Fiscaal vs. Civiel -->
+        <div class="table-wrap" style="margin-bottom:1.15rem;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:20%;">Dimensie</th>
+                <th style="width:40%; color:var(--meekrap);">Fiscaal Spoor (Erfbelasting)</th>
+                <th style="width:40%; color:var(--ink);">Civiel Spoor (Boedelverdeling)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Wettelijke grondslag</strong></td>
+                <td class="mono">Art. 21 lid 5 Successiewet (lex specialis)</td>
+                <td class="mono">Art. 3:185 BW &amp; art. 674 Rv</td>
+              </tr>
+              <tr>
+                <td><strong>Bindende maatstaf</strong></td>
+                <td>Laagste WOZ-waarde: <strong>2024</strong> (peil 1-1-2023) &oacute;f <strong>2025</strong> (peil 1-1-2024).</td>
+                <td><strong>Waarde in het economisch verkeer (WEV)</strong> in werkelijke, bezwaarde staat.</td>
+              </tr>
+              <tr>
+                <td><strong>Rol taxatie Van Dijk (&euro;&nbsp;280.000,-)</strong></td>
+                <td><strong>Bindt de Belastingdienst niet.</strong> De inspecteur volgt verplicht de LV-WOZ; een &ldquo;&euro;&nbsp;39.000,- fiscale schadeclaim&rdquo; is daarom juridisch onjuist.</td>
+                <td><strong>Kern van de civiele betwisting:</strong> NWWI-rapport is gebrekkig door schone-grondfictie, negeren Hyp4/Wbb-beperking, &euro;&nbsp;82.500,- herstelkosten Sterk en ontbrekend label F/G.</td>
+              </tr>
+              <tr>
+                <td><strong>Rechtsingang</strong></td>
+                <td>Heffingsambtenaar <strong>RBK / Gemeente Dijkland</strong> (art. 28 &amp; art. 40 Wet WOZ) en eventuele aangiftecorrectie bij de Belastingdienst.</td>
+                <td><strong>Rechtbank West-Nederland</strong> (zaaknr. <code>F-11043000</code>) / onafhankelijke deskundigentaxatie z&oacute;nder ficties.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Compact SVG-schema van de NORA-keten -->
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+            <div>
+              <h3 style="font-size:1.08rem;">NORA-Gegevensketen &amp; Basisregistraties (Dijkweg 3, Gemeente Dijkland)</h3>
+              <p style="font-size:0.75rem; color:var(--taupe);">Eenmalige vastlegging bij de bronhouder, meervoudig verplicht gebruik via LV-WOZ (Haal Centraal / StUF-WOZ).</p>
+            </div>
+            <span class="badge badge-meekrap">Peppol &ne; LV-WOZ</span>
+          </div>
+
+          <div class="svg-box">
+            <svg viewBox="0 0 920 330" role="img" aria-label="NORA-keten Gemeente Dijkland, RBK, Kadaster LV-WOZ, Belastingdienst, Waterschappen en RVO">
+              <defs>
+                <marker id="arrRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#A31C1C" />
+                </marker>
+                <marker id="arrGrey" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#59524B" />
+                </marker>
+              </defs>
+
+              <!-- Rij 1 -->
+              <rect x="16" y="16" width="240" height="72" rx="10" fill="#FAF7F2" stroke="#A31C1C" stroke-width="1.8" />
+              <text x="30" y="38" font-family="monospace" font-size="11" font-weight="700" fill="#A31C1C">GEMEENTE DIJKLAND (GEMMA)</text>
+              <text x="30" y="57" font-family="sans-serif" font-size="12" fill="#1E2022">BAG, BRP (&dagger; okt 2024) &amp; WOZ</text>
+              <text x="30" y="74" font-family="sans-serif" font-size="10.5" fill="#59524B">Bronhouder objectkenmerken</text>
+
+              <rect x="305" y="16" width="275" height="72" rx="10" fill="#FFFFFF" stroke="#E4DDD3" stroke-width="1.6" />
+              <text x="319" y="38" font-family="monospace" font-size="11" font-weight="700" fill="#821414">REGIONAAL BELASTINGKANTOOR (RBK)</text>
+              <text x="319" y="57" font-family="sans-serif" font-size="12" fill="#1E2022">WOZ-beschikkingen &amp; Model 3</text>
+              <text x="319" y="74" font-family="sans-serif" font-size="10.5" fill="#59524B">Art. 28 Wet WOZ / Bezwaar</text>
+
+              <rect x="625" y="16" width="279" height="72" rx="10" fill="#FBF5EA" stroke="#A67C37" stroke-width="1.5" stroke-dasharray="5 3" />
+              <text x="639" y="38" font-family="monospace" font-size="11" font-weight="700" fill="#8F5B1E">RVO &bull; EP-ONLINE (LOSGEKOPPELD)</text>
+              <text x="639" y="57" font-family="sans-serif" font-size="12" fill="#1E2022">Energielabel-register (BAG-ID)</text>
+              <text x="639" y="74" font-family="sans-serif" font-size="10.5" fill="#59524B">Geen automatische WOZ-correctie</text>
+
+              <!-- Rij 2 -->
+              <rect x="200" y="128" width="380" height="72" rx="10" fill="#F9EFEF" stroke="#A31C1C" stroke-width="2" />
+              <text x="215" y="151" font-family="monospace" font-size="11.5" font-weight="700" fill="#821414">KADASTER &bull; LV-WOZ (LANDELIJKE VOORZIENING)</text>
+              <text x="215" y="170" font-family="sans-serif" font-size="12" font-weight="600" fill="#1E2022">Centrale distributiehub &bull; Haal Centraal API / StUF-WOZ</text>
+              <text x="215" y="187" font-family="sans-serif" font-size="10.5" fill="#59524B">PKIoverheid &bull; OIN &bull; Toezicht Waarderingskamer</text>
+
+              <rect x="625" y="128" width="279" height="72" rx="10" fill="#FFFFFF" stroke="#E4DDD3" stroke-width="1.6" />
+              <text x="639" y="151" font-family="monospace" font-size="11" font-weight="700" fill="#1E2022">KADASTER &bull; BRK &amp; WKPB (HYP4)</text>
+              <text x="639" y="170" font-family="sans-serif" font-size="12" fill="#1E2022">Eigendom, hypotheek &amp; Wbb-code</text>
+              <text x="639" y="187" font-family="sans-serif" font-size="10.5" fill="#59524B">Publiekrechtelijke beperkingen</text>
+
+              <!-- Rij 3 -->
+              <rect x="16" y="242" width="320" height="72" rx="10" fill="#FFFFFF" stroke="#A31C1C" stroke-width="1.5" />
+              <text x="30" y="264" font-family="monospace" font-size="11" font-weight="700" fill="#A31C1C">BELASTINGDIENST (AFNEMER)</text>
+              <text x="30" y="283" font-family="sans-serif" font-size="12" fill="#1E2022">Erfbelasting (art. 21 lid 5 SW) &amp; IB</text>
+              <text x="30" y="300" font-family="sans-serif" font-size="10.5" fill="#59524B">Volgt LV-WOZ; negeert NWWI-taxatie</text>
+
+              <rect x="370" y="242" width="250" height="72" rx="10" fill="#EEF6F1" stroke="#C5DEC9" stroke-width="1.5" />
+              <text x="384" y="264" font-family="monospace" font-size="11" font-weight="700" fill="#245940">WATERSCHAPPEN (AFNEMER)</text>
+              <text x="384" y="283" font-family="sans-serif" font-size="12" fill="#1E2022">Watersysteemheffing gebouwd</text>
+              <text x="384" y="300" font-family="sans-serif" font-size="10.5" fill="#59524B">Afname rechtstreeks uit LV-WOZ</text>
+
+              <rect x="654" y="242" width="250" height="72" rx="10" fill="#FAF7F2" stroke="#E5C5C5" stroke-width="1.5" stroke-dasharray="4 3" />
+              <text x="668" y="264" font-family="monospace" font-size="10.5" font-weight="700" fill="#A31C1C">BUITEN LV-WOZ-KETEN</text>
+              <text x="668" y="283" font-family="sans-serif" font-size="11.5" fill="#1E2022">&bull; NWWI-taxatie Van Dijk (&euro; 280k)</text>
+              <text x="668" y="300" font-family="sans-serif" font-size="11.5" fill="#1E2022">&bull; Peppol (B2G/B2B e-facturatie)</text>
+
+              <!-- Pijlen -->
+              <line x1="256" y1="52" x2="301" y2="52" stroke="#A31C1C" stroke-width="1.8" marker-end="url(#arrRed)" />
+              <line x1="442" y1="88" x2="442" y2="124" stroke="#A31C1C" stroke-width="2" marker-end="url(#arrRed)" />
+              <line x1="625" y1="164" x2="584" y2="164" stroke="#59524B" stroke-width="1.5" marker-end="url(#arrGrey)" />
+              <path d="M 310 200 L 310 220 L 176 220 L 176 238" fill="none" stroke="#A31C1C" stroke-width="2" marker-end="url(#arrRed)" />
+              <path d="M 470 200 L 470 220 L 495 220 L 495 238" fill="none" stroke="#A31C1C" stroke-width="2" marker-end="url(#arrRed)" />
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SECTIE 05: INTERACTIEVE CHECKLIST BOEDEL- & PROCESONDERLEGGERS (12) -->
+      <!-- =================================================================== -->
+      <section id="sectie-05" class="section-block print-break">
+        <div class="section-header">
+          <div>
+            <span class="section-kicker">Sectie 05 &bull; Art. 674 Rv &amp; Art. 194 Rv (Peildatum = Sterfdatum)</span>
+            <h2 class="section-title">Interactieve Checklist Boedel- &amp; Procesonderleggers (12)</h2>
+            <p class="section-lead">
+              Vink aanwezige onderleggers af. De voortgang wordt automatisch lokaal opgeslagen in uw browser (<code>localStorage</code>).
+            </p>
+          </div>
+          <div class="no-print" style="display:flex; gap:0.45rem;">
+            <button type="button" class="btn btn-tint btn-sm" onclick="setAllChecklist(true)">Alles aanvinken</button>
+            <button type="button" class="btn btn-sm" onclick="setAllChecklist(false)">Reset</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1rem;">
+          <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.5rem;">
+            <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+              <strong>Volledigheid Dossier-Onderleggers</strong>
+              <span id="checklistBadge" class="badge badge-meekrap">Onvolledig</span>
+            </div>
+            <div class="mono" style="font-size:0.82rem; font-weight:700;">
+              <span id="checklistCount">0</span> / 12 onderleggers (<span id="checklistPercent">0%</span>)
+            </div>
+          </div>
+          <div class="progress-track">
+            <div id="checklistFill" class="progress-fill"></div>
+          </div>
+        </div>
+
+        <div id="checklistGrid" class="grid-2"></div>
+
+        <!-- Rood geblokkeerde uitsluitingskaart -->
+        <div class="blocked-card">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+            <span class="badge badge-solid-meekrap">UITSLUITING &bull; PERMANENT GEBLOKKEERD</span>
+          </div>
+          <strong>Facturen individuele partijadvocaten uitgesloten van de boedel:</strong>
+          Declaraties van <em>Advocatenkantoor Noordzee</em> en <em>Advocatenkantoor Rijnmond</em> — waaronder tuchtdossier <code>D10041</code> (klacht <code>T 2026/0012</code>) — zijn uitgesloten van afwenteling op de nalatenschap op grond van de bindende kostencompensatie in <strong>Punt 7 van het Proces-Verbaal</strong> (<code>TRX-002</code>) en de interne dossierscheiding (<code>TRX-007</code>).
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SECTIE 06: BEROEPS-, TUCHT- & PROCESRECHTELIJK KADER                -->
+      <!-- =================================================================== -->
+      <section id="sectie-06" class="section-block print-break">
+        <div class="section-header">
+          <div>
+            <span class="section-kicker">Sectie 06 &bull; Normenkader &amp; Procesgrenzen</span>
+            <h2 class="section-title">Beroeps-, Tucht- &amp; Procesrechtelijk Kader</h2>
+            <p class="section-lead">
+              Verhouding tussen de wettelijke kernwaarden van de advocatuur, de civiele waarheidsplicht, misbruik van procesrecht en de exacte grenzen van het verschoningsrecht.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:1.1rem;">
+          <article class="card card-top-meekrap">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <span class="badge badge-meekrap">Art. 10a Advocatenwet</span>
+              <span class="badge">Gedragsregels 2018</span>
+            </div>
+            <h3 style="font-size:1.1rem;">Kernwaarden &amp; Gedragsregel 1</h3>
+            <p style="font-size:0.82rem; color:var(--taupe); margin-top:0.45rem;">
+              De vijf kernwaarden (onafhankelijkheid, partijdigheid, deskundigheid, integriteit en vertrouwelijkheid) begrenzen elkaar. Partijdigheid rechtvaardigt nooit schending van de <strong>waarheidsplicht (art. 21 Rv)</strong>, zoals het selectief weglaten van Bijlage II bij een proces-verbaal (<code>TRX-003</code>).
+            </p>
+            <blockquote class="editorial-quote">
+              &ldquo;De advocaat dient zich zo te gedragen dat het vertrouwen in de advocatuur of in de eigen beroepsuitoefening niet wordt geschaad.&rdquo;
+              <div class="mono" style="font-style:normal; font-size:0.68rem; color:var(--meekrap); margin-top:0.3rem;">&mdash; Gedragsregel 1 (NOvA, 2018)</div>
+            </blockquote>
+          </article>
+
+          <article class="card card-top-brass">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <span class="badge badge-ochre">Art. 3:13 jo. 3:15 BW</span>
+              <span class="badge">Art. 21 &amp; 237 Rv</span>
+            </div>
+            <h3 style="font-size:1.1rem;">Misbruik van Procesrecht</h3>
+            <p style="font-size:0.82rem; color:var(--taupe); margin-top:0.45rem;">
+              Een procesbevoegdheid mag niet worden ingezet met geen ander doel dan de wederpartij te schaden of te vertragen. Bij evident ongegronde vorderingen op basis van feiten waarvan de onjuistheid bekend was, kan de rechter afwijken van het liquidatietarief (art. 237 Rv) en een <strong>re&euml;le proceskostenveroordeling</strong> of gevolgtrekking ex art. 21 Rv toepassen.
+            </p>
+          </article>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Domein (art. 218 Sv / art. 165 Rv)</th>
+                <th>Valt onder verschoningsrecht?</th>
+                <th>Betekenis voor deze Audit Trail</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Interne advocaat-cli&euml;ntcommunicatie</strong></td>
+                <td><span class="badge badge-green">Ja (beschermd)</span></td>
+                <td>Vertrouwelijke adviezen, processtrategie en interne notities blijven afgeschermd van wederpartij en overheid.</td>
+              </tr>
+              <tr>
+                <td><strong>Externe e-mails &amp; SMTP/DKIM-headers</strong></td>
+                <td><span class="badge badge-meekrap">Nee (niet beschermd)</span></td>
+                <td>Correspondentie tussen <em>Noordzee</em>, <em>RB-Collectief</em>, <em>Rijnmond</em>, boedelnotaris of rechtbank is rechtstreeks toetsbaar bewijs.</td>
+              </tr>
+              <tr>
+                <td><strong>Processtukken &amp; boedelonderleggers</strong></td>
+                <td><span class="badge badge-meekrap">Nee (niet beschermd)</span></td>
+                <td>Processen-verbaal, bankafschriften, kadastrale uittreksels en aangetekende verzendbewijzen vallen buiten het verschoningsrecht.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SECTIE 07: GEVERIFIEERDE INTERNET-ONDERLEGGERS (14 BRONNEN)         -->
+      <!-- =================================================================== -->
+      <section id="sectie-07" class="section-block print-break">
+        <div class="section-header">
+          <div>
+            <span class="section-kicker">Sectie 07 &bull; Echte Offici&euml;le Wetgeving &amp; Standaarden</span>
+            <h2 class="section-title">Geverifieerde Internet-Onderleggers (14 Offici&euml;le Bronnen)</h2>
+            <p class="section-lead">
+              Alle directe, klikbare overheids-, wets-, NORA-, NWWI- en IETF-bronnen die het juridisch-technische fundament onder deze fictieve casus onderbouwen.
+            </p>
+          </div>
+          <span class="badge no-print">Getoond: <strong id="srcVisibleCount">14</strong> / 14</span>
+        </div>
+
+        <div class="toolbar no-print">
+          <input type="text" id="srcSearch" class="search-input" placeholder="Zoek op Rv, Wet WOZ, Successiewet, Kadaster, NORA, OIDC, DKIM..." />
+          <div class="filter-row" role="group" aria-label="Filter bronnen">
+            <button type="button" class="filter-pill active" data-src-filter="all" onclick="setSrcFilter('all')">Alle (14)</button>
+            <button type="button" class="filter-pill" data-src-filter="Wetgeving" onclick="setSrcFilter('Wetgeving')">Wetgeving (4)</button>
+            <button type="button" class="filter-pill" data-src-filter="WOZ & NORA" onclick="setSrcFilter('WOZ & NORA')">WOZ &amp; NORA (6)</button>
+            <button type="button" class="filter-pill" data-src-filter="Techniek & OIDC" onclick="setSrcFilter('Techniek & OIDC')">Techniek &amp; OIDC (2)</button>
+            <button type="button" class="filter-pill" data-src-filter="Beroepsrecht & Taxatie" onclick="setSrcFilter('Beroepsrecht & Taxatie')">Beroepsrecht &amp; Taxatie (2)</button>
+          </div>
+        </div>
+
+        <div id="sourcesGrid" class="grid-2"></div>
+        <div id="srcEmpty" style="display:none; padding:2rem; text-align:center; color:var(--taupe);">
+          Geen bronnen gevonden. <button type="button" class="btn btn-sm btn-tint" onclick="resetSrcFilters()">Filters herstellen</button>
+        </div>
+
+        <footer class="dossier-footer" style="margin-top:2rem;">
+          <span><strong style="color:var(--ink);">Fictief Dossier: Audit Trail, OIDC 1.0, WOZ-Keten &amp; Offici&euml;le Onderleggers</strong> &mdash; Zeeuwse Meekrap Editie</span>
+          <span class="mono">100% Fictieve Casus &bull; Zero-CDN &bull; Print/PDF-gereed</span>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL: OIDC / JSON CLAIM-INSPECTOR                                      -->
+  <!-- ======================================================================= -->
+  <div id="trxModal" class="modal-backdrop no-print" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <div style="display:flex; align-items:center; gap:0.6rem; min-width:0;">
+          <span id="modalRef" class="badge" style="background:rgba(255,255,255,0.18); border-color:rgba(255,255,255,0.35); color:#FFFFFF;">TRX-001</span>
+          <h3 id="modalTitle" style="color:#FFFFFF; font-size:1.05rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Transactie-inspectie</h3>
+        </div>
+        <button type="button" class="btn btn-sm" onclick="closeTrxModal()" aria-label="Sluiten">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid-2" style="gap:0.65rem;">
+          <div class="card-white" style="padding:0.75rem;">
+            <div class="kpi-label">Tijdstempel (UTC)</div>
+            <div id="modalUtc" class="mono" style="font-weight:700; margin-top:0.2rem;"></div>
+          </div>
+          <div class="card-white" style="padding:0.75rem;">
+            <div class="kpi-label">Actor / Route</div>
+            <div id="modalActor" style="font-weight:700; margin-top:0.2rem;"></div>
+          </div>
+        </div>
+        <div class="card-white" style="padding:0.8rem;">
+          <div class="kpi-label" style="margin-bottom:0.3rem;">Bewijsrechtelijke Betekenis</div>
+          <div id="modalLegal"></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+            <span class="kpi-label">OIDC JWT Claims &amp; Technische Metadata (JSON)</span>
+            <button type="button" class="btn btn-tint btn-sm" onclick="copyTextToClipboard(currentModalJson, 'OIDC/JSON gekopieerd naar klembord')">Kopieer JSON</button>
+          </div>
+          <pre id="modalJsonPre" class="modal-json"></pre>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-primary" onclick="closeTrxModal()">Sluiten</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast-melding (vervangt alert()) -->
+  <div id="toast" class="toast no-print" role="status" aria-live="polite">
+    <span class="dot-meekrap"></span>
+    <span id="toastMsg">Actie voltooid</span>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- ZELFSTANDIGE JAVASCRIPT (GEEN EXTERNE LIBRARIES)                        -->
+  <!-- ======================================================================= -->
+  <script>
+    const CHECKLIST_STORAGE_KEY = 'fictief_dossier_vermeulen_checklist_v1';
+
+    function esc(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /* -----------------------------------------------------------------------
+       DATA: 8 FICTIEVE AUDIT TRAIL TRANSACTIES (TRX-001 t/m TRX-008)
+       ----------------------------------------------------------------------- */
+    const trxData = [
+      {
+        id: 'TRX-001',
+        utc: '2025-07-09 13:50 UTC',
+        event: 'Uitgaande e-mail / Bekentenis geldopname',
+        actor: 'Advocatenkantoor Noordzee (mr. L. Hendriks) -> RB-Collectief',
+        cats: ['oidc'],
+        badge: 'badge-ochre',
+        oidc: 'sub: usr_hendriks_noordzee\nscope: mail:send dossier:edit',
+        proof: [
+          'Message-Id: <lt-61796426@out.legaltrack.example>',
+          'DKIM: s=lt2026; d=noordzee-advocaten.example; bh=eF7a9c...=',
+          'LegalTrack Item-ID: [D10014_I61796426]'
+        ],
+        legalTitle: 'Schriftelijke erkenning overboeking € 20.000,-',
+        legalText: 'Erkenning van opname vlak voor overlijden Dhr. H.J. Vermeulen. Dwingt tot overlegging historische bankafschriften (art. 674 Rv).',
+        json: {
+          trx_ref: 'TRX-001',
+          utc: '2025-07-09T13:50:00Z',
+          oidc_claims: { iss: 'https://idp.legaltrack.example', sub: 'usr_hendriks_noordzee', client_id: 'legaltrack-mail-relay', scope: ['mail:send', 'dossier:edit'] },
+          evidence: { item_id: 'D10014_I61796426', dkim: 's=lt2026; d=noordzee-advocaten.example', body_hash_sha256: 'bh=eF7a9c...=', relay: 'out.legaltrack.example' },
+          legal_effect: 'Erkenning overboeking € 20.000,- vlak voor overlijden (art. 674 Rv)'
+        }
+      },
+      {
+        id: 'TRX-002',
+        utc: '2026-01-08 11:30 UTC',
+        event: 'Proces-verbaal Kantonrechter West-Nederland',
+        actor: 'Rechtbank West-Nederland (zaak F-11043000) -> Partijen',
+        cats: ['fysiek'],
+        badge: '',
+        oidc: 'Gerechtelijke griffie-autorisatie',
+        proof: [
+          'Proces-verbaal mondelinge behandeling (F-11043000)',
+          'Griffiestempel & handtekening kantonrechter',
+          'Punt 7: Bindende proceskostencompensatie'
+        ],
+        legalTitle: 'Gezag van gewijsde (Punt 7 kostencompensatie)',
+        legalText: 'Bindende afspraak dat partijen ieder eigen advocaatkosten dragen; sluit afwenteling op de nalatenschap uit.',
+        json: {
+          trx_ref: 'TRX-002',
+          utc: '2026-01-08T11:30:00Z',
+          authorization: { type: 'judicial_registry', court: 'Rechtbank West-Nederland', case_id: 'F-11043000' },
+          evidence: { document: 'Proces-verbaal Kantonrechter', clause: 'Punt 7 (Kostencompensatie)' },
+          legal_effect: 'Bindende kostencompensatie; uitsluiting partijadvocaatkosten uit boedel'
+        }
+      },
+      {
+        id: 'TRX-003',
+        utc: '2026-01-16 09:15 UTC',
+        event: 'Selectieve toezending zittingsafspraken',
+        actor: 'Advocatenkantoor Noordzee -> RB-Collectief',
+        cats: ['oidc', 'risico'],
+        badge: 'badge-meekrap',
+        oidc: 'sub: usr_hendriks_noordzee\nscope: mail:send',
+        proof: [
+          'MIME-payload zonder attachment-boundary voor Bijlage II',
+          'DKIM bh= dekt uitsluitend platte tekst',
+          'LegalTrack Item-ID: [D10014_I66815733]'
+        ],
+        legalTitle: 'Schending waarheidsplicht (art. 21 Rv)',
+        legalText: 'Aantoonbaar weglaten van Bijlage II (kostencompensatie Punt 7) bij doorzending van de zittingsafspraken.',
+        json: {
+          trx_ref: 'TRX-003',
+          utc: '2026-01-16T09:15:00Z',
+          oidc_claims: { iss: 'https://idp.legaltrack.example', sub: 'usr_hendriks_noordzee', scope: ['mail:send'] },
+          evidence: { item_id: 'D10014_I66815733', mime_boundary_bijlage_ii: false, dkim_scope: 'text/plain only' },
+          risk: 'Schending art. 21 Rv — selectieve toezending zonder Bijlage II'
+        }
+      },
+      {
+        id: 'TRX-004',
+        utc: '2026-03-16 14:00 UTC',
+        event: 'Fysiek overleg bij Notariskantoor De Brug',
+        actor: 'Mw. Vermeer & Mw. De Vries -> Notaris Van Vliet (De Brug)',
+        cats: ['fysiek'],
+        badge: 'badge-green',
+        oidc: 'Persoonlijke verschijning / Notarieel protocol',
+        proof: [
+          'Presentielijst Notariskantoor De Brug',
+          'Getekende intake-notities vereffening boedel'
+        ],
+        legalTitle: "Tegenbewijs 'onwilligheid' Mw. Vermeer",
+        legalText: 'Weerlegt feitelijk de stelling dat Partij A (Mw. Vermeer) medewerking aan notariële afwikkeling zou weigeren.',
+        json: {
+          trx_ref: 'TRX-004',
+          utc: '2026-03-16T14:00:00Z',
+          authorization: { type: 'notarial_protocol', notary: 'Notariskantoor De Brug / Notaris Van Vliet' },
+          evidence: { attendance_sheet: true, signed_intake_notes: true },
+          legal_effect: 'Weerlegt verwijt non-coöperatie Partij A'
+        }
+      },
+      {
+        id: 'TRX-005',
+        utc: '2026-03-17 15:18 UTC',
+        event: 'Statuswijziging dossier op inactief',
+        actor: 'Advocatenkantoor Noordzee -> RB-Collectief',
+        cats: ['oidc', 'risico'],
+        badge: 'badge-meekrap',
+        oidc: 'sub: usr_hendriks_noordzee\nscope: dossier:status',
+        proof: [
+          'X-Originating-Host: app-live-pod-alpha',
+          'LegalTrack Item-ID: [D10014_I68580034]',
+          'Tijdregistratie: 0,20 uur'
+        ],
+        legalTitle: 'Administratieve stilzetting tijdens lopende boedel',
+        legalText: 'Bevestigt dat het dossier administratief op inactief werd gezet daags na het notariële overleg bij De Brug.',
+        json: {
+          trx_ref: 'TRX-005',
+          utc: '2026-03-17T15:18:00Z',
+          oidc_claims: { iss: 'https://idp.legaltrack.example', sub: 'usr_hendriks_noordzee', scope: ['dossier:status'] },
+          evidence: { item_id: 'D10014_I68580034', pod: 'app-live-pod-alpha', billing_hours: 0.20 },
+          risk: 'De-escalatieschijn terwijl bodem- en herstelposten onbenoemd bleven'
+        }
+      },
+      {
+        id: 'TRX-006',
+        utc: '2026-04-15 10:22 UTC',
+        event: 'Aangetekende deponering stukken Partij A',
+        actor: 'Mw. Vermeer (Partij A) -> Boedelnotaris De Brug',
+        cats: ['fysiek'],
+        badge: 'badge-green',
+        oidc: 'Aangetekend postdepot / eIDAS ontvangst',
+        proof: [
+          'Aangetekend verzendbewijs',
+          'Ontvangsthandtekening Notariskantoor De Brug',
+          'Notariële bevestigingsmail d.d. 4 mei 2026'
+        ],
+        legalTitle: 'Naleving duurzame drager (art. 156a Rv)',
+        legalText: 'Toont onweerlegbaar aan dat Mw. Vermeer de gevraagde stukken tijdig en verifieerbaar heeft gedeponeerd.',
+        json: {
+          trx_ref: 'TRX-006',
+          utc: '2026-04-15T10:22:00Z',
+          authorization: { type: 'registered_mail_eidas', sender: 'Mw. Vermeer', recipient: 'Notariskantoor De Brug' },
+          evidence: { signed_receipt: true, confirmation_mail: '2026-05-04' },
+          legal_effect: 'Voldoet aan schriftelijkheids- en integriteitsvereiste art. 156a Rv'
+        }
+      },
+      {
+        id: 'TRX-007',
+        utc: '2026-05-28 16:45 UTC',
+        event: 'Afzonderlijk tuchtdossier D10041 aangemaakt',
+        actor: 'Advocatenkantoor Noordzee -> Deken Arrondissement West',
+        cats: ['oidc'],
+        badge: '',
+        oidc: 'sub: usr_hendriks_noordzee\nscope: conf:admin',
+        proof: [
+          'Afwijkend dossiernummer: D10041 (i.p.v. D10014)',
+          'LegalTrack Item-ID: [D10041_I70464905]',
+          'Kenmerk tuchtklacht: T 2026/0012'
+        ],
+        legalTitle: 'Boedelkostenscheiding bewezen',
+        legalText: 'Bewijst dat verweer in tuchtklacht T 2026/0012 in een geïsoleerd CRM-dossier is geadministreerd en buiten de boedel valt.',
+        json: {
+          trx_ref: 'TRX-007',
+          utc: '2026-05-28T16:45:00Z',
+          oidc_claims: { iss: 'https://idp.legaltrack.example', sub: 'usr_hendriks_noordzee', scope: ['conf:admin'] },
+          evidence: { item_id: 'D10041_I70464905', isolated_dossier: 'D10041', complaint_ref: 'T 2026/0012' },
+          legal_effect: 'Strikte scheiding tuchtkosten vs. boedelkosten'
+        }
+      },
+      {
+        id: 'TRX-008',
+        utc: '2026-11-24 14:34 UTC',
+        event: 'Lokale archiefafdruk 7 minuten voor repliek',
+        actor: 'Gebruiker Advocatenkantoor Noordzee',
+        cats: ['oidc', 'risico'],
+        badge: 'badge-meekrap',
+        oidc: 'sub: usr_hendriks_noordzee\nscope: archive:print',
+        proof: [
+          'Servlet-URL: /servlets/objects/archive/print',
+          'Voettekst tijdstempel: 2026-11-24 14:34 UTC & usertag'
+        ],
+        legalTitle: 'Objectieve tijdslijn archiefliching',
+        legalText: 'Bewijst via servlet-printvoettekst dat oudere correspondentie pas 7 minuten vóór de repliek aan Advocatenkantoor Rijnmond werd gelicht.',
+        json: {
+          trx_ref: 'TRX-008',
+          utc: '2026-11-24T14:34:00Z',
+          oidc_claims: { iss: 'https://idp.legaltrack.example', sub: 'usr_hendriks_noordzee', scope: ['archive:print'] },
+          evidence: { servlet_path: '/servlets/objects/archive/print', footer_utc: '2026-11-24T14:34:00Z' },
+          risk: 'Late archiefliching 7 minuten vóór repliek'
+        }
+      }
+    ];
+
+    /* -----------------------------------------------------------------------
+       DATA: 18 CHRONOLOGISCHE LEGALTRACK CRM-ITEMS
+       ----------------------------------------------------------------------- */
+    const crmItems = [
+      { datum: '2025-03-18', dossier: 'D10014', item: 'D10014 (stam)', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Kadaster-opvraag eigenaarsinformatie Dijkweg 3, Gemeente Dijkland (Object B).' },
+      { datum: '2025-04-08 (doorlopend)', dossier: 'D10014', item: '[D10014_I59276931]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Doorlopende communicatielijn (stamdraad) met RB-Collectief over boedelopzet en sommaties.' },
+      { datum: '2025-04-08 17:38', dossier: 'D10014', item: '[D10014_I59347726]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Aanbieden boedelopzet (mr. L. Hendriks aan RB-Collectief) met Excel-overzicht; afwijzing boedelnotaris.' },
+      { datum: '2025-06-17 16:58', dossier: 'D10014', item: '[D10014_I61163860]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Doorzending afschrift verzoekschrift art. 4:198 BW aan Rechtbank West-Nederland (zaak F-11043000).' },
+      { datum: '2025-07-09 13:50 UTC', dossier: 'D10014', item: '[D10014_I61796426]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Erkenning overboeking € 20.000,- vlak voor overlijden Dhr. H.J. Vermeulen; toezending concept-IB 2024.' },
+      { datum: '2025-08-13 10:53', dossier: 'D10014', item: '[D10014_I62625345]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Verhinderdata zitting verzonden aan griffie Rechtbank West-Nederland (zaak F-11043000).' },
+      { datum: '2025-12-24 14:03', dossier: 'D10014', item: '[D10014_I66320365]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Aanvullende producties (mr. S. Kuipers aan RB-Collectief): brief rechtbank, foto’s Dijkweg 3 en uitgavenlijst.' },
+      { datum: '2026-01-14', dossier: 'D10014', item: '[D10014_I66756242]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Eenzijdige notariskeuze: aanschrijven Notariskantoor De Haven buiten Mw. Vermeer om.' },
+      { datum: '2026-01-14', dossier: 'D10014', item: '[D10014_I66756262]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Eenzijdige taxatieopdracht aan Taxatiekantoor Van Dijk voor Dijkweg 3 (€ 280.000,-, schone-grondfictie).' },
+      { datum: '2026-01-16 09:15 UTC', dossier: 'D10014', item: '[D10014_I66815733]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Doorzending zittingsafspraken aan RB-Collectief zonder Bijlage II (kostencompensatie Punt 7).' },
+      { datum: '2026-03-17 15:18 UTC', dossier: 'D10014', item: '[D10014_I68580034]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Melding aan RB-Collectief via app-live-pod-alpha dat hoofddossier D10014 op inactief is gezet.' },
+      { datum: '2026-05-28 16:45 UTC', dossier: 'D10041', item: '[D10041_I70464905]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Tuchtdossier', omschrijving: 'Formeel verweerschrift aan Deken Arrondissement West (klacht T 2026/0012) in apart dossier D10041.' },
+      { datum: '2026-06-17 15:54', dossier: 'D10014', item: '[D10014_I70936870]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Mededeling dat Notaris Van Vliet (Notariskantoor De Brug) opdracht neerlegt; afwijzing nieuwe boedelnotaris.' },
+      { datum: '2026-11-20', dossier: 'D90014200', item: '[D90014200_I75378887]', kantoor: 'Advocatenkantoor Rijnmond', cat: 'Dossier Gedaagde', omschrijving: 'Intake Mw. Vermeer, aanmaak zaak D90014200 en opdrachtbevestiging (mr. drs. J. Bakker).' },
+      { datum: '2026-11-20 13:30 UTC', dossier: 'D90014200', item: '[D90014200_I75381207]', kantoor: 'Advocatenkantoor Rijnmond', cat: 'Dossier Gedaagde', omschrijving: 'Verzending B2-formulier via app-live-pod-beta en out.legaltrack.example (DKIM s=lt2026).' },
+      { datum: '2026-11-23', dossier: 'D90014200', item: '[D90014200_I75410541]', kantoor: 'Advocatenkantoor Rijnmond', cat: 'Dossier Gedaagde', omschrijving: 'Uitgaande procescorrespondentie mr. drs. J. Bakker aan Advocatenkantoor Noordzee.' },
+      { datum: '2026-11-24', dossier: 'D90014200', item: '[D90014200_I75411026]', kantoor: 'Advocatenkantoor Rijnmond', cat: 'Dossier Gedaagde', omschrijving: 'Formele procesopstelling inzake stellen op de rol en vordering conforme boedelbeschrijving (art. 674 Rv).' },
+      { datum: '2026-11-25 (eind nov)', dossier: 'D10014', item: '[D10014_I75472378]', kantoor: 'Advocatenkantoor Noordzee', cat: 'Hoofddossier', omschrijving: 'Repliek en procesopstelling in reactie op mr. drs. J. Bakker (7 minuten na archiefafdruk TRX-008).' }
+    ];
+
+    /* -----------------------------------------------------------------------
+       DATA: 12 BOEDEL- & PROCESONDERLEGGERS (CHECKLIST SECTIE 05)
+       ----------------------------------------------------------------------- */
+    const checklistGroups = [
+      {
+        title: '1. Onroerende Zaken (Dijkweg 3, Object B)',
+        items: [
+          { id: 'O1', code: '[1.1]', text: 'Kadastraal uittreksel Hyp4 inclusief publiekrechtelijke beperkingen (Wbb-code)' },
+          { id: 'O2', code: '[1.2]', text: 'Onafhankelijk taxatierapport zónder schone-grondfictie (ter weerlegging Van Dijk € 280.000,-)' },
+          { id: 'O3', code: '[1.3]', text: 'Bouwkundig inspectierapport Bouwkundig Bureau Sterk (€ 82.500,- herstelkosten)' }
+        ]
+      },
+      {
+        title: '2. WOZ & Fiscaal (RBK / Belastingdienst)',
+        items: [
+          { id: 'O4', code: '[2.1]', text: 'WOZ-beschikkingen 2024 & 2025 bij RBK (via art. 28 Wet WOZ; opheldering kloof € 241k vs € 246k)' },
+          { id: 'O5', code: '[2.2]', text: 'Gemeentelijke WOZ-taxatieverslagen (model 3) voor 2024 en 2025' },
+          { id: 'O6', code: '[2.3]', text: 'Aangifte erfbelasting Mw. De Vries & (concept-)aanslag erfbelasting' }
+        ]
+      },
+      {
+        title: '3. Liquide Middelen & Bankrekeningen',
+        items: [
+          { id: 'O7', code: '[3.1]', text: 'Officiële saldoverklaringen van alle banken per sterfdatum (okt 2024, 00:00 uur)' },
+          { id: 'O8', code: '[3.2]', text: 'Bankafschriften 12–36 maanden vóór overlijden (verantwoording € 20.000,- opname uit TRX-001)' },
+          { id: 'O9', code: '[3.3]', text: 'Specificatie van rente en lopende saldo-opbrengsten na overlijden' }
+        ]
+      },
+      {
+        title: '4. Roerende Zaken, Passiva & Digitale Sporen',
+        items: [
+          { id: 'O10', code: '[4.1]', text: 'Fysieke inboedelinventarisatie + lijst affectieve familiegoederen' },
+          { id: 'O11', code: '[4.2]', text: 'Facturen uitvaart/grafrechten + definitieve aanslag IB / F-biljet erflater' },
+          { id: 'O12', code: '[4.3]', text: 'Digitale inzage-sessielog (IPv6 2001:db8:45a:27d8::/48, RFC 3849 documentatieblok)' }
+        ]
+      }
+    ];
+
+    /* -----------------------------------------------------------------------
+       DATA: 14 GEVERIFIEERDE INTERNET-ONDERLEGGERS (SECTIE 07)
+       ----------------------------------------------------------------------- */
+    const internetSources = [
+      { id: 'SRC-01', cat: 'Wetgeving', pub: 'Wetten.overheid.nl', title: 'Wetboek van Burgerlijke Rechtsvordering (art. 21, 156a, 165, 194, 237, 674 Rv)', url: 'https://wetten.overheid.nl/BWBR0001827', desc: 'Formele procesrechtelijke grondslag voor waarheidsplicht, onderhandse akten, verschoningsrecht, bewijsvordering, proceskosten en boedelbeschrijving.' },
+      { id: 'SRC-02', cat: 'Wetgeving', pub: 'WetboekPlus', title: 'Artikel 156a Rv (Onderhandse akten / duurzame drager)', url: 'https://wetboekplus.nl/burgerlijke-rechtsvordering-boek-eerste-artikel-156aonderhandse-akten/', desc: 'Wettelijke eisen waaraan elektronische onderhandse akten en duurzame dragers moeten voldoen voor bewijskracht.' },
+      { id: 'SRC-03', cat: 'Wetgeving', pub: 'Wetten.overheid.nl', title: 'Wet waardering onroerende zaken (Wet WOZ, art. 17, 28, 40)', url: 'https://wetten.overheid.nl/BWBR0007119/', desc: 'Wettelijke waarderingsmaatstaf (art. 17), medebelanghebbendebeschikking (art. 28) en recht op het WOZ-taxatieverslag (art. 40).' },
+      { id: 'SRC-04', cat: 'Wetgeving', pub: 'Wetten.overheid.nl', title: 'Successiewet 1956 (art. 21 lid 5: keuzevrijheid WOZ-waarde)', url: 'https://wetten.overheid.nl/BWBR0002226', desc: 'Fiscale lex specialis: bij een geërfde woning mag gekozen worden voor de WOZ-waarde van het jaar van overlijden of het jaar erna.' },
+      { id: 'SRC-05', cat: 'WOZ & NORA', pub: 'Waarderingskamer', title: 'Medebelanghebbendebeschikking (art. 28 Wet WOZ, incl. HR ECLI:NL:HR:2014:835)', url: 'https://www.waarderingskamer.nl/voor-gemeenten/hulpmiddelen/vraagbaak-waardevastelling-wet-woz/hoofdstuk-4-beschikkingen-op-verzoek', desc: 'Toelichting op beschikkingen op verzoek voor erfgenamen die alsnog een eigen bezwaartermijn van 6 weken openen.' },
+      { id: 'SRC-06', cat: 'WOZ & NORA', pub: 'Kadaster', title: 'Landelijke Voorziening WOZ (LV-WOZ)', url: 'https://www.kadaster.nl/zakelijk/registraties/landelijke-voorzieningen/woz', desc: 'Overzicht van de centrale landelijke voorziening waar gemeentelijke WOZ-waarden worden geregistreerd en verspreid.' },
+      { id: 'SRC-07', cat: 'WOZ & NORA', pub: 'Kadaster', title: 'WOZ API Bevragen (Haal Centraal, OIN & PKIoverheid)', url: 'https://www.kadaster.nl/zakelijk/producten/adressen-en-gebouwen/woz-api-bevragen', desc: 'Technische documentatie van de moderne RESTful API waarmee afnemers rechtstreeks de LV-WOZ bevragen onder OIN en PKIoverheid.' },
+      { id: 'SRC-08', cat: 'WOZ & NORA', pub: 'NORA Online (ICTU / BZK)', title: 'WOZ Waardeloket & Overheidsarchitectuur', url: 'https://www.noraonline.nl/wiki/WOZ_Waardeloket', desc: 'Positionering van de WOZ-keten binnen de Nederlandse Overheid Referentie Architectuur (eenmalige vastlegging, meervoudig gebruik).' },
+      { id: 'SRC-09', cat: 'WOZ & NORA', pub: 'Kadaster / Waarderingskamer', title: 'WOZ-waardeloket (Openbaar Register)', url: 'https://www.wozwaardeloket.nl/', desc: 'Openbare raadpleegomgeving voor vastgestelde WOZ-waarden van woningen per waardepeildatum.' },
+      { id: 'SRC-10', cat: 'Beroepsrecht & Taxatie', pub: 'NWWI', title: 'NWWI & RVO EP-Online — Taxatierapport woonruimte & Energielabel', url: 'https://site.nwwi.nl/het-nwwi-faciliteert-de-taxateur-het-energielabel/', desc: 'Kwaliteitskader voor NWWI-gevalideerde taxaties, inclusief controle van het energielabel via RVO EP-Online en objectonderzoek.' },
+      { id: 'SRC-11', cat: 'Beroepsrecht & Taxatie', pub: 'Nederlandse Orde van Advocaten (NOvA)', title: 'Gedragsregels 2018 (Regel 1 & art. 10a/46 Advocatenwet)', url: 'https://www.advocatenorde.nl/voor-advocaten/wet-en-regelgeving/gedragsregels/gedragsregels-advocatuur/de-maatschappelijke-rol', desc: 'Beroeps- en tuchtrechtelijke normering van integriteit, partijdigheid, vertrouwelijkheid en het vertrouwen in de advocatuur.' },
+      { id: 'SRC-12', cat: 'Techniek & OIDC', pub: 'OpenID Foundation', title: 'OpenID Connect Core 1.0 (Errata Set 2)', url: 'https://openid.net/specs/openid-connect-core-1_0.html', desc: 'Officiële specificatie van OIDC-identiteitsclaims (iss, sub, client_id, scope) voor niet-weerlegbare authenticatie.' },
+      { id: 'SRC-13', cat: 'Techniek & OIDC', pub: 'IETF', title: 'RFC 6376 — DomainKeys Identified Mail (DKIM) Signatures', url: 'https://www.rfc-editor.org/info/rfc6376/', desc: 'Cryptografische standaard voor e-mailondertekening en body-hashes (bh=) waarmee integriteit en herkomst worden bewezen.' },
+      { id: 'SRC-14', cat: 'WOZ & NORA', pub: 'Geonovum / KBI', title: 'Modernisering gegevensaanlevering LV-WOZ (2026)', url: 'https://docs.geostandaarden.nl/kbi/cv-hr-woz-advies-20260902/', desc: 'Actueel implementatieadvies voor de doorontwikkeling van StUF-WOZ naar moderne API-gebaseerde LV-WOZ-gegevensuitwisseling.' }
+    ];
+
+    /* -----------------------------------------------------------------------
+       STATE & HELPER FUNCTIES
+       ----------------------------------------------------------------------- */
+    let activeTrxFilter = 'all';
+    let activeCrmFilter = 'all';
+    let activeSrcFilter = 'all';
+    let currentModalJson = '';
+    let checklistState = {};
+    let toastTimer = null;
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      el.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+    }
+
+    function copyTextToClipboard(text, successMsg) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast(successMsg || 'Gekopieerd naar klembord');
+      } catch (e) {
+        showToast('Kopiëren naar klembord niet gelukt');
+      }
+    }
+
+    function setFontSize(sizeKey) {
+      document.documentElement.setAttribute('data-font-size', sizeKey);
+      const map = { sm: '16px (A-)', md: '19px (A+)', lg: '22px (A++)' };
+      const lbl = document.getElementById('fontSizeLabel');
+      if (lbl) lbl.textContent = map[sizeKey] || '19px (A+)';
+      document.querySelectorAll('.size-btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.getAttribute('data-size') === sizeKey);
+      });
+    }
+
+    /* -----------------------------------------------------------------------
+       SECTIE 02: AUDIT TRAIL RENDERING & MODAL
+       ----------------------------------------------------------------------- */
+    function renderTrxTable() {
+      const tbody = document.getElementById('trxTableBody');
+      const empty = document.getElementById('trxEmpty');
+      const q = (document.getElementById('trxSearch').value || '').toLowerCase().trim();
+
+      const rows = trxData.filter((t) => {
+        const catOk = activeTrxFilter === 'all' || t.cats.includes(activeTrxFilter);
+        const hay = `${t.id} ${t.utc} ${t.event} ${t.actor} ${t.oidc} ${t.proof.join(' ')} ${t.legalTitle} ${t.legalText}`.toLowerCase();
+        return catOk && (!q || hay.includes(q));
+      });
+
+      document.getElementById('trxVisibleCount').textContent = rows.length;
+      if (!rows.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      tbody.innerHTML = rows.map((t) => `
+        <tr>
+          <td style="white-space:nowrap;">
+            <span class="badge ${t.badge}">${esc(t.id)}</span>
+            <div class="mono" style="font-size:0.65rem; color:var(--taupe); margin-top:0.3rem;">${esc(t.utc)}</div>
+          </td>
+          <td>
+            <strong>${esc(t.event)}</strong>
+            <div style="font-size:0.72rem; color:var(--taupe); margin-top:0.2rem;">${esc(t.actor)}</div>
+          </td>
+          <td><pre class="code-box">${esc(t.oidc)}</pre></td>
+          <td>
+            <ul style="margin:0; padding-left:1rem; font-family:var(--font-mono); font-size:0.66rem; color:var(--taupe);">
+              ${t.proof.map((p) => `<li>${esc(p)}</li>`).join('')}
+            </ul>
+          </td>
+          <td>
+            <strong style="color:${t.cats.includes('risico') ? 'var(--meekrap)' : 'var(--ink)'};">${esc(t.legalTitle)}</strong>
+            <div style="font-size:0.73rem; color:var(--taupe); margin-top:0.2rem;">${esc(t.legalText)}</div>
+          </td>
+          <td class="no-print" style="text-align:right; white-space:nowrap;">
+            <button type="button" class="btn btn-tint btn-sm" onclick="openTrxModal('${t.id}')">OIDC / JSON</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function setTrxFilter(val) {
+      activeTrxFilter = val;
+      document.querySelectorAll('[data-trx-filter]').forEach((b) => {
+        b.classList.toggle('active', b.getAttribute('data-trx-filter') === val);
+      });
+      renderTrxTable();
+    }
+
+    function resetTrxFilters() {
+      document.getElementById('trxSearch').value = '';
+      setTrxFilter('all');
+    }
+
+    function openTrxModal(id) {
+      const t = trxData.find((x) => x.id === id);
+      if (!t) return;
+      document.getElementById('modalRef').textContent = t.id;
+      document.getElementById('modalTitle').textContent = t.event;
+      document.getElementById('modalUtc').textContent = t.utc;
+      document.getElementById('modalActor').textContent = t.actor;
+      document.getElementById('modalLegal').textContent = `${t.legalTitle} — ${t.legalText}`;
+      currentModalJson = JSON.stringify(t.json, null, 2);
+      document.getElementById('modalJsonPre').textContent = currentModalJson;
+      document.getElementById('trxModal').classList.add('open');
+    }
+
+    function closeTrxModal() {
+      document.getElementById('trxModal').classList.remove('open');
+    }
+
+    /* -----------------------------------------------------------------------
+       SECTIE 03: LEGALTRACK CRM TABEL, UTF-8 CSV EXPORT & SHA-256 HASH
+       ----------------------------------------------------------------------- */
+    function getFilteredCrm() {
+      const q = (document.getElementById('crmSearch').value || '').toLowerCase().trim();
+      return crmItems.filter((r) => {
+        const dosOk = activeCrmFilter === 'all' || r.dossier === activeCrmFilter;
+        const hay = `${r.datum} ${r.dossier} ${r.item} ${r.kantoor} ${r.cat} ${r.omschrijving}`.toLowerCase();
+        return dosOk && (!q || hay.includes(q));
+      });
+    }
+
+    function buildCsvString(rows) {
+      const header = ['Datum_Tijd', 'Dossier_ID', 'Item_ID', 'Kantoor_Actor', 'Categorie', 'Omschrijving'];
+      const escCsv = (v) => {
+        const s = String(v ?? '');
+        return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      return '\uFEFF' + [
+        header.join(','),
+        ...rows.map((r) => [r.datum, r.dossier, r.item, r.kantoor, r.cat, r.omschrijving].map(escCsv).join(','))
+      ].join('\r\n');
+    }
+
+    async function computeCsvSha256(rows) {
+      const hashEl = document.getElementById('csvSha256Hash');
+      const countEl = document.getElementById('hashRowCount');
+      countEl.textContent = rows.length;
+      try {
+        if (!window.crypto || !window.crypto.subtle) {
+          hashEl.textContent = 'Web Crypto API niet beschikbaar in deze context';
+          return;
+        }
+        const csvText = buildCsvString(rows);
+        const bytes = new TextEncoder().encode(csvText);
+        const digest = await window.crypto.subtle.digest('SHA-256', bytes);
+        const hex = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
+        hashEl.textContent = hex;
+      } catch (e) {
+        hashEl.textContent = 'SHA-256 berekening niet beschikbaar';
+      }
+    }
+
+    function renderCrmTable() {
+      const tbody = document.getElementById('crmTableBody');
+      const empty = document.getElementById('crmEmpty');
+      const rows = getFilteredCrm();
+
+      computeCsvSha256(rows);
+
+      if (!rows.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      tbody.innerHTML = rows.map((r, i) => {
+        const bClass = r.dossier === 'D10041' ? 'badge-meekrap' : r.dossier === 'D90014200' ? 'badge-green' : '';
+        return `
+          <tr>
+            <td class="mono" style="color:var(--taupe);">${i + 1}</td>
+            <td class="mono" style="white-space:nowrap;">${esc(r.datum)}</td>
+            <td class="mono" style="font-weight:700; color:var(--meekrap); white-space:nowrap;">${esc(r.dossier)}</td>
+            <td class="mono" style="white-space:nowrap;">${esc(r.item)}</td>
+            <td style="white-space:nowrap;">${esc(r.kantoor)}</td>
+            <td><span class="badge ${bClass}">${esc(r.cat)}</span></td>
+            <td style="color:var(--taupe);">${esc(r.omschrijving)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function setCrmFilter(val) {
+      activeCrmFilter = val;
+      document.querySelectorAll('[data-crm-filter]').forEach((b) => {
+        b.classList.toggle('active', b.getAttribute('data-crm-filter') === val);
+      });
+      renderCrmTable();
+    }
+
+    function resetCrmFilters() {
+      document.getElementById('crmSearch').value = '';
+      setCrmFilter('all');
+    }
+
+    function downloadCrmCsv(filteredOnly) {
+      try {
+        const rows = filteredOnly ? getFilteredCrm() : crmItems;
+        const csvContent = buildCsvString(rows);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'fictieve-audit-trail.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(`CSV gedownload (${rows.length} rijen): fictieve-audit-trail.csv`);
+      } catch (e) {
+        showToast('CSV-download kon niet worden gestart');
+      }
+    }
+
+    /* -----------------------------------------------------------------------
+       SECTIE 05: INTERACTIEVE CHECKLIST (12 ITEMS + LOCALSTORAGE)
+       ----------------------------------------------------------------------- */
+    function loadChecklist() {
+      try {
+        const raw = localStorage.getItem(CHECKLIST_STORAGE_KEY);
+        checklistState = raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        checklistState = {};
+      }
+      renderChecklist();
+    }
+
+    function saveChecklist() {
+      try {
+        localStorage.setItem(CHECKLIST_STORAGE_KEY, JSON.stringify(checklistState));
+      } catch (e) {
+        // Negeer opslagfouten in strikte privacy-modus
+      }
+    }
+
+    function toggleCheck(id, val) {
+      checklistState[id] = Boolean(val);
+      saveChecklist();
+      renderChecklist();
+    }
+
+    function setAllChecklist(val) {
+      checklistGroups.forEach((g) => g.items.forEach((it) => { checklistState[it.id] = Boolean(val); }));
+      saveChecklist();
+      renderChecklist();
+      showToast(val ? 'Alle 12 onderleggers aangevinkt' : 'Checklist gereset');
+    }
+
+    function renderChecklist() {
+      const grid = document.getElementById('checklistGrid');
+      grid.innerHTML = checklistGroups.map((g) => `
+        <div class="card">
+          <h3 style="font-size:1.02rem; margin-bottom:0.7rem;">${esc(g.title)}</h3>
+          <div style="display:flex; flex-direction:column; gap:0.5rem;">
+            ${g.items.map((it) => {
+              const checked = Boolean(checklistState[it.id]);
+              return `
+                <label class="check-item ${checked ? 'checked' : ''}">
+                  <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleCheck('${it.id}', this.checked)" />
+                  <span style="font-size:0.78rem; line-height:1.45;">
+                    <span class="mono" style="font-size:0.68rem; font-weight:700; color:var(--meekrap); margin-right:0.35rem;">${esc(it.code)}</span>
+                    ${esc(it.text)}
+                  </span>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      const all = checklistGroups.flatMap((g) => g.items);
+      const done = all.filter((i) => Boolean(checklistState[i.id])).length;
+      const pct = Math.round((done / all.length) * 100);
+
+      document.getElementById('checklistCount').textContent = done;
+      document.getElementById('checklistPercent').textContent = `${pct}%`;
+      document.getElementById('checklistFill').style.width = `${pct}%`;
+      const sideStat = document.getElementById('sideChecklistStatus');
+      if (sideStat) sideStat.textContent = `${done} / ${all.length} (${pct}%)`;
+
+      const badge = document.getElementById('checklistBadge');
+      if (pct === 100) {
+        badge.textContent = 'Volledig (Art. 674 Rv gereed)';
+        badge.className = 'badge badge-green';
+      } else if (pct >= 50) {
+        badge.textContent = 'Gedeeltelijk compleet';
+        badge.className = 'badge badge-ochre';
+      } else {
+        badge.textContent = 'Onvolledig — onderleggers vereist';
+        badge.className = 'badge badge-meekrap';
+      }
+    }
+
+    /* -----------------------------------------------------------------------
+       SECTIE 07: GEVERIFIEERDE INTERNET-ONDERLEGGERS (14 BRONNEN)
+       ----------------------------------------------------------------------- */
+    function renderSources() {
+      const grid = document.getElementById('sourcesGrid');
+      const empty = document.getElementById('srcEmpty');
+      const q = (document.getElementById('srcSearch').value || '').toLowerCase().trim();
+
+      const rows = internetSources.filter((s) => {
+        const catOk = activeSrcFilter === 'all' || s.cat === activeSrcFilter;
+        const hay = `${s.id} ${s.cat} ${s.pub} ${s.title} ${s.desc} ${s.url}`.toLowerCase();
+        return catOk && (!q || hay.includes(q));
+      });
+
+      document.getElementById('srcVisibleCount').textContent = rows.length;
+      if (!rows.length) {
+        grid.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      grid.innerHTML = rows.map((s) => {
+        const bClass = s.cat === 'Wetgeving' ? 'badge-meekrap' : s.cat === 'WOZ & NORA' ? 'badge-green' : s.cat === 'Techniek & OIDC' ? 'badge-ochre' : '';
+        return `
+          <article class="card" style="display:flex; flex-direction:column; justify-content:space-between; gap:0.65rem;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.45rem;">
+                <span class="badge ${bClass}">${esc(s.cat)}</span>
+                <span class="mono" style="font-size:0.66rem; color:var(--taupe);">${esc(s.id)}</span>
+              </div>
+              <h3 style="font-size:0.98rem;">${esc(s.title)}</h3>
+              <div class="mono" style="font-size:0.68rem; color:var(--meekrap); font-weight:600; margin-top:0.25rem;">${esc(s.pub)}</div>
+              <p style="font-size:0.78rem; color:var(--taupe); margin-top:0.4rem;">${esc(s.desc)}</p>
+            </div>
+            <div style="padding-top:0.55rem; border-top:1px solid var(--linen);">
+              <a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" style="font-size:0.76rem; font-weight:700;">
+                Open offici&euml;le bron &rarr;
+              </a>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function setSrcFilter(val) {
+      activeSrcFilter = val;
+      document.querySelectorAll('[data-src-filter]').forEach((b) => {
+        b.classList.toggle('active', b.getAttribute('data-src-filter') === val);
+      });
+      renderSources();
+    }
+
+    function resetSrcFilters() {
+      document.getElementById('srcSearch').value = '';
+      setSrcFilter('all');
+    }
+
+    /* -----------------------------------------------------------------------
+       EXPORT VOLLEDIG DOSSIER (JSON) & SCROLLSPY
+       ----------------------------------------------------------------------- */
+    function exportFullDossierJson() {
+      try {
+        const payload = {
+          titel: 'Fictief Dossier: Audit Trail, OIDC 1.0, WOZ-Keten & Officiële Onderleggers',
+          fictieve_casus: true,
+          export_utc: new Date().toISOString(),
+          audit_trail_trx: trxData.map((t) => t.json),
+          legaltrack_crm_referenties: crmItems,
+          boedel_checklist: checklistGroups.flatMap((g) => g.items.map((i) => ({
+            id: i.id,
+            code: i.code,
+            omschrijving: i.text,
+            aanwezig: Boolean(checklistState[i.id])
+          }))),
+          uitsluitingen: ['Facturen individuele partijadvocaten uitgesloten ex Punt 7 Proces-Verbaal & tuchtdossier D10041'],
+          internet_onderleggers: internetSources
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'fictief-dossier-audit-trail-onderleggers.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Volledig fictief dossier gedownload als JSON');
+      } catch (e) {
+        showToast('JSON-export kon niet worden gestart');
+      }
+    }
+
+    function initScrollSpy() {
+      const sections = document.querySelectorAll('main > section[id]');
+      const links = document.querySelectorAll('.side-nav .nav-item');
+      if (!('IntersectionObserver' in window)) return;
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            links.forEach((l) => l.classList.toggle('active', l.getAttribute('data-target') === id));
+          }
+        });
+      }, { rootMargin: '-18% 0px -65% 0px', threshold: 0 });
+      sections.forEach((s) => obs.observe(s));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('trxSearch').addEventListener('input', renderTrxTable);
+      document.getElementById('crmSearch').addEventListener('input', renderCrmTable);
+      document.getElementById('srcSearch').addEventListener('input', renderSources);
+
+      document.getElementById('trxModal').addEventListener('click', (e) => {
+        if (e.target.id === 'trxModal') closeTrxModal();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeTrxModal();
+      });
+
+      setFontSize('md');
+      renderTrxTable();
+      renderCrmTable();
+      loadChecklist();
+      renderSources();
+      initScrollSpy();
+    });
+  </script>
+</body>
+</html>
