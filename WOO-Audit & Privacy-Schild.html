@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WOO-Audit &amp; Privacy-Schild: Analyse van Bestuurlijke Uitzonderingsgronden &amp; Dossier-Traceerbaarheid</title>
+    <style>
+        /* =====================================================================
+           ZEEUWS MEEKRAB DESIGN TOKENS & TYPOGRAFIE (100% LOKAAL / ZERO-CDN)
+           ===================================================================== */
+        :root {
+            --meekrab-primary: #8B1E24;
+            --meekrab-accent: #9E2A2B;
+            --meekrab-deep: #631318;
+            --meekrab-soft: #FAF3F3;
+            --meekrab-tint: #FDF9F9;
+            --meekrab-border: #DECACC;
+            --ink-primary: #1E242B;
+            --ink-secondary: #4A525D;
+            --ink-muted: #6C7582;
+            --paper-bg: #FFFFFF;
+            --backdrop-bg: #FAF8F6;
+            --status-ok: #1B6B3A;
+            --status-ok-bg: #EDF8F1;
+            --status-warn: #8A5314;
+            --status-warn-bg: #FEF6EC;
+            --status-alert: #8B1E24;
+            --status-alert-bg: #FFF1F2;
+
+            --font-serif: Georgia, "Times New Roman", Times, serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-family: var(--font-sans);
+            color: var(--ink-primary);
+            background-color: var(--backdrop-bg);
+            line-height: 1.58;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        ::selection {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        h1, h2, h3, h4, .serif {
+            font-family: var(--font-serif);
+            margin-top: 0;
+            color: var(--ink-primary);
+        }
+
+        code, pre, textarea.mono-area, .mono {
+            font-family: var(--font-mono);
+        }
+
+        .top-archive-stripe {
+            height: 6px;
+            width: 100%;
+            background: linear-gradient(90deg, var(--meekrab-deep) 0%, var(--meekrab-primary) 50%, var(--meekrab-accent) 100%);
+        }
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+        }
+
+        /* =====================================================================
+           HEADER & STICKY NAVIGATIE
+           ===================================================================== */
+        header.site-header {
+            background-color: var(--paper-bg);
+            border-bottom: 1.5px solid var(--meekrab-border);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 3px 14px rgba(30, 36, 43, 0.05);
+        }
+
+        .header-inner {
+            padding: 0.9rem 0 0.7rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .header-top {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 5px;
+            font-size: 0.71rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .badge-primary {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            text-transform: uppercase;
+            font-family: var(--font-sans);
+            letter-spacing: 0.03em;
+        }
+
+        .badge-privacy {
+            background-color: var(--status-ok-bg);
+            border: 1px solid #9DD4B2;
+            color: var(--status-ok);
+        }
+
+        .badge-soft {
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            color: var(--meekrab-primary);
+        }
+
+        .site-title {
+            font-size: clamp(1.36rem, 2.5vw, 1.9rem);
+            font-weight: 700;
+            margin: 0 0 0.2rem 0;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+        }
+
+        .site-subtitle {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--ink-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            align-items: center;
+        }
+
+        /* Knoppen */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.38rem;
+            padding: 0.5rem 0.85rem;
+            border-radius: 7px;
+            font-size: 0.77rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            text-decoration: none;
+            transition: transform 0.12s ease, background-color 0.15s ease, border-color 0.15s ease;
+            user-select: none;
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(180deg, var(--meekrab-accent) 0%, var(--meekrab-primary) 100%);
+            color: #FFFFFF;
+            border-color: var(--meekrab-deep);
+            box-shadow: 0 2px 8px rgba(139, 30, 36, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(180deg, var(--meekrab-primary) 0%, var(--meekrab-deep) 100%);
+        }
+
+        .btn-secondary {
+            background-color: var(--meekrab-soft);
+            color: var(--meekrab-primary);
+            border-color: var(--meekrab-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--meekrab-primary);
+            background-color: #F3E4E5;
+        }
+
+        .btn-outline {
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            border-color: var(--meekrab-border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--meekrab-primary);
+            color: var(--meekrab-primary);
+        }
+
+        .btn-sm {
+            padding: 0.34rem 0.65rem;
+            font-size: 0.72rem;
+            border-radius: 6px;
+        }
+
+        /* Navigatie */
+        nav.section-nav {
+            display: flex;
+            gap: 0.4rem;
+            overflow-x: auto;
+            padding-top: 0.55rem;
+            border-top: 1px solid #EFEAEA;
+        }
+
+        .nav-link {
+            white-space: nowrap;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--ink-secondary);
+            text-decoration: none;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--meekrab-primary);
+            background-color: var(--meekrab-soft);
+        }
+
+        .nav-link.active {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        /* =====================================================================
+           MAIN WORKSPACE & DOSSIER-PANELEN
+           ===================================================================== */
+        main.workspace {
+            padding: 1.65rem 0 3.2rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.9rem;
+        }
+
+        section.panel {
+            background-color: var(--paper-bg);
+            border: 1px solid var(--meekrab-border);
+            border-radius: 12px;
+            padding: 1.55rem 1.75rem;
+            box-shadow: 0 3px 14px rgba(30, 36, 43, 0.035);
+            scroll-margin-top: 145px;
+        }
+
+        .panel-kicker {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .kicker-tag {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--meekrab-primary);
+        }
+
+        .kicker-meta {
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            color: var(--ink-muted);
+        }
+
+        .panel-title {
+            font-size: clamp(1.32rem, 2.2vw, 1.72rem);
+            font-weight: 700;
+            margin: 0 0 0.6rem 0;
+        }
+
+        .meekrab-rule {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, var(--meekrab-primary) 0%, var(--meekrab-accent) 55%, rgba(158, 42, 43, 0.12) 100%);
+            margin: 0 0 1.3rem 0;
+        }
+
+        /* =====================================================================
+           MODULE 1: INTERACTIEVE WOO- & PRIVACY-AUDIT SIMULATOR
+           ===================================================================== */
+        .preset-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-bottom: 1.15rem;
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            border-radius: 10px;
+            padding: 0.6rem;
+        }
+
+        .case-pill {
+            padding: 0.45rem 0.78rem;
+            border-radius: 7px;
+            border: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-align: left;
+        }
+
+        .case-pill:hover {
+            border-color: var(--meekrab-primary);
+            color: var(--meekrab-primary);
+        }
+
+        .case-pill.active {
+            background-color: var(--meekrab-primary);
+            border-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(139, 30, 36, 0.22);
+        }
+
+        .simulator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.12fr;
+            gap: 1.35rem;
+            align-items: start;
+        }
+
+        @media (max-width: 960px) {
+            .simulator-grid {
+                grid-template-columns: 1fr;
+            }
+            section.panel {
+                padding: 1.15rem;
+            }
+        }
+
+        .card {
+            border: 1px solid var(--meekrab-border);
+            border-radius: 10px;
+            padding: 1.05rem;
+            background-color: #FFFFFF;
+        }
+
+        .card-soft {
+            border: 1px solid var(--meekrab-border);
+            border-radius: 10px;
+            padding: 1.05rem;
+            background-color: var(--meekrab-soft);
+        }
+
+        .card-accent {
+            border: 2px solid var(--meekrab-primary);
+            border-radius: 10px;
+            padding: 1.05rem;
+            background-color: var(--meekrab-tint);
+        }
+
+        .card-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--meekrab-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        textarea.audit-input {
+            width: 100%;
+            min-height: 128px;
+            padding: 0.7rem;
+            border-radius: 8px;
+            border: 1.5px solid var(--meekrab-border);
+            font-family: var(--font-sans);
+            font-size: 0.83rem;
+            line-height: 1.5;
+            color: var(--ink-primary);
+            background-color: #FFFFFF;
+            resize: vertical;
+        }
+
+        textarea.audit-input:focus {
+            outline: none;
+            border-color: var(--meekrab-primary);
+            box-shadow: 0 0 0 3px rgba(139, 30, 36, 0.12);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.42rem;
+            margin-top: 0.75rem;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.78rem;
+            color: var(--ink-primary);
+            cursor: pointer;
+            padding: 0.35rem 0.5rem;
+            border-radius: 6px;
+            border: 1px solid transparent;
+        }
+
+        .check-item:hover {
+            background-color: var(--meekrab-soft);
+            border-color: var(--meekrab-border);
+        }
+
+        .check-item input[type="checkbox"] {
+            accent-color: var(--meekrab-primary);
+            margin-top: 0.2rem;
+            cursor: pointer;
+        }
+
+        /* Uitkomstkaarten van de toetsing */
+        .verdict-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.65rem;
+            margin-bottom: 0.85rem;
+            border-bottom: 1.5px solid var(--meekrab-border);
+        }
+
+        .verdict-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .verdict-pill.strong {
+            background-color: var(--status-ok-bg);
+            border: 1px solid #9DD4B2;
+            color: var(--status-ok);
+        }
+
+        .verdict-pill.alert {
+            background-color: var(--status-alert-bg);
+            border: 1px solid #F3B4B8;
+            color: var(--status-alert);
+        }
+
+        .norm-hit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            margin-bottom: 0.95rem;
+        }
+
+        .norm-hit {
+            background-color: #FFFFFF;
+            border: 1px solid var(--meekrab-border);
+            border-left: 3.5px solid var(--meekrab-primary);
+            border-radius: 7px;
+            padding: 0.55rem 0.75rem;
+            font-size: 0.79rem;
+        }
+
+        .norm-hit strong {
+            color: var(--meekrab-primary);
+            display: block;
+            margin-bottom: 0.15rem;
+        }
+
+        textarea.generated-plea {
+            width: 100%;
+            min-height: 185px;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1.5px solid var(--meekrab-primary);
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            font-family: var(--font-serif);
+            font-size: 0.88rem;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        /* =====================================================================
+           MODULE 2: INTERACTIEVE PROCES- & AUDITLOG-TIJDLIJN
+           ===================================================================== */
+        .timeline-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.15rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .filter-btn {
+            padding: 0.38rem 0.72rem;
+            border-radius: 6px;
+            border: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+            color: var(--ink-secondary);
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.14s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--meekrab-primary);
+            color: var(--meekrab-primary);
+        }
+
+        .filter-btn.active {
+            background-color: var(--meekrab-primary);
+            border-color: var(--meekrab-primary);
+            color: #FFFFFF;
+        }
+
+        /* Visueel 5-minuten gat diagram */
+        .gap-callout {
+            background-color: var(--meekrab-soft);
+            border: 1.5px solid var(--meekrab-primary);
+            border-radius: 10px;
+            padding: 0.95rem 1.15rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .gap-bar-visual {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0.75rem;
+            align-items: center;
+            margin-top: 0.65rem;
+        }
+
+        @media (max-width: 760px) {
+            .gap-bar-visual {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .gap-node {
+            background-color: #FFFFFF;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+            font-size: 0.78rem;
+        }
+
+        .gap-delta {
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            padding: 0.45rem 0.85rem;
+            border-radius: 999px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .timeline-list {
+            position: relative;
+            padding-left: 1.5rem;
+            border-left: 2.5px solid var(--meekrab-primary);
+            display: flex;
+            flex-direction: column;
+            gap: 0.95rem;
+        }
+
+        .timeline-item {
+            position: relative;
+            background-color: #FFFFFF;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 10px;
+            padding: 0.85rem 1.05rem;
+            transition: border-color 0.15s ease;
+        }
+
+        .timeline-item:hover {
+            border-color: var(--meekrab-primary);
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: -1.92rem;
+            top: 1.05rem;
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background-color: var(--meekrab-primary);
+            border: 2.5px solid #FFFFFF;
+            box-shadow: 0 0 0 2px var(--meekrab-primary);
+        }
+
+        .timeline-item.highlight-gap {
+            border: 2px solid var(--meekrab-primary);
+            background-color: var(--meekrab-tint);
+        }
+
+        .tl-top {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .tl-date {
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--meekrab-primary);
+        }
+
+        .tl-tag {
+            font-family: var(--font-mono);
+            font-size: 0.69rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            background-color: var(--meekrab-soft);
+            border: 1px solid var(--meekrab-border);
+            color: var(--ink-secondary);
+        }
+
+        .tl-title {
+            font-weight: 700;
+            font-size: 0.92rem;
+            margin-bottom: 0.25rem;
+            color: var(--ink-primary);
+        }
+
+        .tl-desc {
+            font-size: 0.81rem;
+            color: var(--ink-secondary);
+            margin: 0;
+        }
+
+        /* =====================================================================
+           MODULE 3: WETTELIJKE KNOOPPUNTEN & UITZONDERINGSGRONDEN MATRIX
+           ===================================================================== */
+        .search-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 240px;
+            padding: 0.52rem 0.8rem;
+            border-radius: 7px;
+            border: 1.5px solid var(--meekrab-border);
+            font-size: 0.81rem;
+            font-family: var(--font-sans);
+            color: var(--ink-primary);
+            background-color: #FFFFFF;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--meekrab-primary);
+            box-shadow: 0 0 0 3px rgba(139, 30, 36, 0.1);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 9px;
+        }
+
+        table.audit-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            text-align: left;
+        }
+
+        table.audit-table thead {
+            background-color: var(--meekrab-soft);
+            border-bottom: 2px solid var(--meekrab-border);
+        }
+
+        table.audit-table th {
+            padding: 0.68rem 0.85rem;
+            font-size: 0.71rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--meekrab-primary);
+        }
+
+        table.audit-table td {
+            padding: 0.68rem 0.85rem;
+            border-bottom: 1px solid #EDE3E4;
+            vertical-align: top;
+        }
+
+        table.audit-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        table.audit-table tbody tr:hover {
+            background-color: var(--meekrab-tint);
+        }
+
+        .cat-badge {
+            display: inline-block;
+            padding: 0.15rem 0.48rem;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.69rem;
+            font-weight: 700;
+        }
+
+        .cat-abs {
+            background-color: var(--status-alert-bg);
+            color: var(--status-alert);
+            border: 1px solid #F3B4B8;
+        }
+
+        .cat-rel {
+            background-color: var(--status-warn-bg);
+            color: var(--status-warn);
+            border: 1px solid #E7C69C;
+        }
+
+        .cat-pro {
+            background-color: var(--status-ok-bg);
+            color: var(--status-ok);
+            border: 1px solid #9DD4B2;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 1.25rem;
+            right: 1.25rem;
+            z-index: 90;
+            background-color: #1E242B;
+            color: #FFFFFF;
+            padding: 0.72rem 1.05rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--meekrab-accent);
+            font-size: 0.79rem;
+            font-weight: 600;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        footer.site-footer {
+            background-color: var(--paper-bg);
+            border-top: 1px solid var(--meekrab-border);
+            padding: 1.3rem 0;
+            font-size: 0.78rem;
+            color: var(--ink-secondary);
+        }
+
+        /* =====================================================================
+           PRINT STYLES (@media print) VOOR ARCHIEFWAARDIGE PDF-EXPORT
+           ===================================================================== */
+        @media print {
+            @page {
+                size: A4;
+                margin: 15mm 14mm 15mm 14mm;
+            }
+            html, body {
+                background-color: #FFFFFF !important;
+                color: #1E242B !important;
+                font-size: 9.5pt;
+            }
+            .no-print {
+                display: none !important;
+            }
+            header.site-header {
+                position: static !important;
+                box-shadow: none !important;
+                border-bottom: 2px solid var(--meekrab-primary) !important;
+            }
+            section.panel {
+                box-shadow: none !important;
+                border: 1px solid #CCCCCC !important;
+                margin-bottom: 12pt !important;
+                padding: 12pt !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .print-avoid {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-archive-stripe"></div>
+
+    <!-- =======================================================================
+         HEADER & STICKY NAVIGATIE
+         ======================================================================= -->
+    <header class="site-header">
+        <div class="container">
+            <div class="header-inner">
+                <div class="header-top">
+                    <div style="max-width: 810px;">
+                        <div class="badge-row">
+                            <span class="badge badge-primary">Bestuursrechtelijk &amp; Technisch Audit-Instrument</span>
+                            <span class="badge badge-privacy">PII-Geredigeerd (Geen Privénamen/Adressen)</span>
+                            <span class="badge badge-soft">Woo &bull; Awb &bull; AVG &bull; Verdrag van Aarhus</span>
+                            <span class="badge badge-soft">100% Lokaal / Zero-Tracker</span>
+                        </div>
+                        <h1 class="site-title">WOO-Audit &amp; Privacy-Schild: Analyse van Bestuurlijke Uitzonderingsgronden &amp; Dossier-Traceerbaarheid</h1>
+                        <p class="site-subtitle">
+                            Toetsing van weigeringsgronden (Art. 5.1–5.5 &amp; 8.8 Woo / Wiv 2017), reconstructie van het BRP-auditlog &lsquo;5-minuten gat&rsquo; en generatie van formeel-juridische tegenwerpingen
+                        </p>
+                    </div>
+
+                    <div class="header-actions no-print">
+                        <button type="button" class="btn btn-secondary" onclick="copyCompleteAuditReport()">
+                            Kopieer Volledig Audit-Overzicht
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="window.print()">
+                            Print / PDF-Export
+                        </button>
+                    </div>
+                </div>
+
+                <nav class="section-nav no-print" aria-label="Module-navigatie">
+                    <a href="#module-1" class="nav-link active">1. Woo- &amp; Privacy-Audit Simulator</a>
+                    <a href="#module-2" class="nav-link">2. Proces- &amp; Auditlog-Tijdlijn (5-Minuten Gat)</a>
+                    <a href="#module-3" class="nav-link">3. Wettelijke Knooppunten &amp; Uitzonderingsgronden Matrix</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- =======================================================================
+         HOOFDINHOUD
+         ======================================================================= -->
+    <main class="container workspace">
+
+        <!-- ===================================================================
+             MODULE 1: INTERACTIEVE WOO- & PRIVACY-AUDIT SIMULATOR
+             =================================================================== -->
+        <section id="module-1" class="panel">
+            <div class="panel-kicker">
+                <span class="kicker-tag">Module 01 &bull; Dwarsboom- &amp; Weigeringsgronden-Toetser</span>
+                <span class="kicker-meta">Art. 4.1, 4.2, 4.6, 5.1–5.5, 8.8 Woo &bull; Art. 5 &amp; 12 AVG &bull; Verdrag van Aarhus</span>
+            </div>
+            <h2 class="panel-title">Interactieve Woo- &amp; Privacy-Audit Simulator</h2>
+            <hr class="meekrab-rule">
+
+            <p style="font-size:0.84rem; color:var(--ink-secondary); margin-top:0; margin-bottom:0.85rem;">
+                Selecteer een vooringestelde dossiercasus of voer een eigen bestuurlijke weigeringsgrond / passage in. De toetser analyseert de juridische houdbaarheid en genereert direct een kopieerbare <strong>Tegenwerping- &amp; Preciseringsparagraaf</strong> voor bezwaar, beroep of aanvulling.
+            </p>
+
+            <!-- 5 Vooringestelde Casussen uit het Dossier -->
+            <div class="preset-pills no-print" role="group" aria-label="Vooringestelde dossiercasussen">
+                <button type="button" class="case-pill active" id="preset-btn-0" onclick="loadSimulatorPreset(0)">
+                    1. Emissiegegevens &amp; Natura 2000 Molenplaat
+                </button>
+                <button type="button" class="case-pill" id="preset-btn-1" onclick="loadSimulatorPreset(1)">
+                    2. BRP-auditlogs &amp; 5-minuten tijdskloof (10:43:25 vs 10:48:00)
+                </button>
+                <button type="button" class="case-pill" id="preset-btn-2" onclick="loadSimulatorPreset(2)">
+                    3. Historisch Visserij-dossier &amp; Octrooi 1579
+                </button>
+                <button type="button" class="case-pill" id="preset-btn-3" onclick="loadSimulatorPreset(3)">
+                    4. Wbb-bodembeschikking &amp; saneringskosten
+                </button>
+                <button type="button" class="case-pill" id="preset-btn-4" onclick="loadSimulatorPreset(4)">
+                    5. Beroep op staatsveiligheid / Wiv 2017 / art. 5.1 lid 1 sub b Woo
+                </button>
+            </div>
+
+            <div class="simulator-grid">
+                <!-- Linker kolom: Invoerveld & Toetsingskaders -->
+                <div class="card">
+                    <div class="card-label">1. Te Toetsen Passage of Bestuurlijke Weigering</div>
+                    <textarea id="simInputPassage" class="audit-input" oninput="runAuditEvaluation()" placeholder="Plak hier de weigeringsgrond uit het Woo-besluit of beschrijf het gevraagde informatieonderdeel..."></textarea>
+
+                    <div class="card-label" style="margin-top:0.95rem;">2. Actieve Juridische Toetsingsgrondslagen</div>
+                    <div class="checkbox-group">
+                        <label class="check-item">
+                            <input type="checkbox" id="chkAarhus" checked onchange="runAuditEvaluation()">
+                            <span><strong>Art. 5.1 lid 7 Woo &amp; Verdrag van Aarhus:</strong> Emissiegegevens in het milieu (geen absolute of relatieve uitzonderingsgronden toegestaan).</span>
+                        </label>
+                        <label class="check-item">
+                            <input type="checkbox" id="chkWiv" checked onchange="runAuditEvaluation()">
+                            <span><strong>Art. 8.8 Woo &amp; Wiv 2017 / Art. 5.1 lid 1 sub b Woo:</strong> Onderscheid daadwerkelijke staatsveiligheid/Wiv-rubricering vs. oneigenlijke geheimhouding of dossier-atomisering bij reguliere bestuursorganen.</span>
+                        </label>
+                        <label class="check-item">
+                            <input type="checkbox" id="chkProc" checked onchange="runAuditEvaluation()">
+                            <span><strong>Art. 4.1 lid 5, Art. 4.2 &amp; Art. 4.6 Woo:</strong> Behulpzaamheidsplicht bij precisering, wettelijke doorzendplicht (art. 2:3 Awb) en weerlegging antimisbruikbepaling (doelneutraliteit art. 4.1 lid 3 Woo).</span>
+                        </label>
+                        <label class="check-item">
+                            <input type="checkbox" id="chkAvg" checked onchange="runAuditEvaluation()">
+                            <span><strong>Art. 5 &amp; 12 AVG vs. Art. 5.5 Woo:</strong> Inzagerecht eigen persoonsgegevens/BRP-logging &amp; doelbinding (verbod op vrije zoekopdrachten zonder zaakgrondslag).</span>
+                        </label>
+                        <label class="check-item">
+                            <input type="checkbox" id="chkFiveYear" checked onchange="runAuditEvaluation()">
+                            <span><strong>Art. 5.3 Woo:</strong> Informatie ouder dan vijf jaar (verzwaarde motiveringsplicht bij beroep op relatieve weigeringsgronden).</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Rechter kolom: Audit-uitkomst & Gegenereerde Tegenwerping -->
+                <div class="card-accent">
+                    <div class="verdict-header">
+                        <div class="card-label" style="margin:0;">3. Juridische Audit-Analyse &amp; Tegenwerping</div>
+                        <span id="simVerdictBadge" class="verdict-pill strong">Wettelijke Toets: Openbaarheid Prevaleert</span>
+                    </div>
+
+                    <div id="simHitsContainer" class="norm-hit-list"></div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
+                        <span class="card-label" style="margin:0;">Concept Tegenwerping- &amp; Preciseringsparagraaf</span>
+                        <button type="button" class="btn btn-primary btn-sm no-print" onclick="copyGeneratedPlea()">
+                            Kopieer Tegenwerping
+                        </button>
+                    </div>
+                    <textarea id="simGeneratedPlea" class="generated-plea" aria-label="Gegenereerde formeel-juridische tegenwerping"></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================
+             MODULE 2: INTERACTIEVE PROCES- & AUDITLOG-TIJDLIJN
+             =================================================================== -->
+        <section id="module-2" class="panel">
+            <div class="panel-kicker">
+                <span class="kicker-tag">Module 02 &bull; Reconstructie van de Informatieketen</span>
+                <span class="kicker-meta">Zaaknummers: 790024 &bull; 417521 &bull; C2331963 &bull; BRE 24/5455 WOO &bull; 896512 &bull; 1456324 &bull; 1425030 &bull; 1463739</span>
+            </div>
+            <h2 class="panel-title">Interactieve Proces- &amp; Auditlog-Tijdlijn (2017 – 2026)</h2>
+            <hr class="meekrab-rule">
+
+            <!-- Visuele Uitlichting van het gedocumenteerde 5-minuten gat -->
+            <div class="gap-callout print-avoid">
+                <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.5rem;">
+                    <strong style="font-size:0.86rem; color:var(--meekrab-primary);">
+                        Forensisch Auditlog-Knooppunt: Het &lsquo;5-Minuten Gat&rsquo; op 11 maart 2024 (MakelaarSuite / GBA-V vs. Zaaksysteem)
+                    </strong>
+                    <span class="badge badge-primary">Schending Doelbinding Art. 5 lid 1 sub b AVG</span>
+                </div>
+                <div class="gap-bar-visual">
+                    <div class="gap-node">
+                        <div class="mono" style="font-weight:700; color:var(--meekrab-primary);">11-03-2024 om 10:43:25 uur</div>
+                        <div>Handmatige zoekopdracht door gebruiker <code class="mono">ZSNL</code> in de GBA-V / MakelaarSuite op postcode en huisnummer buiten de gemeentegrenzen (categorie 05 ouders, 09 partner, 11 kinderen onder code <code class="mono">510232</code>).</div>
+                    </div>
+                    <div class="gap-delta">
+                        &Delta;t = 4 min 35 sec<br>
+                        <span style="font-size:0.65rem; font-weight:400;">Zonder geregistreerde zaak</span>
+                    </div>
+                    <div class="gap-node">
+                        <div class="mono" style="font-weight:700; color:var(--ink-primary);">11-03-2024 om 10:48:00 uur</div>
+                        <div>Eerste registratie en opslag van Woo-zaak <code class="mono">790024</code> in het zaaksysteem (4 minuten en 35 seconden <em>na</em> de bevraging van de gezinsgegevens).</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filterknoppen voor de tijdlijn -->
+            <div class="timeline-controls no-print">
+                <div class="filter-group" role="group" aria-label="Filter tijdlijn op proceslijn">
+                    <button type="button" class="filter-btn active" data-tl="all" onclick="filterTimeline('all', this)">Alle Gebeurtenissen (7)</button>
+                    <button type="button" class="filter-btn" data-tl="avg" onclick="filterTimeline('avg', this)">BRP-Auditlogs &amp; AVG</button>
+                    <button type="button" class="filter-btn" data-tl="woo" onclick="filterTimeline('woo', this)">Woo &amp; Milieu / Visserij</button>
+                    <button type="button" class="filter-btn" data-tl="rechtbank" onclick="filterTimeline('rechtbank', this)">Rechtspraak &amp; Herroeping</button>
+                </div>
+                <span class="mono" style="font-size:0.72rem; color:var(--ink-muted);" id="timelineCountLabel">7 geanonimiseerde ijkpunten getoond</span>
+            </div>
+
+            <!-- Tijdlijn lijst -->
+            <div id="timelineContainer" class="timeline-list"></div>
+        </section>
+
+        <!-- ===================================================================
+             MODULE 3: WETTELIJKE KNOOPPUNTEN & UITZONDERINGSGRONDEN MATRIX
+             =================================================================== -->
+        <section id="module-3" class="panel">
+            <div class="panel-kicker">
+                <span class="kicker-tag">Module 03 &bull; Normatief Referentiekader</span>
+                <span class="kicker-meta">Art. 5.1 – 5.5 &amp; 8.8 Woo &bull; Rijksbrede Woo-Instructie &bull; Awb &bull; AVG &bull; Wiv 2017</span>
+            </div>
+            <h2 class="panel-title">Wettelijke Knooppunten &amp; Uitzonderingsgronden Matrix</h2>
+            <hr class="meekrab-rule">
+
+            <div class="search-toolbar no-print">
+                <input type="search" id="matrixSearchInput" class="search-box" placeholder="Zoek op wetsartikel, code of onderwerp (bijv. 5.1 lid 7, emissie, 8.8, Wiv, 4.6, 5.3, 8:29, dwangsom, 4.2, AVG)..." oninput="renderNormMatrix()">
+                <button type="button" class="filter-btn active" data-mat="all" onclick="setMatrixFilter('all', this)">Alle Bepalingen</button>
+                <button type="button" class="filter-btn" data-mat="absoluut" onclick="setMatrixFilter('absoluut', this)">Absoluut &amp; Bijzonder (5.1.1 / 8.8)</button>
+                <button type="button" class="filter-btn" data-mat="relatief" onclick="setMatrixFilter('relatief', this)">Relatief &amp; Milieu (5.1.2 / 5.1.7 / 5.3)</button>
+                <button type="button" class="filter-btn" data-mat="proces" onclick="setMatrixFilter('proces', this)">Proces, AVG &amp; Rechtsmiddelen</button>
+            </div>
+
+            <div class="table-wrap print-avoid">
+                <table class="audit-table">
+                    <thead>
+                        <tr>
+                            <th style="width:17%;">Wetsartikel / Code</th>
+                            <th style="width:14%;">Regime</th>
+                            <th style="width:34%;">Wettelijke Norm &amp; Beoordelingskader</th>
+                            <th style="width:35%;">Toepassing &amp; Rechtsmiddel bij Weigering / Lakken</th>
+                        </tr>
+                    </thead>
+                    <tbody id="normMatrixBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast notificatie -->
+    <div id="toastBanner" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.75rem;">
+            <div>
+                <strong>WOO-Audit &amp; Privacy-Schild</strong> &bull; Analyse van Bestuurlijke Uitzonderingsgronden &amp; Dossier-Traceerbaarheid
+            </div>
+            <div class="mono" style="color:var(--meekrab-primary);">
+                PII-Geredigeerd &bull; Zero-Cloud &bull; Art. 4.1–8.8 Woo / Awb / AVG
+            </div>
+        </div>
+    </footer>
+
+    <!-- =======================================================================
+         VOLLEDIGE LOKALE JAVASCRIPT (SIMULATOR, TIJDLIJN & REFERENTIEMATRIX)
+         ======================================================================= -->
+    <script>
+        /* ---------------------------------------------------------------------
+           1. DATA VOOR DE 5 VOORINGESTELDE DOSSIERCASUSSEN (PII-GEREDIGEERD)
+           --------------------------------------------------------------------- */
+        const SIMULATOR_PRESETS = [
+            {
+                id: 0,
+                name: 'Emissiegegevens & Natura 2000 Molenplaat',
+                passage: 'Het bestuursorgaan weigert openbaarmaking van stikstofberekeningen, natuurbeschermingsvergunningen en gegevens over de leidingstraat (ammoniak/waterstof) en lozingen nabij de Molenplaat / Natura 2000-gebied met een beroep op vertrouwelijke bedrijfs- en fabricagegegevens (art. 5.1 lid 1 sub c Woo) en onevenredige benadeling (art. 5.1 lid 5 Woo).',
+                checks: { aarhus: true, wiv: false, proc: true, avg: false, fiveYear: false }
+            },
+            {
+                id: 1,
+                name: 'BRP-auditlogs & 5-minuten tijdskloof (10:43:25 vs 10:48:00)',
+                passage: 'Het bestuursorgaan wijst het verzoek om schriftelijke uitleg en BRP-auditlogs (bevragingen in 2017 en op 11 maart 2024 om 10:43:25 uur onder code 510232, vijf minuten vóór aanmaak van zaak 790024 om 10:48:00 uur) af onder de stelling dat geen documenten berusten, geen vervaardigingsplicht geldt en de Woo niet ziet op AVG-rechtmatigheid.',
+                checks: { aarhus: false, wiv: false, proc: true, avg: true, fiveYear: false }
+            },
+            {
+                id: 2,
+                name: 'Historisch Visserij-dossier & Octrooi 1579',
+                passage: 'Het college stelt het verzoek om het 50-jarige ambtelijke visserij-dossier, historische pachtregisters (1870/1873), retributieregisters en het Octrooi van 1579 buiten behandeling op grond van art. 4.6 Woo (misbruik van recht), stellende dat het dossier een informele werkverzameling is en stukken deels bij provincie of Rijk berusten.',
+                checks: { aarhus: false, wiv: false, proc: true, avg: false, fiveYear: true }
+            },
+            {
+                id: 3,
+                name: 'Wbb-bodembeschikking & saneringskosten',
+                passage: 'De gemeente stuurt het Woo-verzoek naar de bodembeschikking (2009), het nazorgplan (1993/2009), facturen en stuitingsbrieven door naar de regionale uitvoeringsdienst (RUD), maar laat na zelf te beslissen op de financiële stukken en stuitingsbrieven die bij de gemeente berusten, terwijl de RUD de termijn opschort voor zienswijzen.',
+                checks: { aarhus: true, wiv: false, proc: true, avg: false, fiveYear: true }
+            },
+            {
+                id: 4,
+                name: 'Beroep op staatsveiligheid / Wiv 2017 / art. 5.1 lid 1 sub b Woo',
+                passage: 'Het bestuursorgaan schermt interne correspondentie, routering en metadata af met een algemeen beroep op de veiligheid van de Staat (art. 5.1 lid 1 sub b Woo), bijzondere geheimhoudingsregelingen (art. 8.8 Woo / Wiv 2017) en het versnipperen van het dossier over meerdere losse zaaknummers.',
+                checks: { aarhus: false, wiv: true, proc: true, avg: true, fiveYear: false }
+            }
+        ];
+
+        function loadSimulatorPreset(idx) {
+            const preset = SIMULATOR_PRESETS[idx];
+            if (!preset) return;
+
+            document.querySelectorAll('.case-pill').forEach((btn, i) => {
+                btn.classList.toggle('active', i === idx);
+            });
+
+            document.getElementById('simInputPassage').value = preset.passage;
+            document.getElementById('chkAarhus').checked = preset.checks.aarhus;
+            document.getElementById('chkWiv').checked = preset.checks.wiv;
+            document.getElementById('chkProc').checked = preset.checks.proc;
+            document.getElementById('chkAvg').checked = preset.checks.avg;
+            document.getElementById('chkFiveYear').checked = preset.checks.fiveYear;
+
+            runAuditEvaluation();
+        }
+
+        function runAuditEvaluation() {
+            const text = (document.getElementById('simInputPassage').value || '').toLowerCase();
+            const useAarhus = document.getElementById('chkAarhus').checked;
+            const useWiv = document.getElementById('chkWiv').checked;
+            const useProc = document.getElementById('chkProc').checked;
+            const useAvg = document.getElementById('chkAvg').checked;
+            const useFiveYear = document.getElementById('chkFiveYear').checked;
+
+            const hits = [];
+            const pleaBlocks = [];
+
+            // Detecteer trefwoorden in de ingevoerde tekst naast aangevinkte kaders
+            const hasEmissie = /emissie|stikstof|natura|molenplaat|milieu|bodem|wbb|sanering|leidingstraat|ammoniak|waterstof|aarhus/.test(text);
+            const hasWiv = /staatsveiligheid|wiv|5\.1 lid 1 sub b|8\.8|geheimhouding|atomisering|zaaknummer|aivd/.test(text);
+            const hasAvg = /brp|gba|auditlog|logging|10:43|5-minuten|persoonsgegevens|avg|510232|makelaarsuite/.test(text);
+            const hasOld = /1579|1870|1873|1993|2009|2017|historisch|ouder dan vijf|5 jaar|zuurdeeg/.test(text);
+
+            if (useAarhus || hasEmissie) {
+                hits.push({
+                    title: 'Art. 5.1 lid 7 Woo & Verdrag van Aarhus (Richtlijn 2003/4/EG)',
+                    body: 'Bij milieu-informatie die betrekking heeft op emissies in het milieu (zoals stikstofdepositie, lozingen en bodem-/waterbelasting) zijn de uitzonderingsgronden van art. 5.1 lid 1 en lid 2 Woo (waaronder bedrijfs- en fabricagegegevens) wettelijk uitgesloten.'
+                });
+                pleaBlocks.push(
+                    '1. Absolute openbaarheid van emissie- en milieu-informatie (Art. 5.1 lid 7 Woo & Verdrag van Aarhus): Voor zover de gevraagde documenten betrekking hebben op emissies in het milieu, stikstofberekeningen, bodemverontreiniging of vergunningverlening nabij Natura 2000-gebieden, bepaalt artikel 5.1, zevende lid, van de Woo dwingend dat de uitzonderingsgronden van het eerste en tweede lid niet van toepassing zijn. Een beroep op bedrijfsvertrouwelijkheid of terughoudendheid faalt derhalve van rechtswege.'
+                );
+            }
+
+            if (useWiv || hasWiv) {
+                hits.push({
+                    title: 'Art. 8.8 Woo, Wiv 2017 & Art. 5.1 lid 1 sub b Woo (Staatsveiligheid vs. Regulier Bestuur)',
+                    body: 'De Wiv 2017 derogeert uitsluitend aan de Woo voor informatie die berust bij de inlichtingen- en veiligheidsdiensten (AIVD/MIVD). Gemeenten en provincies kunnen zich niet verschuilen achter een algemeen beroep op staatsveiligheid of "dossier-atomisering" om reguliere bestuursdocumenten buiten de Woo te houden.'
+                });
+                pleaBlocks.push(
+                    '2. Afbakening Staatsveiligheid & Bijzondere Geheimhoudingsregelingen (Art. 5.1 lid 1 sub b & Art. 8.8 Woo): Een regulier bestuursorgaan kan slechts een beroep doen op artikel 5.1, eerste lid, onder b, Woo indien concreet en per documentonderdeel wordt gemotiveerd dat openbaarmaking de veiligheid van de Staat schaadt. De Wiv 2017 ziet uitsluitend op informatie onder de diensten en vormt geen vrijbrief voor het versnipperen of buiten beeld houden van reguliere gemeentelijke of provinciale dossiers.'
+                );
+            }
+
+            if (useProc) {
+                hits.push({
+                    title: 'Art. 4.1 lid 3 & 5, Art. 4.2 & Art. 4.6 Woo (Doelneutraliteit, Hulpplicht & Doorzendplicht)',
+                    body: 'Een verzoeker hoeft geen belang te stellen (art. 4.1 lid 3 Woo). Bij omvangrijke verzoeken geldt een actieve behulpzaamheidsplicht (art. 4.1 lid 5 Woo), voor elders berustende stukken een wettelijke doorzendplicht (art. 4.2 lid 1 Woo / art. 2:3 Awb), en het opwerpen van art. 4.6 Woo (misbruik) bij legitieme controle op schaarse rechten is rechtens onhoudbaar.'
+                });
+                pleaBlocks.push(
+                    '3. Doelneutraliteit, Behulpzaamheids- en Doorzendplicht (Art. 4.1, 4.2 & 4.6 Woo): Ingevolge artikel 4.1, derde lid, Woo is een verzoek doelneutraal. Buitenbehandelingstelling op grond van artikel 4.6 Woo is bij een verzoek dat ziet op concrete bestuurlijke aangelegenheden onrechtmatig. Voor zover gevraagde bescheiden (mede) bij een ander bestuursorgaan berusten, rust op het bestuursorgaan de dwingende wettelijke plicht deze onderdelen op grond van artikel 4.2, eerste lid, Woo onverwijld door te zenden, onder gelijktijdige mededeling aan verzoeker.'
+                );
+            }
+
+            if (useAvg || hasAvg) {
+                hits.push({
+                    title: 'Art. 5 & 12 AVG vs. Art. 5.5 Woo (BRP-Auditlogs, Doelbinding & Dwangsom)',
+                    body: 'Auditlogs die al in systemen als MakelaarSuite/BRP zijn vastgelegd, zijn bestaande digitale gegevens (geen nieuwe vervaardiging). Voor inzage in eigen persoonsgegevens en logbestanden geldt bovendien het zelfstandige AVG-regime (art. 12 lid 3 AVG: beslistermijn 1 maand, met reguliere dwangsomregeling bij niet-tijdig beslissen).'
+                });
+                pleaBlocks.push(
+                    '4. Digitale Auditlogs, Doelbinding & Samenloop AVG/Woo (Art. 5 & 12 AVG / Art. 3:2 Awb): Reeds in systeemdatabases (zoals MakelaarSuite/BRP) vastgelegde raadplegingslogs kwalificeren als bestaande digitale gegevens die via een eenvoudige zoekslag ontsloten dienen te worden (art. 3:2 Awb). Daarnaast vereist artikel 5, eerste lid, onder b en c, AVG (doelbinding en dataminimalisatie) een aantoonbare wettelijke grondslag voorafgaand aan elke handmatige BRP-bevraging van niet-ingezetenen.'
+                );
+            }
+
+            if (useFiveYear || hasOld) {
+                hits.push({
+                    title: 'Art. 5.3 Woo (Informatie ouder dan vijf jaar — Verzwaarde Motiveringsplicht)',
+                    body: 'Bij documenten ouder dan vijf jaar (zoals historische archieven, beschikkingen uit 1993/2009 of gegevens uit 2017) weegt het belang van openbaarheid nog zwaarder: het bestuursorgaan moet expliciet motiveren waarom de relatieve belangen van art. 5.1 lid 2 Woo ondanks het tijdsverloop nog steeds zwaarder wegen.'
+                });
+                pleaBlocks.push(
+                    '5. Verzwaarde motiveringsplicht bij documenten ouder dan vijf jaar (Art. 5.3 Woo): Voor zover de gevraagde stukken ouder zijn dan vijf jaar, geldt op grond van artikel 5.3 Woo dat weigering op basis van relatieve uitzonderingsgronden slechts mogelijk is indien uitdrukkelijk wordt gemotiveerd waarom deze belangen ondanks het verstrijken van de tijd nog steeds actueel en zwaarwegend zijn.'
+                );
+            }
+
+            const hitsContainer = document.getElementById('simHitsContainer');
+            const badge = document.getElementById('simVerdictBadge');
+
+            if (hits.length === 0) {
+                badge.textContent = 'Selecteer ten minste één toetsingskader';
+                badge.className = 'verdict-pill alert';
+                hitsContainer.innerHTML = '<div class="norm-hit"><strong>Geen kader geselecteerd</strong>Vink links een of meer wettelijke toetsingsgrondslagen aan om de audit-analyse te genereren.</div>';
+                document.getElementById('simGeneratedPlea').value = '';
+                return;
+            }
+
+            badge.textContent = `${hits.length} Wettelijke Toetsingsgronden Actief`;
+            badge.className = 'verdict-pill strong';
+
+            hitsContainer.innerHTML = hits.map(h => `
+                <div class="norm-hit">
+                    <strong>${h.title}</strong>
+                    <span>${h.body}</span>
+                </div>
+            `).join('');
+
+            const headerIntro = 'JURIDISCHE MOTIVERING & TEGENWERPING (WOO / AWB / AVG)\n\nGeacht college / Edelachtbaar college,\n\nTen aanzien van de voorgenomen weigering, buitenbehandelingstelling of beperking van de openbaarmaking wordt het volgende aangevoerd:\n\n';
+            const footerOutro = '\n\nConclusie: Verzocht wordt het bestreden besluit te herroepen, een volledige en controleerbare inventarislijst (art. 2.4 lid 2 Woo) over te leggen en de gevraagde informatie alsnog onverkort openbaar te maken dan wel conform artikel 4.2 Woo door te zenden.';
+
+            document.getElementById('simGeneratedPlea').value = headerIntro + pleaBlocks.join('\n\n') + footerOutro;
+        }
+
+        function copyGeneratedPlea() {
+            const val = document.getElementById('simGeneratedPlea').value.trim();
+            if (!val) return showToast('Geen tegenwerpingstekst aanwezig om te kopiëren.');
+            copyTextSafe(val, 'Tegenwerping- en preciseringsparagraaf gekopieerd naar klembord.');
+        }
+
+        /* ---------------------------------------------------------------------
+           2. PROCES- & AUDITLOG-TIJDLIJN (GEANONIMISEERDE CHRONOLOGIE)
+           --------------------------------------------------------------------- */
+        const TIMELINE_EVENTS = [
+            {
+                date: '11-01-2017 & 24-04-2017',
+                cat: 'avg',
+                tag: 'AVG / MakelaarSuite (Code 510232)',
+                title: 'Historische GBA-V / BRP-bevragingen zonder ingezetenschap',
+                desc: 'Raadpleging van uitgebreide persoons- en gezinsgegevens via de MakelaarSuite onder generieke taakcode 510232 (Algemene gemeentetaken), terwijl betrokkene niet in de gemeente woonachtig was.',
+                highlight: false
+            },
+            {
+                date: '01-03-2024',
+                cat: 'woo',
+                tag: 'Indiening 018-598-602-150',
+                title: 'Primair Woo-verzoek visserijrechten, Molenplaat & Dossier Zuurdeeg',
+                desc: 'Verzoek om openbaarmaking van documenten inzake historische visserijrechten, schelpdierpercelen (Molenplaat/Speelmansplaten), het 50-jarige archiefdossier Zuurdeeg en milieu-informatie (Verdrag van Aarhus).',
+                highlight: false
+            },
+            {
+                date: '11-03-2024 • 10:43:25 vs. 10:48:00',
+                cat: 'avg',
+                tag: 'Forensisch Bewijs • 5-Minuten Gat',
+                title: 'Handmatige BRP-zoekopdracht vóór aanmaak van Woo-zaak 790024',
+                desc: 'Gebruiker ZSNL voert om 10:43:25 uur een handmatige zoekactie uit op postcode en huisnummer (inclusief gezinscategorieën 05, 09 en 11). Pas 4 minuten en 35 seconden later (10:48:00 uur) wordt zaak 790024 aangemaakt.',
+                highlight: true
+            },
+            {
+                date: '27-03-2024 & 01-05-2024',
+                cat: 'woo',
+                tag: 'Precisering & Aanvullend Verzoek',
+                title: 'Woo-precisering en verzoek om BRP-logginggegevens',
+                desc: 'Uitgebreide inhoudelijke precisering van het Woo-verzoek (27 maart 2024) en afzonderlijk verzoek om schriftelijke uitleg en audit-logging van de BRP-raadplegingen uit 2017 en 2024 (1 mei 2024).',
+                highlight: false
+            },
+            {
+                date: '09-10-2025 / 14-10-2025',
+                cat: 'rechtbank',
+                tag: 'BRE 24/5455 WOO • ECLI:NL:RBZWB:2025:6823',
+                title: 'Uitspraak Rechtbank Zeeland-West-Brabant',
+                desc: 'De bestuursrechter oordeelt dat het verzoek van 1 mei 2024 inzake BRP-logging en persoonsgegevens een zelfstandig verzoek vormt waarop het bestuursorgaan alsnog een besluit moet nemen.',
+                highlight: false
+            },
+            {
+                date: '25-11-2025 vs. 18-12-2025',
+                cat: 'avg',
+                tag: 'Bestuurlijke Discrepantie • Zaak 896512',
+                title: 'Ontkenning van logs in primair besluit vs. verstrekking door FG',
+                desc: 'Op 25 november 2025 wijst het college het verzoek af met de stelling dat geen logs of documenten zijn aangetroffen. Op 18 december 2025 overhandigt de Functionaris Gegevensbescherming (FG) alsnog de MakelaarSuite-auditlogs.',
+                highlight: true
+            },
+            {
+                date: '13/14-01-2026 t/m 2026',
+                cat: 'rechtbank',
+                tag: 'Zaken 1456324 • 1425030 • Z2026-00000100 • 1463739',
+                title: 'Nieuw Woo-verzoek visserij, doorzending RUD & herroeping bij bezwaar',
+                desc: 'Indiening geactualiseerd Woo-verzoek (1456324), vernietiging/advies tot herroeping van de art. 4.6-antimisbruikafwijzing door de bezwaarschriftencommissie (1425030), doorzending bodemdossier naar RUD Zeeland (Z2026-00000100) en herroeping van het eerdere BRP-afwijzingsbesluit (1463739).',
+                highlight: false
+            }
+        ];
+
+        let currentTimelineFilter = 'all';
+
+        function renderTimeline() {
+            const container = document.getElementById('timelineContainer');
+            const filtered = TIMELINE_EVENTS.filter(ev => currentTimelineFilter === 'all' || ev.cat === currentTimelineFilter);
+
+            document.getElementById('timelineCountLabel').textContent = `${filtered.length} geanonimiseerde ijkpunten getoond`;
+
+            container.innerHTML = filtered.map(ev => `
+                <div class="timeline-item ${ev.highlight ? 'highlight-gap' : ''} print-avoid">
+                    <div class="tl-top">
+                        <span class="tl-date">${ev.date}</span>
+                        <span class="tl-tag">${ev.tag}</span>
+                    </div>
+                    <div class="tl-title">${ev.title}</div>
+                    <p class="tl-desc">${ev.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        function filterTimeline(cat, btnEl) {
+            currentTimelineFilter = cat;
+            document.querySelectorAll('.timeline-controls .filter-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            renderTimeline();
+        }
+
+        /* ---------------------------------------------------------------------
+           3. WETTELIJKE KNOOPPUNTEN & UITZONDERINGSGRONDEN MATRIX
+           --------------------------------------------------------------------- */
+        const NORM_MATRIX_DATA = [
+            {
+                article: 'Art. 5.1 lid 1 sub b Woo',
+                cat: 'absoluut',
+                badgeText: 'Absoluut (Staatsveiligheid)',
+                badgeClass: 'cat-abs',
+                norm: 'Openbaarmaking blijft achterwege voor zover dit de veiligheid van de Staat zou kunnen schaden. Vereist een concrete motivering per geweigerde passage.',
+                remedy: 'Reguliere gemeentelijke/provinciale bestuursdossiers vallen hier niet onder. Bij geschil over geheimhouding in beroep: toetsing door geheimhoudingskamer ex art. 8:29 Awb.'
+            },
+            {
+                article: 'Art. 8.8 Woo & Wiv 2017',
+                cat: 'absoluut',
+                badgeText: 'Bijzonder Regime (Wiv)',
+                badgeClass: 'cat-abs',
+                norm: 'Bijzondere openbaarmakingsregelingen in de bijlage bij art. 8.8 Woo (zoals de Wiv 2017 voor AIVD/MIVD) gaan vóór de Woo (ECLI:NL:RVS:2025:3962).',
+                remedy: 'Geldt uitsluitend voor informatie die daadwerkelijk onder de diensten berust. Kan niet door een gemeente of provincie worden ingeroepen om reguliere dossiers te blokkeren.'
+            },
+            {
+                article: 'Art. 5.1 lid 7 Woo & Verdrag van Aarhus',
+                cat: 'relatief',
+                badgeText: 'Milieu & Emissies',
+                badgeClass: 'cat-rel',
+                norm: 'Bij milieu-informatie over emissies in het milieu (Richtlijn 2003/4/EG) zijn de uitzonderingsgronden van art. 5.1 lid 1 en lid 2 Woo niet van toepassing.',
+                remedy: 'Breekt elk beroep op vertrouwelijke bedrijfsgegevens (art. 5.1 lid 1 sub c) of onevenredige benadeling bij stikstof-, bodem- en lozingsrapporten.'
+            },
+            {
+                article: 'Art. 5.1 lid 2 sub e Woo',
+                cat: 'relatief',
+                badgeText: 'Relatief (Persoonlijke levenssfeer)',
+                badgeClass: 'cat-rel',
+                norm: 'Bescherming van de persoonlijke levenssfeer (voorheen 10.2.e Wob). Alleen persoonsgegevens van niet-publieke functionarissen mogen worden weggelakt.',
+                remedy: 'Mag nooit leiden tot algehele weigering van het document; enkel namen/contactgegevens onleesbaar maken met codering "5.1.2e" op de inventarislijst.'
+            },
+            {
+                article: 'Art. 5.1 lid 2 sub h Woo',
+                cat: 'relatief',
+                badgeText: 'Relatief (Beveiliging / Sabotage)',
+                badgeClass: 'cat-rel',
+                norm: 'Beveiliging van personen en bedrijven en het voorkomen van sabotage (ECLI:NL:RBOVE:2024:6393).',
+                remedy: 'Bestuursorgaan moet concrete aanknopingspunten aannemelijk maken voor daadwerkelijk sabotagerisico; abstracte vrees volstaat niet.'
+            },
+            {
+                article: 'Art. 5.3 Woo',
+                cat: 'relatief',
+                badgeText: 'Documenten > 5 Jaar',
+                badgeClass: 'cat-rel',
+                norm: 'Bij informatie ouder dan vijf jaar moet een weigering op grond van relatieve belangen (art. 5.1 lid 2) verzwaard worden gemotiveerd.',
+                remedy: 'Cruciaal voor archiefstukken, beschikkingen (1993/2009) en historische visserij-/pachtregisters.'
+            },
+            {
+                article: 'Art. 4.1 lid 3 & 5 & Art. 4.6 Woo',
+                cat: 'proces',
+                badgeText: 'Proces & Misbruiktoets',
+                badgeClass: 'cat-pro',
+                norm: 'Doelneutraliteit (geen belang vereist), actieve behulpzaamheidsplicht bij precisering (lid 5) en strenge maatstaf voor antimisbruik (art. 4.6 Woo).',
+                remedy: 'Omvang of kritische houding levert geen misbruik op (ECLI:NL:RVS:2022:3351). Bij onterechte toepassing van art. 4.6 Woo: bezwaar/beroep en proceskostenvergoeding.'
+            },
+            {
+                article: 'Art. 4.2 lid 1 Woo & Art. 2:3 Awb',
+                cat: 'proces',
+                badgeText: 'Wettelijke Doorzendplicht',
+                badgeClass: 'cat-pro',
+                norm: 'Indien gevraagde informatie bij een ander bestuursorgaan berust, moet het verzoek onverwijld worden doorgezonden onder mededeling aan verzoeker.',
+                remedy: 'Voorkomt afwijzing wegens "niet aanwezig" wanneer stukken bij provincie, RUD, RVO of Rijkswaterstaat berusten.'
+            },
+            {
+                article: 'Art. 5 & 12 AVG vs. Art. 5.5 Woo',
+                cat: 'proces',
+                badgeText: 'AVG-Inzage & Dwangsom',
+                badgeClass: 'cat-pro',
+                norm: 'Verzoeken om inzage in eigen persoonsgegevens en BRP-auditlogs vallen onder art. 15 AVG (reactietermijn 1 maand ex art. 12 lid 3 AVG) en art. 5.5 Woo.',
+                remedy: 'In tegenstelling tot reguliere Woo-verzoeken geldt voor AVG-verzoeken wél de bestuurlijke dwangsomregeling bij niet-tijdig beslissen (art. 4:17 Awb).'
+            },
+            {
+                article: 'Art. 2.4 lid 2 Woo & Art. 8:29 Awb',
+                cat: 'proces',
+                badgeText: 'Inventarislijst & Rechterlijke Toets',
+                badgeClass: 'cat-pro',
+                norm: 'Verplichting tot nauwkeurige en vergelijkbare verstrekking via een controleerbare inventarislijst (ECLI:NL:RVS:2025:5627).',
+                remedy: 'Bij beroep op geheimhouding in beroep beoordeelt de rechtbank (art. 8:29 Awb) of gewichtige redenen daadwerkelijk bestaan.'
+            }
+        ];
+
+        let currentMatrixFilter = 'all';
+
+        function renderNormMatrix() {
+            const q = (document.getElementById('matrixSearchInput').value || '').toLowerCase().trim();
+            const tbody = document.getElementById('normMatrixBody');
+            tbody.innerHTML = '';
+
+            const filtered = NORM_MATRIX_DATA.filter(row => {
+                const matchCat = currentMatrixFilter === 'all' || row.cat === currentMatrixFilter;
+                const matchText = !q ||
+                    row.article.toLowerCase().includes(q) ||
+                    row.badgeText.toLowerCase().includes(q) ||
+                    row.norm.toLowerCase().includes(q) ||
+                    row.remedy.toLowerCase().includes(q);
+                return matchCat && matchText;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--ink-muted); padding:1rem;">Geen wetsartikelen gevonden voor "${q.replace(/</g, '&lt;')}".</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong class="mono" style="color:var(--meekrab-primary);">${row.article}</strong></td>
+                    <td><span class="cat-badge ${row.badgeClass}">${row.badgeText}</span></td>
+                    <td>${row.norm}</td>
+                    <td style="color:var(--ink-secondary);">${row.remedy}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function setMatrixFilter(cat, btnEl) {
+            currentMatrixFilter = cat;
+            document.querySelectorAll('#module-3 .filter-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            renderNormMatrix();
+        }
+
+        /* ---------------------------------------------------------------------
+           4. KLEMBOORD EXPORT, TOAST & SCROLL-NAVIGATIE
+           --------------------------------------------------------------------- */
+        function copyTextSafe(text, msg) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast(msg);
+            } catch (e) {
+                showToast('Kopiëren mislukt; selecteer de tekst handmatig.');
+            }
+            document.body.removeChild(ta);
+        }
+
+        function copyCompleteAuditReport() {
+            const plea = document.getElementById('simGeneratedPlea').value.trim();
+            const report = [
+                'WOO-AUDIT & PRIVACY-SCHILD: ANALYSE VAN BESTUURLIJKE UITZONDERINGSGRONDEN & DOSSIER-TRACEERBAARHEID',
+                'Status: PII-Geredigeerd | Juridisch Kader: Woo, Awb, AVG, Verdrag van Aarhus & Wiv 2017',
+                '====================================================================================================',
+                '1. KERNPUNTEN AUDITLOG & 5-MINUTEN GAT:',
+                '   - 11-01-2017 & 24-04-2017: GBA-V/MakelaarSuite-bevragingen onder code 510232 zonder ingezetenschap.',
+                '   - 11-03-2024: Handmatige BRP-bevraging door gebruiker ZSNL om 10:43:25 uur (4 min 35 sec vóór registratie zaak 790024 om 10:48:00 uur).',
+                '   - 09/14-10-2025: Uitspraak Rechtbank Zeeland-West-Brabant (BRE 24/5455 WOO / ECLI:NL:RBZWB:2025:6823).',
+                '   - 25-11-2025 vs 18-12-2025: Primair besluit ontkent logs; FG verstrekt 23 dagen later alsnog de MakelaarSuite-logs; besluit herroepen bij 1463739.',
+                '   - 13/14-01-2026: Nieuw Woo-verzoek (1456324) visserijrechten, Molenplaat & Dossier Zuurdeeg; doorzending bodemdossier naar RUD Zeeland (Z2026-00000100).',
+                '----------------------------------------------------------------------------------------------------',
+                '2. ACTIEVE TEGENWERPING & PRECISERING:',
+                plea
+            ].join('\n');
+
+            copyTextSafe(report, 'Volledig geanonimiseerd audit-overzicht gekopieerd naar klembord.');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastBanner');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+        }
+
+        window.addEventListener('scroll', () => {
+            const ids = ['module-1', 'module-2', 'module-3'];
+            const pos = window.scrollY + 185;
+            ids.forEach(id => {
+                const sec = document.getElementById(id);
+                const link = document.querySelector(`nav a[href="#${id}"]`);
+                if (sec && link) {
+                    if (pos >= sec.offsetTop && pos < sec.offsetTop + sec.offsetHeight) {
+                        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                }
+            });
+        });
+
+        window.onload = function () {
+            loadSimulatorPreset(0);
+            renderTimeline();
+            renderNormMatrix();
+        };
+    </script>
+</body>
+</html>
