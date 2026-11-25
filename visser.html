@@ -201,4 +201,242 @@
       width: 140px;
     }
 
-    td.date-cell
+    td.date-cell {
+      width: 85px;
+    }
+
+    .declaration {
+      font-style: italic;
+      font-size: 10pt;
+      margin: 0.75rem 0;
+      padding: 0.5rem 0.75rem;
+      background: #fafafa;
+      border-left: 3px solid var(--accent);
+    }
+
+    /* Printregels */
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .page {
+        width: auto;
+        min-height: 0;
+        margin: 0;
+        padding: 18mm 20mm;
+        box-shadow: none;
+        page-break-after: always;
+      }
+
+      .page:last-of-type {
+        page-break-after: auto;
+      }
+
+      .editable {
+        border-bottom: none;
+      }
+
+      .machtiging-box, .declaration, th {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar no-print">
+    <span>Klik op de onderstreepte velden om direct in te vullen.</span>
+    <div class="toolbar-actions">
+      <button type="button" id="addRowBtn">+ Rij toevoegen aan Bijlage 1</button>
+      <button type="button" class="primary" onclick="window.print()">Afdrukken / Opslaan als PDF</button>
+    </div>
+  </div>
+
+  <!-- PAGINA 1: VERZOEKSCHRIFT & COLLECTIEVE MACHTIGING -->
+  <section class="page">
+    <header class="doc-header">
+      <h1>Gezamenlijk Verzoekschrift &amp; Collectieve Machtiging</h1>
+      <p class="subtitle">Artikel 1:2 en 2:1 Algemene wet bestuursrecht (Awb) — Oude visrechten Reimerswaal</p>
+    </header>
+
+    <div class="address-block">
+      <strong>Aan:</strong><br>
+      Het College van Burgemeester en Wethouders van de gemeente Tholen<br>
+      Postbus 51<br>
+      4690 AB Tholen
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-label">Datum:</div>
+      <div><span class="editable" contenteditable="true">[Datum]</span></div>
+
+      <div class="meta-label">Betreft:</div>
+      <div>Gezamenlijk verzoekschrift en collectieve machtiging — Visrechten Reimerswaal / Woo-dossier <span class="editable" contenteditable="true">[eventueel zaaknummer]</span></div>
+
+      <div class="meta-label">Bijlagen:</div>
+      <div>
+        1. Index- en handtekeningenblad van alle mede-indieners / belanghebbenden<br>
+        2. Bewijsstukken uitkeringen Visserijschap / Bestuur der Visserijen (genummerd)
+      </div>
+    </div>
+
+    <p>Geacht college,</p>
+
+    <p>
+      Ondergetekenden — vermeld op het bijgevoegde index- en handtekeningenblad (Bijlage 1) — richten zich gezamenlijk tot u als erfgenamen en rechthebbenden met betrekking tot de oude visrechten op het (verdronken) land van Reimerswaal.
+    </p>
+
+    <h2>1. Onderbouwing belang en bewijs</h2>
+    <p>
+      Met de bijgevoegde officiële uitkeringsstukken (Bijlage 2) tonen ondergetekenden aan dat het visserijbelang in rechte lijn en aantoonbaar heeft voortbestaan. Op grond van de vrije bewijsleer verzoeken wij u deze primaire, door overheidsinstanties afgegeven stukken bij uw beoordeling te betrekken, in plaats van te blijven verwijzen naar historisch verloren gegane archieven.
+    </p>
+
+    <h2>2. Verzoek</h2>
+    <p>Wij verzoeken u:</p>
+    <ul>
+      <li>ons gezamenlijk aan te merken als belanghebbenden in de zin van artikel 1:2 Awb;</li>
+      <li>een formeel, schriftelijk en deugdelijk gemotiveerd besluit (art. 3:2 en 3:46 Awb) te nemen op ons verzoek om verstrekking van de gevraagde stukken en/of erkenning van onze positie;</li>
+      <li>alle correspondentie en besluiten in deze zaak te richten aan onderstaande gemachtigde.</li>
+    </ul>
+
+    <h2>3. Collectieve machtiging (artikel 2:1 Awb)</h2>
+    <p>
+      Door ondertekening van het bijgevoegde index- en handtekeningenblad (Bijlage 1) machtigen alle daarop vermelde personen:
+    </p>
+
+    <div class="machtiging-box">
+      <strong>Naam gemachtigde:</strong> <span class="editable" id="gemachtigdeNaam" contenteditable="true">[Naam gemachtigde]</span><br>
+      <strong>Adres:</strong> <span class="editable" contenteditable="true">[Straat + huisnummer, postcode, woonplaats]</span><br>
+      <strong>E-mailadres:</strong> <span class="editable" contenteditable="true">[E-mailadres]</span>
+    </div>
+
+    <p>
+      om namens hen gezamenlijk en ieder afzonderlijk het woord te voeren, stukken in te dienen, informatie te ontvangen en alle noodzakelijke (bestuurs)rechtelijke handelingen te verrichten richting de gemeente Tholen — waaronder het indienen van zienswijzen, bezwaarschriften en ingebrekestellingen.
+    </p>
+
+    <div class="signature-footer">
+      <p>Hoogachtend,</p>
+      <p>Namens alle ondertekenaars op Bijlage 1,</p>
+      <div class="sig-line">
+        Handtekening gemachtigde
+      </div>
+    </div>
+  </section>
+
+  <!-- PAGINA 2: BIJLAGE 1 — INDEX- EN HANDTEKENINGENBLAD -->
+  <section class="page">
+    <header class="doc-header">
+      <h1>Bijlage 1: Index- en handtekeningenblad</h1>
+      <p class="subtitle">
+        Behorende bij het gezamenlijk verzoekschrift en de collectieve machtiging d.d.
+        <span class="editable" contenteditable="true">[Datum]</span> aan de gemeente Tholen (visrechten Reimerswaal).
+      </p>
+    </header>
+
+    <div class="declaration">
+      Door ondertekening verklaart ondergetekende akkoord te gaan met de inhoud van het gezamenlijke verzoekschrift en de daarin opgenomen machtiging (artikel 2:1 Awb) aan
+      <strong id="gemachtigdeMirror">[Naam gemachtigde]</strong>.
+    </div>
+
+    <table id="signatureTable">
+      <thead>
+        <tr>
+          <th style="width: 32px; text-align: center;">Nr.</th>
+          <th>Naam en voorletters</th>
+          <th>Adres en woonplaats</th>
+          <th>Hoedanigheid<br><small style="font-weight:normal;">(bijv. erfgenaam / uitkeringsgerechtigde)</small></th>
+          <th style="width: 85px;">Datum</th>
+          <th style="width: 140px;">Handtekening</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-num">1</td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td class="date-cell" contenteditable="true"></td>
+          <td class="sig-cell"></td>
+        </tr>
+        <tr>
+          <td class="row-num">2</td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td class="date-cell" contenteditable="true"></td>
+          <td class="sig-cell"></td>
+        </tr>
+        <tr>
+          <td class="row-num">3</td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td class="date-cell" contenteditable="true"></td>
+          <td class="sig-cell"></td>
+        </tr>
+        <tr>
+          <td class="row-num">4</td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td class="date-cell" contenteditable="true"></td>
+          <td class="sig-cell"></td>
+        </tr>
+        <tr>
+          <td class="row-num">5</td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td class="date-cell" contenteditable="true"></td>
+          <td class="sig-cell"></td>
+        </tr>
+        <tr>
+          <td class="row-num">6</td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td class="date-cell" contenteditable="true"></td>
+          <td class="sig-cell"></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <script>
+    // Synchroniseer naam gemachtigde automatisch naar Bijlage 1
+    const naamInput = document.getElementById('gemachtigdeNaam');
+    const naamMirror = document.getElementById('gemachtigdeMirror');
+    naamInput.addEventListener('input', () => {
+      naamMirror.textContent = naamInput.textContent.trim() || '[Naam gemachtigde]';
+    });
+
+    // Extra rijen toevoegen aan het handtekeningenblad
+    document.getElementById('addRowBtn').addEventListener('click', () => {
+      const tbody = document.querySelector('#signatureTable tbody');
+      const nextNum = tbody.rows.length + 1;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="row-num">${nextNum}</td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td class="date-cell" contenteditable="true"></td>
+        <td class="sig-cell"></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  </script>
+</body>
+</html>
