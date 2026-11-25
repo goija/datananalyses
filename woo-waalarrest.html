@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Systeem- &amp; Dossieranalyse: Didam-arrest, Baggerconcessies Waal, Milieu &amp; Woo</title>
+  <style>
+    :root {
+      --bg-page: #ffffff;
+      --bg-surface: #f9f7f6;
+      --bg-card: #ffffff;
+      --accent: #9e2a2b;
+      --accent-dark: #6b1b1c;
+      --accent-soft: #f4e8e8;
+      --text-main: #1d2220;
+      --text-muted: #525a57;
+      --border: #dcd6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding: 2.5rem 1.25rem;
+    }
+
+    .wrapper {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: var(--accent);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.65rem;
+      border-radius: 3px;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      line-height: 1.2;
+      margin-bottom: 0.6rem;
+      color: var(--text-main);
+    }
+
+    .lead {
+      font-size: 1.06rem;
+      color: var(--text-muted);
+      max-width: 820px;
+    }
+
+    /* Section Styling */
+    section {
+      margin-bottom: 2.75rem;
+    }
+
+    h2.section-title {
+      font-size: 1.35rem;
+      color: var(--text-main);
+      border-left: 4px solid var(--accent);
+      padding-left: 0.85rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* 4-Pillar Analytical Grid */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .pillar-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 4px;
+      padding: 1.25rem;
+    }
+
+    .pillar-num {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
+      display: block;
+    }
+
+    .pillar-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.65rem;
+      color: var(--text-main);
+    }
+
+    .pillar-card p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 0.65rem;
+    }
+
+    .pillar-card ul {
+      padding-left: 1.1rem;
+      font-size: 0.9rem;
+    }
+
+    .pillar-card li {
+      margin-bottom: 0.35rem;
+    }
+
+    /* Causal Chain Diagram (CSS Flow) */
+    .flow-container {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .flow-step {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1.1rem;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .flow-step strong {
+      display: block;
+      color: var(--accent);
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .flow-step span {
+      font-size: 0.88rem;
+      color: var(--text-main);
+      display: block;
+    }
+
+    /* Matrix Table */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      background-color: var(--bg-surface);
+      color: var(--accent);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Interactive Tabs for Deep-Dive & Woo Template */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    .tab-btn {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn.active {
+      background-color: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .tab-panel {
+      display: none;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel h3 {
+      font-size: 1.15rem;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .tab-panel p {
+      margin-bottom: 0.85rem;
+      font-size: 0.95rem;
+    }
+
+    /* Woo Builder */
+    .builder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.9rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .builder-grid label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .builder-grid input {
+      width: 100%;
+      padding: 0.5rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-size: 0.92rem;
+      background-color: #ffffff;
+    }
+
+    .letter-box {
+      background-color: #ffffff;
+      border: 1px solid var(--border);
+      padding: 1.25rem;
+      border-radius: 3px;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-dark);
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <header>
+    <span class="badge">Juridische &amp; Bestuurlijke Analyse</span>
+    <h1>Samenhang: Didam-arrest, Baggerconcessies Waal, Milieu &amp; Woo</h1>
+    <p class="lead">
+      Een gestructureerde analyse van het krachtenveld tussen publiekrechtelijk rivierbeheer, gelijkheidsbeginselen bij gronduitgifte (Didam-jurisprudentie), private bagger- en zandwinningsconcessies (o.a. Aannemingsbedrijf Geluk / Smals Dredging) en waterbodemkwaliteit.
+    </p>
+  </header>
+
+  <!-- 1. De Vier Kernen -->
+  <section>
+    <h2 class="section-title">1. De vier analytische pijlers van het dossier</h2>
+    <div class="pillars-grid">
+      <article class="pillar-card">
+        <span class="pillar-num">Pijler I &bull; Privaatrecht &amp; Overheid</span>
+        <h3>Didam-arrest (I &amp; II)</h3>
+        <p>De Hoge Raad verplicht overheden (zoals gemeenten langs de Waal en het Rijk) om bij gronduitgifte gelijke kansen te bieden.</p>
+        <ul>
+          <li>Verbod op onderhandse één-op-één verkoop zonder openbare selectie.</li>
+          <li>Objectieve, toetsbare en redelijke gunningscriteria vereist.</li>
+          <li>Direct relevant voor uiterwaardgronden, oevers en winningslocaties.</li>
+        </ul>
+      </article>
+
+      <article class="pillar-card">
+        <span class="pillar-num">Pijler II &bull; Markt &amp; Uitvoering</span>
+        <h3>Bagger- &amp; Zandconcessies</h3>
+        <p>Private waterbouwers voeren het fysieke onderhoud en de grondstoffenwinning op de Waal uit.</p>
+        <ul>
+          <li>Aannemingsbedrijf Geluk BV (150-jarige historie, onderdeel Smals Dredging).</li>
+          <li>Meerjarige prestatiecontracten Rijkswaterstaat en provinciale ontgrondingsvergunningen.</li>
+          <li>Combinatie van vaargeulonderhoud, rivierverruiming en zand-/grindwinning.</li>
+        </ul>
+      </article>
+
+      <article class="pillar-card">
+        <span class="pillar-num">Pijler III &bull; Milieu &amp; Handhaving</span>
+        <h3>Vervuiling &amp; Baggerspecie</h3>
+        <p>Rivierbodems bevatten historische verontreinigingen (zware metalen, PAK's) die bij ingrepen vrijkomen.</p>
+        <ul>
+          <li>Toetsingskader: Besluit bodemkwaliteit (Bbk) en Kaderrichtlijn Water.</li>
+          <li>Juridische frictie rond reststromen (o.a. granuliet / fijnzandige fracties).</li>
+          <li>Toezicht door Inspectie Leefomgeving en Transport (ILT) en provincies.</li>
+        </ul>
+      </article>
+
+      <article class="pillar-card">
+        <span class="pillar-num">Pijler IV &bull; Transparantie &amp; Controle</span>
+        <h3>Woo-verzoeken &amp; Historie</h3>
+        <p>De Wet open overheid (Woo) biedt het instrument om besluitvorming en naleving achteraf te toetsen.</p>
+        <ul>
+          <li>Opvragen van gunningsmotiveringen (Didam-toets) en contractvoorwaarden.</li>
+          <li>Inzage in bodemanalyses, partijkeuringen en handhavingsrapporten.</li>
+          <li>Aansluiting op waterstaatkundige leggers en historische vaartuig-/havenregistraties (zoals TH 7).</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <!-- 2. Causale Keten -->
+  <section>
+    <h2 class="section-title">2. Ketenanalyse: Hoe de onderdelen in elkaar grijpen</h2>
+    <div class="flow-container">
+      <div class="flow-steps">
+        <div class="flow-step">
+          <strong>Stap 1: Ruimtelijke &amp; Juridische Basis</strong>
+          <span>Een overheid (gemeente, provincie of Rijkswaterstaat) geeft uiterwaardgrond uit of verleent een concessie voor rivierverruiming en zandwinning langs de Waal.</span>
+        </div>
+        <div class="flow-step">
+          <strong>Stap 2: De Didam-toets</strong>
+          <span>Op grond van art. 3:14 BW en het Didam-arrest moet worden aangetoond dat er geen sprake is van ongeoorloofde begunstiging of onderhandse gunning aan één vaste marktpartij.</span>
+        </div>
+        <div class="flow-step">
+          <strong>Stap 3: Milieuhygiënische Uitvoering</strong>
+          <span>Tijdens het baggeren en ontgronden komt specie vrij. Vergunningvoorschriften en het Besluit bodemkwaliteit bepalen of specie mag worden verspreid, verwerkt of afgevoerd.</span>
+        </div>
+        <div class="flow-step">
+          <strong>Stap 4: Reconstructie via de Woo</strong>
+          <span>Via gerichte Woo-verzoeken worden de gunningsdossiers, uitzonderingsmotiveringen (Didam) en meetdata over waterbodemvervuiling opgevraagd en geanalyseerd.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Vergelijkende Toetsingsmatrix -->
+  <section>
+    <h2 class="section-title">3. Toetsingsmatrix voor dossieronderzoek</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Onderzoeksdomein</th>
+            <th>Kernvraag in de analyse</th>
+            <th>Bevoegd Gezag</th>
+            <th>Relevante Documenttypen (Woo)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Gronduitgifte &amp; Concessie</strong><br>(Didam-kader)</td>
+            <td>Is er een openbare selectieprocedure gevolgd of een gemotiveerde publicatie bij één serieuze gegadigde?</td>
+            <td>Gemeenten (o.a. West Maas en Waal), Rijkswaterstaat, Provincie</td>
+            <td>Koop-/erfpachtovereenkomsten, selectieleidraden, publicaties voornemen tot uitgifte, juridische adviezen.</td>
+          </tr>
+          <tr>
+            <td><strong>Baggerwerk &amp; Ontgronding</strong><br>(Geluk / Smals Dredging)</td>
+            <td>Welke concessievakken, dieptes en volumes zijn vergund en onder welke financiële/technische voorwaarden?</td>
+            <td>Rijkswaterstaat, Provincie Gelderland / Zuid-Holland</td>
+            <td>Ontgrondingsvergunningen, bestekken, meerjarige prestatiecontracten, peilkaarten voor en na uitvoering.</td>
+          </tr>
+          <tr>
+            <td><strong>Waterbodem &amp; Vervuiling</strong><br>(Bbk-kader)</td>
+            <td>Voldoet de verplaatste of toegepaste baggerspecie aan de chemische kwaliteitsnormen?</td>
+            <td>ILT, Omgevingsdiensten, Rijkswaterstaat</td>
+            <td>Waterbodemonderzoeken, partijkeuringen, Bbk-meldingen, handhavingsbrieven en dwangsombesluiten.</td>
+          </tr>
+          <tr>
+            <td><strong>Waterstaat &amp; Maritiem Erfgoed</strong><br>(Leggers &amp; Registraties)</td>
+            <td>Hoe verhouden huidige ingrepen zich tot historische watergangen, wielen en vaartuigregistraties (zoals TH 7)?</td>
+            <td>Waterschappen, Gemeenten, RCE</td>
+            <td>Waterstaatkundige leggers, cultuurhistorische waardenkaarten, haven- en ligplaatsregisters.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 4. Verdieping & Interactieve Woo-generator -->
+  <section>
+    <h2 class="section-title">4. Verdieping &amp; Toepassing in een Woo-verzoek</h2>
+
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active" onclick="switchTab(event, 'tab-didam')">Juridische duiding: Didam &amp; Rivierbeheer</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-milieu')">Technisch-milieukundig kader</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-woo')">Concept Woo-verzoek samenstellen</button>
+    </div>
+
+    <div id="tab-didam" class="tab-panel active">
+      <h3>Waarom het Didam-arrest cruciaal is bij rivierprojecten</h3>
+      <p>
+        Bij projecten langs de Waal — zoals uiterwaardvergraving, hoogwatergeulen en zandwinning — zijn grondbezit, vergunningverlening en economische exploitatie nauw met elkaar verweven. Overheden beschikken over schaarse rechten en publieke gronden.
+      </p>
+      <p>
+        Het <strong>Didam-arrest</strong> (Hoge Raad 26 november 2021, gevolgd door Didam II in 2024) verankert dat het publiekrechtelijke gelijkheidsbeginsel doorwerkt in het privaatrechtelijk handelen van de overheid. Wanneer een gemeente of waterbeheerder grond verkoopt, verpacht of een exclusief ontwikkel- of winningsrecht gunt aan een marktpartij zonder openbare mededinging, is die handeling vernietigbaar of onrechtmatig, tenzij op voorhand objectief vaststaat dat er slechts één serieuze gegadigde in aanmerking komt — en dat voornemen tijdig en gemotiveerd openbaar is gemaakt.
+      </p>
+    </div>
+
+    <div id="tab-milieu" class="tab-panel">
+      <h3>Spanning tussen economische winning en milieuhygiëne</h3>
+      <p>
+        In de Nederlandse rivierdelta is zand- en grindwinning vrijwel altijd gekoppeld aan waterstaatkundige doelstellingen (zoals <em>Ruimte voor de Rivier</em> of vaargeulonderhoud). De financiering van dergelijke projecten leunt vaak op de opbrengsten van de gewonnen delfstoffen.
+      </p>
+      <p>
+        Tegelijkertijd leidt het roeren in de rivierbodem tot verplaatsing van slib en fijnzandige fracties waarin historische verontreinigingen (zoals zware metalen en polycyclische aromatische koolwaterstoffen) zijn opgeslagen. De juridische en bestuurlijke controle richt zich daarom op de vraag of bij het verondiepen van plassen of het herinrichten van uiterwaarden geen verslechtering van de water- en bodemkwaliteit optreedt.
+      </p>
+    </div>
+
+    <div id="tab-woo" class="tab-panel">
+      <h3>Generator: Gecombineerd Woo-verzoek (Didam + Baggerconcessies + Milieu)</h3>
+      <div class="builder-grid">
+        <div>
+          <label for="f-org">Bestuursorgaan</label>
+          <input type="text" id="f-org" value="Gemeente West Maas en Waal / Rijkswaterstaat" oninput="renderLetter()">
+        </div>
+        <div>
+          <label for="f-loc">Gebied / Concessievak / Object</label>
+          <input type="text" id="f-loc" value="Uiterwaarden en vaargeul Waal (concessiegebied)" oninput="renderLetter()">
+        </div>
+        <div>
+          <label for="f-actor">Betrokken Marktpartij(en)</label>
+          <input type="text" id="f-actor" value="Aannemingsbedrijf Geluk BV / Smals Dredging" oninput="renderLetter()">
+        </div>
+        <div>
+          <label for="f-period">Onderzoeksperiode</label>
+          <input type="text" id="f-period" value="2018 tot heden" oninput="renderLetter()">
+        </div>
+      </div>
+
+      <div class="letter-box" id="letter-preview"></div>
+      <button type="button" class="btn-primary" onclick="copyLetter(this)">Kopieer Woo-verzoek naar klembord</button>
+    </div>
+  </section>
+
+  <footer>
+    <span>Opgesteld als zelfstandig analytisch HTML-document (geen externe afhankelijkheden).</span>
+    <span>Kader: Wet open overheid (Woo) &bull; Art. 3:14 BW (Didam) &bull; Besluit bodemkwaliteit</span>
+  </footer>
+</div>
+
+<script>
+  function switchTab(evt, panelId) {
+    const panels = document.querySelectorAll('.tab-panel');
+    panels.forEach(p => p.classList.remove('active'));
+
+    const buttons = document.querySelectorAll('.tab-btn');
+    buttons.forEach(b => b.classList.remove('active'));
+
+    document.getElementById(panelId).classList.add('active');
+    evt.currentTarget.classList.add('active');
+  }
+
+  function renderLetter() {
+    const org = document.getElementById('f-org').value || '[Bestuursorgaan]';
+    const loc = document.getElementById('f-loc').value || '[Gebied / Object]';
+    const actor = document.getElementById('f-actor').value || '[Marktpartij]';
+    const period = document.getElementById('f-period').value || '[Periode]';
+
+    const text = `Aan: ${org}
+Onderwerp: Verzoek op grond van de Wet open overheid (Woo) inzake gronduitgifte (Didam-kader), bagger-/ontgrondingsconcessies en waterbodemkwaliteit (${loc})
+
+Geacht college / bestuur,
+
+Op grond van de Wet open overheid (Woo) verzoek ik u om openbaarmaking van alle bij uw bestuursorgaan berustende documenten over de periode ${period}, die betrekking hebben op:
+
+1. Gronduitgifte, concessies en toepassing van het gelijkheidsbeginsel (Didam-arrest):
+   Alle overeenkomsten (koop, erfpacht, huur, concessie of samenwerking), gunningsbesluiten, selectieleidraden en interne juridische of bestuurlijke notities met betrekking tot de uitgifte van gronden of winnings-/baggerrechten ter plaatse van ${loc} (waaronder begrepen transacties of contracten waarbij ${actor} betrokken is). Indien is afgezien van een openbare selectieprocedure, verzoek ik tevens om de onderliggende motivering en publicaties waaruit blijkt dat op grond van objectieve, toetsbare en redelijke criteria slechts één serieuze gegadigde in aanmerking kwam.
+
+2. Baggerwerkzaamheden en ontgrondingen:
+   Alle verleende vergunningen, bestekken, uitvoeringsplannen en peil-/dieptemetingen voor onderhoudsbaggerwerk en zand-/grindwinning binnen bovengenoemd gebied.
+
+3. Waterbodemkwaliteit, vervuiling en verwerking van baggerspecie:
+   Alle milieuhygiënische bodemonderzoeken, partijkeuringen, meldingen in het kader van het Besluit bodemkwaliteit (Bbk) inzake het verspreiden of toepassen van specie/reststromen, alsmede eventuele inspectie- en handhavingsrapporten en correspondentie met toezichthouders (zoals omgevingsdiensten en de Inspectie Leefomgeving en Transport).
+
+Ik verzoek u de gevraagde documenten digitaal (bij voorkeur als doorzoekbare PDF-bestanden en eventuele onderliggende open datasets) aan mij te verstrekken binnen de wettelijke beslistermijn van vier weken.
+
+Met vriendelijke groet,
+
+[Naam]
+[Adres / E-mailadres]`;
+
+    document.getElementById('letter-preview').textContent = text;
+  }
+
+  function copyLetter(btn) {
+    const text = document.getElementById('letter-preview').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Gekopieerd naar klembord!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+
+  renderLetter();
+</script>
+
+</body>
+</html>
