@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onderzoekspagina — Identificatieplicht, Nalatenschap &amp; Belastingrecht</title>
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS & BASISSTYLING (Hoog contrast, Zeeuws meekrap-rood accent)
+       ========================================================================== */
+    :root {
+      --bg-page: #FFFFFF;
+      --bg-surface: #FAFAFA;
+      --bg-subtle: #F4F1F1;
+      --bg-accent-soft: #FDF2F2;
+      --text-main: #1A1A1A;
+      --text-muted: #4A4A4A;
+      --accent: #A31C1C;
+      --accent-dark: #7D1414;
+      --accent-light: #E8C5C5;
+      --border-color: #DCDCDC;
+      --border-strong: #B8B8B8;
+      --success-bg: #EEF7F0;
+      --success-text: #14532D;
+      --success-border: #86EFAC;
+      --warn-bg: #FFF8EB;
+      --warn-text: #7C2D12;
+      --warn-border: #FCD34D;
+      --base-font-size: 19px; /* Standaard A+ voor maximale leesbaarheid */
+      --radius: 10px;
+      --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: var(--base-font-size);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       BOVENBALK (Sticky Navigatie, Lettergrootte, Zoeken, Alles openen, Print)
+       ========================================================================== */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: var(--bg-page);
+      border-bottom: 3px solid var(--accent);
+      box-shadow: var(--shadow-sm);
+      padding: 0.65rem 1rem;
+    }
+
+    .topbar-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .topbar-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+
+    .topbar-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Knoppen */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      border: 2px solid var(--border-strong);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      min-height: 44px;
+      white-space: nowrap;
+    }
+
+    .btn:hover, .btn:focus-visible {
+      border-color: var(--accent);
+      color: var(--accent);
+      background-color: var(--bg-accent-soft);
+      outline: none;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover, .btn-primary:focus-visible {
+      background-color: var(--accent-dark);
+      border-color: var(--accent-dark);
+      color: #FFFFFF;
+    }
+
+    /* Lettergrootte knoppengroep */
+    .font-group {
+      display: inline-flex;
+      border: 2px solid var(--border-strong);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .font-btn {
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.45rem 0.7rem;
+      min-height: 40px;
+      border: none;
+      border-right: 1px solid var(--border-color);
+      background: var(--bg-page);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .font-btn:last-child {
+      border-right: none;
+    }
+
+    .font-btn[aria-pressed="true"] {
+      background-color: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .font-btn:hover:not([aria-pressed="true"]) {
+      background-color: var(--bg-accent-soft);
+      color: var(--accent);
+    }
+
+    /* Zoekbalk */
+    .search-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      flex: 1 1 200px;
+      max-width: 280px;
+    }
+
+    .search-input {
+      width: 100%;
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 0.5rem 2.2rem 0.5rem 0.8rem;
+      min-height: 44px;
+      border: 2px solid var(--border-strong);
+      border-radius: 8px;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(163, 28, 28, 0.15);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 6px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0.25rem 0.45rem;
+      display: none;
+    }
+
+    .search-clear.visible {
+      display: inline-block;
+    }
+
+    /* ==========================================================================
+       SCHUIFBAAR ZIJMENU (Slide-out Drawer)
+       ========================================================================== */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(26, 26, 26, 0.55);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .drawer-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: min(340px, 88vw);
+      background-color: var(--bg-page);
+      border-right: 4px solid var(--accent);
+      z-index: 210;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-md);
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 2px solid var(--border-color);
+      background-color: var(--bg-accent-soft);
+    }
+
+    .drawer-header h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      color: var(--accent);
+    }
+
+    .drawer-nav {
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .drawer-link {
+      display: block;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 0.92rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 8px;
+      border-left: 4px solid transparent;
+      background-color: var(--bg-surface);
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .drawer-link:hover, .drawer-link:focus-visible {
+      background-color: var(--bg-accent-soft);
+      border-left-color: var(--accent);
+      color: var(--accent);
+      outline: none;
+    }
+
+    .drawer-link small {
+      display: block;
+      font-weight: 500;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    /* ==========================================================================
+       HOOFDINHOUD & HERO
+       ========================================================================== */
+    .container {
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 1.75rem 1.15rem 4rem;
+    }
+
+    .hero {
+      border: 2px solid var(--accent-light);
+      border-left: 8px solid var(--accent);
+      background-color: var(--bg-surface);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.6rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      margin-bottom: 0.65rem;
+    }
+
+    .badge-outline {
+      background-color: var(--bg-accent-soft);
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+    }
+
+    .hero h1 {
+      margin: 0 0 0.6rem;
+      font-size: 1.75rem;
+      line-height: 1.25;
+      color: var(--text-main);
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.96rem;
+    }
+
+    /* Zoekstatus balk */
+    .search-status {
+      display: none;
+      margin-bottom: 1.25rem;
+      padding: 0.8rem 1.1rem;
+      border-radius: 8px;
+      background-color: var(--bg-accent-soft);
+      border: 2px solid var(--accent);
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .search-status.visible {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* ==========================================================================
+       HOOFDSTUKKAARTEN (Accordeon)
+       ========================================================================== */
+    .chapter-card {
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius);
+      background-color: var(--bg-page);
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      scroll-margin-top: 90px;
+    }
+
+    .chapter-card.is-open {
+      border-color: var(--accent);
+    }
+
+    .chapter-card.hidden-by-search {
+      display: none;
+    }
+
+    .chapter-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      text-align: left;
+      padding: 1.15rem 1.35rem;
+      background-color: var(--bg-surface);
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text-main);
+      transition: background-color 0.15s ease;
+    }
+
+    .chapter-card.is-open .chapter-header {
+      background-color: var(--bg-accent-soft);
+      border-bottom-color: var(--accent-light);
+    }
+
+    .chapter-header:hover {
+      background-color: var(--bg-accent-soft);
+    }
+
+    .chapter-header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .chapter-kicker {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+    }
+
+    .chapter-title {
+      font-size: 1.22rem;
+      font-weight: 800;
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .chapter-chevron {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-weight: 900;
+      font-size: 1.1rem;
+      transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .chapter-card.is-open .chapter-chevron {
+      transform: rotate(180deg);
+      background-color: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .chapter-body {
+      display: none;
+      padding: 1.4rem 1.45rem 1.65rem;
+    }
+
+    .chapter-card.is-open .chapter-body {
+      display: block;
+    }
+
+    /* ==========================================================================
+       TYPOGRAFIE & ELEMENTEN BINNEN HOOFDSTUKKEN
+       ========================================================================== */
+    h3 {
+      margin: 1.4rem 0 0.55rem;
+      font-size: 1.08rem;
+      color: var(--accent);
+      border-bottom: 1.5px solid var(--accent-light);
+      padding-bottom: 0.25rem;
+    }
+
+    h3:first-child {
+      margin-top: 0;
+    }
+
+    p {
+      margin: 0 0 0.9rem;
+    }
+
+    ul {
+      margin: 0.4rem 0 1rem;
+      padding-left: 1.35rem;
+    }
+
+    li {
+      margin-bottom: 0.45rem;
+    }
+
+    /* Callout-blokken */
+    .callout {
+      border-radius: 8px;
+      padding: 1rem 1.15rem;
+      margin: 1.1rem 0;
+      border: 2px solid var(--accent-light);
+      border-left: 6px solid var(--accent);
+      background-color: var(--bg-accent-soft);
+    }
+
+    .callout-title {
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+      display: block;
+    }
+
+    .callout-warn {
+      background-color: var(--warn-bg);
+      border-color: var(--warn-border);
+      border-left-color: #B45309;
+      color: var(--text-main);
+    }
+
+    .callout-warn .callout-title {
+      color: #92400E;
+    }
+
+    /* Raster voor kaarten (bijv. 5 rechtsgebieden) */
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .sub-card {
+      border: 2px solid var(--border-color);
+      border-top: 5px solid var(--accent);
+      border-radius: 8px;
+      padding: 1.05rem 1.15rem;
+      background-color: var(--bg-surface);
+    }
+
+    .sub-card h4 {
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+      color: var(--accent);
+    }
+
+    .sub-card ul {
+      margin-bottom: 0;
+      padding-left: 1.15rem;
+      font-size: 0.94rem;
+    }
+
+    /* Tabellen (responsief) */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin: 1rem 0 1.2rem;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+      font-size: 0.92rem;
+    }
+
+    thead th {
+      background-color: var(--accent);
+      color: #FFFFFF;
+      text-align: left;
+      padding: 0.75rem 0.9rem;
+      font-weight: 800;
+    }
+
+    tbody td {
+      padding: 0.75rem 0.9rem;
+      border-top: 1px solid var(--border-color);
+      vertical-align: top;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: var(--bg-surface);
+    }
+
+    /* ==========================================================================
+       REKENHULP INVORDERINGSRENTE (4,3%)
+       ========================================================================== */
+    .calc-box {
+      border: 2px solid var(--accent);
+      border-radius: var(--radius);
+      background-color: var(--bg-surface);
+      padding: 1.25rem 1.35rem;
+      margin: 1.25rem 0;
+    }
+
+    .calc-box h4 {
+      margin: 0 0 0.35rem;
+      color: var(--accent);
+      font-size: 1.05rem;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.9rem;
+      margin-top: 0.9rem;
+    }
+
+    .field label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.88rem;
+      margin-bottom: 0.35rem;
+      color: var(--text-main);
+    }
+
+    .field input {
+      width: 100%;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 0.6rem 0.75rem;
+      border: 2px solid var(--border-strong);
+      border-radius: 8px;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(163, 28, 28, 0.15);
+    }
+
+    .calc-actions {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .calc-result {
+      margin-top: 1rem;
+      padding: 1rem 1.15rem;
+      border-radius: 8px;
+      border: 2px solid var(--border-strong);
+      background-color: var(--bg-page);
+      display: none;
+    }
+
+    .calc-result.visible {
+      display: block;
+    }
+
+    .calc-result.below-threshold {
+      background-color: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text);
+    }
+
+    .calc-result.above-threshold {
+      background-color: var(--bg-accent-soft);
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .calc-amount {
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: var(--accent);
+      display: block;
+      margin: 0.2rem 0 0.45rem;
+    }
+
+    .calc-result.below-threshold .calc-amount {
+      color: var(--success-text);
+    }
+
+    /* Zoekmarkering */
+    mark.hl {
+      background-color: #FDE047;
+      color: #1A1A1A;
+      padding: 0 0.15rem;
+      border-radius: 3px;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1.25rem;
+      border-top: 2px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    /* ==========================================================================
+       RESPONSIVE AANPASSINGEN (Mobiel)
+       ========================================================================== */
+    @media (max-width: 680px) {
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .topbar-left {
+        justify-content: space-between;
+      }
+      .topbar-controls {
+        justify-content: space-between;
+      }
+      .search-wrapper {
+        max-width: 100%;
+        flex: 1 1 100%;
+      }
+      .hero {
+        padding: 1.15rem 1.1rem;
+      }
+      .hero h1 {
+        font-size: 1.45rem;
+      }
+      .chapter-header {
+        padding: 1rem 1.05rem;
+      }
+      .chapter-body {
+        padding: 1.1rem 1.05rem 1.35rem;
+      }
+    }
+
+    /* ==========================================================================
+       PRINT-CSS (Netjes afdrukken op papier of PDF)
+       ========================================================================== */
+    @media print {
+      @page {
+        margin: 1.5cm;
+      }
+      body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        font-size: 11pt !important;
+        line-height: 1.45 !important;
+      }
+      .topbar,
+      .drawer,
+      .drawer-backdrop,
+      .search-status,
+      .chapter-chevron,
+      .calc-actions,
+      .no-print {
+        display: none !important;
+      }
+      .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      .chapter-card {
+        display: block !important;
+        border: 1px solid #999 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+        margin-bottom: 1rem !important;
+      }
+      .chapter-card.hidden-by-search {
+        display: block !important;
+      }
+      .chapter-body {
+        display: block !important;
+        padding: 0.75rem 1rem !important;
+      }
+      .chapter-header {
+        background: #F5F5F5 !important;
+        border-bottom: 1px solid #999 !important;
+        padding: 0.6rem 1rem !important;
+      }
+      .table-wrap {
+        overflow: visible !important;
+        border: 1px solid #999 !important;
+      }
+      table {
+        min-width: 0 !important;
+        font-size: 9.5pt !important;
+      }
+      thead th {
+        background-color: #A31C1C !important;
+        color: #FFFFFF !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       SCHUIFBAAR ZIJMENU (Slide-out navigatie naar elk hoofdstuk)
+       ======================================================================== -->
+  <div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
+  <aside id="sideDrawer" class="drawer" aria-label="Hoofdstuknavigatie" aria-hidden="true">
+    <div class="drawer-header">
+      <h2>Inhoudsopgave</h2>
+      <button type="button" id="closeDrawerBtn" class="btn" aria-label="Sluit menu">Sluiten &times;</button>
+    </div>
+    <nav class="drawer-nav">
+      <a href="#hoofdstuk-1" class="drawer-link" data-target="hoofdstuk-1">
+        1. Identificatieplicht
+        <small>Natuurlijk persoon, notaris &amp; belastinginspecteur</small>
+      </a>
+      <a href="#hoofdstuk-2" class="drawer-link" data-target="hoofdstuk-2">
+        2. De 5 Rechtsgebieden
+        <small>Belasting-, ondernemings-, verbintenissen-, erf- &amp; bestuursrecht</small>
+      </a>
+      <a href="#hoofdstuk-3" class="drawer-link" data-target="hoofdstuk-3">
+        3. Aangifteverplichtingen &amp; Termijnen
+        <small>IB, erfbelasting (8 vs. 20 maanden), uitstel &amp; rente</small>
+      </a>
+      <a href="#hoofdstuk-4" class="drawer-link" data-target="hoofdstuk-4">
+        4. Verzuimboetes &amp; Aansprakelijkheid
+        <small>Boetebedragen, aanvaarding erfenis &amp; beraadtermijn</small>
+      </a>
+      <a href="#hoofdstuk-5" class="drawer-link" data-target="hoofdstuk-5">
+        5. Invorderingsrente &amp; Termijnen
+        <small>Rekenhulp 4,3%, invorderings- &amp; navorderingstermijn</small>
+      </a>
+      <a href="#hoofdstuk-6" class="drawer-link" data-target="hoofdstuk-6">
+        6. Geraadpleegde Onderleggers
+        <small>Overzicht van overheids- en juridische bronnen</small>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ========================================================================
+       BOVENBALK (Menu, Lettergrootte A/A+/A++, Zoeken, Alles openen, Print)
+       ======================================================================== -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <button type="button" id="openDrawerBtn" class="btn btn-primary" aria-expanded="false" aria-controls="sideDrawer">
+          &#9776; Menu
+        </button>
+        <p class="topbar-title">Onderzoeksdossier</p>
+      </div>
+
+      <div class="topbar-controls">
+        <!-- Lettergrootte knoppen -->
+        <div class="font-group" role="group" aria-label="Lettergrootte aanpassen">
+          <button type="button" class="font-btn" data-size="16px" aria-pressed="false" title="Normaal (16px)">A</button>
+          <button type="button" class="font-btn" data-size="19px" aria-pressed="true" title="Groot (19px, standaard)">A+</button>
+          <button type="button" class="font-btn" data-size="22px" aria-pressed="false" title="Extra groot (22px)">A++</button>
+        </div>
+
+        <!-- Zoekveld -->
+        <div class="search-wrapper">
+          <input type="search" id="searchInput" class="search-input" placeholder="Zoek trefwoord..." aria-label="Zoek op trefwoord in dit onderzoek">
+          <button type="button" id="clearSearchBtn" class="search-clear" aria-label="Wis zoekopdracht">&times;</button>
+        </div>
+
+        <!-- Alles openen / sluiten -->
+        <button type="button" id="toggleAllBtn" class="btn">Alles openen</button>
+
+        <!-- Afdrukken -->
+        <button type="button" id="printBtn" class="btn">Afdrukken</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       HOOFDINHOUD
+       ======================================================================== -->
+  <main class="container">
+    <!-- Introductieblok -->
+    <section class="hero">
+      <span class="badge">Volledig Geanonimiseerd</span>
+      <span class="badge badge-outline">Heldere Mensentaal</span>
+      <h1>Onderzoekspagina: Identificatieplicht, Vastgoed &amp; Belastingrecht</h1>
+      <p>
+        Dit zelfstandige overzicht bundelt de juridische en fiscale spelregels rondom de identificatieplicht bij de notaris en belastinginspecteur, de vijf betrokken rechtsgebieden bij een nalatenschap met vastgoed, de aangiftetermijnen, verzuimboetes, aansprakelijkheid en invordering. Alle persoons-, bedrijfs-, straat- en plaatsnamen zijn weggelaten.
+      </p>
+    </section>
+
+    <!-- Zoekresultaten balk -->
+    <div id="searchStatus" class="search-status" role="status" aria-live="polite">
+      <span id="searchStatusText"></span>
+      <button type="button" id="resetSearchInline" class="btn">Zoekfilter wissen</button>
+    </div>
+
+    <!-- ======================================================================
+         HOOFDSTUK 1 (STANDAARD GEOPEND): IDENTIFICATIEPLICHT
+         ====================================================================== -->
+    <article id="hoofdstuk-1" class="chapter-card is-open">
+      <button type="button" class="chapter-header" aria-expanded="true" aria-controls="body-1">
+        <span class="chapter-header-text">
+          <span class="chapter-kicker">Hoofdstuk 1 &bull; Hoofdonderwerp</span>
+          <span class="chapter-title">Identificatieplicht — Natuurlijk persoon, Notaris &amp; Belastinginspecteur</span>
+        </span>
+        <span class="chapter-chevron" aria-hidden="true">&#9662;</span>
+      </button>
+
+      <div id="body-1" class="chapter-body">
+        <h3>1. Wat houdt de identificatieplicht voor een natuurlijk persoon in?</h3>
+        <p>
+          In Nederland geldt vanaf <strong>14 jaar</strong> op grond van de Wet op de identificatieplicht een <strong>toonplicht</strong>. Dat betekent dat u niet zonder reden altijd een paspoort op zak hoeft te hebben (er is geen algemene draagplicht), maar dat u wél verplicht bent om een <strong>geldig, origineel identiteitsbewijs</strong> te tonen zodra een bevoegde ambtenaar daar om een concrete, taakgerelateerde reden naar vraagt.
+        </p>
+        <ul>
+          <li><strong>Geldige documenten:</strong> een Nederlands paspoort, een Nederlandse identiteitskaart, een Nederlands rijbewijs (in de meeste situaties), of een geldig verblijfsdocument.</li>
+          <li><strong>Altijd origineel en geldig:</strong> een foto op een telefoon of een verlopen document voldoet niet aan de wettelijke toonplicht.</li>
+        </ul>
+
+        <h3>2. De rol en bevoegdheid van de belastinginspecteur</h3>
+        <p>
+          Een belastinginspecteur (of andere bevoegde medewerker van de Belastingdienst) mag u vragen om een geldig identiteitsbewijs te tonen wanneer dat nodig is voor het uitvoeren van zijn wettelijke controletaak — bijvoorbeeld bij een persoonlijk gesprek, een controle ter plaatse of bij het verifiëren van uw identiteit als erfgenaam of belastingplichtige.
+        </p>
+        <ul>
+          <li><strong>Wederkerigheid:</strong> de inspecteur mag niet zomaar op straat zonder aanleiding om uw ID vragen; er moet een redelijk verband zijn met zijn belastingtaak.</li>
+          <li><strong>Uw recht:</strong> u mag de belastinginspecteur op uw beurt altijd vragen om zijn officiële legitimatiebewijs te tonen.</li>
+        </ul>
+
+        <h3>3. Identiteitsbewijs afgegeven bij de notaris</h3>
+        <p>
+          Wanneer u een nalatenschap afwikkelt of een akte laat opstellen, is de <strong>notaris wettelijk verplicht</strong> om uw identiteit vast te stellen (onder meer op basis van de notariswetgeving en de anti-witwasregels). De notaris controleert het originele document en is verplicht om een <strong>volledige, onbewerkte kopie of scan — inclusief uw burgerservicenummer (BSN) en pasfoto</strong> — veilig in het eigen notariële dossier te bewaren.
+        </p>
+
+        <div class="callout">
+          <span class="callout-title">Belangrijke nuance: Notaris versus Belastinginspecteur</span>
+          <p>
+            De notaris heeft een strenge <strong>wettelijke geheimhoudingsplicht en verschoningsrecht</strong> richting derden — en dat geldt ook tegenover de Belastingdienst. De notaris stuurt een kopie van uw identiteitsbewijs uit het dossier dus <strong>niet zomaar door</strong> naar een belastinginspecteur.
+          </p>
+          <p style="margin-bottom:0;">
+            Omgekeerd geldt voor uzelf: als een belastinginspecteur u rechtstreeks om identificatie vraagt binnen zijn wettelijke taak, is enkel verwijzen naar het dossier bij de notaris <strong>niet automatisch voldoende</strong> om aan uw eigen toonplicht te voldoen. Wél dient een officiële notariële akte — zoals een <strong>verklaring van erfrecht</strong> — richting de Belastingdienst als officieel en rechtsgeldig bewijs dat uw identiteit en uw positie als erfgenaam door een notaris zijn geverifieerd.
+          </p>
+        </div>
+
+        <h3>4. Vergelijkingstabel: Wie mag wat vragen en bewaren?</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Instantie / Partij</th>
+                <th>Mag om origineel ID vragen?</th>
+                <th>Mag een kopie met BSN bewaren?</th>
+                <th>Geheimhouding &amp; delen met derden</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Politie, toezichthouder &amp; belastinginspecteur</strong></td>
+                <td><strong>Ja</strong>, mits er een concrete reden is die samenhangt met de wettelijke taak.</td>
+                <td>Alleen voor zover strikt noodzakelijk voor de wettelijke taak of dossiervorming.</td>
+                <td>Gebonden aan fiscale geheimhoudingsplicht; deelt gegevens alleen waar de wet dat toestaat.</td>
+              </tr>
+              <tr>
+                <td><strong>Notaris</strong></td>
+                <td><strong>Ja, verplicht</strong> bij elke akte, verklaring van erfrecht of opdracht.</td>
+                <td><strong>Ja, wettelijk verplicht</strong> om een volledige, onbewerkte kopie (incl. BSN) in het eigen dossier te bewaren.</td>
+                <td><strong>Streng beroepsgeheim &amp; verschoningsrecht.</strong> Stuurt ID-kopieën niet zonder wettelijke uitzondering of opdracht door naar de fiscus.</td>
+              </tr>
+              <tr>
+                <td><strong>Overige bedrijven</strong> (bijv. hotel, makelaar, webwinkel)</td>
+                <td>Alleen als daar een duidelijke, gerechtvaardigde reden voor is (bijv. leeftijds- of verhuurcontrole).</td>
+                <td><strong>Nee, meestal verboden</strong> om BSN en pasfoto onafgeschermd te kopiëren (tenzij de wet dat specifiek eist, zoals bij banken of werkgevers).</td>
+                <td>Gebonden aan strenge privacyregels; u mag BSN en pasfoto op een kopie vaak afschermen en de datum + doel erop schrijven.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <!-- ======================================================================
+         HOOFDSTUK 2: DE 5 RECHTSGEBIEDEN
+         ====================================================================== -->
+    <article id="hoofdstuk-2" class="chapter-card">
+      <button type="button" class="chapter-header" aria-expanded="false" aria-controls="body-2">
+        <span class="chapter-header-text">
+          <span class="chapter-kicker">Hoofdstuk 2 &bull; Juridisch Fundament</span>
+          <span class="chapter-title">De 5 Rechtsgebieden van het vastgoed- en nalatenschapsdossier</span>
+        </span>
+        <span class="chapter-chevron" aria-hidden="true">&#9662;</span>
+      </button>
+
+      <div id="body-2" class="chapter-body">
+        <p>
+          Bij een nalatenschap met een pand dat uit meerdere huisnummers of bijgebouwen bestaat en waarop een bodemmelding rust, grijpen vijf verschillende rechtsgebieden in elkaar. Hieronder staan de kernpunten per gebied in gewone taal.
+        </p>
+
+        <div class="grid-cards">
+          <section class="sub-card">
+            <h4>1. Belastingrecht</h4>
+            <ul>
+              <li><strong>Drie sporen op rij:</strong> de laatste reguliere aangifte inkomstenbelasting (2023), de eindafrekening over het overlijdensjaar (2024) en de aangifte erfbelasting.</li>
+              <li><strong>Keuzerecht gemeentelijke waarde:</strong> voor een woning mogen erfgenamen bij de erfbelasting kiezen tussen de gemeentelijke waarde van het jaar van overlijden of het jaar erna — de laagste waarde is het voordeligst.</li>
+              <li><strong>Ruim woningbegrip:</strong> fiscaal valt een panddeel (ook als het verhuurd of deels anders gebruikt is) voor de erfbelasting sneller onder het begrip "woning" dan bij de eigenwoningregeling.</li>
+              <li><strong>Bodemverontreiniging meewegen:</strong> een vastgestelde bodemverontreiniging of achteruitgang in het overlijdensjaar kan een sterk tegenargument zijn om de waarde te drukken tegenover een taxatie die uitgaat van "schone grond".</li>
+            </ul>
+          </section>
+
+          <section class="sub-card">
+            <h4>2. Ondernemingsrecht</h4>
+            <ul>
+              <li><strong>Privé of zakelijk:</strong> helder krijgen of extra huisnummers, schuren of bijgebouwen ooit tot een onderneming behoorden of altijd privébezit waren.</li>
+              <li><strong>Einde eenmanszaak:</strong> een eenmanszaak stopt automatisch bij overlijden; zakelijke rekeningen, lopende opdrachten en eventuele bedrijfsmiddelen moeten netjes worden afgewikkeld.</li>
+              <li><strong>Oude zakelijke risico's:</strong> nagaan of vroegere bedrijfsactiviteiten op het perceel verband houden met de bodemverontreiniging en of daar nog verplichtingen uit voortvloeien.</li>
+            </ul>
+          </section>
+
+          <section class="sub-card">
+            <h4>3. Verbintenissenrecht</h4>
+            <ul>
+              <li><strong>Zorgplicht van de taxateur:</strong> een taxateur mag een officieel geregistreerde bodemmelding niet zomaar negeren door zonder goede onderbouwing te rekenen met een fictieve "schone grond".</li>
+              <li><strong>Lopende afspraken:</strong> bestaande huur-, pacht- of gebruiksafspraken voor delen van het pand of erf eindigen niet automatisch door overlijden; de erfgenamen nemen die positie over, wat de echte verkoopwaarde drukt.</li>
+              <li><strong>Onderlinge afspraken:</strong> erfgenamen moeten voorlopig vastleggen wie de verzekeringen, vaste lasten en noodzakelijk onderhoud betaalt zolang het pand onverdeeld blijft.</li>
+            </ul>
+          </section>
+
+          <section class="sub-card">
+            <h4>4. Erfrecht</h4>
+            <ul>
+              <li><strong>Fiscale waarde &ne; marktwaarde:</strong> voor de fiscus telt veelal de gemeentelijke waarde, maar voor een eerlijke verdeling tussen erfgenamen telt de werkelijke marktwaarde inclusief kosten voor bodem en onderhoud.</li>
+              <li><strong>Eerst feiten, dan verdelen:</strong> teken pas voor definitieve verdeling als zowel de objectindeling per huisnummer als de financiële impact van de bodemkwestie zwart-op-wit staan.</li>
+              <li><strong>Gelijke informatiepositie:</strong> iedere erfgenaam heeft recht op inzage in alle officiële waardebeschikkingen, taxaties en bodemstukken.</li>
+            </ul>
+          </section>
+
+          <section class="sub-card">
+            <h4>5. Ruimtelijk bestuursrecht</h4>
+            <ul>
+              <li><strong>Bestemming per huisnummer:</strong> controleren wat volgens het gemeentelijke omgevingsplan mag op elk afzonderlijk huisnummer (wonen, bijgebouw, opslag of bedrijf).</li>
+              <li><strong>Gevolgen van de bodemmelding:</strong> een officiële melding kleeft aan het perceel en beperkt vaak graven, uitbouwen of functiewijzigingen zonder eerst bodemonderzoek of sanering.</li>
+              <li><strong>Vergunningencheck:</strong> nagaan of alle huisnummers en bijgebouwen in het verleden correct zijn vergund om problemen bij latere verkoop te voorkomen.</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </article>
+
+    <!-- ======================================================================
+         HOOFDSTUK 3: AANGIFTEVERPLICHTINGEN & AANGIFTETERMIJNEN
+         ====================================================================== -->
+    <article id="hoofdstuk-3" class="chapter-card">
+      <button type="button" class="chapter-header" aria-expanded="false" aria-controls="body-3">
+        <span class="chapter-header-text">
+          <span class="chapter-kicker">Hoofdstuk 3 &bull; Deadlines &amp; Uitstel</span>
+          <span class="chapter-title">Aangifteverplichtingen &amp; Aangiftetermijnen</span>
+        </span>
+        <span class="chapter-chevron" aria-hidden="true">&#9662;</span>
+      </button>
+
+      <div id="body-3" class="chapter-body">
+        <h3>1. Wie moet wanneer aangifte doen?</h3>
+        <ul>
+          <li><strong>Met aangiftebrief:</strong> ontvangt u een uitnodiging van de Belastingdienst, dan is aangifte doen altijd verplicht — ook als u verwacht dat er niets betaald hoeft te worden.</li>
+          <li><strong>Zonder aangiftebrief:</strong> ook zonder brief bent u verplicht zelf aangifte te doen als de overledene nog inkomstenbelasting moet betalen of als een erfgenaam meer erft dan de persoonlijke vrijstelling.</li>
+          <li><strong>Executeur versus erfgenamen:</strong> is er een executeur benoemd, dan doet deze de aangifte erfbelasting voor alle erfgenamen. Zonder executeur doen de erfgenamen bij voorkeur samen één gezamenlijke aangifte via één vertegenwoordiger.</li>
+          <li><strong>Inkomstenbelasting voor de overledene:</strong> inloggen met de DigiD van de overledene kan niet. Een nabestaande doet digitaal aangifte via een <strong>nabestaandenmachtiging</strong>, of op papier met het <strong>F-formulier</strong> (voor het overlijdensjaar) en eventueel het <strong>P-formulier</strong> (voor eerdere openstaande jaren).</li>
+          <li><strong>180-dagengrens bij schenkingen:</strong> schenkingen die binnen <strong>180 dagen vóór het overlijden</strong> zijn gedaan, moeten worden opgegeven in de aangifte erfbelasting omdat zij fiscaal meetellen als onderdeel van de erfenis.</li>
+        </ul>
+
+        <h3>2. Overzichtstabel aangiftetermijnen en belastingrente</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Soort aangifte</th>
+                <th>Indientermijn</th>
+                <th>Uitstel mogelijk?</th>
+                <th>Start belastingrente</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Inkomstenbelasting</strong><br>(overlijden in 2024)</td>
+                <td>Online vanaf <strong>1 maart</strong> na het overlijdensjaar; datum in brief is leidend. Geen brief na <strong>5 maanden</strong> maar wel betalen/terugkrijgen? Zelf indienen.</td>
+                <td>Ja, via de reguliere uitstelregeling.</td>
+                <td>Volgens de reguliere regels voor de inkomstenbelasting na het belastingjaar.</td>
+              </tr>
+              <tr>
+                <td><strong>Erfbelasting</strong><br>(overlijden t/m 2025, zoals 2024)</td>
+                <td>Binnen <strong>8 maanden</strong> na de overlijdensdatum (brief komt doorgaans binnen 4 maanden).</td>
+                <td><strong>1e uitstel:</strong> 5 maanden (vóór vervaldatum aanvragen).<br><strong>2e uitstel:</strong> mogelijk met inhoudelijke motivatie (bijv. waarderingsdiscussie).</td>
+                <td><strong>Na 8 maanden</strong> na overlijden — óók als er uitstel is verleend!</td>
+              </tr>
+              <tr>
+                <td><strong>Erfbelasting</strong><br>(overlijden vanaf 1 januari 2026)</td>
+                <td>Binnen <strong>20 maanden</strong> na de overlijdensdatum.</td>
+                <td>Alleen eenmalig in uitzonderlijke situaties en met duidelijke motivatie.</td>
+                <td><strong>Na 20 maanden</strong> na overlijden — óók als er uitstel is verleend.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout-warn">
+          <span class="callout-title">Praktische tip: Uitstel voorkomt een boete, géén belastingrente</span>
+          <p style="margin-bottom:0;">
+            Vraagt u op tijd uitstel aan, dan krijgt u geen verzuimboete. De belastingrente gaat echter tóch lopen zodra de oorspronkelijke termijn verstrijkt (8 maanden bij een overlijden in 2024). U kunt deze rente beperken of voorkomen door binnen de termijn een <strong>voorlopige aanslag</strong> aan te vragen en alvast te betalen. Ligt de definitieve aanslag er eenmaal, dan is kort <strong>uitstel van betaling van 4 maanden</strong> mogelijk (tot € 20.000) of <strong>12 maanden</strong> via een betalingsregeling.
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- ======================================================================
+         HOOFDSTUK 4: VERZUIMBOETES & AANSPRAKELIJKHEID
+         ====================================================================== -->
+    <article id="hoofdstuk-4" class="chapter-card">
+      <button type="button" class="chapter-header" aria-expanded="false" aria-controls="body-4">
+        <span class="chapter-header-text">
+          <span class="chapter-kicker">Hoofdstuk 4 &bull; Risico's &amp; Bescherming</span>
+          <span class="chapter-title">Verzuimboetes &amp; Aansprakelijkheid van erfgenamen</span>
+        </span>
+        <span class="chapter-chevron" aria-hidden="true">&#9662;</span>
+      </button>
+
+      <div id="body-4" class="chapter-body">
+        <h3>1. Verzuimboete versus vergrijpboete</h3>
+        <p>
+          Een verzuimboete is een administratieve boete voor het niet of te laat nakomen van een verplichting (zoals aangifte doen of betalen), ook zonder opzet.
+        </p>
+        <ul>
+          <li><strong>Aangifteverzuim (IB en erfbelasting):</strong> standaard <strong>€ 469</strong>. Bij herhaald verzuim kan deze oplopen tot <strong>€ 6.709</strong> (het wettelijk maximum wordt per 2027 verlaagd naar <strong>€ 5.500</strong>).</li>
+          <li><strong>Betaalverzuim:</strong> minimaal <strong>€ 50</strong> en maximaal <strong>€ 6.709</strong> per verzuim.</li>
+          <li><strong>Geen schuld = geen boete:</strong> kunt u aantonen dat u geen enkel verwijt treft (afwezigheid van alle schuld), dan mag er geen boete worden opgelegd.</li>
+          <li><strong>Vergrijpboete (zwaardere categorie):</strong> bij <strong>grove schuld (25%)</strong> of <strong>opzet (50%)</strong> — bijvoorbeeld het bewust verzwijgen van bezittingen — geldt geen verzuimboete maar een veel hogere vergrijpboete over de niet-betaalde belasting.</li>
+        </ul>
+
+        <h3>2. Aansprakelijkheid van erfgenamen voor belastingschulden</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Wijze van aanvaarden</th>
+                <th>Gevolg voor belastingschulden van de overledene</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Verwerpen</strong></td>
+                <td>Geen recht op bezittingen uit de nalatenschap, maar ook <strong>niet aansprakelijk</strong> voor belastingschulden (verklaring via de rechtbank vereist).</td>
+              </tr>
+              <tr>
+                <td><strong>Beneficiair aanvaarden</strong></td>
+                <td><strong>Niet aansprakelijk met het eigen privévermogen.</strong> Schulden worden uitsluitend betaald voor zover de bezittingen van de erfenis toereikend zijn.</td>
+              </tr>
+              <tr>
+                <td><strong>Zuiver aanvaarden</strong></td>
+                <td><strong>Volledig en persoonlijk aansprakelijk</strong> voor alle bekende én nog op te leggen belastingschulden, ook als de schulden hoger blijken dan de erfenis.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>3. Bijzondere beschermingsregels na overlijden</h3>
+        <ul>
+          <li><strong>Navorderingen na overlijden:</strong> voor navorderings- of naheffingsaanslagen die pas ná het overlijden worden opgelegd, is de fiscale aansprakelijkheid van een erfgenaam begrensd tot de waarde van het ontvangen <strong>erfdeel plus eventuele legaten en schenkingen ontvangen binnen 180 dagen vóór het overlijden</strong>.</li>
+          <li><strong>3 maanden beraadtermijn:</strong> gedurende de eerste 3 maanden na het overlijden neemt de Belastingdienst geen verdere invorderingsmaatregelen tegen de erfgenamen, zelfs niet als al zuiver is aanvaard.</li>
+          <li><strong>Uitzondering oud-bestuurders:</strong> was de overledene bestuurder van een bv, nv of stichting en wordt deze pas ná het overlijden aansprakelijk gesteld voor belastingschulden van die rechtspersoon, dan kunnen de erfgenamen daarvoor niet worden aangesproken.</li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- ======================================================================
+         HOOFDSTUK 5: INVORDERINGSRENTE, INVORDERINGSTERMIJN & NAVORDERING
+         ====================================================================== -->
+    <article id="hoofdstuk-5" class="chapter-card">
+      <button type="button" class="chapter-header" aria-expanded="false" aria-controls="body-5">
+        <span class="chapter-header-text">
+          <span class="chapter-kicker">Hoofdstuk 5 &bull; Rente, Rekenhulp &amp; Verjaring</span>
+          <span class="chapter-title">Invorderingsrente, Invorderingstermijn &amp; Navorderingstermijn</span>
+        </span>
+        <span class="chapter-chevron" aria-hidden="true">&#9662;</span>
+      </button>
+
+      <div id="body-5" class="chapter-body">
+        <h3>1. Invorderingsrente (2026: 4,3%)</h3>
+        <p>
+          Invorderingsrente gaat lopen zodra een opgelegde belastingaanslag na de uiterste betaaldatum nog niet is voldaan.
+        </p>
+        <ul>
+          <li><strong>Tarief 2026:</strong> per 1 januari 2026 bedraagt de invorderingsrente <strong>4,3%</strong> (in 2024 en 2025 was dit 4%).</li>
+          <li><strong>Rekenformule (enkelvoudig):</strong> <code>(aantal dagen &times; 4,3 &times; openstaand bedrag) / 36.000</code>.</li>
+          <li><strong>Afboekingsvolgorde:</strong> betaalt u (een deel van) de aanslag, dan boekt de Belastingdienst <strong>eerst de opgelopen rente</strong> af en pas daarna de hoofdsom.</li>
+          <li><strong>€ 49-drempel:</strong> blijft het totaal aan invorderingsrente bij de laatste betaling op <strong>€ 49 of minder</strong>, dan hoeft u deze rente niet te betalen.</li>
+          <li><strong>Vergoeding bij gelijk:</strong> betaalt de Belastingdienst een teruggaaf te laat uit of wordt een op tijd betaalde aanslag na bezwaar verlaagd, dan ontvangt u omgekeerd ook <strong>4,3%</strong> invorderingsrente.</li>
+        </ul>
+
+        <!-- Interactieve Rekenhulp (100% offline JavaScript) -->
+        <div class="calc-box">
+          <h4>Rekenhulp: Geschatte invorderingsrente (4,3% in 2026)</h4>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:0;">
+            Vul een openstaand aanslagbedrag en het aantal dagen na de uiterste betaaldatum in om direct een indicatie te berekenen.
+          </p>
+
+          <div class="calc-grid">
+            <div class="field">
+              <label for="calcAmount">Openstaand bedrag (€)</label>
+              <input type="number" id="calcAmount" min="0" step="0.01" value="10000" placeholder="Bijv. 10000">
+            </div>
+            <div class="field">
+              <label for="calcDays">Aantal dagen te laat</label>
+              <input type="number" id="calcDays" min="0" step="1" value="45" placeholder="Bijv. 45">
+            </div>
+          </div>
+
+          <div class="calc-actions">
+            <button type="button" id="calcBtn" class="btn btn-primary">Bereken invorderingsrente</button>
+            <button type="button" id="calcResetBtn" class="btn">Wissen</button>
+          </div>
+
+          <div id="calcResult" class="calc-result" role="status" aria-live="polite"></div>
+        </div>
+
+        <h3>2. Invorderingstermijn (verjaring van het innen)</h3>
+        <ul>
+          <li><strong>Hoofdregel (5 jaar):</strong> een opgelegde belastingschuld verjaart <strong>5 jaar na het verstrijken van de laatste betalingstermijn</strong> van de aanslag.</li>
+          <li><strong>Stuiting (de klok resetten):</strong> de Belastingdienst kan verjaring voorkomen door een schriftelijke aanmaning, ingebrekestelling of dwangbevel te sturen. Daarmee begint een nieuwe termijn van 5 jaar te lopen.</li>
+          <li><strong>Bewijslast &amp; natuurlijke verbintenis:</strong> zijn er 5 jaar voorbij, dan moet de Belastingdienst bewijzen dat tijdig is gestuit. Lukt dat niet, dan is de schuld verjaard en blijft er slechts een "natuurlijke verbintenis" over: dwanginvordering, beslag of verrekening met teruggaven is dan niet meer toegestaan.</li>
+        </ul>
+
+        <h3>3. Navorderingstermijn (achteraf alsnog belasting heffen)</h3>
+        <ul>
+          <li><strong>Binnenlands inkomen of vermogen:</strong> <strong>5 jaar</strong> na afloop van het belastingjaar, vermeerderd met eventueel verleend uitstel voor het indienen van de aangifte.</li>
+          <li><strong>Buitenlands inkomen of vermogen:</strong> <strong>12 jaar</strong>.</li>
+          <li><strong>Erfbelasting en buitenlands vermogen:</strong> voor buitenlands vermogen dat buiten de aangifte erfbelasting is gebleven, geldt een <strong>onbeperkte navorderingstermijn</strong>.</li>
+          <li><strong>Voorwaarde "nieuw feit":</strong> de inspecteur mag alleen navorderen als er nieuwe informatie opduikt die hij bij de oorspronkelijke aanslag nog niet kende en redelijkerwijs ook niet had kunnen kennen.</li>
+          <li><strong>Uitzonderingen:</strong> een nieuw feit is niet vereist bij <strong>kwade trouw</strong> van de belastingplichtige, of bij een direct herkenbare ("kenbare") reken- of schrijffout van de Belastingdienst (waarvan de wet uitgaat bij een afwijking van <strong>minimaal 30%</strong>).</li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- ======================================================================
+         HOOFDSTUK 6: GERAADPLEEGDE ONDERLEGGERS (BRONNENOVERZICHT)
+         ====================================================================== -->
+    <article id="hoofdstuk-6" class="chapter-card">
+      <button type="button" class="chapter-header" aria-expanded="false" aria-controls="body-6">
+        <span class="chapter-header-text">
+          <span class="chapter-kicker">Hoofdstuk 6 &bull; Verantwoording</span>
+          <span class="chapter-title">Geraadpleegde Onderleggers (Bronnenoverzicht)</span>
+        </span>
+        <span class="chapter-chevron" aria-hidden="true">&#9662;</span>
+      </button>
+
+      <div id="body-6" class="chapter-body">
+        <p>
+          Alle bovenstaande regels, percentages en termijnen zijn getoetst aan openbare overheidsinformatie, beroepsorganisaties en fiscale kennisbanken:
+        </p>
+
+        <h3>1. Rijksoverheid</h3>
+        <ul>
+          <li><strong>Identificatieplicht &amp; toonplicht:</strong> regels vanaf 14 jaar, geldige documenten en het verschil tussen draagplicht en toonplicht.</li>
+          <li><strong>Wie mag vragen naar mijn identiteitsbewijs?:</strong> bevoegdheden van politie, toezichthouders en overheidsinstanties zoals de Belastingdienst.</li>
+          <li><strong>Kopie identiteitsbewijs:</strong> regels rondom het wel of niet mogen kopiëren van pasfoto en BSN door bedrijven versus wettelijk verplichte instanties.</li>
+          <li><strong>Wanneer betaal ik erfbelasting?:</strong> bevestiging dat de nieuwe 20-maandentermijn uitsluitend geldt voor overlijdens vanaf 1 januari 2026.</li>
+        </ul>
+
+        <h3>2. Notariaat &amp; Privacytoezicht</h3>
+        <ul>
+          <li><strong>Koninklijke Notariële Beroepsorganisatie (KNB):</strong> richtlijnen over de wettelijke identificatieplicht bij de notaris, de anti-witwasregels (Wwft), de geheimhoudingsplicht en het verschoningsrecht richting derden en de fiscus.</li>
+          <li><strong>Autoriteit Persoonsgegevens:</strong> toelichting op het verwerken en bewaren van een volledige kopie van het identiteitsbewijs (inclusief BSN) door notarissen.</li>
+        </ul>
+
+        <h3>3. Belastingdienst</h3>
+        <ul>
+          <li><strong>Aangifte erfbelasting &amp; termijnen:</strong> onderscheid tussen 8 maanden (t/m 2025) en 20 maanden (vanaf 2026), uitstelregels en het aanvragen van een voorlopige aanslag.</li>
+          <li><strong>Aangifte inkomstenbelasting voor een overledene:</strong> nabestaandenmachtiging, F- en P-formulier en de 5-maandenrichtlijn.</li>
+          <li><strong>Boetes (verzuim- en vergrijpboetes):</strong> boetebedragen (€ 469, € 50, € 6.709), schuldvereisten en boetepercentages bij grove schuld en opzet.</li>
+          <li><strong>Erfgenaam van iemand met een belastingschuld:</strong> gevolgen van verwerpen, beneficiair en zuiver aanvaarden, 180-dagengrens en 3 maanden beraadtermijn.</li>
+          <li><strong>Invorderingsrente 2026:</strong> vastgesteld percentage van 4,3% per 1 januari 2026, de enkelvoudige rekenformule, de € 49-drempel en de afboekingsvolgorde.</li>
+        </ul>
+
+        <h3>4. Juridische &amp; Fiscale Kennisbanken</h3>
+        <ul>
+          <li><strong>Jongbloed Fiscaal Juristen:</strong> toelichting op verjaring van belastingschulden (5 jaar en stuiting), natuurlijke verbintenis, verzuimboetes (incl. verlaging maximum per 2027) en onbeperkte navordering bij buitenlands vermogen.</li>
+          <li><strong>Hertoghs Advocaten:</strong> duiding van de onbeperkte navorderingstermijn voor buitenlands vermogen in nalatenschappen.</li>
+          <li><strong>NotarisVandaag &amp; Erfbelastingexpert:</strong> praktische uitwerking van het eerste en tweede uitstel bij erfbelasting, betalingsuitstel (4 en 12 maanden) en de rol van de executeur.</li>
+          <li><strong>De Zaak:</strong> overzicht van de navorderingstermijnen (5 en 12 jaar), het vereiste van een "nieuw feit" en de 30%-regel bij kenbare fouten.</li>
+        </ul>
+      </div>
+    </article>
+
+    <footer>
+      <p>
+        Zelfstandige, geanonimiseerde onderzoeksdocumentatie &bull; Geschreven in heldere mensentaal voor informatief en voorbereidend gebruik.
+      </p>
+    </footer>
+  </main>
+
+  <!-- ========================================================================
+       JAVASCRIPT (Volledig zelfstandig, geen externe scripts of bibliotheken)
+       ======================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ----------------------------------------------------------------------
+         1. LETTERGROOTTE AANPASSEN (A = 16px, A+ = 19px standaard, A++ = 22px)
+         ---------------------------------------------------------------------- */
+      var fontButtons = document.querySelectorAll('.font-btn');
+      fontButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var size = btn.getAttribute('data-size');
+          document.documentElement.style.setProperty('--base-font-size', size);
+          fontButtons.forEach(function (b) {
+            b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+          });
+        });
+      });
+
+      /* ----------------------------------------------------------------------
+         2. SCHUIFBAAR ZIJMENU (Slide-out Drawer)
+         ---------------------------------------------------------------------- */
+      var drawer = document.getElementById('sideDrawer');
+      var backdrop = document.getElementById('drawerBackdrop');
+      var openDrawerBtn = document.getElementById('openDrawerBtn');
+      var closeDrawerBtn = document.getElementById('closeDrawerBtn');
+      var drawerLinks = document.querySelectorAll('.drawer-link');
+
+      function openDrawer() {
+        drawer.classList.add('open');
+        backdrop.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        backdrop.setAttribute('aria-hidden', 'false');
+        openDrawerBtn.setAttribute('aria-expanded', 'true');
+        closeDrawerBtn.focus();
+      }
+
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        backdrop.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        backdrop.setAttribute('aria-hidden', 'true');
+        openDrawerBtn.setAttribute('aria-expanded', 'false');
+      }
+
+      openDrawerBtn.addEventListener('click', openDrawer);
+      closeDrawerBtn.addEventListener('click', closeDrawer);
+      backdrop.addEventListener('click', closeDrawer);
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) {
+          closeDrawer();
+          openDrawerBtn.focus();
+        }
+      });
+
+      /* ----------------------------------------------------------------------
+         3. ACCORDEON (Hoofdstukken openen/sluiten & Alles openen/sluiten)
+         ---------------------------------------------------------------------- */
+      var chapters = Array.prototype.slice.call(document.querySelectorAll('.chapter-card'));
+      var toggleAllBtn = document.getElementById('toggleAllBtn');
+
+      function setChapterState(card, open) {
+        var header = card.querySelector('.chapter-header');
+        if (open) {
+          card.classList.add('is-open');
+          header.setAttribute('aria-expanded', 'true');
+        } else {
+          card.classList.remove('is-open');
+          header.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      function updateToggleAllLabel() {
+        var visibleChapters = chapters.filter(function (c) {
+          return !c.classList.contains('hidden-by-search');
+        });
+        var allOpen = visibleChapters.length > 0 && visibleChapters.every(function (c) {
+          return c.classList.contains('is-open');
+        });
+        toggleAllBtn.textContent = allOpen ? 'Alles sluiten' : 'Alles openen';
+      }
+
+      chapters.forEach(function (card) {
+        var header = card.querySelector('.chapter-header');
+        header.addEventListener('click', function () {
+          var isOpen = card.classList.contains('is-open');
+          setChapterState(card, !isOpen);
+          updateToggleAllLabel();
+        });
+      });
+
+      toggleAllBtn.addEventListener('click', function () {
+        var visibleChapters = chapters.filter(function (c) {
+          return !c.classList.contains('hidden-by-search');
+        });
+        var shouldOpen = toggleAllBtn.textContent === 'Alles openen';
+        visibleChapters.forEach(function (card) {
+          setChapterState(card, shouldOpen);
+        });
+        updateToggleAllLabel();
+      });
+
+      /* Direct naar hoofdstuk springen via zijmenu en automatisch openen */
+      drawerLinks.forEach(function (link) {
+        link.addEventListener('click', function () {
+          var targetId = link.getAttribute('data-target');
+          var targetCard = document.getElementById(targetId);
+          closeDrawer();
+          if (targetCard) {
+            targetCard.classList.remove('hidden-by-search');
+            setChapterState(targetCard, true);
+            updateToggleAllLabel();
+          }
+        });
+      });
+
+      /* ----------------------------------------------------------------------
+         4. ZOEKEN & FILTEREN OP TREFWOORD
+         ---------------------------------------------------------------------- */
+      var searchInput = document.getElementById('searchInput');
+      var clearSearchBtn = document.getElementById('clearSearchBtn');
+      var searchStatus = document.getElementById('searchStatus');
+      var searchStatusText = document.getElementById('searchStatusText');
+      var resetSearchInline = document.getElementById('resetSearchInline');
+
+      function applySearch() {
+        var query = searchInput.value.trim().toLowerCase();
+        clearSearchBtn.classList.toggle('visible', query.length > 0);
+
+        if (!query) {
+          chapters.forEach(function (card, idx) {
+            card.classList.remove('hidden-by-search');
+            setChapterState(card, idx === 0); // Standaard alleen hoofdstuk 1 open
+          });
+          searchStatus.classList.remove('visible');
+          updateToggleAllLabel();
+          return;
+        }
+
+        var matchCount = 0;
+        chapters.forEach(function (card) {
+          var text = card.textContent.toLowerCase();
+          if (text.indexOf(query) !== -1) {
+            card.classList.remove('hidden-by-search');
+            setChapterState(card, true);
+            matchCount++;
+          } else {
+            card.classList.add('hidden-by-search');
+          }
+        });
+
+        searchStatus.classList.add('visible');
+        if (matchCount === 0) {
+          searchStatusText.textContent = 'Geen hoofdstukken gevonden voor "' + searchInput.value.trim() + '".';
+        } else if (matchCount === 1) {
+          searchStatusText.textContent = '1 hoofdstuk gevonden met "' + searchInput.value.trim() + '".';
+        } else {
+          searchStatusText.textContent = matchCount + ' hoofdstukken gevonden met "' + searchInput.value.trim() + '".';
+        }
+        updateToggleAllLabel();
+      }
+
+      function resetSearch() {
+        searchInput.value = '';
+        applySearch();
+        searchInput.focus();
+      }
+
+      searchInput.addEventListener('input', applySearch);
+      clearSearchBtn.addEventListener('click', resetSearch);
+      resetSearchInline.addEventListener('click', resetSearch);
+
+      /* ----------------------------------------------------------------------
+         5. AFDRUKKEN (Print-knop)
+         ---------------------------------------------------------------------- */
+      document.getElementById('printBtn').addEventListener('click', function () {
+        window.print();
+      });
+
+      /* ----------------------------------------------------------------------
+         6. REKENHULP INVORDERINGSRENTE (4,3% in 2026)
+         Formule: (dagen * 4,3 * bedrag) / 36.000
+         ---------------------------------------------------------------------- */
+      var calcAmountInput = document.getElementById('calcAmount');
+      var calcDaysInput = document.getElementById('calcDays');
+      var calcBtn = document.getElementById('calcBtn');
+      var calcResetBtn = document.getElementById('calcResetBtn');
+      var calcResult = document.getElementById('calcResult');
+
+      function formatEuro(val) {
+        return new Intl.NumberFormat('nl-NL', {
+          style: 'currency',
+          currency: 'EUR',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(val);
+      }
+
+      function calculateInterest() {
+        var amount = parseFloat(calcAmountInput.value);
+        var days = parseInt(calcDaysInput.value, 10);
+
+        if (isNaN(amount) || amount < 0 || isNaN(days) || days < 0) {
+          calcResult.className = 'calc-result visible above-threshold';
+          calcResult.innerHTML = '<strong>Let op:</strong> Vul een geldig positief bedrag en aantal dagen in.';
+          return;
+        }
+
+        var rate = 4.3;
+        var interest = (days * rate * amount) / 36000;
+        var rounded = Math.round(interest * 100) / 100;
+        var isBelowThreshold = rounded <= 49;
+
+        calcResult.className = 'calc-result visible ' + (isBelowThreshold ? 'below-threshold' : 'above-threshold');
+
+        var thresholdMsg = isBelowThreshold
+          ? 'Dit bedrag blijft op of onder de <strong>€ 49-drempel</strong>: als dit het totaal aan invorderingsrente op uw laatste betaling is, hoeft u dit bedrag niet te betalen.'
+          : 'Dit bedrag ligt <strong>boven de € 49-drempel</strong> en wordt door de Belastingdienst in rekening gebracht. Let op: bij een betaling wordt eerst deze rente afgeboekt en daarna pas de hoofdsom.';
+
+        calcResult.innerHTML =
+          '<span>Geschatte invorderingsrente (4,3% over ' + days + ' dagen):</span>' +
+          '<span class="calc-amount">' + formatEuro(rounded) + '</span>' +
+          '<p style="margin:0; font-size:0.9rem;">' + thresholdMsg + '</p>';
+      }
+
+      calcBtn.addEventListener('click', calculateInterest);
+
+      calcResetBtn.addEventListener('click', function () {
+        calcAmountInput.value = '';
+        calcDaysInput.value = '';
+        calcResult.className = 'calc-result';
+        calcResult.innerHTML = '';
+        calcAmountInput.focus();
+      });
+
+      /* Direct eerste voorbeeldberekening tonen bij laden */
+      calculateInterest();
+      updateToggleAllLabel();
+    })();
+  </script>
+</body>
+</html>
