@@ -156,3 +156,559 @@
         .instrument-wrapper {
             position: relative;
             width: 100%;
+            height: 360px;
+            background-color: var(--parchment);
+            background-image: 
+                linear-gradient(rgba(184, 134, 11, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(184, 134, 11, 0.08) 1px, transparent 1px);
+            background-size: 25px 25px;
+            border: 2px solid var(--brass);
+            border-radius: 6px;
+            overflow: hidden;
+            touch-action: none;
+            cursor: none;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #inkCanvas {
+            z-index: 1;
+        }
+
+        #instrumentCanvas {
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .telemetry-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+            background: #1C1E21;
+            color: #F3EFE0;
+            padding: 0.9rem 1rem;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, monospace;
+            font-size: 0.85rem;
+        }
+
+        .telemetry-item span {
+            display: block;
+            color: var(--brass-light);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        button {
+            padding: 0.7rem 1.25rem;
+            font-size: 0.92rem;
+            font-weight: 600;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--meekrab);
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--meekrab-dark);
+        }
+
+        .btn-brass {
+            background-color: var(--brass);
+            color: #FFFFFF;
+        }
+
+        .btn-brass:hover {
+            background-color: #9A6F08;
+        }
+
+        .btn-outline {
+            background-color: #FFFFFF;
+            color: var(--ink);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background-color: #F2F0EA;
+        }
+
+        #certificateOutput {
+            margin-top: 1.25rem;
+            padding: 1rem;
+            background: #F4F8F4;
+            border: 1px solid #B7D4B7;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            display: none;
+            white-space: pre-wrap;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+<header role="banner">
+    <h1>Planimeter-Veerpen Ondertekeningsportaal</h1>
+    <p>De Codevibing-, Soevereiniteits- &amp; Familielicentie (v3.0) &mdash; Rianne Goijarts</p>
+</header>
+
+<main role="main">
+    <section aria-labelledby="heading-toezicht">
+        <h2 id="heading-toezicht">Licentiekader &amp; Toezicht</h2>
+
+        <article class="supervisor-bar" aria-label="Gegevens Toezichthouder">
+            <img src="afbeelding.png" alt="Portret van Toezichthouder Jorne Goijarts" class="supervisor-avatar" id="avatarImg" title="Klik om lokale foto te kiezen indien niet zichtbaar">
+            <input type="file" id="avatarUpload" accept="image/*" hidden aria-label="Upload profielfoto toezichthouder">
+            <div class="supervisor-info">
+                <p><strong>Toezichthouder Code-Audit &amp; Handhaving:</strong> Jorne Goijarts</p>
+                <p><strong>Licentiegever (Auteur):</strong> Rianne Goijarts &mdash; Semantische HTML5 &amp; Zelfgehoste Architectuur</p>
+                <p style="color: var(--muted); font-size: 0.82rem;"><em>Geldig voor familie, schoonfamilie en stagiairs. Overheidsmoratorium &amp; ICTU-clausule onverkort van kracht.</em></p>
+            </div>
+        </article>
+
+        <details>
+            <summary>Lees de kernartikelen van Licentie v3.0</summary>
+            <ul>
+                <li><strong>Art. 1 (De Kring):</strong> Persoonlijk, niet-commercieel gebruiksrecht voor familie, schoonfamilie en stagiairs. Overdracht aan derden, bedrijven of overheden is verboden.</li>
+                <li><strong>Art. 2 &amp; 3 (Overheidsmoratorium &amp; Codevibing):</strong> Overheidsinstanties (incl. ICTU) mogen de code niet gebruiken totdat een volledige Codevibing-cyclus is doorlopen en goedgekeurd door de Toezichthouder.</li>
+                <li><strong>Art. 4 &amp; 5 (Anti-Extractie &amp; Toezicht):</strong> Geen AI-scraping of Big Tech-exploitatie. Jorne Goijarts heeft bindende audit- en schorsingsbevoegdheid.</li>
+                <li><strong>Art. 6 (Sancties):</strong> Overtreding verplicht tot openbaarmaking van IT-begrotingen (CSV), verwijdering van modelgewichten, of een herstelcursus semantische HTML5 inclusief koffie voor het familieoverleg.</li>
+            </ul>
+        </details>
+    </section>
+
+    <section aria-labelledby="heading-ondertekenen">
+        <h2 id="heading-ondertekenen">Ondertekening met Poolplanimeter &amp; Veerpen</h2>
+
+        <fieldset>
+            <legend>Gegevens Ondertekenaar</legend>
+            <div class="form-grid">
+                <div>
+                    <label for="signerName">Volledige Naam</label>
+                    <input type="text" id="signerName" placeholder="Bijv. Jorne Goijarts" required>
+                </div>
+                <div>
+                    <label for="signerRole">Hoedanigheid binnen de Kring</label>
+                    <select id="signerRole">
+                        <option value="Toezichthouder">Toezichthouder (Jorne Goijarts)</option>
+                        <option value="Licentiegever">Licentiegever (Rianne Goijarts)</option>
+                        <option value="Familielid">Familielid</option>
+                        <option value="Schoonfamilie">Schoonfamilie</option>
+                        <option value="Stagiair">Stagiair</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="signDate">Datum van Ondertekening</label>
+                    <input type="date" id="signDate" value="2026-11-25">
+                </div>
+            </div>
+        </fieldset>
+
+        <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0.5rem;">
+            Beweeg uw muis of vinger over het perkament. De messing poolplanimeter (poolarm 15,00 cm; traceerarm 16,67 cm) volgt de veerpen en meet de handtekening.
+        </p>
+
+        <div class="instrument-wrapper" id="canvasContainer" role="application" aria-label="Tekenveld voor handtekening met gesimuleerde planimeter en veerpen">
+            <canvas id="inkCanvas"></canvas>
+            <canvas id="instrumentCanvas"></canvas>
+        </div>
+
+        <div class="telemetry-bar" aria-live="polite" aria-label="Planimeter meetwaarden">
+            <div class="telemetry-item">
+                <span>Meetwiel (Nonius)</span>
+                <strong id="readoutVernier">0.000 omw</strong>
+            </div>
+            <div class="telemetry-item">
+                <span>Omsloten Oppervlakte</span>
+                <strong id="readoutArea">0.00 cm&sup2;</strong>
+            </div>
+            <div class="telemetry-item">
+                <span>Inktspoor Lengte</span>
+                <strong id="readoutLength">0.0 mm</strong>
+            </div>
+            <div class="telemetry-item">
+                <span>Poolhoek / Armhoek</span>
+                <strong id="readoutAngles">0.0&deg; / 0.0&deg;</strong>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button type="button" class="btn-primary" onclick="finalizeSignature()">Ondertekening Vastleggen (SHA-256)</button>
+            <button type="button" class="btn-brass" onclick="exportPNG()">Exporteer Handtekening (PNG)</button>
+            <button type="button" class="btn-outline" onclick="clearCanvas()">Perkament Wissen</button>
+        </div>
+
+        <div id="certificateOutput" role="status" aria-live="polite"></div>
+    </section>
+</main>
+
+<footer role="contentinfo">
+    Semantische HTML5 &bull; Zero-Cloud &bull; Lokale Planimeter-Kinematica &copy; 2026 Rianne Goijarts
+</footer>
+
+<script>
+    // Profielfoto klikbaar maken als lokale fallback
+    const avatarImg = document.getElementById('avatarImg');
+    const avatarUpload = document.getElementById('avatarUpload');
+    avatarImg.addEventListener('click', () => avatarUpload.click());
+    avatarUpload.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { avatarImg.src = ev.target.result; };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    // Canvas initialisatie
+    const container = document.getElementById('canvasContainer');
+    const inkCanvas = document.getElementById('inkCanvas');
+    const instCanvas = document.getElementById('instrumentCanvas');
+    const inkCtx = inkCanvas.getContext('2d');
+    const instCtx = instCanvas.getContext('2d');
+
+    let width = 0, height = 0;
+    let isDrawing = false;
+    let lastX = 0, lastY = 0;
+    let lastTime = 0;
+    let cursorX = 380, cursorY = 180;
+
+    // Planimeter geometrie (geschaald op basis van 15.00 cm poolarm en 16.67 cm traceerarm)
+    let poleX = 95, poleY = 260;
+    let L1 = 210; // Poolarm in pixels
+    let L2 = 235; // Traceerarm in pixels
+
+    // Meetwaarden
+    let wheelIntegral = 0; // Cumulatieve wielrotatie (Green's Theorem)
+    let pathLengthPx = 0;
+    const pxPerCm = 37.8; // Standaard 96 DPI benadering
+
+    function resizeCanvases() {
+        const rect = container.getBoundingClientRect();
+        width = rect.width;
+        height = rect.height;
+
+        // Bewaar bestaande inkt bij resize
+        const tempInk = document.createElement('canvas');
+        tempInk.width = inkCanvas.width || width;
+        tempInk.height = inkCanvas.height || height;
+        if (inkCanvas.width > 0) tempInk.getContext('2d').drawImage(inkCanvas, 0, 0);
+
+        inkCanvas.width = width;
+        inkCanvas.height = height;
+        instCanvas.width = width;
+        instCanvas.height = height;
+
+        inkCtx.drawImage(tempInk, 0, 0);
+        drawSignatureLine();
+
+        // Pas poolpositie en armlengtes proportioneel aan
+        poleX = Math.max(60, width * 0.12);
+        poleY = height * 0.72;
+        L1 = Math.max(180, width * 0.34);
+        L2 = L1 * (16.67 / 15.00);
+
+        drawInstrument(cursorX, cursorY);
+    }
+
+    function drawSignatureLine() {
+        inkCtx.save();
+        inkCtx.strokeStyle = 'rgba(158, 42, 43, 0.35)';
+        inkCtx.lineWidth = 1;
+        inkCtx.setLineDash([4, 4]);
+        inkCtx.beginPath();
+        inkCtx.moveTo(width * 0.22, height * 0.78);
+        inkCtx.lineTo(width * 0.90, height * 0.78);
+        inkCtx.stroke();
+        inkCtx.fillStyle = 'rgba(90, 94, 98, 0.6)';
+        inkCtx.font = '12px Georgia, serif';
+        inkCtx.fillText('Handtekening (Veerpen)', width * 0.22, height * 0.85);
+        inkCtx.restore();
+    }
+
+    // 2-armige inverse kinematica voor de scharnierpositie (elleboog) van de planimeter
+    function solveElbow(tx, ty) {
+        const dx = tx - poleX;
+        const dy = ty - poleY;
+        let d = Math.hypot(dx, dy);
+        const maxReach = L1 + L2 - 2;
+        const minReach = Math.abs(L1 - L2) + 2;
+
+        if (d > maxReach) d = maxReach;
+        if (d < minReach) d = minReach;
+
+        const a = (L1 * L1 - L2 * L2 + d * d) / (2 * d);
+        const h = Math.sqrt(Math.max(0, L1 * L1 - a * a));
+
+        const midX = poleX + (a * dx) / d;
+        const midY = poleY + (a * dy) / d;
+
+        // Kies de bovenste scharnieroplossing
+        const ex = midX + (h * dy) / d;
+        const ey = midY - (h * dx) / d;
+
+        return { ex, ey };
+    }
+
+    function drawInstrument(tx, ty) {
+        instCtx.clearRect(0, 0, width, height);
+        const { ex, ey } = solveElbow(tx, ty);
+
+        // Bereken hoeken voor telemetrie
+        const poleAngle = Math.atan2(ey - poleY, ex - poleX) * (180 / Math.PI);
+        const armAngle = Math.atan2(ty - ey, tx - ex) * (180 / Math.PI);
+        document.getElementById('readoutAngles').textContent = `${poleAngle.toFixed(1)}° / ${armAngle.toFixed(1)}°`;
+
+        instCtx.save();
+
+        // 1. Poolgewicht (Messing schijf)
+        instCtx.fillStyle = '#8C6206';
+        instCtx.beginPath();
+        instCtx.arc(poleX, poleY, 16, 0, Math.PI * 2);
+        instCtx.fill();
+        instCtx.strokeStyle = '#E5C158';
+        instCtx.lineWidth = 2.5;
+        instCtx.stroke();
+
+        // 2. Poolarm (Messing staaf)
+        instCtx.strokeStyle = '#B8860B';
+        instCtx.lineWidth = 5;
+        instCtx.lineCap = 'round';
+        instCtx.beginPath();
+        instCtx.moveTo(poleX, poleY);
+        instCtx.lineTo(ex, ey);
+        instCtx.stroke();
+
+        // 3. Traceerarm (Messing + schaalverdeling)
+        instCtx.strokeStyle = '#C9971C';
+        instCtx.lineWidth = 6;
+        instCtx.beginPath();
+        instCtx.moveTo(ex, ey);
+        instCtx.lineTo(tx, ty);
+        instCtx.stroke();
+
+        // 4. Meetwiel / Nonius bij het scharnierpunt
+        const ux = (tx - ex) / Math.hypot(tx - ex, ty - ey);
+        const uy = (ty - ey) / Math.hypot(tx - ex, ty - ey);
+        const wheelX = ex + ux * 28;
+        const wheelY = ey + uy * 28;
+
+        instCtx.save();
+        instCtx.translate(wheelX, wheelY);
+        instCtx.rotate(Math.atan2(uy, ux));
+        instCtx.fillStyle = '#2C2F33';
+        instCtx.fillRect(-10, -14, 20, 8);
+        instCtx.strokeStyle = '#E5C158';
+        instCtx.lineWidth = 1.5;
+        instCtx.strokeRect(-10, -14, 20, 8);
+        instCtx.restore();
+
+        // Scharnierknoop
+        instCtx.fillStyle = '#E5C158';
+        instCtx.beginPath();
+        instCtx.arc(ex, ey, 7, 0, Math.PI * 2);
+        instCtx.fill();
+        instCtx.strokeStyle = '#5C4003';
+        instCtx.lineWidth = 1.5;
+        instCtx.stroke();
+
+        // 5. Kalligrafische Veerpen aan de traceerpunt (tx, ty)
+        instCtx.save();
+        instCtx.translate(tx, ty);
+        instCtx.rotate(-0.55); // Natuurlijke schrijfhoek
+
+        // Penpunt (metaal)
+        instCtx.fillStyle = '#3A3D40';
+        instCtx.beginPath();
+        instCtx.moveTo(0, 0);
+        instCtx.lineTo(5, -18);
+        instCtx.lineTo(-5, -18);
+        instCtx.closePath();
+        instCtx.fill();
+
+        // Schacht van de veer
+        instCtx.strokeStyle = '#F5F0E1';
+        instCtx.lineWidth = 3;
+        instCtx.beginPath();
+        instCtx.moveTo(0, -16);
+        instCtx.quadraticCurveTo(10, -60, 26, -110);
+        instCtx.stroke();
+
+        // Veerpluim (Zeeuws meekrab-rood & ivoor accent)
+        instCtx.fillStyle = 'rgba(158, 42, 43, 0.88)';
+        instCtx.beginPath();
+        instCtx.moveTo(2, -26);
+        instCtx.quadraticCurveTo(-14, -65, 26, -112);
+        instCtx.quadraticCurveTo(32, -68, 8, -26);
+        instCtx.closePath();
+        instCtx.fill();
+
+        instCtx.restore();
+        instCtx.restore();
+    }
+
+    function getPointerPos(e) {
+        const rect = inkCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
+    }
+
+    function startDraw(e) {
+        isDrawing = true;
+        const pos = getPointerPos(e);
+        lastX = pos.x;
+        lastY = pos.y;
+        cursorX = pos.x;
+        cursorY = pos.y;
+        lastTime = performance.now();
+        drawInstrument(cursorX, cursorY);
+    }
+
+    function moveDraw(e) {
+        const pos = getPointerPos(e);
+        cursorX = pos.x;
+        cursorY = pos.y;
+
+        if (isDrawing) {
+            const now = performance.now();
+            const dt = Math.max(1, now - lastTime);
+            const dx = pos.x - lastX;
+            const dy = pos.y - lastY;
+            const dist = Math.hypot(dx, dy);
+
+            // Kalligrafische inktdikte op basis van schrijfsnelheid
+            const speed = dist / dt;
+            const lineWidth = Math.max(1.2, Math.min(4.8, 4.2 - speed * 1.4));
+
+            inkCtx.save();
+            inkCtx.strokeStyle = '#141B29';
+            inkCtx.lineWidth = lineWidth;
+            inkCtx.lineCap = 'round';
+            inkCtx.lineJoin = 'round';
+            inkCtx.beginPath();
+            inkCtx.moveTo(lastX, lastY);
+            inkCtx.lineTo(pos.x, pos.y);
+            inkCtx.stroke();
+            inkCtx.restore();
+
+            // Planimeter wiel-integratie (projectie op normaal van traceerarm)
+            const { ex, ey } = solveElbow(pos.x, pos.y);
+            const armLen = Math.hypot(pos.x - ex, pos.y - ey) || 1;
+            const nx = -(pos.y - ey) / armLen;
+            const ny = (pos.x - ex) / armLen;
+            const ds = dx * nx + dy * ny;
+
+            wheelIntegral += ds;
+            pathLengthPx += dist;
+
+            // Update telemetrie
+            const areaCm2 = Math.abs((wheelIntegral * L2) / (pxPerCm * pxPerCm));
+            const vernierRevs = wheelIntegral / 120;
+            const lengthMm = (pathLengthPx / pxPerCm) * 10;
+
+            document.getElementById('readoutVernier').textContent = `${vernierRevs.toFixed(3)} omw`;
+            document.getElementById('readoutArea').textContent = `${areaCm2.toFixed(2)} cm²`;
+            document.getElementById('readoutLength').textContent = `${lengthMm.toFixed(1)} mm`;
+
+            lastX = pos.x;
+            lastY = pos.y;
+            lastTime = now;
+        }
+
+        drawInstrument(cursorX, cursorY);
+    }
+
+    function endDraw() {
+        isDrawing = false;
+    }
+
+    container.addEventListener('mousedown', startDraw);
+    window.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', endDraw);
+
+    container.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, { passive: false });
+    container.addEventListener('touchmove', (e) => { e.preventDefault(); moveDraw(e); }, { passive: false });
+    container.addEventListener('touchend', endDraw);
+
+    function clearCanvas() {
+        inkCtx.clearRect(0, 0, width, height);
+        drawSignatureLine();
+        wheelIntegral = 0;
+        pathLengthPx = 0;
+        document.getElementById('readoutVernier').textContent = '0.000 omw';
+        document.getElementById('readoutArea').textContent = '0.00 cm²';
+        document.getElementById('readoutLength').textContent = '0.0 mm';
+        document.getElementById('certificateOutput').style.display = 'none';
+    }
+
+    async function finalizeSignature() {
+        const name = document.getElementById('signerName').value.trim() || 'Onbekende Ondertekenaar';
+        const role = document.getElementById('signerRole').value;
+        const date = document.getElementById('signDate').value;
+        const area = document.getElementById('readoutArea').textContent;
+        const length = document.getElementById('readoutLength').textContent;
+
+        const payload = `LICENTIE-v3.0|NAAM:${name}|ROL:${role}|DATUM:${date}|OPPERVLAKTE:${area}|LENGTE:${length}|TOEZICHT:Jorne Goijarts`;
+        const msgBuffer = new TextEncoder().encode(payload);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const out = document.getElementById('certificateOutput');
+        out.style.display = 'block';
+        out.textContent =
+`=== DIGITALE AKTE VAN ONDERTEKENING (TIJDSCAPSULE) ===
+Licentie      : Codevibing-, Soevereiniteits- & Familielicentie (v3.0)
+Ondertekenaar : ${name} (${role})
+Datum         : ${date}
+Toezichthouder: Jorne Goijarts
+Planimeter    : Oppervlakte ${area} | Inktspoor ${length}
+SHA-256 Hash  : ${hashHex}
+Status        : Lokaal geverifieerd en gereed voor archivering.`;
+    }
+
+    function exportPNG() {
+        const link = document.createElement('a');
+        const name = (document.getElementById('signerName').value.trim() || 'handtekening').replace(/\s+/g, '_');
+        link.download = `licentie_v3_${name}.png`;
+        link.href = inkCanvas.toDataURL('image/png');
+        link.click();
+    }
+
+    window.addEventListener('resize', resizeCanvases);
+    resizeCanvases();
+</script>
+
+</body>
+</html>
