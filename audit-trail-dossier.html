@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="nl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geanonimiseerde Audit Trail &amp; Bewijsarchitectuur (OIDC 1.0 &amp; Procesrecht)</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Playfair Display (Redactionele Serif), Inter (UI/Tekst) & JetBrains Mono (OIDC/Hashes) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'Cambria', '"Times New Roman"', 'serif'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          colors: {
+            meekrap: {
+              DEFAULT: '#8C232C',
+              light: '#A8323B',
+              dark: '#6D1820',
+              tint: '#F6EAEB',
+              border: '#DFC0C3',
+            },
+            parchment: '#FAF7F2',
+            linen: '#E4DDD3',
+            ink: '#1F1B18',
+            taupe: '#5C534A',
+            brass: '#B5833E',
+            archival: {
+              green: '#2B5B44',
+              crimson: '#9B1C1C',
+              ochre: '#9A6324',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Basiskleuren en redactionele typografie voor het Meekrap-archief */
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #FAF7F2;
+      color: #1F1B18;
+    }
+
+    h1, h2, h3, .font-editorial {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    /* Subtiele dossier-rug (spine) styling */
+    .dossier-spine {
+      box-shadow: inset 6px 0 0 0 #8C232C;
+    }
+
+    /* Aangepaste print- & PDF-opmaak */
+    @media print {
+      body {
+        background-color: #FFFFFF !important;
+        color: #1F1B18 !important;
+        font-size: 10.5pt;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-full-width {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      .print-break-inside-avoid {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .print-break-before {
+        break-before: page;
+        page-break-before: always;
+      }
+      .print-preserve-color {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl {
+        box-shadow: none !important;
+      }
+      table {
+        font-size: 8.5pt;
+      }
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-meekrap-tint selection:text-meekrap-dark">
+
+  <!-- ===================================================================== -->
+  <!-- MOBIELE TOPBALK (Zichtbaar onder lg-breakpoint, verborgen bij print)  -->
+  <!-- ===================================================================== -->
+  <header class="no-print lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-linen">
+    <div class="h-1.5 w-full bg-meekrap"></div>
+    <div class="px-4 py-3 flex items-center justify-between gap-3">
+      <div class="min-w-0">
+        <span class="block text-[10px] font-mono uppercase tracking-widest text-meekrap font-semibold">Dossier-Archief &bull; OIDC &amp; Rv</span>
+        <span class="block font-editorial font-bold text-base text-ink truncate">Audit Trail &amp; Bewijsarchitectuur</span>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button type="button" onclick="exportFullJson()" class="p-2 rounded-lg border border-linen bg-parchment text-ink hover:border-meekrap hover:text-meekrap transition cursor-pointer" title="Exporteer JSON" aria-label="Exporteer JSON">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+        </button>
+        <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-meekrap hover:bg-meekrap-light text-white text-xs font-semibold transition cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+          </svg>
+          PDF
+        </button>
+      </div>
+    </div>
+    <!-- Horizontale mobiele snelnavigatie -->
+    <nav class="px-4 pb-2.5 flex items-center gap-2 overflow-x-auto text-xs font-medium text-taupe border-t border-linen/60 pt-2">
+      <a href="#overzicht" class="shrink-0 px-2.5 py-1 rounded-md bg-meekrap-tint text-meekrap font-semibold">Overzicht</a>
+      <a href="#pijlers" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-parchment hover:text-ink transition">1. Drie Pijlers</a>
+      <a href="#audit-trail" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-parchment hover:text-ink transition">2. Audit Trail</a>
+      <a href="#boedelbeschrijving" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-parchment hover:text-ink transition">3. Boedelkader</a>
+      <a href="#weerbaarheid" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-parchment hover:text-ink transition">4. Weerbaarheid</a>
+    </nav>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- TWEE-ZONE REDACTIONELE LAYOUT                                         -->
+  <!-- ===================================================================== -->
+  <div class="min-h-screen flex flex-col lg:flex-row max-w-[1600px] mx-auto">
+
+    <!-- =================================================================== -->
+    <!-- LINKER ZIJBALK: DOSSIER-INDEX & MEEKRAP SPINE (Desktop Sticky)      -->
+    <!-- =================================================================== -->
+    <aside class="no-print hidden lg:flex lg:flex-col lg:w-80 xl:w-[340px] shrink-0 bg-white border-r border-linen dossier-spine sticky top-0 h-screen overflow-y-auto">
+      <div class="p-7 flex flex-col h-full justify-between gap-6">
+        <div class="space-y-7">
+          <!-- Zegel / Dossierkop -->
+          <div class="pb-5 border-b border-linen">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-meekrap-tint border border-meekrap-border text-meekrap text-[11px] font-mono font-semibold uppercase tracking-wider">
+              <span class="w-1.5 h-1.5 rounded-full bg-meekrap"></span>
+              Archiefdossier &bull; Geanonimiseerd
+            </div>
+            <h2 class="mt-3 font-editorial text-xl font-bold text-ink leading-snug">
+              Audit Trail &amp; Bewijsarchitectuur
+            </h2>
+            <p class="mt-1.5 text-xs text-taupe leading-relaxed">
+              OIDC 1.0 &amp; Praktijkbeheersystemen gekoppeld aan art. 21, 156a, 194 &amp; 674 Rv.
+            </p>
+          </div>
+
+          <!-- Dossier-inhoudsopgave -->
+          <nav aria-label="Dossier-index" class="space-y-1">
+            <div class="text-[11px] font-mono uppercase tracking-widest text-brass font-semibold mb-2.5 px-2">
+              Dossier-Index
+            </div>
+            <a href="#overzicht" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-meekrap-tint hover:text-meekrap transition group">
+              <span>Overzicht &amp; Kerncijfers</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">00</span>
+            </a>
+            <a href="#pijlers" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-meekrap-tint hover:text-meekrap transition group">
+              <span>De Drie Bewijspijlers</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">01</span>
+            </a>
+            <a href="#audit-trail" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-meekrap-tint hover:text-meekrap transition group">
+              <span>Audit Trail (TRX-001–008)</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">02</span>
+            </a>
+            <a href="#boedelbeschrijving" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-meekrap-tint hover:text-meekrap transition group">
+              <span>Toetsingskader Boedel</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">03</span>
+            </a>
+            <a href="#weerbaarheid" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-meekrap-tint hover:text-meekrap transition group">
+              <span>Juridische Weerbaarheid</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">04</span>
+            </a>
+          </nav>
+
+          <!-- Geanonimiseerde Actoren Legenda -->
+          <div class="bg-parchment rounded-xl border border-linen p-4">
+            <div class="text-[11px] font-mono uppercase tracking-widest text-brass font-semibold mb-3 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-brass" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
+              Actoren-Legenda
+            </div>
+            <ul class="space-y-2.5 text-xs">
+              <li class="flex items-center justify-between gap-2 pb-2 border-b border-linen/70">
+                <span class="font-semibold text-ink">Partij A</span>
+                <span class="font-mono text-[11px] px-2 py-0.5 rounded bg-white border border-linen text-archival-green">Mede-vereffenaar</span>
+              </li>
+              <li class="flex items-center justify-between gap-2 pb-2 border-b border-linen/70">
+                <span class="font-semibold text-ink">Partij B</span>
+                <span class="font-mono text-[11px] px-2 py-0.5 rounded bg-white border border-linen text-meekrap">Eisende deelgenoot</span>
+              </li>
+              <li class="flex items-center justify-between gap-2 pb-2 border-b border-linen/70">
+                <span class="font-semibold text-ink">Boedelnotaris</span>
+                <span class="font-mono text-[11px] px-2 py-0.5 rounded bg-white border border-linen text-taupe">Notarieel protocol</span>
+              </li>
+              <li class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-ink">Bevoegd Gezag</span>
+                <span class="font-mono text-[11px] px-2 py-0.5 rounded bg-white border border-linen text-archival-ochre">Rechter / Deken</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Actieknoppen onderaan zijbalk -->
+        <div class="pt-5 border-t border-linen space-y-2.5">
+          <button type="button" onclick="window.print()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-meekrap hover:bg-meekrap-light text-white text-sm font-semibold shadow-sm transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+            </svg>
+            Afdrukken / PDF
+          </button>
+          <button type="button" onclick="exportFullJson()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-parchment hover:bg-meekrap-tint text-ink hover:text-meekrap border border-linen hover:border-meekrap-border text-sm font-semibold transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Exporteer JSON
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- =================================================================== -->
+    <!-- RECHTER HOOFDKOLOM: REDACTIONELE INHOUD                             -->
+    <!-- =================================================================== -->
+    <main class="print-full-width flex-1 min-w-0 px-4 sm:px-8 lg:px-12 py-8 lg:py-12 space-y-14">
+
+      <!-- ================================================================= -->
+      <!-- HEADER & KPI-STRIP                                                -->
+      <!-- ================================================================= -->
+      <section id="overzicht" class="scroll-mt-24 space-y-6">
+        <div class="bg-white rounded-2xl border border-linen shadow-sm overflow-hidden">
+          <!-- Meekrap-bovenrand -->
+          <div class="h-2 bg-gradient-to-r from-meekrap via-meekrap-light to-brass print-preserve-color"></div>
+
+          <div class="p-6 sm:p-9">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <span class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-meekrap font-semibold">
+                <svg class="w-4 h-4 text-brass" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+                Procesrechtelijk &amp; Cryptografisch Bewijskader
+              </span>
+              <span class="text-xs font-mono text-taupe bg-parchment border border-linen px-2.5 py-1 rounded-md">
+                art. 156a Rv &bull; art. 21 Rv &bull; art. 194 Rv &bull; art. 674 Rv
+              </span>
+            </div>
+
+            <h1 class="font-editorial text-3xl sm:text-4xl xl:text-[42px] font-bold text-ink leading-tight tracking-tight">
+              Geanonimiseerde Audit Trail &amp; Bewijsarchitectuur
+            </h1>
+            <p class="mt-3 text-base sm:text-lg text-taupe leading-relaxed max-w-3xl">
+              Koppeling van <strong class="text-ink font-semibold">OpenID Connect 1.0 (OIDC)</strong> &amp; praktijkbeheersystemen aan de formele bewijseisen van het procesrecht (<span class="font-mono text-sm text-meekrap font-medium">art. 156a Rv, art. 21 Rv, art. 194 Rv, art. 674 Rv</span>).
+            </p>
+
+            <!-- Anonimiseringsbanner -->
+            <div class="mt-6 rounded-xl bg-meekrap-tint/80 border border-meekrap-border p-4 flex items-start gap-3.5 print-preserve-color">
+              <div class="w-8 h-8 rounded-lg bg-meekrap text-white flex items-center justify-center shrink-0 mt-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+              </div>
+              <div class="text-sm text-ink leading-relaxed">
+                <strong class="font-semibold text-meekrap-dark">Anonimiseringsverklaring:</strong>
+                Alle persoonsgegevens, privénamen, IBAN-nummers en kadastrale adressen zijn vervangen door neutrale, functiegerichte aanduidingen (<em>Partij A / Mede-vereffenaar</em>, <em>Partij B / Eisende deelgenoot</em>, <em>Boedelnotaris</em>, <em>Bevoegd Gezag</em>).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI-Strip (4 Archiefkarten) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div class="bg-white rounded-xl border border-linen p-5 shadow-sm print-break-inside-avoid">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-taupe">Geverifieerde Transacties</div>
+            <div class="mt-2 flex items-baseline gap-2.5">
+              <span class="font-editorial text-3xl font-bold text-meekrap">8</span>
+              <span class="text-xs font-mono text-taupe bg-parchment border border-linen px-2 py-0.5 rounded">TRX-001 t/m 008</span>
+            </div>
+            <p class="mt-1.5 text-xs text-taupe">Sluitende chronologische keten</p>
+          </div>
+
+          <div class="bg-white rounded-xl border border-linen p-5 shadow-sm print-break-inside-avoid">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-taupe">Bewijspijlers</div>
+            <div class="mt-2 flex items-baseline gap-2.5">
+              <span class="font-editorial text-3xl font-bold text-ink">3</span>
+              <span class="text-xs font-mono text-brass bg-parchment border border-linen px-2 py-0.5 rounded">OIDC / API / 156a</span>
+            </div>
+            <p class="mt-1.5 text-xs text-taupe">Identiteit, integriteit &amp; drager</p>
+          </div>
+
+          <div class="bg-white rounded-xl border border-linen p-5 shadow-sm print-break-inside-avoid">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-taupe">Vereiste Onderleggers</div>
+            <div class="mt-2 flex items-baseline gap-2.5">
+              <span class="font-editorial text-3xl font-bold text-archival-green">10</span>
+              <span class="text-xs font-mono text-archival-green bg-parchment border border-linen px-2 py-0.5 rounded">art. 674 Rv</span>
+            </div>
+            <p class="mt-1.5 text-xs text-taupe">Peildatum = Sterfdatum</p>
+          </div>
+
+          <div class="bg-white rounded-xl border border-meekrap-border p-5 shadow-sm print-break-inside-avoid">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-archival-crimson font-semibold">Geblokkeerde Kostenpost</div>
+            <div class="mt-2 flex items-baseline gap-2.5">
+              <span class="font-editorial text-3xl font-bold text-archival-crimson">1</span>
+              <span class="text-xs font-mono text-archival-crimson bg-meekrap-tint border border-meekrap-border px-2 py-0.5 rounded">Punt 7 PV</span>
+            </div>
+            <p class="mt-1.5 text-xs text-taupe">Individuele advocaatkosten uitgesloten</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 1: DE DRIE PIJLERS VAN EEN JURIDISCH GELDIGE AUDIT TRAIL   -->
+      <!-- ================================================================= -->
+      <section id="pijlers" class="scroll-mt-24">
+        <div class="mb-6 pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 01 &bull; Referentie-architectuur</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            De Drie Pijlers van een Juridisch Geldige Audit Trail
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-taupe max-w-3xl">
+            Een audit trail heeft in rechte pas bewijskracht als elke logregel kan worden herleid tot een objectieve, cryptografisch verifieerbare onderlegger over drie complementaire lagen.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Pijler 1 -->
+          <article class="print-break-inside-avoid bg-white rounded-2xl border border-linen border-t-4 border-t-meekrap shadow-sm p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-meekrap text-white font-editorial font-bold text-base print-preserve-color">I</span>
+              <span class="px-2.5 py-1 rounded-md bg-parchment border border-linen text-taupe font-mono text-[11px] font-medium">OIDC Layer</span>
+            </div>
+            <h3 class="font-editorial text-xl font-bold text-ink">Identiteit &amp; Autorisatie</h3>
+            <p class="mt-1 text-xs font-mono uppercase tracking-wide text-meekrap font-semibold">WIE handelde?</p>
+            <p class="mt-3 text-sm text-taupe leading-relaxed flex-grow">
+              Legt via OpenID Connect 1.0 ondubbelzinnig vast welke actor (<code class="text-xs text-ink bg-parchment px-1 py-0.5 rounded">iss + sub</code>), onder welke applicatie (<code class="text-xs text-ink bg-parchment px-1 py-0.5 rounded">client_id</code>) en met welke specifieke bevoegdheid een handeling verrichtte.
+            </p>
+            <div class="mt-5 pt-4 border-t border-linen space-y-2 text-xs font-mono">
+              <div class="flex justify-between gap-2 bg-parchment px-3 py-2 rounded-lg border border-linen/80">
+                <span class="text-taupe">Identiteit</span>
+                <span class="text-ink font-semibold">iss + sub</span>
+              </div>
+              <div class="flex justify-between gap-2 bg-parchment px-3 py-2 rounded-lg border border-linen/80">
+                <span class="text-taupe">Client</span>
+                <span class="text-ink font-semibold">client_id</span>
+              </div>
+              <div class="flex justify-between gap-2 bg-parchment px-3 py-2 rounded-lg border border-linen/80">
+                <span class="text-taupe">Scope</span>
+                <span class="text-meekrap font-semibold text-right">dossier:read, declaratie:write</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Pijler 2 -->
+          <article class="print-break-inside-avoid bg-white rounded-2xl border border-linen border-t-4 border-t-meekrap-light shadow-sm p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-meekrap-light text-white font-editorial font-bold text-base print-preserve-color">II</span>
+              <span class="px-2.5 py-1 rounded-md bg-parchment border border-linen text-taupe font-mono text-[11px] font-medium">Data / API Layer</span>
+            </div>
+            <h3 class="font-editorial text-xl font-bold text-ink">Transactie-integriteit</h3>
+            <p class="mt-1 text-xs font-mono uppercase tracking-wide text-meekrap font-semibold">WAT werd verzonden / bewerkt?</p>
+            <p class="mt-3 text-sm text-taupe leading-relaxed flex-grow">
+              Borgt de onveranderlijkheid van elke verzonden payload, e-mailtekst of dossierstatus door cryptografische vingerafdrukken en server-side tijdstempels.
+            </p>
+            <div class="mt-5 pt-4 border-t border-linen space-y-2 text-xs font-mono">
+              <div class="flex justify-between gap-2 bg-parchment px-3 py-2 rounded-lg border border-linen/80">
+                <span class="text-taupe">Hash</span>
+                <span class="text-ink font-semibold">SHA-256 payload-hashes</span>
+              </div>
+              <div class="flex justify-between gap-2 bg-parchment px-3 py-2 rounded-lg border border-linen/80">
+                <span class="text-taupe">Signatuur</span>
+                <span class="text-ink font-semibold">JWS / DKIM-handtekeningen</span>
+              </div>
+              <div class="flex justify-between gap-2 bg-parchment px-3 py-2 rounded-lg border border-linen/80">
+                <span class="text-taupe">Tijdstempel</span>
+                <span class="text-meekrap font-semibold text-right">Onwijzigbare servlet-timestamps</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Pijler 3 -->
+          <article class="print-break-inside-avoid bg-white rounded-2xl border border-linen border-t-4 border-t-brass shadow-sm p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-brass text-white font-editorial font-bold text-base print-preserve-color">III</span>
+              <span class="px-2.5 py-1 rounded-md bg-parchment border border-linen text-archival-ochre font-mono text-[11px] font-medium">art. 156a Rv</span>
+            </div>
+            <h3 class="font-editorial text-xl font-bold text-ink">Onderlegger &amp; Duurzame Drager</h3>
+            <p class="mt-1 text-xs font-mono uppercase tracking-wide text-archival-ochre font-semibold">WAAR staat het origineel?</p>
+            <p class="mt-3 text-sm text-taupe leading-relaxed flex-grow">
+              Verankert digitale systeemlogging in duurzame dragers en verifieerbare brondocumenten die direct toetsbaar zijn door rechter en boedelnotaris.
+            </p>
+            <div class="mt-5 pt-4 border-t border-linen space-y-2 text-xs font-mono">
+              <div class="flex justify-between gap-2 bg-parchment px-3 py-2 rounded-lg border border-linen/80">
+                <span class="text-taupe">Headers</span>
+                <span class="text-ink font-semibold">RFC-conforme MIME-headers</span>
+              </div>
+              <div class="flex justify-between gap-2 bg-parchment px-3 py-2 rounded-lg border border-linen/80">
+                <span class="text-taupe">Ontvangst</span>
+                <span class="text-ink font-semibold">MDN / eIDAS / PostNL</span>
+              </div>
+              <div class="flex justify-between gap-2 bg-parchment px-3 py-2 rounded-lg border border-linen/80">
+                <span class="text-taupe">Bronnen</span>
+                <span class="text-archival-green font-semibold text-right">Bankafschriften &amp; akten</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 2: GEANONIMISEERDE AUDIT TRAIL (TRX-001 t/m TRX-008)       -->
+      <!-- ================================================================= -->
+      <section id="audit-trail" class="scroll-mt-24">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-3 border-b border-linen">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 02 &bull; Sluitende Bewijsketen</span>
+            <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+              Geanonimiseerde Audit Trail met Onderleggers
+            </h2>
+            <p class="mt-2 text-sm sm:text-base text-taupe max-w-3xl">
+              Overzicht van alle 8 geregistreerde transacties (<code class="text-xs font-mono text-meekrap">TRX-001</code> t/m <code class="text-xs font-mono text-meekrap">TRX-008</code>). Selecteer een transactie om de OIDC/JWT-claims en technische metadata te inspecteren.
+            </p>
+          </div>
+          <div class="no-print text-xs font-mono text-taupe bg-white border border-linen px-3 py-1.5 rounded-lg self-start md:self-auto">
+            Getoond: <span id="visibleCount" class="font-bold text-ink">8</span> / 8 transacties
+          </div>
+        </div>
+
+        <!-- Zoekbalk & Filter-pills -->
+        <div class="no-print bg-white rounded-2xl border border-linen shadow-sm p-4 mb-6 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
+          <div class="relative flex-grow max-w-md">
+            <svg class="w-4 h-4 text-taupe absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input
+              type="text"
+              id="auditSearch"
+              placeholder="Zoek op TRX-ref, actor, BaseNet-ID, art. 21 Rv..."
+              class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-parchment border border-linen text-ink placeholder-taupe/70 focus:outline-none focus:ring-2 focus:ring-meekrap/30 focus:border-meekrap transition"
+            />
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filter op categorie">
+            <button type="button" data-filter="all" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-meekrap text-white transition cursor-pointer">
+              Alle (8)
+            </button>
+            <button type="button" data-filter="oidc" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-parchment text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              OIDC / Systeem (5)
+            </button>
+            <button type="button" data-filter="fysiek" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-parchment text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              Fysiek / Gerechtelijk (3)
+            </button>
+            <button type="button" data-filter="risico" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-meekrap-tint text-archival-crimson border border-meekrap-border hover:bg-meekrap hover:text-white transition cursor-pointer">
+              Schending / Risico (3)
+            </button>
+          </div>
+        </div>
+
+        <!-- Audit Trail Hybride Tabel / Kaartenweergave -->
+        <div class="bg-white rounded-2xl border border-linen shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-parchment border-b border-linen text-[11px] font-mono uppercase tracking-wider text-taupe">
+                  <th class="py-3.5 px-4 whitespace-nowrap">Ref / UTC</th>
+                  <th class="py-3.5 px-4 min-w-[200px]">Systeemevenement &amp; Actor</th>
+                  <th class="py-3.5 px-4 min-w-[180px]">OIDC Token Claims</th>
+                  <th class="py-3.5 px-4 min-w-[240px]">Primaire Onderlegger</th>
+                  <th class="py-3.5 px-4 min-w-[260px]">Bewijsrechtelijke Betekenis</th>
+                  <th class="no-print py-3.5 px-4 text-right whitespace-nowrap">Inspectie</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody" class="divide-y divide-linen text-sm">
+                <!-- Dynamisch ingevuld door JavaScript -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Melding bij geen zoekresultaten -->
+          <div id="emptySearchState" class="hidden py-12 px-6 text-center bg-parchment/40">
+            <p class="text-taupe font-medium">Geen transacties gevonden voor deze zoekopdracht of dit filter.</p>
+            <button type="button" onclick="resetFilters()" class="mt-3 px-4 py-2 rounded-xl bg-meekrap hover:bg-meekrap-light text-white text-sm font-semibold transition cursor-pointer">
+              Filters herstellen
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 3: TOETSINGSKADER BOEDELBESCHRIJVING (ART. 674 RV)         -->
+      <!-- ================================================================= -->
+      <section id="boedelbeschrijving" class="scroll-mt-24 print-break-before">
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6 pb-3 border-b border-linen">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 03 &bull; Art. 674 Rv (Peildatum = Sterfdatum)</span>
+            <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+              De Vereiste Inhoudelijke Onderleggers (Toetsingskader Boedel)
+            </h2>
+            <p class="mt-2 text-sm sm:text-base text-taupe max-w-3xl">
+              Naast technische systeemlogging vereist een geldige boedelbeschrijving primaire financiële en juridische onderleggers per sterfdatum. Vink aanwezige stukken aan om de voortgang te toetsen.
+            </p>
+          </div>
+
+          <div class="no-print flex items-center gap-2 shrink-0">
+            <button type="button" onclick="setChecklistState('all')" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-meekrap-tint text-meekrap border border-meekrap-border hover:bg-meekrap hover:text-white transition cursor-pointer">
+              Alles aanvinken
+            </button>
+            <button type="button" onclick="setChecklistState('reset')" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white text-taupe border border-linen hover:border-ink hover:text-ink transition cursor-pointer">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Meekrap Voortgangsbalk -->
+        <div class="bg-white rounded-2xl border border-linen shadow-sm p-5 mb-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <span class="font-editorial font-bold text-base text-ink">Volledigheid Boedelbeschrijving</span>
+              <span id="completenessBadge" class="px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-meekrap-tint text-meekrap border border-meekrap-border">
+                Onvolledig
+              </span>
+            </div>
+            <div class="text-sm font-mono font-semibold text-ink">
+              <span id="checkedCount">0</span> / 10 onderleggers (<span id="checkedPercent">0%</span>)
+            </div>
+          </div>
+          <div class="w-full h-3 bg-parchment rounded-full overflow-hidden border border-linen">
+            <div id="progressBarFill" class="h-full bg-gradient-to-r from-meekrap to-meekrap-light transition-all duration-300 rounded-full print-preserve-color" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- 4 Categorie-kaarten in 2x2 grid -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <!-- Categorie 1: Onroerende Zaken -->
+          <div class="print-break-inside-avoid bg-white rounded-2xl border border-linen shadow-sm overflow-hidden flex flex-col">
+            <div class="bg-parchment border-b border-linen px-5 py-3.5 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="font-mono text-[11px] font-semibold px-2 py-0.5 rounded bg-meekrap text-white print-preserve-color">ACTIVA 1</span>
+                <h3 class="font-editorial font-bold text-lg text-ink">Onroerende Zaken</h3>
+              </div>
+              <span class="text-xs font-mono text-taupe">3 onderleggers</span>
+            </div>
+            <div class="p-5 space-y-3 flex-grow">
+              <label class="checklist-row flex items-start gap-3 p-3 rounded-xl border border-linen hover:bg-parchment/70 transition cursor-pointer">
+                <input type="checkbox" class="boedel-checkbox mt-1 w-4 h-4 rounded accent-[#8C232C] shrink-0 cursor-pointer" data-id="1.1" />
+                <div class="text-sm leading-snug">
+                  <span class="font-mono text-xs font-semibold text-meekrap bg-meekrap-tint px-1.5 py-0.5 rounded mr-1.5">[1.1]</span>
+                  <span class="text-ink font-medium">Kadastraal uittreksel inclusief publiekrechtelijke beperkingen (Hyp4 / Wbb)</span>
+                </div>
+              </label>
+              <label class="checklist-row flex items-start gap-3 p-3 rounded-xl border border-linen hover:bg-parchment/70 transition cursor-pointer">
+                <input type="checkbox" class="boedel-checkbox mt-1 w-4 h-4 rounded accent-[#8C232C] shrink-0 cursor-pointer" data-id="1.2" />
+                <div class="text-sm leading-snug">
+                  <span class="font-mono text-xs font-semibold text-meekrap bg-meekrap-tint px-1.5 py-0.5 rounded mr-1.5">[1.2]</span>
+                  <span class="text-ink font-medium">Volledig taxatierapport zónder hypothetische 'schone-grondfictie'</span>
+                </div>
+              </label>
+              <label class="checklist-row flex items-start gap-3 p-3 rounded-xl border border-linen hover:bg-parchment/70 transition cursor-pointer">
+                <input type="checkbox" class="boedel-checkbox mt-1 w-4 h-4 rounded accent-[#8C232C] shrink-0 cursor-pointer" data-id="1.3" />
+                <div class="text-sm leading-snug">
+                  <span class="font-mono text-xs font-semibold text-meekrap bg-meekrap-tint px-1.5 py-0.5 rounded mr-1.5">[1.3]</span>
+                  <span class="text-ink font-medium">Bouwkundig inspectierapport (herstelkosten en constructieve staat)</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Categorie 2: Liquide Middelen & Bankrekeningen -->
+          <div class="print-break-inside-avoid bg-white rounded-2xl border border-linen shadow-sm overflow-hidden flex flex-col">
+            <div class="bg-parchment border-b border-linen px-5 py-3.5 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="font-mono text-[11px] font-semibold px-2 py-0.5 rounded bg-meekrap text-white print-preserve-color">ACTIVA 2</span>
+                <h3 class="font-editorial font-bold text-lg text-ink">Liquide Middelen &amp; Bankrekeningen</h3>
+              </div>
+              <span class="text-xs font-mono text-taupe">3 onderleggers</span>
+            </div>
+            <div class="p-5 space-y-3 flex-grow">
+              <label class="checklist-row flex items-start gap-3 p-3 rounded-xl border border-linen hover:bg-parchment/70 transition cursor-pointer">
+                <input type="checkbox" class="boedel-checkbox mt-1 w-4 h-4 rounded accent-[#8C232C] shrink-0 cursor-pointer" data-id="2.1" />
+                <div class="text-sm leading-snug">
+                  <span class="font-mono text-xs font-semibold text-meekrap bg-meekrap-tint px-1.5 py-0.5 rounded mr-1.5">[2.1]</span>
+                  <span class="text-ink font-medium">Officiële saldoverklaringen van alle banken per sterfdatum (00:00 uur)</span>
+                </div>
+              </label>
+              <label class="checklist-row flex items-start gap-3 p-3 rounded-xl border border-brass/50 bg-parchment/60 hover:bg-parchment transition cursor-pointer">
+                <input type="checkbox" class="boedel-checkbox mt-1 w-4 h-4 rounded accent-[#8C232C] shrink-0 cursor-pointer" data-id="2.2" />
+                <div class="text-sm leading-snug">
+                  <span class="font-mono text-xs font-semibold text-archival-ochre bg-white border border-brass/40 px-1.5 py-0.5 rounded mr-1.5">[2.2]</span>
+                  <span class="text-ink font-medium">Bankafschriften 12–36 maanden vóór overlijden (verantwoording &euro;&nbsp;20.000,- opname)</span>
+                </div>
+              </label>
+              <label class="checklist-row flex items-start gap-3 p-3 rounded-xl border border-linen hover:bg-parchment/70 transition cursor-pointer">
+                <input type="checkbox" class="boedel-checkbox mt-1 w-4 h-4 rounded accent-[#8C232C] shrink-0 cursor-pointer" data-id="2.3" />
+                <div class="text-sm leading-snug">
+                  <span class="font-mono text-xs font-semibold text-meekrap bg-meekrap-tint px-1.5 py-0.5 rounded mr-1.5">[2.3]</span>
+                  <span class="text-ink font-medium">Specificatie van rente en lopende saldo-opbrengsten na overlijden</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Categorie 3: Roerende Zaken & Emotionele Goederen -->
+          <div class="print-break-inside-avoid bg-white rounded-2xl border border-linen shadow-sm overflow-hidden flex flex-col">
+            <div class="bg-parchment border-b border-linen px-5 py-3.5 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="font-mono text-[11px] font-semibold px-2 py-0.5 rounded bg-meekrap text-white print-preserve-color">ACTIVA 3</span>
+                <h3 class="font-editorial font-bold text-lg text-ink">Roerende Zaken &amp; Emotionele Goederen</h3>
+              </div>
+              <span class="text-xs font-mono text-taupe">2 onderleggers</span>
+            </div>
+            <div class="p-5 space-y-3 flex-grow">
+              <label class="checklist-row flex items-start gap-3 p-3 rounded-xl border border-linen hover:bg-parchment/70 transition cursor-pointer">
+                <input type="checkbox" class="boedel-checkbox mt-1 w-4 h-4 rounded accent-[#8C232C] shrink-0 cursor-pointer" data-id="3.1" />
+                <div class="text-sm leading-snug">
+                  <span class="font-mono text-xs font-semibold text-meekrap bg-meekrap-tint px-1.5 py-0.5 rounded mr-1.5">[3.1]</span>
+                  <span class="text-ink font-medium">Fysieke inboedelinventarisatie met fotobijlagen</span>
+                </div>
+              </label>
+              <label class="checklist-row flex items-start gap-3 p-3 rounded-xl border border-linen hover:bg-parchment/70 transition cursor-pointer">
+                <input type="checkbox" class="boedel-checkbox mt-1 w-4 h-4 rounded accent-[#8C232C] shrink-0 cursor-pointer" data-id="3.2" />
+                <div class="text-sm leading-snug">
+                  <span class="font-mono text-xs font-semibold text-meekrap bg-meekrap-tint px-1.5 py-0.5 rounded mr-1.5">[3.2]</span>
+                  <span class="text-ink font-medium">Lijst van affectieve familiegoederen (tekeningen, historische foto's, erfstukken)</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Categorie 4: Boedelschulden & Vereffeningskosten -->
+          <div class="print-break-inside-avoid bg-white rounded-2xl border border-linen shadow-sm overflow-hidden flex flex-col">
+            <div class="bg-parchment border-b border-linen px-5 py-3.5 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="font-mono text-[11px] font-semibold px-2 py-0.5 rounded bg-brass text-white print-preserve-color">PASSIVA 4</span>
+                <h3 class="font-editorial font-bold text-lg text-ink">Boedelschulden &amp; Vereffeningskosten</h3>
+              </div>
+              <span class="text-xs font-mono text-taupe">2 onderleggers + 1 blokkade</span>
+            </div>
+            <div class="p-5 space-y-3 flex-grow">
+              <label class="checklist-row flex items-start gap-3 p-3 rounded-xl border border-linen hover:bg-parchment/70 transition cursor-pointer">
+                <input type="checkbox" class="boedel-checkbox mt-1 w-4 h-4 rounded accent-[#8C232C] shrink-0 cursor-pointer" data-id="4.1" />
+                <div class="text-sm leading-snug">
+                  <span class="font-mono text-xs font-semibold text-meekrap bg-meekrap-tint px-1.5 py-0.5 rounded mr-1.5">[4.1]</span>
+                  <span class="text-ink font-medium">Facturen en betalingsbewijzen uitvaart en grafrechten (gemeentelijke leges)</span>
+                </div>
+              </label>
+              <label class="checklist-row flex items-start gap-3 p-3 rounded-xl border border-linen hover:bg-parchment/70 transition cursor-pointer">
+                <input type="checkbox" class="boedel-checkbox mt-1 w-4 h-4 rounded accent-[#8C232C] shrink-0 cursor-pointer" data-id="4.2" />
+                <div class="text-sm leading-snug">
+                  <span class="font-mono text-xs font-semibold text-meekrap bg-meekrap-tint px-1.5 py-0.5 rounded mr-1.5">[4.2]</span>
+                  <span class="text-ink font-medium">Fiscale aanslagen (definitieve aanslagen IB overleden jaar + F-biljet)</span>
+                </div>
+              </label>
+
+              <!-- Geblokkeerde uitsluiting in diep crimson / meekrap -->
+              <div class="rounded-xl border-2 border-archival-crimson bg-meekrap-tint p-3.5 flex items-start gap-3 print-preserve-color">
+                <div class="mt-0.5 w-6 h-6 rounded-md bg-archival-crimson text-white flex items-center justify-center shrink-0" title="Permanent geblokkeerd">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                  </svg>
+                </div>
+                <div class="text-sm">
+                  <span class="inline-block font-mono text-[11px] font-bold uppercase tracking-wider bg-archival-crimson text-white px-2 py-0.5 rounded">
+                    Uitsluiting &bull; Geblokkeerd
+                  </span>
+                  <p class="mt-1 font-semibold text-archival-crimson leading-snug">
+                    Facturen individuele partijadvocaten (geblokkeerd ex Punt 7 Proces-Verbaal)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 4: WAAROM DEZE OPZET BESTAND IS TEGEN BETWISTING           -->
+      <!-- ================================================================= -->
+      <section id="weerbaarheid" class="scroll-mt-24">
+        <div class="mb-6 pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 04 &bull; Procesrechtelijke Weerbaarheid</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            Waarom deze opzet bestand is tegen betwisting
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-taupe max-w-3xl">
+            De combinatie van cryptografische identiteitsvastlegging, specifieke onderleggers en formele dossierscheiding maakt de bewijsketen juridisch en technisch onweerlegbaar.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <article class="print-break-inside-avoid bg-white rounded-2xl border border-linen shadow-sm p-6 relative overflow-hidden">
+            <div class="w-10 h-10 rounded-xl bg-meekrap-tint border border-meekrap-border text-meekrap flex items-center justify-center mb-4">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+            </div>
+            <h3 class="font-editorial text-lg font-bold text-ink">1. Non-repudiation (Onweerlegbaarheid)</h3>
+            <p class="mt-2.5 text-sm text-taupe leading-relaxed">
+              Door OIDC-mechanismen (<code class="font-mono text-xs text-meekrap bg-parchment px-1 py-0.5 rounded">iss + sub</code>) te koppelen aan cryptografische headers (<code class="font-mono text-xs text-meekrap bg-parchment px-1 py-0.5 rounded">DKIM bh=</code>), servlet-printsporen en PostNL-tijdstempels kan geen van de partijen ontkennen dat een handeling op dat exacte moment door die specifieke actor is verricht.
+            </p>
+          </article>
+
+          <article class="print-break-inside-avoid bg-white rounded-2xl border border-linen shadow-sm p-6 relative overflow-hidden">
+            <div class="w-10 h-10 rounded-xl bg-parchment border border-linen text-brass flex items-center justify-center mb-4">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z" />
+              </svg>
+            </div>
+            <h3 class="font-editorial text-lg font-bold text-ink">2. Afbakening van de rechtsstrijd</h3>
+            <p class="mt-2.5 text-sm text-taupe leading-relaxed">
+              Geen <em>fishing expedition</em>: elke gevorderde onderlegger (zoals de bankafschriften van de &euro;&nbsp;20.000,- opname of het Wbb-bodemrapport) is specifiek gedefinieerd, direct herleidbaar tot een rechtsbetrekking en noodzakelijk voor de vereffening conform <strong class="text-ink">art. 194 Rv</strong>.
+            </p>
+          </article>
+
+          <article class="print-break-inside-avoid bg-white rounded-2xl border border-linen shadow-sm p-6 relative overflow-hidden">
+            <div class="w-10 h-10 rounded-xl bg-parchment border border-linen text-archival-green flex items-center justify-center mb-4">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+              </svg>
+            </div>
+            <h3 class="font-editorial text-lg font-bold text-ink">3. Strikte scheiding boedel &amp; privé</h3>
+            <p class="mt-2.5 text-sm text-taupe leading-relaxed">
+              De audit trail toont onweerlegbaar aan welke handelingen betrekking hebben op de gemeenschap en welke uitsluitend dienden voor individuele procesvoering of tuchtzaken (bevestigd door gescheiden CRM-stamnummers <code class="font-mono text-xs text-ink bg-parchment px-1 py-0.5 rounded">D_STAM</code> vs. <code class="font-mono text-xs text-ink bg-parchment px-1 py-0.5 rounded">D_DISC</code>).
+            </p>
+          </article>
+        </div>
+
+        <!-- Voetnoot: Aanbevolen verhardingsmaatregelen -->
+        <footer class="print-break-inside-avoid bg-white rounded-2xl border border-linen border-l-4 border-l-meekrap p-6 sm:p-7 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <span class="text-[11px] font-mono uppercase tracking-widest text-meekrap font-semibold">Archiveringsnotitie &bull; Technische Verharding</span>
+              <h3 class="font-editorial text-lg font-bold text-ink mt-0.5">Aanbevolen Verhardingsmaatregelen</h3>
+            </div>
+            <span class="text-xs font-mono text-taupe">Conform Europese &amp; Nederlandse standaarden</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 text-xs">
+            <div class="p-3.5 rounded-xl bg-parchment border border-linen">
+              <div class="font-mono font-semibold text-meekrap mb-1">RFC 3161 TSA</div>
+              <p class="text-taupe leading-relaxed">Gekwalificeerde tijdstempels op SHA-256 hashes van e-mailheaders en producties tegen antidatering.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-parchment border border-linen">
+              <div class="font-mono font-semibold text-meekrap mb-1">Hash-Chaining</div>
+              <p class="text-taupe leading-relaxed">Append-only koppeling van opeenvolgende logregels zodat verwijdering direct cryptografisch zichtbaar wordt.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-parchment border border-linen">
+              <div class="font-mono font-semibold text-archival-green mb-1">eIDAS (QES / QERDS)</div>
+              <p class="text-taupe leading-relaxed">Gekwalificeerde elektronische handtekeningen en aangetekende bezorgdiensten met wettelijk bewijsvermoeden.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-parchment border border-linen">
+              <div class="font-mono font-semibold text-archival-ochre mb-1">Omgevingswet / Wbb</div>
+              <p class="text-taupe leading-relaxed">Directe archivering van WKPB- en Bodemloket-uittreksels op peildatum ter vastlegging van publiekrechtelijke lasten.</p>
+            </div>
+          </div>
+
+          <div class="mt-5 pt-4 border-t border-linen flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-taupe">
+            <span>Geanonimiseerde Audit Trail &amp; Bewijsarchitectuur &mdash; Meekrap Archiefeditie</span>
+            <span class="font-mono text-[11px]">Geen persoonsgegevens aanwezig &bull; Print- &amp; PDF-geoptimaliseerd</span>
+          </div>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL: OIDC JWT & TECHNISCHE METADATA INSPECTOR                       -->
+  <!-- ===================================================================== -->
+  <div id="trxModal" class="no-print fixed inset-0 z-50 hidden items-center justify-center p-4 bg-ink/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="bg-white rounded-2xl shadow-2xl border border-linen w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+      <!-- Modal Header met Meekrap accent -->
+      <div class="bg-meekrap text-white px-6 py-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <span id="modalTrxId" class="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-white/15 border border-white/25 text-white shrink-0">TRX-001</span>
+          <h3 id="modalTitle" class="font-editorial text-lg font-bold truncate">Transactie-inspectie</h3>
+        </div>
+        <button type="button" onclick="closeModal()" class="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/15 transition cursor-pointer" aria-label="Sluiten">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Inhoud -->
+      <div class="p-6 overflow-y-auto space-y-5 text-sm bg-parchment/40">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-white rounded-xl p-3.5 border border-linen">
+            <div class="text-[11px] font-mono uppercase text-taupe">Tijdstempel (UTC)</div>
+            <div id="modalTimestamp" class="mt-1 font-mono font-semibold text-ink"></div>
+          </div>
+          <div class="bg-white rounded-xl p-3.5 border border-linen">
+            <div class="text-[11px] font-mono uppercase text-taupe">Actor / Route</div>
+            <div id="modalActor" class="mt-1 font-semibold text-ink"></div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-4 border border-linen">
+          <div class="text-[11px] font-mono uppercase text-taupe mb-2">Primaire Onderlegger (Technisch Bewijsstuk)</div>
+          <ul id="modalProofList" class="list-disc list-inside space-y-1 text-ink font-mono text-xs"></ul>
+        </div>
+
+        <div id="modalLegalBox" class="rounded-xl p-4 border">
+          <div class="text-[11px] font-mono uppercase font-semibold mb-1">Bewijsrechtelijke Betekenis in de Boedel</div>
+          <p id="modalLegalText" class="text-sm leading-relaxed"></p>
+        </div>
+
+        <!-- Gestructureerde OIDC / Metadata JSON -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono uppercase font-semibold text-taupe">OIDC JWT &amp; Technische Metadata (JSON)</span>
+            <button type="button" onclick="copyModalJson()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-meekrap-tint hover:bg-meekrap text-meekrap hover:text-white border border-meekrap-border text-xs font-semibold transition cursor-pointer">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+              </svg>
+              Kopieer JSON
+            </button>
+          </div>
+          <pre id="modalJson" class="bg-ink text-[#F3E9DC] p-4 rounded-xl text-xs font-mono overflow-x-auto leading-relaxed border border-linen"></pre>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="bg-white px-6 py-3.5 border-t border-linen flex justify-end">
+        <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-meekrap hover:bg-meekrap-light text-white text-sm font-semibold transition cursor-pointer">
+          Sluiten
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subtiele Toast-melding (geen alert()) -->
+  <div id="toast" class="no-print fixed bottom-5 right-5 z-50 hidden items-center gap-2.5 px-4 py-3 rounded-xl bg-ink text-white text-sm font-medium shadow-xl border border-brass/40">
+    <span class="w-2 h-2 rounded-full bg-brass shrink-0"></span>
+    <span id="toastMessage">Actie voltooid</span>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT: AUDIT DATA, FILTERING, MODAL, CHECKLIST & JSON EXPORT     -->
+  <!-- ===================================================================== -->
+  <script>
+    /**
+     * Volledige geanonimiseerde dataset van de 8 audit trail transacties (TRX-001 t/m TRX-008).
+     */
+    const auditTransactions = [
+      {
+        id: 'TRX-001',
+        timestamp: '2025-07-09 13:50 UTC',
+        event: 'Uitgaande e-mail / Bekentenis geldopname',
+        actor: 'Raadsvrouwe Partij B ➔ Rechtsbijstand',
+        categories: ['oidc'],
+        statusType: 'ochre',
+        oidcSummary: 'sub: usr_adv_partij_b\nscope: mail:send dossier:edit',
+        proof: [
+          'Header Message-Id: <...out-int.mail>',
+          'DKIM: s=relay01; d=kantoor.nl',
+          'Body-Hash: bh=eF7a...=',
+          'BaseNet Item-ID: [D_STAM_I61796426]'
+        ],
+        legalTitle: 'Schriftelijke erkenning van transactie',
+        legalText: 'Erkenning van overboeking € 20.000,- vlak vóór overlijden. Dwingt tot overlegging historische bankafschriften (art. 674 Rv).',
+        jsonPayload: {
+          trx_ref: 'TRX-001',
+          utc_timestamp: '2025-07-09T13:50:00Z',
+          oidc_jwt_claims: {
+            iss: 'https://idp.praktijkbeheer.nl/oidc',
+            sub: 'usr_adv_partij_b',
+            client_id: 'basenet-mail-relay',
+            scope: ['mail:send', 'dossier:edit']
+          },
+          technical_evidence: {
+            message_id: '<...out-int.mail>',
+            dkim: 's=relay01; d=kantoor.nl',
+            body_hash_sha256: 'bh=eF7a...=',
+            basenet_item_id: 'D_STAM_I61796426'
+          },
+          legal_relevance: 'Erkenning overboeking € 20.000,- vóór overlijden (art. 674 Rv)'
+        }
+      },
+      {
+        id: 'TRX-002',
+        timestamp: '2026-01-08 11:30 UTC',
+        event: 'Rechterlijke uitspraak / Mondelinge behandeling',
+        actor: 'Kantonrechter ➔ Partijen',
+        categories: ['fysiek'],
+        statusType: 'neutral',
+        oidcSummary: 'Gerechtelijke griffie-autorisatie',
+        proof: [
+          'Proces-verbaal Kantonrechter',
+          'Griffiestempel & handtekening rechter',
+          'Punt 7 (Kostencompensatie)'
+        ],
+        legalTitle: 'Gezag van gewijsde',
+        legalText: 'Bindende proceskostencompensatie. Sluit afwenteling van advocaatkosten op de gemeenschap uit.',
+        jsonPayload: {
+          trx_ref: 'TRX-002',
+          utc_timestamp: '2026-01-08T11:30:00Z',
+          authorization: {
+            type: 'judicial_registry_protocol',
+            authority: 'Kantonrechter (Bevoegd Gezag)'
+          },
+          technical_evidence: {
+            document: 'Proces-verbaal Kantonrechter',
+            authentication: 'Griffiestempel & handtekening rechter',
+            binding_clause: 'Punt 7 (Kostencompensatie)'
+          },
+          legal_relevance: 'Gezag van gewijsde; afwenteling advocaatkosten op gemeenschap uitgesloten'
+        }
+      },
+      {
+        id: 'TRX-003',
+        timestamp: '2026-01-16 09:15 UTC',
+        event: 'Selectieve toezending stukken',
+        actor: 'Kantoor Partij B ➔ Rechtsbijstand',
+        categories: ['oidc', 'risico'],
+        statusType: 'crimson',
+        oidcSummary: 'sub: usr_adv_partij_b\nscope: mail:send',
+        proof: [
+          'MIME-payload zonder attachment-boundary',
+          'Body-Hash matcht uitsluitend tekst',
+          'BaseNet Item-ID: [D_STAM_I66815733]'
+        ],
+        legalTitle: 'Schending waarheidsplicht (art. 21 Rv)',
+        legalText: 'Aantoonbaar weglaten van Bijlage II (kostenregeling) bij doorzending proces-verbaal.',
+        jsonPayload: {
+          trx_ref: 'TRX-003',
+          utc_timestamp: '2026-01-16T09:15:00Z',
+          oidc_jwt_claims: {
+            iss: 'https://idp.praktijkbeheer.nl/oidc',
+            sub: 'usr_adv_partij_b',
+            scope: ['mail:send']
+          },
+          technical_evidence: {
+            mime_structure: 'Geen multipart attachment-boundary aanwezig',
+            body_hash_coverage: 'Uitsluitend platte tekst',
+            basenet_item_id: 'D_STAM_I66815733'
+          },
+          risk_tag: 'Schending / Risico',
+          legal_relevance: 'Schending art. 21 Rv — weglating Bijlage II (kostenregeling)'
+        }
+      },
+      {
+        id: 'TRX-004',
+        timestamp: '2026-03-16 14:00 UTC',
+        event: 'Fysiek overleg boedelnotaris',
+        actor: 'Partij A, B en C aan tafel bij Notaris',
+        categories: ['fysiek'],
+        statusType: 'green',
+        oidcSummary: 'Persoonlijke verschijning / Notarieel protocol',
+        proof: [
+          'Presentielijst Notariskantoor',
+          'Getekende intake-notities boedel'
+        ],
+        legalTitle: "Tegenbewijs 'onwilligheid'",
+        legalText: 'Weerlegt de stelling dat Partij A niet meewerkt aan de notariële vereffening.',
+        jsonPayload: {
+          trx_ref: 'TRX-004',
+          utc_timestamp: '2026-03-16T14:00:00Z',
+          authorization: {
+            type: 'in_person_notarial_protocol',
+            custodian: 'Boedelnotaris'
+          },
+          technical_evidence: {
+            attendance: 'Presentielijst Notariskantoor',
+            minutes: 'Getekende intake-notities boedel'
+          },
+          legal_relevance: 'Weerlegt stelling non-coöperatie Partij A'
+        }
+      },
+      {
+        id: 'TRX-005',
+        timestamp: '2026-03-17 15:18 UTC',
+        event: 'Statuswijziging: Dossier inactief',
+        actor: 'Kantoor Partij B ➔ Rechtsbijstand',
+        categories: ['oidc', 'risico'],
+        statusType: 'crimson',
+        oidcSummary: 'sub: usr_adv_partij_b\nscope: dossier:status',
+        proof: [
+          'Header X-Originating-Host: tomcat-live-pod',
+          'BaseNet Item-ID: [D_STAM_I68580034]',
+          'Facturatie-eenheid: 0,20 hr'
+        ],
+        legalTitle: 'Actieve de-escalatieschijn',
+        legalText: 'Bevestigt dat de notaris aan de slag was en dat Partij B het dossier administratief stilzette, terwijl bodemlasten werden verzwegen.',
+        jsonPayload: {
+          trx_ref: 'TRX-005',
+          utc_timestamp: '2026-03-17T15:18:00Z',
+          oidc_jwt_claims: {
+            iss: 'https://idp.praktijkbeheer.nl/oidc',
+            sub: 'usr_adv_partij_b',
+            scope: ['dossier:status']
+          },
+          technical_evidence: {
+            originating_host: 'tomcat-live-pod',
+            basenet_item_id: 'D_STAM_I68580034',
+            billing_unit_hours: 0.20
+          },
+          risk_tag: 'Schending / Risico',
+          legal_relevance: 'Administratieve stilzetting terwijl bodemlasten werden verzwegen'
+        }
+      },
+      {
+        id: 'TRX-006',
+        timestamp: '2026-04-15 10:22 UTC',
+        event: 'Deponering stukken per post',
+        actor: 'Partij A ➔ Boedelnotaris',
+        categories: ['fysiek'],
+        statusType: 'green',
+        oidcSummary: 'Fysiek postdepot / eIDAS',
+        proof: [
+          'PostNL Aangetekend verzendbewijs',
+          'Ontvangsthandtekening kantoor notaris',
+          'Notariële bevestigingsmail d.d. 4 mei'
+        ],
+        legalTitle: 'Naleving bezorging op duurzame drager',
+        legalText: 'Partij A voldoet aan het schriftelijkheidsvereiste door stukken fysiek aan te leveren.',
+        jsonPayload: {
+          trx_ref: 'TRX-006',
+          utc_timestamp: '2026-04-15T10:22:00Z',
+          authorization: {
+            type: 'registered_postal_depot_eidas',
+            sender: 'Partij A (Mede-vereffenaar)',
+            recipient: 'Boedelnotaris'
+          },
+          technical_evidence: {
+            carrier_receipt: 'PostNL Aangetekend verzendbewijs',
+            signature: 'Ontvangsthandtekening kantoor notaris',
+            confirmation: 'Notariële bevestigingsmail d.d. 4 mei'
+          },
+          legal_relevance: 'Voldoet aan vereiste duurzame drager (art. 156a Rv)'
+        }
+      },
+      {
+        id: 'TRX-007',
+        timestamp: '2026-05-28 16:45 UTC',
+        event: 'Dossierscheiding tuchtklacht',
+        actor: 'Kantoor Partij B ➔ Deken',
+        categories: ['oidc'],
+        statusType: 'neutral',
+        oidcSummary: 'sub: usr_adv_partij_b\nscope: conf:admin',
+        proof: [
+          'Afwijkend stamnummer: [D_DISC_I70464905]',
+          'Geïsoleerde container in CRM'
+        ],
+        legalTitle: 'Boedelkostenscheiding',
+        legalText: 'Bewijst dat tuchtverweer in een separaat dossier is geadministreerd en niet ten laste van de boedel mag komen.',
+        jsonPayload: {
+          trx_ref: 'TRX-007',
+          utc_timestamp: '2026-05-28T16:45:00Z',
+          oidc_jwt_claims: {
+            iss: 'https://idp.praktijkbeheer.nl/oidc',
+            sub: 'usr_adv_partij_b',
+            scope: ['conf:admin']
+          },
+          technical_evidence: {
+            isolated_crm_container: true,
+            basenet_item_id: 'D_DISC_I70464905',
+            prefix_deviation: 'D_DISC i.p.v. D_STAM'
+          },
+          legal_relevance: 'Tuchtverweer separaat geadministreerd; niet ten laste van de boedel'
+        }
+      },
+      {
+        id: 'TRX-008',
+        timestamp: '2026-11-24 14:34 UTC',
+        event: 'Lokale archiefafdruk (Print)',
+        actor: 'Gebruiker Kantoor Partij B',
+        categories: ['oidc', 'risico'],
+        statusType: 'crimson',
+        oidcSummary: 'sub: usr_adv_partij_b\nscope: archive:print',
+        proof: [
+          'Servlet-URL: /servlets/objects/.../print',
+          'Voettekst tijdstempel 14:34 UTC & usertag'
+        ],
+        legalTitle: 'Objectieve tijdslijn',
+        legalText: 'Bewijst dat oude correspondentie pas 7 minuten vóór de repliek aan de nieuwe raadsman uit het archief werd gelicht.',
+        jsonPayload: {
+          trx_ref: 'TRX-008',
+          utc_timestamp: '2026-11-24T14:34:00Z',
+          oidc_jwt_claims: {
+            iss: 'https://idp.praktijkbeheer.nl/oidc',
+            sub: 'usr_adv_partij_b',
+            scope: ['archive:print']
+          },
+          technical_evidence: {
+            servlet_url: '/servlets/objects/.../print',
+            print_footer: 'Tijdstempel 14:34 UTC & usertag'
+          },
+          risk_tag: 'Schending / Risico',
+          legal_relevance: 'Oude correspondentie pas 7 min. vóór repliek gelicht'
+        }
+      }
+    ];
+
+    let activeFilter = 'all';
+    let currentModalJsonString = '';
+
+    /**
+     * Veilige HTML-escaping voor dynamische velden.
+     */
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * Rendert de audit trail tabel met actieve zoek- en filtercriteria.
+     */
+    function renderAuditTable() {
+      const tbody = document.getElementById('auditTableBody');
+      const emptyState = document.getElementById('emptySearchState');
+      const visibleCount = document.getElementById('visibleCount');
+      const query = (document.getElementById('auditSearch').value || '').toLowerCase().trim();
+
+      const filtered = auditTransactions.filter((trx) => {
+        const matchesFilter = activeFilter === 'all' || trx.categories.includes(activeFilter);
+        const searchable = [
+          trx.id,
+          trx.timestamp,
+          trx.event,
+          trx.actor,
+          trx.oidcSummary,
+          trx.proof.join(' '),
+          trx.legalTitle,
+          trx.legalText
+        ].join(' ').toLowerCase();
+
+        return matchesFilter && (!query || searchable.includes(query));
+      });
+
+      visibleCount.textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      tbody.innerHTML = filtered.map((trx) => {
+        // Harmonieuze archief-statusbadges
+        let badgeClasses = 'bg-parchment text-ink border-linen';
+        if (trx.statusType === 'crimson') {
+          badgeClasses = 'bg-meekrap-tint text-archival-crimson border-meekrap-border';
+        } else if (trx.statusType === 'green') {
+          badgeClasses = 'bg-[#EDF5F0] text-archival-green border-[#C5DEC9]';
+        } else if (trx.statusType === 'ochre') {
+          badgeClasses = 'bg-[#FBF4E8] text-archival-ochre border-[#E7D0A8]';
+        }
+
+        const riskPill = trx.categories.includes('risico')
+          ? '<span class="inline-block mt-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-archival-crimson text-white print-preserve-color">Schending / Risico</span>'
+          : trx.categories.includes('oidc')
+          ? '<span class="inline-block mt-1.5 px-2 py-0.5 rounded text-[10px] font-mono bg-parchment text-taupe border border-linen">OIDC / Systeem</span>'
+          : '<span class="inline-block mt-1.5 px-2 py-0.5 rounded text-[10px] font-mono bg-parchment text-brass border border-linen">Fysiek / Protocol</span>';
+
+        const proofHtml = trx.proof
+          .map((item) => `<li class="leading-snug">${escapeHtml(item)}</li>`)
+          .join('');
+
+        return `
+          <tr onclick="openModal('${trx.id}')" class="print-break-inside-avoid hover:bg-parchment/70 transition cursor-pointer group align-top">
+            <td class="py-4 px-4 whitespace-nowrap">
+              <div class="font-mono font-bold text-meekrap group-hover:text-meekrap-dark">${trx.id}</div>
+              <div class="font-mono text-[11px] text-taupe mt-0.5">${trx.timestamp}</div>
+              ${riskPill}
+            </td>
+            <td class="py-4 px-4">
+              <div class="font-semibold text-ink">${escapeHtml(trx.event)}</div>
+              <div class="text-xs text-taupe mt-1">${escapeHtml(trx.actor)}</div>
+            </td>
+            <td class="py-4 px-4">
+              <pre class="font-mono text-[11px] text-ink bg-parchment border border-linen rounded-lg p-2 whitespace-pre-wrap">${escapeHtml(trx.oidcSummary)}</pre>
+            </td>
+            <td class="py-4 px-4">
+              <ul class="list-disc list-inside space-y-1 text-xs font-mono text-taupe">
+                ${proofHtml}
+              </ul>
+            </td>
+            <td class="py-4 px-4">
+              <span class="inline-block px-2 py-0.5 rounded-md border text-xs font-semibold mb-1.5 print-preserve-color ${badgeClasses}">
+                ${escapeHtml(trx.legalTitle)}
+              </span>
+              <p class="text-xs text-taupe leading-relaxed">${escapeHtml(trx.legalText)}</p>
+            </td>
+            <td class="no-print py-4 px-4 text-right whitespace-nowrap">
+              <button type="button" onclick="event.stopPropagation(); openModal('${trx.id}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-parchment border border-linen group-hover:bg-meekrap group-hover:text-white group-hover:border-meekrap text-ink text-xs font-semibold transition cursor-pointer">
+                <span>Inspecteer JSON / Claims</span>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    /**
+     * Opent de JSON/Claims inspectie-modal voor de gekozen transactie.
+     */
+    function openModal(trxId) {
+      const trx = auditTransactions.find((t) => t.id === trxId);
+      if (!trx) return;
+
+      document.getElementById('modalTrxId').textContent = trx.id;
+      document.getElementById('modalTitle').textContent = trx.event;
+      document.getElementById('modalTimestamp').textContent = trx.timestamp;
+      document.getElementById('modalActor').textContent = trx.actor;
+
+      document.getElementById('modalProofList').innerHTML = trx.proof
+        .map((item) => `<li>${escapeHtml(item)}</li>`)
+        .join('');
+
+      const legalBox = document.getElementById('modalLegalBox');
+      const legalText = document.getElementById('modalLegalText');
+      legalText.innerHTML = `<strong>${escapeHtml(trx.legalTitle)}:</strong> ${escapeHtml(trx.legalText)}`;
+
+      legalBox.className = 'rounded-xl p-4 border ';
+      if (trx.statusType === 'crimson') {
+        legalBox.className += 'bg-meekrap-tint border-meekrap-border text-archival-crimson';
+      } else if (trx.statusType === 'green') {
+        legalBox.className += 'bg-[#EDF5F0] border-[#C5DEC9] text-archival-green';
+      } else {
+        legalBox.className += 'bg-[#FBF4E8] border-[#E7D0A8] text-archival-ochre';
+      }
+
+      currentModalJsonString = JSON.stringify(trx.jsonPayload, null, 2);
+      document.getElementById('modalJson').textContent = currentModalJsonString;
+
+      const modal = document.getElementById('trxModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    /**
+     * Sluit de modal.
+     */
+    function closeModal() {
+      const modal = document.getElementById('trxModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    /**
+     * Kopieert de JSON-payload naar het klembord (iframe-compatibel via execCommand).
+     */
+    function copyModalJson() {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = currentModalJsonString;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('OIDC / Metadata JSON gekopieerd naar klembord');
+      } catch (err) {
+        showToast('Kopiëren naar klembord niet ondersteund');
+      }
+    }
+
+    /**
+     * Exporteert de volledige geanonimiseerde audit trail en checklist-status als JSON-bestand.
+     */
+    function exportFullJson() {
+      try {
+        const checklistStatus = Array.from(document.querySelectorAll('.boedel-checkbox')).map((cb) => ({
+          onderlegger_id: cb.getAttribute('data-id'),
+          aanwezig: cb.checked
+        }));
+
+        const exportPayload = {
+          dossier_titel: 'Geanonimiseerde Audit Trail & Bewijsarchitectuur (OIDC 1.0 & Procesrecht)',
+          geanonimiseerd: true,
+          wettelijk_kader: ['art. 21 Rv', 'art. 156a Rv', 'art. 194 Rv', 'art. 674 Rv'],
+          export_utc: new Date().toISOString(),
+          audit_trail: auditTransactions.map((t) => t.jsonPayload),
+          boedelbeschrijving_checklist: checklistStatus,
+          uitsluitingen: ['Facturen individuele partijadvocaten (geblokkeerd ex Punt 7 Proces-Verbaal)']
+        };
+
+        const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'geanonimiseerde-audit-trail-oidc.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('Volledige dossier-JSON gedownload');
+      } catch (err) {
+        showToast('JSON-export kon niet worden gestart');
+      }
+    }
+
+    /**
+     * Toont een subtiele toast-notificatie rechtsonder.
+     */
+    let toastTimer = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = msg;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 2800);
+    }
+
+    /**
+     * Herstelt alle filters en zoekinvoer.
+     */
+    function resetFilters() {
+      document.getElementById('auditSearch').value = '';
+      setActiveFilter('all');
+    }
+
+    /**
+     * Stelt de actieve filterknop in en werkt de visuele staat bij.
+     */
+    function setActiveFilter(filterValue) {
+      activeFilter = filterValue;
+      document.querySelectorAll('.filter-btn').forEach((btn) => {
+        const isTarget = btn.getAttribute('data-filter') === filterValue;
+        const isRisk = btn.getAttribute('data-filter') === 'risico';
+
+        btn.className = 'filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm transition cursor-pointer ';
+        if (isTarget) {
+          btn.className += isRisk
+            ? 'font-semibold bg-archival-crimson text-white shadow-sm'
+            : 'font-semibold bg-meekrap text-white shadow-sm';
+        } else {
+          btn.className += isRisk
+            ? 'font-medium bg-meekrap-tint text-archival-crimson border border-meekrap-border hover:bg-meekrap hover:text-white'
+            : 'font-medium bg-parchment text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap';
+        }
+      });
+      renderAuditTable();
+    }
+
+    /**
+     * Werkt de live Meekrap voortgangsbalk en statusbadge van de boedel-checklist bij.
+     */
+    function updateChecklistProgress() {
+      const checkboxes = document.querySelectorAll('.boedel-checkbox');
+      const total = checkboxes.length;
+      let checked = 0;
+
+      checkboxes.forEach((cb) => {
+        const row = cb.closest('.checklist-row');
+        if (cb.checked) {
+          checked++;
+          row.classList.add('border-meekrap-border', 'bg-meekrap-tint/40');
+        } else {
+          row.classList.remove('border-meekrap-border', 'bg-meekrap-tint/40');
+        }
+      });
+
+      const pct = Math.round((checked / total) * 100);
+      document.getElementById('checkedCount').textContent = checked;
+      document.getElementById('checkedPercent').textContent = `${pct}%`;
+      document.getElementById('progressBarFill').style.width = `${pct}%`;
+
+      const badge = document.getElementById('completenessBadge');
+      if (pct === 100) {
+        badge.textContent = 'Volledig (Art. 674 Rv gereed)';
+        badge.className = 'px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-[#EDF5F0] text-archival-green border border-[#C5DEC9]';
+      } else if (pct >= 50) {
+        badge.textContent = 'Gedeeltelijk compleet';
+        badge.className = 'px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-[#FBF4E8] text-archival-ochre border border-[#E7D0A8]';
+      } else {
+        badge.textContent = 'Onvolledig — onderleggers vereist';
+        badge.className = 'px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-meekrap-tint text-meekrap border border-meekrap-border';
+      }
+    }
+
+    /**
+     * Zet alle checklist-items aan of terug naar nul.
+     */
+    function setChecklistState(mode) {
+      document.querySelectorAll('.boedel-checkbox').forEach((cb) => {
+        cb.checked = mode === 'all';
+      });
+      updateChecklistProgress();
+    }
+
+    /**
+     * Initialisatie van de pagina en event listeners.
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('auditSearch').addEventListener('input', renderAuditTable);
+
+      document.querySelectorAll('.filter-btn').forEach((btn) => {
+        btn.addEventListener('click', () => setActiveFilter(btn.getAttribute('data-filter')));
+      });
+
+      document.getElementById('trxModal').addEventListener('click', (e) => {
+        if (e.target.id === 'trxModal') closeModal();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+      });
+
+      document.querySelectorAll('.boedel-checkbox').forEach((cb) => {
+        cb.addEventListener('change', updateChecklistProgress);
+      });
+
+      renderAuditTable();
+      updateChecklistProgress();
+    });
+  </script>
+</body>
+</html>
