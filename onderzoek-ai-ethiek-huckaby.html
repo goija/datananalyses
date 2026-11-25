@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="nl" class="scroll-smooth" data-font-size="md">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ethisch Onderzoeksdossier: AI-Ethiek, Tim Huckaby &amp; Verantwoorde Architectuur</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts met robuuste systeem-fallbacks voor offline gebruik -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'Cambria', '"Times New Roman"', 'serif'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+          },
+          colors: {
+            meekrap: {
+              DEFAULT: '#A31C1C',
+              deep: '#821414',
+              light: '#B92B2B',
+              tint: '#F9EFEF',
+              border: '#E5C5C5',
+            },
+            parchment: '#FAF7F2',
+            linen: '#E4DDD3',
+            ink: '#1F2428',
+            taupe: '#5A524A',
+            brass: '#B5833E',
+            archival: {
+              green: '#245940',
+              greenBg: '#EEF6F1',
+              greenBorder: '#C5DEC9',
+              ochre: '#8F5B1E',
+              ochreBg: '#FBF5EA',
+              ochreBorder: '#E8D3AD',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Standaard basisleesbaarheid A+ (19px), dynamisch schakelbaar via data-font-size op <html> */
+    html {
+      font-size: 19px;
+    }
+    html[data-font-size="sm"] {
+      font-size: 16px;
+    }
+    html[data-font-size="md"] {
+      font-size: 19px;
+    }
+    html[data-font-size="lg"] {
+      font-size: 22px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background-color: #FFFFFF;
+      color: #1F2428;
+      line-height: 1.62;
+    }
+
+    h1, h2, h3, h4, .font-editorial {
+      font-family: 'Playfair Display', Georgia, Cambria, 'Times New Roman', serif;
+    }
+
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    /* Zeeuwse Meekrap dossierrug op de vaste linker zijbalk */
+    .dossier-spine {
+      box-shadow: inset 6px 0 0 0 #A31C1C;
+    }
+
+    /* Actieve navigatielink in de zijbalk */
+    .nav-link-active {
+      background-color: #FFFFFF;
+      color: #A31C1C !important;
+      font-weight: 600;
+      box-shadow: inset 3px 0 0 0 #A31C1C;
+    }
+
+    /* Klikbare knooppunten in het SVG-architectuurschema */
+    .svg-node {
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .svg-node:hover rect.node-box {
+      stroke: #A31C1C;
+      stroke-width: 2.2;
+    }
+    .svg-node-selected rect.node-box {
+      stroke: #821414 !important;
+      stroke-width: 2.8 !important;
+      filter: drop-shadow(0 3px 6px rgba(163, 28, 28, 0.22));
+    }
+
+    /* Print- en PDF-optimalisatie */
+    @media print {
+      html,
+      html[data-font-size="sm"],
+      html[data-font-size="md"],
+      html[data-font-size="lg"] {
+        font-size: 10.5pt !important;
+      }
+      body {
+        background-color: #FFFFFF !important;
+        color: #1F2428 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-full {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      .print-avoid-break {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .print-page-break {
+        break-before: page;
+        page-break-before: always;
+      }
+      .print-color {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl {
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-white text-ink antialiased selection:bg-meekrap-tint selection:text-meekrap-deep">
+
+  <!-- ===================================================================== -->
+  <!-- MOBIELE BOVENBALK (Klapbare archiefheader onder lg-breakpoint)        -->
+  <!-- ===================================================================== -->
+  <header class="no-print lg:hidden sticky top-0 z-40 bg-parchment/95 backdrop-blur-md border-b border-linen">
+    <div class="h-1.5 w-full bg-meekrap"></div>
+    <div class="px-4 py-3 flex items-center justify-between gap-2">
+      <div class="min-w-0">
+        <span class="block text-[10px] font-mono uppercase tracking-widest text-meekrap font-semibold">Onderzoeksdossier &bull; 2026</span>
+        <span class="block font-editorial font-bold text-base text-ink truncate">AI-Ethiek &amp; Tim Huckaby</span>
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <!-- Tekstgrootte-schakelaar (Mobiel) -->
+        <div class="inline-flex items-center rounded-lg border border-linen bg-white p-0.5" role="group" aria-label="Tekstgrootte">
+          <button type="button" data-size-btn="sm" onclick="setFontSize('sm')" class="size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md text-taupe hover:text-meekrap transition cursor-pointer">A-</button>
+          <button type="button" data-size-btn="md" onclick="setFontSize('md')" class="size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md bg-meekrap text-white transition cursor-pointer">A+</button>
+          <button type="button" data-size-btn="lg" onclick="setFontSize('lg')" class="size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md text-taupe hover:text-meekrap transition cursor-pointer">A++</button>
+        </div>
+
+        <button type="button" onclick="exportDossierJson()" class="p-2 rounded-lg border border-linen bg-white text-ink hover:border-meekrap hover:text-meekrap transition cursor-pointer" title="Exporteer Dossier (JSON)" aria-label="Exporteer Dossier (JSON)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+        </button>
+
+        <button type="button" onclick="window.print()" class="inline-flex items-center px-2.5 py-2 rounded-lg bg-meekrap hover:bg-meekrap-deep text-white text-xs font-semibold transition cursor-pointer">
+          PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobiele horizontale snelnavigatie -->
+    <nav aria-label="Mobiele dossiernavigatie" class="px-4 pb-2.5 pt-2 flex items-center gap-2 overflow-x-auto text-xs font-medium text-taupe border-t border-linen/80">
+      <a href="#overzicht" class="shrink-0 px-2.5 py-1 rounded-md bg-meekrap-tint text-meekrap font-semibold">Overzicht</a>
+      <a href="#sectie-01" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">01. Huckaby</a>
+      <a href="#sectie-02" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">02. Filosofie</a>
+      <a href="#sectie-03" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">03. Architectuur</a>
+      <a href="#sectie-04" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">04. EU AI Act</a>
+      <a href="#sectie-05" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">05. Checklist</a>
+      <a href="#sectie-06" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">06. Bronnen</a>
+    </nav>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- HOOFDLAYOUT: VASTE LINKER ZIJBALK (DESKTOP) + WITTE HOOFDKOLOM        -->
+  <!-- ===================================================================== -->
+  <div class="min-h-screen flex flex-col lg:flex-row max-w-[1640px] mx-auto">
+
+    <!-- =================================================================== -->
+    <!-- VASTE LINKER DOSSIER-ZIJBALK (Warm archief-perkament #FAF7F2)       -->
+    <!-- =================================================================== -->
+    <aside class="no-print hidden lg:flex lg:flex-col lg:w-80 xl:w-[340px] shrink-0 bg-parchment border-r border-linen dossier-spine sticky top-0 h-screen overflow-y-auto">
+      <div class="p-7 flex flex-col h-full justify-between gap-6">
+        <div class="space-y-6">
+          <!-- Dossier-identificatie -->
+          <div class="pb-5 border-b border-linen">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-meekrap-tint border border-meekrap-border text-meekrap text-[11px] font-mono font-semibold uppercase tracking-wider">
+              <span class="w-1.5 h-1.5 rounded-full bg-meekrap"></span>
+              Zeeuwse Meekrap Editie
+            </div>
+            <h2 class="mt-3 font-editorial text-xl font-bold text-ink leading-snug">
+              Ethisch Onderzoeksdossier
+            </h2>
+            <p class="mt-1.5 text-xs text-taupe leading-relaxed">
+              AI-Ethiek, Tim Huckaby, Floridi, Bostrom, EU AI Act (2024&ndash;2028) &amp; Ethics by Design.
+            </p>
+          </div>
+
+          <!-- Tekstgrootte-schakelaar (Desktop) -->
+          <div class="bg-white rounded-xl border border-linen p-3.5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-mono uppercase tracking-wider text-taupe font-semibold">Leesbaarheid</span>
+              <span id="fontSizeLabel" class="text-[11px] font-mono text-meekrap font-semibold">19px (A+)</span>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5" role="group" aria-label="Tekstgrootte aanpassen">
+              <button type="button" data-size-btn="sm" onclick="setFontSize('sm')" class="size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer">A-</button>
+              <button type="button" data-size-btn="md" onclick="setFontSize('md')" class="size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-meekrap bg-meekrap text-white transition cursor-pointer">A+</button>
+              <button type="button" data-size-btn="lg" onclick="setFontSize('lg')" class="size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer">A++</button>
+            </div>
+          </div>
+
+          <!-- Sectie-index met actieve highlight -->
+          <nav aria-label="Dossier-index" class="space-y-1">
+            <div class="text-[11px] font-mono uppercase tracking-widest text-brass font-semibold mb-2 px-2">
+              Dossier-Index
+            </div>
+            <a href="#overzicht" data-nav-target="overzicht" class="sidebar-nav-link flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition">
+              <span>Overzicht &amp; KPI&rsquo;s</span>
+              <span class="text-xs font-mono text-taupe">00</span>
+            </a>
+            <a href="#sectie-01" data-nav-target="sectie-01" class="sidebar-nav-link flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition">
+              <span>Casus Tim Huckaby</span>
+              <span class="text-xs font-mono text-taupe">01</span>
+            </a>
+            <a href="#sectie-02" data-nav-target="sectie-02" class="sidebar-nav-link flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition">
+              <span>Filosofisch Kader</span>
+              <span class="text-xs font-mono text-taupe">02</span>
+            </a>
+            <a href="#sectie-03" data-nav-target="sectie-03" class="sidebar-nav-link flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition">
+              <span>Architectuurschema</span>
+              <span class="text-xs font-mono text-taupe">03</span>
+            </a>
+            <a href="#sectie-04" data-nav-target="sectie-04" class="sidebar-nav-link flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition">
+              <span>EU AI Act &amp; UNESCO</span>
+              <span class="text-xs font-mono text-taupe">04</span>
+            </a>
+            <a href="#sectie-05" data-nav-target="sectie-05" class="sidebar-nav-link flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition">
+              <span>Ethics-by-Design Matrix</span>
+              <span class="text-xs font-mono text-taupe">05</span>
+            </a>
+            <a href="#sectie-06" data-nav-target="sectie-06" class="sidebar-nav-link flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition">
+              <span>Bronnenregister (8)</span>
+              <span class="text-xs font-mono text-taupe">06</span>
+            </a>
+          </nav>
+
+          <!-- Compacte statusbox -->
+          <div class="bg-white rounded-xl border border-linen p-4 space-y-2 text-xs">
+            <div class="text-[11px] font-mono uppercase tracking-widest text-brass font-semibold">Audit-voortgang</div>
+            <div class="flex items-center justify-between text-taupe">
+              <span>Ethics by Design:</span>
+              <strong id="sidebarAuditScore" class="font-mono text-meekrap">0 / 8 (0%)</strong>
+            </div>
+            <div class="flex items-center justify-between text-taupe">
+              <span>Status:</span>
+              <span id="sidebarAuditStatus" class="font-mono text-ink">Kwetsbaar</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actieknoppen onderaan zijbalk -->
+        <div class="pt-5 border-t border-linen space-y-2.5">
+          <button type="button" onclick="window.print()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-meekrap hover:bg-meekrap-deep text-white text-sm font-semibold shadow-sm transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659" />
+            </svg>
+            Afdrukken / PDF
+          </button>
+
+          <button type="button" onclick="exportDossierJson()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-meekrap-tint text-ink hover:text-meekrap border border-linen hover:border-meekrap-border text-sm font-semibold transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Exporteer Dossier (JSON)
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- =================================================================== -->
+    <!-- RECHTER HOOFDKOLOM (Helder wit #FFFFFF)                             -->
+    <!-- =================================================================== -->
+    <main class="print-full flex-1 min-w-0 bg-white px-5 sm:px-9 lg:px-14 py-8 lg:py-12 space-y-16">
+
+      <!-- ================================================================= -->
+      <!-- HEADER & 5 KPI-KAARTEN                                            -->
+      <!-- ================================================================= -->
+      <section id="overzicht" class="scroll-mt-24 space-y-7">
+        <div class="bg-parchment rounded-2xl border border-linen overflow-hidden">
+          <div class="h-2 bg-gradient-to-r from-meekrap via-meekrap-deep to-brass print-color"></div>
+          <div class="p-6 sm:p-10">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-meekrap-tint border border-meekrap-border text-meekrap font-mono text-xs font-semibold uppercase tracking-wider print-color">
+                <span class="w-2 h-2 rounded-full bg-meekrap"></span>
+                ONDERZOEKSDOSSIER &middot; AI-ETHIEK &amp; ARCHITECTUUR &middot; 2026
+              </span>
+              <span class="text-xs font-mono text-taupe bg-white border border-linen px-2.5 py-1 rounded-md">
+                Zero-Cloud &bull; Offline Gereed
+              </span>
+            </div>
+
+            <h1 class="font-editorial text-3xl sm:text-4xl xl:text-[42px] font-bold text-ink leading-tight tracking-tight">
+              De Ethische Complicaties van AI: Tussen Economische Prikkel en Verantwoorde Architectuur
+            </h1>
+            <p class="mt-3 text-base sm:text-lg text-taupe leading-relaxed max-w-4xl">
+              Een diepgaand onderzoek vanuit het praktijkdilemma van <strong class="text-ink font-semibold">Tim Huckaby</strong>, getoetst aan <strong class="text-ink font-semibold">Luciano Floridi</strong>, <strong class="text-ink font-semibold">Nick Bostrom</strong>, de <strong class="text-ink font-semibold">EU AI Act (2024&ndash;2028)</strong> en de professionele rechtspraktijk.
+            </p>
+          </div>
+        </div>
+
+        <!-- 5 KPI-kaarten -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div class="print-avoid-break bg-parchment rounded-xl border border-linen p-4">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-taupe">Tim Huckaby</div>
+            <div class="mt-1.5 font-editorial text-xl font-bold text-meekrap">3-Delig Dilemma</div>
+            <p class="mt-1 text-xs text-taupe">Dual-use, geen businesscase, geen rem.</p>
+          </div>
+
+          <div class="print-avoid-break bg-parchment rounded-xl border border-linen p-4">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-taupe">Floridi / AI4People</div>
+            <div class="mt-1.5 font-editorial text-xl font-bold text-ink">5 Kernprincipes</div>
+            <p class="mt-1 text-xs text-taupe">4 bio-ethische + Explicability.</p>
+          </div>
+
+          <div class="print-avoid-break bg-parchment rounded-xl border border-linen p-4">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-taupe">EU AI Act</div>
+            <div class="mt-1.5 font-editorial text-xl font-bold text-meekrap-deep">4 Risiconiveaus</div>
+            <p class="mt-1 text-xs text-taupe">Verordening (EU) 2024/1689 &amp; 2026/1744.</p>
+          </div>
+
+          <div class="print-avoid-break bg-parchment rounded-xl border border-linen p-4">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-taupe">Filosofische Analyse</div>
+            <div class="mt-1.5 font-editorial text-xl font-bold text-brass">3 Denkers Vergeleken</div>
+            <p class="mt-1 text-xs text-taupe">Huckaby, Floridi &amp; Bostrom.</p>
+          </div>
+
+          <div class="print-avoid-break bg-parchment rounded-xl border border-meekrap-border p-4">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-meekrap font-semibold">Ethics by Design</div>
+            <div class="mt-1.5 font-editorial text-xl font-bold text-ink">8 Toetscriteria</div>
+            <p class="mt-1 text-xs text-taupe">Interactieve auditmatrix met opslag.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 01: CASUS TIM HUCKABY                                      -->
+      <!-- ================================================================= -->
+      <section id="sectie-01" class="scroll-mt-24 space-y-6">
+        <div class="pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 01 &bull; Praktijkcasus &amp; Marktmechanisme</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            Casus Tim Huckaby: De Praktijkbekering &amp; het Economische Dilemma
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-taupe max-w-4xl">
+            <strong class="text-ink">Tim Huckaby</strong> (Microsoft Regional Director &amp; MVP, 35+ jaar technische ervaring in computer vision, AI en CNN election coverage) richt zijn keynote-circuit sinds 2021 op <em>&ldquo;The Ethics of AI&rdquo;</em> &mdash; niet als buitenstaander, maar vanuit eigen bouwervaring.
+          </p>
+        </div>
+
+        <!-- Blokcitaat Lucihub Nov/Dec 2023 -->
+        <blockquote class="print-avoid-break bg-meekrap-tint border-l-4 border-meekrap rounded-r-2xl p-6 sm:p-7 print-color">
+          <p class="font-mono text-sm sm:text-base font-semibold text-ink leading-relaxed">
+            &ldquo;Why can&rsquo;t ethical and moral structure be built into AI systems? Why do we weed it out with prompt engineering?&rdquo;
+          </p>
+          <footer class="mt-2.5 text-xs font-mono text-meekrap font-semibold">
+            &mdash; Tim Huckaby, &lsquo;The Ethical Complications of AI&rsquo; (Lucihub, nov/dec 2023)
+          </footer>
+        </blockquote>
+
+        <!-- 5 Gestructureerde Standpuntkaarten -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          <article class="print-avoid-break bg-parchment rounded-2xl border border-linen p-5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-meekrap text-white print-color">01</span>
+              <span class="font-mono text-[11px] text-taupe">LinkedIn</span>
+            </div>
+            <h3 class="font-editorial text-lg font-bold text-ink">Deelnemer aan het probleem</h3>
+            <p class="text-sm text-taupe leading-relaxed">
+              Huckaby erkent openhartig dat hij zelf aan computer vision-projecten werkte die <em>&ldquo;op de ethische grenzen van privacy botsten&rdquo;</em>. Zijn positie heeft daardoor de kracht van een persoonlijke bekering, in plaats van abstracte moraal vanaf de zijlijn.
+            </p>
+          </article>
+
+          <article class="print-avoid-break bg-parchment rounded-2xl border border-linen p-5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-meekrap text-white print-color">02</span>
+              <span class="font-mono text-[11px] text-taupe">Lucihub (2023)</span>
+            </div>
+            <h3 class="font-editorial text-lg font-bold text-ink">Ontbrekende economische prikkel</h3>
+            <p class="text-sm text-taupe leading-relaxed">
+              AI-modellen zouden moeten leren van grote ethische geschriften (zoals de Griekse filosofen), maar omdat ethiek niet direct winstgevend is ontbreekt de zakelijke prikkel &mdash; en wordt schade achteraf met oppervlakkige <em>prompt engineering</em> weggepoetst.
+            </p>
+          </article>
+
+          <article class="print-avoid-break bg-parchment rounded-2xl border border-linen p-5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-meekrap text-white print-color">03</span>
+              <span class="font-mono text-[11px] text-taupe">Global AI Community</span>
+            </div>
+            <h3 class="font-editorial text-lg font-bold text-ink">Analogie met kernenergie</h3>
+            <p class="text-sm text-taupe leading-relaxed">
+              Net als nucleaire technologie is AI fundamenteel <em>dual-use</em>: dezelfde rekenkracht die dodelijke ziektes zoals alvleesklierkanker kan doorbreken, kan ook verwoestend worden misbruikt. Optimisme en angst zijn twee kanten van dezelfde medaille.
+            </p>
+          </article>
+
+          <article class="print-avoid-break bg-parchment rounded-2xl border border-linen p-5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-meekrap text-white print-color">04</span>
+              <span class="font-mono text-[11px] text-taupe">CODE Magazine</span>
+            </div>
+            <h3 class="font-editorial text-lg font-bold text-ink">Politiek &amp; gezichtsherkenning</h3>
+            <p class="text-sm text-taupe leading-relaxed">
+              In gesprek met Markus Egger wijst hij op te machtige AI-functies, kwetsbare privacywetgeving en politieke risico&rsquo;s: zijn bedrijf bouwde het systeem voor CNN&rsquo;s election coverage en zag hoe Microsoft <em>&ldquo;gun-shy&rdquo;</em> werd rond politieke AI-projecten en gezichtsherkenning.
+            </p>
+          </article>
+
+          <article class="print-avoid-break bg-parchment rounded-2xl border border-linen p-5 space-y-2.5 md:col-span-2">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-brass text-white print-color">05</span>
+              <span class="font-mono text-[11px] text-taupe">Nuance &amp; Balans</span>
+            </div>
+            <h3 class="font-editorial text-lg font-bold text-ink">Tegenwicht tegen doemdenken</h3>
+            <p class="text-sm text-taupe leading-relaxed">
+              Huckaby bekritiseert de eenzijdig negatieve berichtgeving in de media: angst voor randgevallen mag de re&euml;le maatschappelijke weldaden van AI (zoals medische doorbraken en toegankelijkheid) niet blokkeren. Zijn impliciete slotsom: verantwoorde ontwikkeling moet een <strong>keuze worden die loont</strong>, geen nalatigheid opgelapt met prompt-filters.
+            </p>
+          </article>
+        </div>
+
+        <!-- Interactieve 3-koloms visualisatie van Huckaby's Driedeling -->
+        <div class="bg-parchment rounded-2xl border border-linen p-5 sm:p-7 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="font-editorial text-xl font-bold text-ink">Samenvatting: Huckaby&rsquo;s Driedeling</h3>
+              <p class="text-xs sm:text-sm text-taupe">Klik op een pijler om de concrete consequentie voor beleid en systeemontwerp te bekijken.</p>
+            </div>
+            <span class="no-print font-mono text-[11px] text-meekrap bg-meekrap-tint border border-meekrap-border px-2.5 py-1 rounded">Interactief</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4" role="tablist" aria-label="Huckaby's Driedeling">
+            <button type="button" data-triad="A" onclick="selectTriad('A')" class="triad-btn text-left p-4 rounded-xl border-2 border-meekrap bg-white shadow-sm transition cursor-pointer">
+              <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-meekrap text-white print-color">PIJLER A</span>
+              <div class="mt-2 font-editorial font-bold text-lg text-ink">Dual-Use Ambigu&iuml;teit</div>
+              <p class="mt-1 text-xs text-taupe">Genezing &eacute;n misbruik komen voort uit exact dezelfde capaciteit (kernenergie-analogie).</p>
+            </button>
+
+            <button type="button" data-triad="B" onclick="selectTriad('B')" class="triad-btn text-left p-4 rounded-xl border border-linen bg-white hover:border-meekrap-border transition cursor-pointer">
+              <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-parchment text-taupe border border-linen">PIJLER B</span>
+              <div class="mt-2 font-editorial font-bold text-lg text-ink">Geen Businesscase voor Ethiek</div>
+              <p class="mt-1 text-xs text-taupe">Zonder economische prikkel blijft ethische architectuur uit en overheerst prompt-patching.</p>
+            </button>
+
+            <button type="button" data-triad="C" onclick="selectTriad('C')" class="triad-btn text-left p-4 rounded-xl border border-linen bg-white hover:border-meekrap-border transition cursor-pointer">
+              <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-parchment text-taupe border border-linen">PIJLER C</span>
+              <div class="mt-2 font-editorial font-bold text-lg text-ink">Ontbrekend Remmechanisme</div>
+              <p class="mt-1 text-xs text-taupe">Bouwers stoten op privacygrenzen zonder structurele rem die ze tijdig tegenhoudt.</p>
+            </button>
+          </div>
+
+          <div id="triadDetail" class="print-avoid-break bg-white rounded-xl border border-meekrap-border p-4 sm:p-5 text-sm text-ink leading-relaxed">
+            <!-- Gevuld door JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 02: VERGELIJKEND FILOSOFISCH KADER                         -->
+      <!-- ================================================================= -->
+      <section id="sectie-02" class="scroll-mt-24 print-page-break space-y-6">
+        <div class="pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 02 &bull; Theoretische Verdieping</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            Vergelijkend Filosofisch Kader: Huckaby vs. Floridi vs. Bostrom
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-taupe max-w-4xl">
+            Drie complementaire lenzen op AI-ethiek: de pragmatische bouwer (Huckaby), de informatiefilosoof (Floridi &amp; Cowls) en de alignment-onderzoeker (Bostrom).
+          </p>
+        </div>
+
+        <!-- Interactieve Tab-weergave -->
+        <div class="bg-parchment rounded-2xl border border-linen p-5 sm:p-7 space-y-5">
+          <div class="no-print flex flex-wrap items-center gap-2" role="tablist" aria-label="Selecteer denker">
+            <button type="button" data-thinker="huckaby" onclick="selectThinker('huckaby')" class="thinker-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-meekrap text-white transition cursor-pointer">
+              1. Tim Huckaby (Praktijk &amp; Markt)
+            </button>
+            <button type="button" data-thinker="floridi" onclick="selectThinker('floridi')" class="thinker-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              2. Luciano Floridi &amp; Josh Cowls (AI4People)
+            </button>
+            <button type="button" data-thinker="bostrom" onclick="selectThinker('bostrom')" class="thinker-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              3. Nick Bostrom (Alignment &amp; X-Risk)
+            </button>
+          </div>
+
+          <div id="thinkerDetailPanel" class="print-avoid-break bg-white rounded-xl border border-linen p-5 sm:p-6">
+            <!-- Dynamisch gevuld door JS -->
+          </div>
+        </div>
+
+        <!-- Overzichtelijke Vergelijkingstabel -->
+        <div class="print-avoid-break bg-white rounded-2xl border border-linen overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="bg-parchment border-b border-linen text-xs font-mono uppercase tracking-wider text-taupe">
+                  <th class="py-3.5 px-4">Denker / Kader</th>
+                  <th class="py-3.5 px-4">Kernprobleem</th>
+                  <th class="py-3.5 px-4">Sleutelbegrippen</th>
+                  <th class="py-3.5 px-4">Oplossingsrichting</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-linen align-top">
+                <tr>
+                  <td class="py-4 px-4 font-semibold text-ink">
+                    Tim Huckaby
+                    <span class="block font-mono text-[11px] font-normal text-meekrap mt-0.5">Praktijk-ethiek</span>
+                  </td>
+                  <td class="py-4 px-4 text-taupe">Geen economische prikkel voor ethiek; oppervlakkige prompt-engineering als lapmiddel.</td>
+                  <td class="py-4 px-4 font-mono text-xs text-ink">Dual-use, prompt-patching, privacygrenzen</td>
+                  <td class="py-4 px-4 text-ink">Ethische structuur inbouwen en verantwoorde ontwikkeling economisch lonend maken.</td>
+                </tr>
+                <tr>
+                  <td class="py-4 px-4 font-semibold text-ink">
+                    Luciano Floridi &amp; Josh Cowls
+                    <span class="block font-mono text-[11px] font-normal text-archival-green mt-0.5">AI4People / Informatie-ethiek</span>
+                  </td>
+                  <td class="py-4 px-4 text-taupe"><em>Ethics washing</em>: vrijblijvende principes publiceren zonder afdwingbare governance of uitlegbaarheid.</td>
+                  <td class="py-4 px-4 font-mono text-xs text-ink">Beneficence, Non-Maleficence, Autonomy, Justice + Explicability</td>
+                  <td class="py-4 px-4 text-ink">5 uniforme principes vertalen naar harde wetgeving, aanspreekbaarheid en transparante architectuur.</td>
+                </tr>
+                <tr>
+                  <td class="py-4 px-4 font-semibold text-ink">
+                    Nick Bostrom
+                    <span class="block font-mono text-[11px] font-normal text-brass mt-0.5">Alignment &amp; Existentieel Risico</span>
+                  </td>
+                  <td class="py-4 px-4 text-taupe">Controle- en waarde-uitlijningsprobleem (<em>alignment</em>): optimalisatie zonder menselijke waarden.</td>
+                  <td class="py-4 px-4 font-mono text-xs text-ink">Value alignment, instrumentele convergentie, superintelligentie</td>
+                  <td class="py-4 px-4 text-ink">Fundamentele technische en wiskundige alignment oplossen v&oacute;&oacute;r verdere schaalvergroting.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Brug naar de Juridische Praktijk -->
+        <div class="print-avoid-break rounded-2xl border-2 border-meekrap-border bg-meekrap-tint/60 p-6 space-y-3 print-color">
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-meekrap text-white print-color">Brug naar de Rechtspraktijk</span>
+          </div>
+          <h3 class="font-editorial text-xl font-bold text-ink">Van Abstracte Ethiek naar Verschoningsrecht &amp; Procesintegriteit</h3>
+          <p class="text-sm text-ink leading-relaxed">
+            Huckaby&rsquo;s kritiek op <strong>prompt-patching</strong> en Floridi&rsquo;s vijfde principe <strong>Explicability</strong> (begrijpelijkheid &eacute;n aanspreekbaarheid) raken direct aan de kernwaarden van de advocatuur. Zodra een jurist onder tijdsdruk vertrouwt op een ondoorzichtige black-box (zoals publieke chatbots), ontstaan vier concrete breuklijnen:
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1 text-xs">
+            <div class="bg-white rounded-xl border border-linen p-3.5">
+              <strong class="text-meekrap block mb-1">Verschoningsrecht</strong>
+              Cli&euml;ntdata in een publieke tool breekt de geheimhoudingsplicht onherroepelijk; alleen een <em>closed tenant</em> borgt privacy.
+            </div>
+            <div class="bg-white rounded-xl border border-linen p-3.5">
+              <strong class="text-meekrap block mb-1">Waarheidsplicht (art. 21 Rv)</strong>
+              Hallucinaties van verzonnen ECLI-nummers en arresten vervuilen de rechtsgang en vormen procesmisbruik.
+            </div>
+            <div class="bg-white rounded-xl border border-linen p-3.5">
+              <strong class="text-meekrap block mb-1">Cognitieve Atrofie</strong>
+              Routineus samenvatten zonder eigen dossieranalyse holt het juridische redeneervermogen en de autonomie uit.
+            </div>
+            <div class="bg-white rounded-xl border border-linen p-3.5">
+              <strong class="text-archival-green block mb-1">Verifieerbare RAG</strong>
+              Retrieval-Augmented Generation op actuele wet- en rechtspraak maakt elke redenering herleidbaar en toetsbaar.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 03: ARCHITECTUURSCHEMA (MARKTPRIKKEL VS. ETHICS BY DESIGN) -->
+      <!-- ================================================================= -->
+      <section id="sectie-03" class="scroll-mt-24 print-page-break space-y-6">
+        <div class="pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 03 &bull; Visuele Architectuurvergelijking</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            Architectuurschema: Marktprikkel vs. Ethics by Design
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-taupe max-w-4xl">
+            Vergelijking tussen een ad-hoc marktgedreven AI-traject en een verantwoorde <em>Ethics-by-Design</em>-architectuur. Klik op een bouwsteen in het diagram om de detailtoelichting te openen.
+          </p>
+        </div>
+
+        <div class="print-avoid-break bg-parchment rounded-2xl border border-linen p-4 sm:p-6 space-y-4">
+          <div class="w-full overflow-x-auto bg-white rounded-xl border border-linen p-3 sm:p-4">
+            <svg viewBox="0 0 980 390" class="w-full h-auto min-w-[720px]" role="img" aria-label="Architectuurschema Marktprikkel versus Ethics by Design">
+              <defs>
+                <marker id="arrMeekrap" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#A31C1C" />
+                </marker>
+                <marker id="arrGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#245940" />
+                </marker>
+              </defs>
+
+              <!-- BOVENSTE SPOOR: MARKTGEDREVEN / AD-HOC -->
+              <rect x="14" y="16" width="952" height="148" rx="12" fill="#F9EFEF" stroke="#E5C5C5" stroke-width="1.5" />
+              <rect x="28" y="28" width="236" height="22" rx="5" fill="#A31C1C" />
+              <text x="146" y="43" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700" fill="#FFFFFF">SPOOR A &bull; MARKTGEDREVEN / AD-HOC</text>
+
+              <!-- Node M1 -->
+              <g class="svg-node" data-node="M1" onclick="selectArchNode('M1')">
+                <rect class="node-box" x="28" y="64" width="175" height="82" rx="9" fill="#FFFFFF" stroke="#E5C5C5" stroke-width="1.5" />
+                <text x="40" y="84" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#A31C1C">A1 &bull; START</text>
+                <text x="40" y="104" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#1F2428">Snelle Lancering</text>
+                <text x="40" y="122" font-family="Inter, sans-serif" font-size="10.5" fill="#5A524A">Time-to-market &amp; groei</text>
+                <text x="40" y="136" font-family="Inter, sans-serif" font-size="10.5" fill="#5A524A">zonder ethische rem</text>
+              </g>
+
+              <line x1="203" y1="105" x2="230" y2="105" stroke="#A31C1C" stroke-width="2" marker-end="url(#arrMeekrap)" />
+
+              <!-- Node M2 -->
+              <g class="svg-node" data-node="M2" onclick="selectArchNode('M2')">
+                <rect class="node-box" x="234" y="64" width="188" height="82" rx="9" fill="#FFFFFF" stroke="#E5C5C5" stroke-width="1.5" />
+                <text x="246" y="84" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#A31C1C">A2 &bull; LAPMIDDEL</text>
+                <text x="246" y="104" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#1F2428">Oppervlakkige</text>
+                <text x="246" y="120" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#1F2428">Prompt-Filters</text>
+                <text x="246" y="136" font-family="Inter, sans-serif" font-size="10.5" fill="#5A524A">Symptoombestrijding</text>
+              </g>
+
+              <line x1="422" y1="105" x2="449" y2="105" stroke="#A31C1C" stroke-width="2" marker-end="url(#arrMeekrap)" />
+
+              <!-- Node M3 -->
+              <g class="svg-node" data-node="M3" onclick="selectArchNode('M3')">
+                <rect class="node-box" x="453" y="64" width="215" height="82" rx="9" fill="#FFFFFF" stroke="#E5C5C5" stroke-width="1.5" />
+                <text x="465" y="84" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#A31C1C">A3 &bull; INCIDENT</text>
+                <text x="465" y="104" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#1F2428">Black-Box Hallucinaties</text>
+                <text x="465" y="120" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#1F2428">&amp; Privacylek</text>
+                <text x="465" y="136" font-family="Inter, sans-serif" font-size="10.5" fill="#5A524A">Shadow AI &amp; foute bronnen</text>
+              </g>
+
+              <line x1="668" y1="105" x2="695" y2="105" stroke="#A31C1C" stroke-width="2" marker-end="url(#arrMeekrap)" />
+
+              <!-- Node M4 -->
+              <g class="svg-node" data-node="M4" onclick="selectArchNode('M4')">
+                <rect class="node-box" x="699" y="64" width="252" height="82" rx="9" fill="#A31C1C" stroke="#821414" stroke-width="1.5" />
+                <text x="711" y="84" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#F9EFEF">A4 &bull; UITKOMST</text>
+                <text x="711" y="104" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#FFFFFF">Ethics Washing &amp;</text>
+                <text x="711" y="120" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#FFFFFF">Vertrouwensverlies</text>
+                <text x="711" y="136" font-family="Inter, sans-serif" font-size="10.5" fill="#F9EFEF">Procesmisbruik &amp; sancties</text>
+              </g>
+
+              <!-- CONVERGENTIEBALK IN HET MIDDEN -->
+              <rect x="330" y="176" width="320" height="36" rx="18" fill="#FAF7F2" stroke="#B5833E" stroke-width="1.6" />
+              <text x="490" y="199" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#8F5B1E">MAATSCHAPPELIJKE IMPACT &amp; RECHTSSTAAT</text>
+              <line x1="825" y1="146" x2="825" y2="194" stroke="#A31C1C" stroke-width="1.5" stroke-dasharray="4 3" />
+              <line x1="825" y1="194" x2="654" y2="194" stroke="#A31C1C" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrMeekrap)" />
+              <line x1="825" y1="274" x2="825" y2="194" stroke="#245940" stroke-width="1.5" stroke-dasharray="4 3" />
+
+              <!-- ONDERSTE SPOOR: ETHICS BY DESIGN / GOVERNANCE -->
+              <rect x="14" y="226" width="952" height="148" rx="12" fill="#FAF7F2" stroke="#E4DDD3" stroke-width="1.5" />
+              <rect x="28" y="238" width="268" height="22" rx="5" fill="#245940" />
+              <text x="162" y="253" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700" fill="#FFFFFF">SPOOR B &bull; ETHICS BY DESIGN / GOVERNANCE</text>
+
+              <!-- Node E1 -->
+              <g class="svg-node svg-node-selected" data-node="E1" onclick="selectArchNode('E1')">
+                <rect class="node-box" x="28" y="274" width="175" height="82" rx="9" fill="#FFFFFF" stroke="#C5DEC9" stroke-width="1.5" />
+                <text x="40" y="294" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#245940">B1 &bull; FUNDAMENT</text>
+                <text x="40" y="314" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#1F2428">Ethische Architectuur</text>
+                <text x="40" y="331" font-family="Inter, sans-serif" font-size="10.5" fill="#5A524A">Floridi 5 principes</text>
+                <text x="40" y="345" font-family="Inter, sans-serif" font-size="10.5" fill="#5A524A">ingebouwd in ontwerp</text>
+              </g>
+
+              <line x1="203" y1="315" x2="230" y2="315" stroke="#245940" stroke-width="2" marker-end="url(#arrGreen)" />
+
+              <!-- Node E2 -->
+              <g class="svg-node" data-node="E2" onclick="selectArchNode('E2')">
+                <rect class="node-box" x="234" y="274" width="188" height="82" rx="9" fill="#FFFFFF" stroke="#C5DEC9" stroke-width="1.5" />
+                <text x="246" y="294" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#245940">B2 &bull; TECHNIEK</text>
+                <text x="246" y="314" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#1F2428">Verifieerbare Bronnen</text>
+                <text x="246" y="330" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#1F2428">&amp; Audit Trail</text>
+                <text x="246" y="346" font-family="Inter, sans-serif" font-size="10.5" fill="#5A524A">RAG / Gesloten Tenant</text>
+              </g>
+
+              <line x1="422" y1="315" x2="449" y2="315" stroke="#245940" stroke-width="2" marker-end="url(#arrGreen)" />
+
+              <!-- Node E3 -->
+              <g class="svg-node" data-node="E3" onclick="selectArchNode('E3')">
+                <rect class="node-box" x="453" y="274" width="215" height="82" rx="9" fill="#FFFFFF" stroke="#C5DEC9" stroke-width="1.5" />
+                <text x="465" y="294" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#245940">B3 &bull; BORGING</text>
+                <text x="465" y="314" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#1F2428">Wettelijke Borging</text>
+                <text x="465" y="331" font-family="Inter, sans-serif" font-size="10.5" fill="#5A524A">EU AI Act (2024&ndash;2028)</text>
+                <text x="465" y="345" font-family="Inter, sans-serif" font-size="10.5" fill="#5A524A">&amp; Beroepsethiek</text>
+              </g>
+
+              <line x1="668" y1="315" x2="695" y2="315" stroke="#245940" stroke-width="2" marker-end="url(#arrGreen)" />
+
+              <!-- Node E4 -->
+              <g class="svg-node" data-node="E4" onclick="selectArchNode('E4')">
+                <rect class="node-box" x="699" y="274" width="252" height="82" rx="9" fill="#245940" stroke="#1A422F" stroke-width="1.5" />
+                <text x="711" y="294" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#EEF6F1">B4 &bull; UITKOMST</text>
+                <text x="711" y="314" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#FFFFFF">Explicability &amp;</text>
+                <text x="711" y="330" font-family="Playfair Display, Georgia, serif" font-size="13.5" font-weight="700" fill="#FFFFFF">Duurzaam Vertrouwen</text>
+                <text x="711" y="346" font-family="Inter, sans-serif" font-size="10.5" fill="#EEF6F1">Menselijke regie geborgd</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Klikbaar Toelichtingspaneel onder het SVG-diagram -->
+          <div id="archNodeDetail" class="bg-white rounded-xl border border-linen p-5">
+            <!-- Gevuld door JavaScript -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 04: NORMATIEF & WETTELIJK TOETSINGSKADER                   -->
+      <!-- ================================================================= -->
+      <section id="sectie-04" class="scroll-mt-24 print-page-break space-y-7">
+        <div class="pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 04 &bull; Wetgeving &amp; Mondiale Normen</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            Normatief &amp; Wettelijk Toetsingskader: EU AI Act (2024&ndash;2028) &amp; UNESCO
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-taupe max-w-4xl">
+            Waar de markt uit zichzelf geen economische prikkel kent voor ethiek (Huckaby), dwingt de Europese <strong>AI Act — Verordening (EU) 2024/1689</strong> (aangevuld door de <em>Digital Omnibus</em> <strong>Verordening (EU) 2026/1744</strong>) verantwoorde AI-architectuur wettelijk af.
+          </p>
+        </div>
+
+        <!-- 4 Risiconiveaus van de EU AI Act -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <article class="print-avoid-break bg-meekrap-tint rounded-2xl border border-meekrap-border p-5 space-y-2 print-color">
+            <span class="font-mono text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-meekrap text-white print-color">Niveau 1 &bull; Verboden</span>
+            <h3 class="font-editorial text-lg font-bold text-meekrap-deep">Onacceptabel Risico</h3>
+            <p class="text-xs sm:text-sm text-ink leading-relaxed">
+              Wettelijk verboden sinds <strong>2 februari 2025</strong>. Omvat onder meer sociale scoring door overheden, cognitieve gedragsmanipulatie en ongerichte gezichtsscraping.
+            </p>
+          </article>
+
+          <article class="print-avoid-break bg-archival-ochreBg rounded-2xl border border-archival-ochreBorder p-5 space-y-2 print-color">
+            <span class="font-mono text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-brass text-white print-color">Niveau 2 &bull; Streng</span>
+            <h3 class="font-editorial text-lg font-bold text-archival-ochre">Hoog Risico</h3>
+            <p class="text-xs sm:text-sm text-ink leading-relaxed">
+              Strenge eisen aan risicobeheer, datakwaliteit, logging, transparantie en menselijk toezicht. Geldt o.a. voor <strong>rechtspraak</strong>, rechtshandhaving en werkgelegenheid.
+            </p>
+          </article>
+
+          <article class="print-avoid-break bg-parchment rounded-2xl border border-linen p-5 space-y-2">
+            <span class="font-mono text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-ink text-white print-color">Niveau 3 &bull; Art. 50</span>
+            <h3 class="font-editorial text-lg font-bold text-ink">Beperkt Risico</h3>
+            <p class="text-xs sm:text-sm text-taupe leading-relaxed">
+              Transparantieverplichting (art. 50): gebruikers moeten weten dat zij met AI communiceren, en synthetische AI-inhoud vereist herkenbare watermerken of markering.
+            </p>
+          </article>
+
+          <article class="print-avoid-break bg-archival-greenBg rounded-2xl border border-archival-greenBorder p-5 space-y-2 print-color">
+            <span class="font-mono text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-archival-green text-white print-color">Niveau 4 &bull; Vrij</span>
+            <h3 class="font-editorial text-lg font-bold text-archival-green">Minimaal Risico</h3>
+            <p class="text-xs sm:text-sm text-ink leading-relaxed">
+              Vrije toepassing zonder aanvullende wettelijke plichten (bijv. spamfilters), ondersteund door vrijwillige gedragscodes voor duurzame ontwikkeling.
+            </p>
+          </article>
+        </div>
+
+        <!-- Tijdlijn EU AI Act + Digital Omnibus (2024–2028) -->
+        <div class="print-avoid-break bg-parchment rounded-2xl border border-linen p-6 space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-linen">
+            <h3 class="font-editorial text-xl font-bold text-ink">Actuele Implementatietijdlijn (2024&ndash;2028)</h3>
+            <span class="font-mono text-xs text-meekrap bg-meekrap-tint border border-meekrap-border px-2.5 py-1 rounded">Incl. Digital Omnibus (EU) 2026/1744</span>
+          </div>
+
+          <ol class="relative border-l-2 border-meekrap-border ml-3 space-y-5">
+            <li class="pl-6 relative">
+              <span class="w-3 h-3 rounded-full bg-archival-green border-2 border-white absolute -left-[7px] top-1.5 print-color"></span>
+              <div class="font-mono text-xs font-bold text-archival-green">1 augustus 2024 &bull; Afgerond</div>
+              <div class="font-semibold text-sm text-ink">Inwerkingtreding EU AI Act — Verordening (EU) 2024/1689</div>
+            </li>
+            <li class="pl-6 relative">
+              <span class="w-3 h-3 rounded-full bg-archival-green border-2 border-white absolute -left-[7px] top-1.5 print-color"></span>
+              <div class="font-mono text-xs font-bold text-archival-green">2 februari 2025 &bull; Actief</div>
+              <div class="font-semibold text-sm text-ink">Verbod op onacceptabele AI-praktijken &amp; verplichte AI-geletterdheid voor organisaties</div>
+            </li>
+            <li class="pl-6 relative">
+              <span class="w-3 h-3 rounded-full bg-archival-green border-2 border-white absolute -left-[7px] top-1.5 print-color"></span>
+              <div class="font-mono text-xs font-bold text-archival-green">2 augustus 2025 &bull; Actief</div>
+              <div class="font-semibold text-sm text-ink">Regels en transparantie-eisen voor General-Purpose AI (GPAI)-modellen van kracht</div>
+            </li>
+            <li class="pl-6 relative">
+              <span class="w-3.5 h-3.5 rounded-full bg-meekrap border-2 border-white absolute -left-[8px] top-1.5 print-color"></span>
+              <div class="font-mono text-xs font-bold text-meekrap">2 augustus 2026 / 2 december 2026 &bull; Huidige fase</div>
+              <div class="font-semibold text-sm text-ink">Transparantieverplichtingen art. 50 (overgangstermijn watermerken bestaande systemen tot 2 dec. 2026 onder Digital Omnibus 2026/1744)</div>
+            </li>
+            <li class="pl-6 relative">
+              <span class="w-3 h-3 rounded-full bg-brass border-2 border-white absolute -left-[7px] top-1.5 print-color"></span>
+              <div class="font-mono text-xs font-bold text-archival-ochre">2 december 2027 &bull; Aankomend</div>
+              <div class="font-semibold text-sm text-ink">Hoog-risico AI-systemen uit Bijlage III (o.a. rechtspleging, HR, kredietbeoordeling) volledig bindend</div>
+            </li>
+            <li class="pl-6 relative">
+              <span class="w-3 h-3 rounded-full bg-taupe border-2 border-white absolute -left-[7px] top-1.5 print-color"></span>
+              <div class="font-mono text-xs font-bold text-taupe">2 augustus 2028 &bull; Volledige uitrol</div>
+              <div class="font-semibold text-sm text-ink">Hoog-risico AI ingebed in gereguleerde producten (Bijlage I, o.a. medische hulpmiddelen) bindend</div>
+            </li>
+          </ol>
+        </div>
+
+        <!-- UNESCO Korte Duiding -->
+        <div class="print-avoid-break bg-white rounded-2xl border border-linen border-l-4 border-l-brass p-6">
+          <div class="font-mono text-xs font-bold uppercase tracking-wider text-archival-ochre mb-1">Mondiaal Referentiekader</div>
+          <h3 class="font-editorial text-xl font-bold text-ink">UNESCO Recommendation on the Ethics of AI</h3>
+          <p class="mt-2 text-sm text-taupe leading-relaxed">
+            Als eerste mondiale standaard (aangenomen door 193 lidstaten) verankert UNESCO AI-ethiek in <strong class="text-ink">mensenrechten, menselijke waardigheid, culturele diversiteit en ecologische duurzaamheid</strong>. Waar de EU AI Act juridische afdwingbaarheid binnen Europa biedt, vormt UNESCO het universele morele kompas voor grensoverschrijdende datastromen en publieke waarden.
+          </p>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 05: INTERACTIEVE ETHICS-BY-DESIGN TOETSINGSMATRIX          -->
+      <!-- ================================================================= -->
+      <section id="sectie-05" class="scroll-mt-24 print-page-break space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-3 border-b border-linen">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 05 &bull; Praktijk-Audit (8 Criteria)</span>
+            <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+              Interactieve Ethics-by-Design Toetsingsmatrix
+            </h2>
+            <p class="mt-2 text-sm sm:text-base text-taupe max-w-3xl">
+              Toets een AI-project of juridisch systeem op 8 concrete criteria. Uw keuzes worden direct lokaal opgeslagen in uw browser (<code class="text-xs font-mono">localStorage</code>).
+            </p>
+          </div>
+
+          <div class="no-print flex items-center gap-2 shrink-0">
+            <button type="button" onclick="setAllAuditItems(true)" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-meekrap-tint text-meekrap border border-meekrap-border hover:bg-meekrap hover:text-white transition cursor-pointer">
+              Selecteer alles
+            </button>
+            <button type="button" onclick="setAllAuditItems(false)" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white text-taupe border border-linen hover:border-ink hover:text-ink transition cursor-pointer">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Meekrap Voortgangsbalk -->
+        <div class="bg-parchment rounded-2xl border border-linen p-5 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <span class="font-editorial font-bold text-base text-ink">Ethics-by-Design Score</span>
+              <span id="auditStatusBadge" class="px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-meekrap-tint text-meekrap border border-meekrap-border print-color">
+                Kwetsbaar
+              </span>
+            </div>
+            <div class="text-sm font-mono font-semibold text-ink">
+              <span id="auditCount">0</span> / 8 criteria (<span id="auditPercent">0%</span>)
+            </div>
+          </div>
+          <div class="w-full h-3.5 bg-white rounded-full overflow-hidden border border-linen">
+            <div id="auditProgressBar" class="h-full bg-gradient-to-r from-meekrap to-meekrap-light transition-all duration-300 rounded-full print-color" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- 3 Categorieblokken met in totaal 8 afvinkbare criteria -->
+        <div id="auditCategoriesContainer" class="space-y-6">
+          <!-- Dynamisch gevuld door JavaScript -->
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 06: DOORZOEKBAAR BRONNEN- & REFERENTIEREGISTER             -->
+      <!-- ================================================================= -->
+      <section id="sectie-06" class="scroll-mt-24 print-page-break space-y-6">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-3 border-b border-linen">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 06 &bull; Verifieerbare Literatuur &amp; Wetgeving</span>
+            <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+              Doorzoekbaar Bronnen- &amp; Referentieregister
+            </h2>
+            <p class="mt-2 text-sm sm:text-base text-taupe max-w-3xl">
+              De 8 kernbronnen waarop dit ethische onderzoeksdossier is gebaseerd. Filter op categorie of zoek op auteur, titel of begrip.
+            </p>
+          </div>
+          <div class="no-print text-xs font-mono text-taupe bg-parchment border border-linen px-3 py-1.5 rounded-lg self-start md:self-auto">
+            Getoond: <strong id="sourcesCount" class="text-ink">8</strong> / 8 bronnen
+          </div>
+        </div>
+
+        <!-- Zoekveld & Categoriefilters -->
+        <div class="no-print bg-parchment rounded-2xl border border-linen p-4 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
+          <div class="relative flex-grow max-w-md">
+            <svg class="w-4 h-4 text-taupe absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input
+              type="text"
+              id="sourceSearch"
+              placeholder="Zoek op Huckaby, Floridi, Bostrom, AI Act, UNESCO..."
+              class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-white border border-linen text-ink placeholder-taupe/70 focus:outline-none focus:ring-2 focus:ring-meekrap/25 focus:border-meekrap transition"
+            />
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filter bronnen">
+            <button type="button" data-src-cat="all" onclick="setSourceCategory('all')" class="src-cat-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-meekrap text-white transition cursor-pointer">
+              Alle (8)
+            </button>
+            <button type="button" data-src-cat="Tim Huckaby" onclick="setSourceCategory('Tim Huckaby')" class="src-cat-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              Tim Huckaby (4)
+            </button>
+            <button type="button" data-src-cat="Filosofie" onclick="setSourceCategory('Filosofie')" class="src-cat-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              Filosofie (2)
+            </button>
+            <button type="button" data-src-cat="Wetgeving & Beleid" onclick="setSourceCategory('Wetgeving & Beleid')" class="src-cat-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              Wetgeving &amp; Beleid (2)
+            </button>
+          </div>
+        </div>
+
+        <!-- Bronnengrid -->
+        <div id="sourcesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamisch gevuld door JavaScript -->
+        </div>
+
+        <div id="sourcesEmptyState" class="hidden py-10 px-6 text-center bg-parchment rounded-2xl border border-linen">
+          <p class="text-taupe font-medium">Geen bronnen gevonden voor deze zoekopdracht.</p>
+          <button type="button" onclick="resetSourceFilters()" class="mt-3 px-4 py-2 rounded-xl bg-meekrap hover:bg-meekrap-deep text-white text-xs font-semibold transition cursor-pointer">
+            Filters herstellen
+          </button>
+        </div>
+
+        <!-- Voetnoot -->
+        <footer class="print-avoid-break bg-parchment rounded-2xl border border-linen border-l-4 border-l-meekrap p-6">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-taupe">
+            <span class="font-semibold text-ink">Ethisch Onderzoeksdossier: AI-Ethiek, Tim Huckaby &amp; Verantwoorde Architectuur</span>
+            <span class="font-mono text-[11px]">Zeeuwse Meekrap Editie &bull; 100% Lokaal &bull; Print/PDF-geoptimaliseerd</span>
+          </div>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast-melding (vervangt alert()) -->
+  <div id="toast" class="no-print fixed bottom-5 right-5 z-50 hidden items-center gap-2.5 px-4 py-3 rounded-xl bg-ink text-white text-sm font-medium shadow-xl border border-brass/50">
+    <span class="w-2 h-2 rounded-full bg-meekrap-light shrink-0"></span>
+    <span id="toastMessage">Actie voltooid</span>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ZELFSTANDIGE VANILLA JAVASCRIPT (Offline-ready, geen frameworks)      -->
+  <!-- ===================================================================== -->
+  <script>
+    const AUDIT_STORAGE_KEY = 'onderzoek_ai_ethiek_huckaby_audit_v1';
+
+    /**
+     * Veilige HTML-escaping.
+     */
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * Data voor Huckaby's Driedeling (Sectie 01).
+     */
+    const triadData = {
+      A: {
+        label: 'PIJLER A — DUAL-USE AMBIGUÏTEIT',
+        text: 'Net als kernenergie kent AI geen inherente morele richting: dezelfde patroonherkenning die alvleesklierkanker eerder opspoort, kan worden ingezet voor massasurveillance of politieke beïnvloeding. Daarom volstaat een naïef verbod niet, maar is gerichte governance onmisbaar.'
+      },
+      B: {
+        label: 'PIJLER B — GEEN BUSINESSCASE VOOR ETHIEK',
+        text: 'In een competitieve markt beloont kapitaal snelheid en schaal, niet morele voorzichtigheid. Omdat ethische architectuur op korte termijn geld kost in plaats van oplevert, wordt ethiek gereduceerd tot oppervlakkige prompt-filters achteraf — precies wat Huckaby hekelt.'
+      },
+      C: {
+        label: 'PIJLER C — ONTBREKEND REMMECHANISME VOOR BOUWERS',
+        text: 'Huckaby’s eigen verleden met computer vision toont dat goedwillende ingenieurs privacygrenzen overschrijden wanneer er geen bindende architectuur-, juridische of professionele rem bestaat die hen dwingt vooraf verantwoording af te leggen.'
+      }
+    };
+
+    /**
+     * Data voor het Filosofische Kader (Sectie 02).
+     */
+    const thinkersData = {
+      huckaby: {
+        badge: 'PRAKTIJK-ETHIEK & MARKTMECHANISME',
+        name: 'Tim Huckaby',
+        role: 'Microsoft Regional Director & MVP (35+ jaar AI & Computer Vision)',
+        coreProblem: 'Er bestaat geen directe economische prikkel om ethische structuur in AI-systemen in te bouwen; daardoor wordt ethiek als lapmiddel weggewerkt met prompt engineering.',
+        solution: 'Verantwoorde ontwikkeling moet een economisch en professioneel lonende keuze worden, waarbij ethische structuur vanaf de basis onderdeel is van het systeemontwerp.',
+        highlights: [
+          'Persoonlijke bekering vanuit eigen computer vision- en privacyprojecten',
+          'Kernenergie-analogie: genezing (alvleesklierkanker) vs. destructief misbruik',
+          'Waarschuwing tegen eenzijdig doemdenken én tegen vrijblijvende prompt-filters'
+        ]
+      },
+      floridi: {
+        badge: 'AI4PEOPLE / INFORMATIE-ETHIEK',
+        name: 'Luciano Floridi & Josh Cowls',
+        role: 'Oxford Internet Institute / Yale Digital Ethics Center',
+        coreProblem: 'Proliferatie van losse ethische manifesten leidt tot "ethics washing": bedrijven publiceren mooie principes zonder juridische afdwingbaarheid of controleerbare uitlegbaarheid.',
+        solution: 'Eén uniform raamwerk van 5 principes — 4 klassieke bio-ethische principes aangevuld met een uniek 5e AI-principe (Explicability) — verankerd in governance en wetgeving.',
+        highlights: [
+          '4 Bio-ethische principes: Beneficence (welzijn), Non-Maleficence (geen schade), Autonomy (menselijke regie) & Justice (rechtvaardigheid)',
+          '5e AI-specifiek principe: Explicability — zowel intelligibility (hoe werkt het?) als accountability (wie is aansprakelijk?)',
+          'Directe vertaling naar controleerbare architectuur en afwijzing van vrijblijvend ethics washing'
+        ]
+      },
+      bostrom: {
+        badge: 'ALIGNMENT & EXISTENTIEEL RISICO',
+        name: 'Nick Bostrom',
+        role: 'Filosoof & Auteur van Superintelligence (2014)',
+        coreProblem: 'Het controle- en waarde-uitlijningsprobleem (value alignment): een krachtig optimaliserend systeem zonder nauwkeurig ingebouwde menselijke waarden kan via instrumentele convergentie onbedoeld desastreuze subdoelen nastreven.',
+        solution: 'Fundamentele technische en wiskundige waarde-uitlijning oplossen vóórdat AI-systemen verder opschalen in autonomie en maatschappelijke beslissingsmacht.',
+        highlights: [
+          'Orthogonaliteitsthese: hoge intelligentie impliceert niet automatisch menselijke moraal',
+          'Instrumentele convergentie: zelfbehoud en hulpbronverwerving als gevaarlijke bijproducten',
+          'Noodzaak van robuuste veiligheidswaarborgen vóór grootschalige uitrol'
+        ]
+      }
+    };
+
+    /**
+     * Klikbare knooppunten voor het SVG-architectuurschema (Sectie 03).
+     */
+    const archNodesData = {
+      M1: {
+        track: 'Spoor A — Marktgedreven / Ad-hoc',
+        title: 'A1. Snelle Lancering zonder Ethische Rem',
+        desc: 'Gedreven door marktaandeel en investeerdersdruk worden AI-functies uitgerold voordat privacy-, beveiligings- of aansprakelijkheidsgrenzen zijn vastgelegd (Huckaby’s "ontbrekend remmechanisme").',
+        tone: 'meekrap'
+      },
+      M2: {
+        track: 'Spoor A — Marktgedreven / Ad-hoc',
+        title: 'A2. Oppervlakkige Prompt-Filters',
+        desc: 'In plaats van ethische structuur in het model en de data-architectuur te verankeren, worden ongewenste uitkomsten achteraf met kwetsbare systeem-prompts en keyword-filters onderdrukt.',
+        tone: 'meekrap'
+      },
+      M3: {
+        track: 'Spoor A — Marktgedreven / Ad-hoc',
+        title: 'A3. Black-Box Hallucinaties & Privacylek',
+        desc: 'Oncontroleerbare kansberekening leidt tot verzonnen bronnen (zoals fictieve ECLI-nummers) en Shadow AI-datalekken waarbij vertrouwelijke cliëntinformatie in publieke modellen belandt.',
+        tone: 'meekrap'
+      },
+      M4: {
+        track: 'Spoor A — Marktgedreven / Ad-hoc',
+        title: 'A4. Ethics Washing & Vertrouwensverlies',
+        desc: 'Mooie beleidsbeloftes blijken een papieren tijger. Het resultaat: procesmisbruik, tuchtrechtelijke sancties, schending van het verschoningsrecht en erosie van maatschappelijk vertrouwen.',
+        tone: 'meekrap'
+      },
+      E1: {
+        track: 'Spoor B — Ethics by Design / Governance',
+        title: 'B1. Ethische Architectuur (Floridi 5 Principes)',
+        desc: 'Welzijn, geen schade, menselijke autonomie, rechtvaardigheid en explicability worden vanaf dag één als harde functionele ontwerpeisen opgenomen in de systeemarchitectuur.',
+        tone: 'green'
+      },
+      E2: {
+        track: 'Spoor B — Ethics by Design / Governance',
+        title: 'B2. Verifieerbare Bronnen & Audit Trail (RAG / Gesloten Tenant)',
+        desc: 'Gegevens blijven binnen een contractueel afgeschermde closed tenant (of 100% lokaal/Zero-Cloud). Via RAG wordt elk antwoord direct gekoppeld aan verifieerbare primaire bronnen en een onwijzigbare audit trail.',
+        tone: 'green'
+      },
+      E3: {
+        track: 'Spoor B — Ethics by Design / Governance',
+        title: 'B3. Wettelijke Borging (EU AI Act & Beroepsethiek)',
+        desc: 'Risicoclassificatie onder Verordening (EU) 2024/1689 & 2026/1744, transparantieplicht (art. 50) en aansluiting op beroepsregels (zoals de NOvA-richtlijn en waarheidsplicht ex art. 21 Rv).',
+        tone: 'green'
+      },
+      E4: {
+        track: 'Spoor B — Ethics by Design / Governance',
+        title: 'B4. Explicability & Duurzaam Vertrouwen',
+        desc: 'Besluitvorming blijft intellectueel navolgbaar, omkeerbaar en juridisch toetsbaar. Technologie versterkt menselijke expertise zonder cognitieve atrofie of aantasting van de rechtsstaat.',
+        tone: 'green'
+      }
+    };
+
+    /**
+     * 8 Ethics-by-Design Toetscriteria in 3 categorieën (Sectie 05).
+     */
+    const auditCategories = [
+      {
+        title: '1. Architectuur & Economische Prikkel',
+        badge: '2 criteria',
+        items: [
+          {
+            id: 'EBD-1',
+            title: 'Structurele waarborgen i.p.v. enkel prompt-filters',
+            desc: 'Ethische grenzen zijn verankerd in dataselectie, systeemarchitectuur en toegangscontrole, niet slechts via kwetsbare prompt-instructies.'
+          },
+          {
+            id: 'EBD-2',
+            title: 'Aantoonbare governance — geen ethics washing',
+            desc: 'Principes zijn gekoppeld aan concrete controles, escalatiepaden en benoemde eindverantwoordelijken die een lancering daadwerkelijk kunnen blokkeren.'
+          }
+        ]
+      },
+      {
+        title: '2. Privacy, Data & Geheimhouding',
+        badge: '2 criteria',
+        items: [
+          {
+            id: 'EBD-3',
+            title: 'Gesloten tenant, Zero-Cloud of lokale verwerking',
+            desc: 'Vertrouwelijke of verschoningsgerechtigde data verlaat de afgeschermde omgeving niet en wordt contractueel uitgesloten van modeltraining.'
+          },
+          {
+            id: 'EBD-4',
+            title: 'Dataminimalisatie & verwerkerscontrole',
+            desc: 'Uitsluitend strikt noodzakelijke gegevens worden verwerkt; logging en verwerkersovereenkomsten zijn aantoonbaar getoetst op AVG en beroepsgeheim.'
+          }
+        ]
+      },
+      {
+        title: '3. Menselijke Maat & Explicability',
+        badge: '4 criteria',
+        items: [
+          {
+            id: 'EBD-5',
+            title: 'Herleidbare bronvermelding (RAG & primaire verificatie)',
+            desc: 'Uitkomsten verwijzen direct naar controleerbare primaire bronnen (wetgeving, rechtspraak, dossierstukken) en worden geverifieerd vóór gebruik.'
+          },
+          {
+            id: 'EBD-6',
+            title: 'Menselijke eindregie & omkeerbaarheid van besluiten',
+            desc: 'Een bevoegde professional voert inhoudelijke eindredactie en kan een AI-advies altijd gemotiveerd corrigeren of terzijde leggen.'
+          },
+          {
+            id: 'EBD-7',
+            title: 'Bewaking tegen cognitieve atrofie & Shadow AI',
+            desc: 'Werkprocessen en opleiding borgen dat juristen en analisten zelfstandig blijven redeneren en geen toevlucht nemen tot publieke tools onder tijdsdruk.'
+          },
+          {
+            id: 'EBD-8',
+            title: 'EU AI Act risicoclassificatie & transparantieplicht',
+            desc: 'Het systeem is formeel geclassificeerd (onacceptabel / hoog / beperkt / minimaal) en voldoet aan AI-geletterdheid en art. 50 transparantie-eisen.'
+          }
+        ]
+      }
+    ];
+
+    /**
+     * 8 Bronnen voor het Referentieregister (Sectie 06).
+     */
+    const sourcesData = [
+      {
+        id: 'REF-01',
+        category: 'Tim Huckaby',
+        author: 'Tim Huckaby',
+        title: 'The Ethical Complications of AI',
+        publication: 'Lucihub Opiniestuk (november / december 2023)',
+        summary: 'Kernartikel waarin Huckaby de vraag stelt waarom ethische structuur niet in AI-systemen wordt ingebouwd maar via prompt engineering wordt weggedrukt, en het ontbreken van een economische prikkel benoemt.'
+      },
+      {
+        id: 'REF-02',
+        category: 'Tim Huckaby',
+        author: 'Global AI Community',
+        title: '"Humans in AI" — Interview met Tim Huckaby',
+        publication: 'Global AI Community Interviewreeks',
+        summary: 'Uitgebreid interview waarin Huckaby AI vergelijkt met kernenergie (dual-use): dezelfde kracht die alvleesklierkanker kan helpen bestrijden kan ook verwoestend worden misbruikt.'
+      },
+      {
+        id: 'REF-03',
+        category: 'Tim Huckaby',
+        author: 'Markus Egger & Tim Huckaby',
+        title: 'Regional Director-gesprek over AI, Politiek & Gezichtsherkenning',
+        publication: 'CODE Magazine',
+        summary: 'Praktijkgesprek over te machtige AI-functies, kwetsbare privacywetgeving, CNN election coverage en waarom technologiebedrijven terughoudend werden rond politieke AI-projecten.'
+      },
+      {
+        id: 'REF-04',
+        category: 'Tim Huckaby',
+        author: 'Tim Huckaby',
+        title: 'Datakwaliteit, Computer Vision en Ethische Privacygrenzen in ML-projecten',
+        publication: 'LinkedIn-artikel',
+        summary: 'Persoonlijke reflectie waarin Huckaby beschrijft hoe zijn eigen computer vision-projecten op privacygrenzen botsten — de directe aanleiding voor zijn focus op AI-ethiek sinds 2021.'
+      },
+      {
+        id: 'REF-05',
+        category: 'Filosofie',
+        author: 'Luciano Floridi & Josh Cowls',
+        title: 'A Unified Framework of Five Principles for AI in Society',
+        publication: 'AI4People / Harvard Data Science Review (2019)',
+        summary: 'Invloedrijk ethisch raamwerk dat vier bio-ethische principes (Beneficence, Non-Maleficence, Autonomy, Justice) combineert met Explicability en waarschuwt tegen vrijblijvend ethics washing.'
+      },
+      {
+        id: 'REF-06',
+        category: 'Filosofie',
+        author: 'Nick Bostrom',
+        title: 'Superintelligence: Paths, Dangers, Strategies',
+        publication: 'Oxford University Press (2014)',
+        summary: 'Fundamentele studie over het controle- en waarde-uitlijningsprobleem (value alignment), instrumentele convergentie en de noodzaak om veiligheid vóór schaalvergroting op te lossen.'
+      },
+      {
+        id: 'REF-07',
+        category: 'Wetgeving & Beleid',
+        author: 'Europese Unie (EP & Raad)',
+        title: 'EU AI Act — Verordening (EU) 2024/1689 & Digital Omnibus Verordening (EU) 2026/1744',
+        publication: 'Publicatieblad van de Europese Unie (2024–2026)',
+        summary: 'Bindend Europees rechtskader met 4 risiconiveaus, AI-geletterdheid, GPAI-regels, transparantieplicht (art. 50) en gefaseerde inwerkingtreding tot en met 2 augustus 2028.'
+      },
+      {
+        id: 'REF-08',
+        category: 'Wetgeving & Beleid',
+        author: 'UNESCO',
+        title: 'Recommendation on the Ethics of Artificial Intelligence',
+        publication: 'UNESCO Algemene Conferentie (2021)',
+        summary: 'Eerste mondiale normatieve standaard voor AI-ethiek, verankerd in mensenrechten, menselijke waardigheid, culturele diversiteit en ecologische duurzaamheid.'
+      }
+    ];
+
+    let activeSourceCategory = 'all';
+    let auditState = {};
+    let toastTimer = null;
+
+    /**
+     * Tekstgrootte-schakelaar (A- = 16px, A+ = 19px, A++ = 22px).
+     */
+    function setFontSize(sizeKey) {
+      document.documentElement.setAttribute('data-font-size', sizeKey);
+      const labelMap = { sm: '16px (A-)', md: '19px (A+)', lg: '22px (A++)' };
+      const labelEl = document.getElementById('fontSizeLabel');
+      if (labelEl) labelEl.textContent = labelMap[sizeKey] || '19px (A+)';
+
+      document.querySelectorAll('.size-btn').forEach((btn) => {
+        const isCurrent = btn.getAttribute('data-size-btn') === sizeKey;
+        const isMobile = btn.closest('header') !== null;
+        if (isMobile) {
+          btn.className = isCurrent
+            ? 'size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md bg-meekrap text-white transition cursor-pointer'
+            : 'size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md text-taupe hover:text-meekrap transition cursor-pointer';
+        } else {
+          btn.className = isCurrent
+            ? 'size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-meekrap bg-meekrap text-white transition cursor-pointer'
+            : 'size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer';
+        }
+      });
+    }
+
+    /**
+     * Selecteert een pijler van Huckaby's Driedeling (Sectie 01).
+     */
+    function selectTriad(key) {
+      const data = triadData[key];
+      if (!data) return;
+
+      document.querySelectorAll('.triad-btn').forEach((btn) => {
+        const isCurrent = btn.getAttribute('data-triad') === key;
+        const badge = btn.querySelector('span');
+        if (isCurrent) {
+          btn.className = 'triad-btn text-left p-4 rounded-xl border-2 border-meekrap bg-white shadow-sm transition cursor-pointer';
+          if (badge) badge.className = 'font-mono text-xs font-bold px-2 py-0.5 rounded bg-meekrap text-white print-color';
+        } else {
+          btn.className = 'triad-btn text-left p-4 rounded-xl border border-linen bg-white hover:border-meekrap-border transition cursor-pointer';
+          if (badge) badge.className = 'font-mono text-xs font-bold px-2 py-0.5 rounded bg-parchment text-taupe border border-linen';
+        }
+      });
+
+      const detail = document.getElementById('triadDetail');
+      detail.innerHTML = `
+        <div class="font-mono text-xs font-bold text-meekrap mb-1">${escapeHtml(data.label)}</div>
+        <p class="text-sm text-ink leading-relaxed">${escapeHtml(data.text)}</p>
+      `;
+    }
+
+    /**
+     * Selecteert een filosoof/denker in het tabpaneel (Sectie 02).
+     */
+    function selectThinker(key) {
+      const data = thinkersData[key];
+      if (!data) return;
+
+      document.querySelectorAll('.thinker-tab').forEach((btn) => {
+        const isCurrent = btn.getAttribute('data-thinker') === key;
+        btn.className = isCurrent
+          ? 'thinker-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-meekrap text-white transition cursor-pointer'
+          : 'thinker-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer';
+      });
+
+      const panel = document.getElementById('thinkerDetailPanel');
+      panel.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-linen">
+            <div>
+              <span class="font-mono text-[11px] font-bold text-meekrap uppercase tracking-wider">${escapeHtml(data.badge)}</span>
+              <h3 class="font-editorial text-2xl font-bold text-ink mt-0.5">${escapeHtml(data.name)}</h3>
+              <div class="text-xs text-taupe">${escapeHtml(data.role)}</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="bg-meekrap-tint/60 border border-meekrap-border rounded-xl p-4 print-color">
+              <div class="font-mono text-[11px] font-bold uppercase text-meekrap mb-1">Kernprobleem</div>
+              <p class="text-ink leading-relaxed">${escapeHtml(data.coreProblem)}</p>
+            </div>
+            <div class="bg-archival-greenBg border border-archival-greenBorder rounded-xl p-4 print-color">
+              <div class="font-mono text-[11px] font-bold uppercase text-archival-green mb-1">Oplossingsrichting</div>
+              <p class="text-ink leading-relaxed">${escapeHtml(data.solution)}</p>
+            </div>
+          </div>
+          <ul class="space-y-2 pt-1">
+            ${data.highlights.map((h) => `
+              <li class="flex items-start gap-2.5 text-xs sm:text-sm text-ink bg-parchment border border-linen rounded-lg px-3.5 py-2.5">
+                <span class="text-meekrap font-bold">&bull;</span>
+                <span>${escapeHtml(h)}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      `;
+    }
+
+    /**
+     * Selecteert een bouwsteen in het SVG-architectuurschema (Sectie 03).
+     */
+    function selectArchNode(nodeId) {
+      const info = archNodesData[nodeId];
+      if (!info) return;
+
+      document.querySelectorAll('.svg-node').forEach((g) => {
+        g.classList.toggle('svg-node-selected', g.getAttribute('data-node') === nodeId);
+      });
+
+      const badgeClass = info.tone === 'green'
+        ? 'bg-archival-greenBg text-archival-green border-archival-greenBorder'
+        : 'bg-meekrap-tint text-meekrap border-meekrap-border';
+
+      const detail = document.getElementById('archNodeDetail');
+      detail.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <span class="font-mono text-[11px] font-bold uppercase px-2.5 py-0.5 rounded border print-color ${badgeClass}">${escapeHtml(info.track)}</span>
+          <span class="font-mono text-[11px] text-taupe">Geselecteerde bouwsteen: ${escapeHtml(nodeId)}</span>
+        </div>
+        <h3 class="font-editorial text-xl font-bold text-ink">${escapeHtml(info.title)}</h3>
+        <p class="mt-1.5 text-sm text-taupe leading-relaxed">${escapeHtml(info.desc)}</p>
+      `;
+    }
+
+    /**
+     * Laadt, bewaart en rendert de 8 Ethics-by-Design criteria (Sectie 05).
+     */
+    function loadAuditState() {
+      try {
+        const raw = localStorage.getItem(AUDIT_STORAGE_KEY);
+        auditState = raw ? JSON.parse(raw) : {};
+      } catch (err) {
+        auditState = {};
+      }
+      renderAuditMatrix();
+    }
+
+    function saveAuditState() {
+      try {
+        localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(auditState));
+      } catch (err) {
+        // Negeer opslagfouten in strikte privacy-modus
+      }
+    }
+
+    function toggleAuditItem(itemId, checked) {
+      auditState[itemId] = Boolean(checked);
+      saveAuditState();
+      renderAuditMatrix();
+    }
+
+    function setAllAuditItems(val) {
+      auditCategories.forEach((cat) => {
+        cat.items.forEach((item) => {
+          auditState[item.id] = Boolean(val);
+        });
+      });
+      saveAuditState();
+      renderAuditMatrix();
+      showToast(val ? 'Alle 8 toetscriteria geselecteerd' : 'Toetsingsmatrix gereset');
+    }
+
+    function renderAuditMatrix() {
+      const container = document.getElementById('auditCategoriesContainer');
+      container.innerHTML = auditCategories.map((cat) => `
+        <div class="print-avoid-break bg-white rounded-2xl border border-linen overflow-hidden shadow-sm">
+          <div class="bg-parchment border-b border-linen px-5 py-3.5 flex items-center justify-between">
+            <h3 class="font-editorial font-bold text-lg text-ink">${escapeHtml(cat.title)}</h3>
+            <span class="font-mono text-xs text-taupe">${escapeHtml(cat.badge)}</span>
+          </div>
+          <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            ${cat.items.map((item) => {
+              const isChecked = Boolean(auditState[item.id]);
+              return `
+                <label class="flex items-start gap-3 p-3.5 rounded-xl border ${isChecked ? 'border-meekrap-border bg-meekrap-tint/45' : 'border-linen bg-parchment/60'} hover:border-meekrap-border transition cursor-pointer">
+                  <input
+                    type="checkbox"
+                    class="mt-1 w-4 h-4 rounded accent-[#A31C1C] shrink-0 cursor-pointer"
+                    ${isChecked ? 'checked' : ''}
+                    onchange="toggleAuditItem('${item.id}', this.checked)"
+                  />
+                  <div class="space-y-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="font-mono text-[11px] font-bold text-meekrap bg-white border border-linen px-1.5 py-0.5 rounded">${escapeHtml(item.id)}</span>
+                      <span class="font-semibold text-sm text-ink leading-snug">${escapeHtml(item.title)}</span>
+                    </div>
+                    <p class="text-xs text-taupe leading-relaxed">${escapeHtml(item.desc)}</p>
+                  </div>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      updateAuditScore();
+    }
+
+    function updateAuditScore() {
+      const allItems = auditCategories.flatMap((c) => c.items);
+      const total = allItems.length;
+      const checked = allItems.filter((i) => Boolean(auditState[i.id])).length;
+      const pct = Math.round((checked / total) * 100);
+
+      document.getElementById('auditCount').textContent = checked;
+      document.getElementById('auditPercent').textContent = `${pct}%`;
+      document.getElementById('auditProgressBar').style.width = `${pct}%`;
+
+      let statusLabel = 'Kwetsbaar';
+      let badgeClasses = 'px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-meekrap-tint text-meekrap border border-meekrap-border print-color';
+
+      if (pct >= 88) {
+        statusLabel = 'Verantwoord Geborgd';
+        badgeClasses = 'px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-archival-greenBg text-archival-green border border-archival-greenBorder print-color';
+      } else if (pct >= 50) {
+        statusLabel = 'In ontwikkeling';
+        badgeClasses = 'px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-archival-ochreBg text-archival-ochre border border-archival-ochreBorder print-color';
+      }
+
+      const badge = document.getElementById('auditStatusBadge');
+      badge.textContent = statusLabel;
+      badge.className = badgeClasses;
+
+      const sbScore = document.getElementById('sidebarAuditScore');
+      const sbStatus = document.getElementById('sidebarAuditStatus');
+      if (sbScore) sbScore.textContent = `${checked} / ${total} (${pct}%)`;
+      if (sbStatus) sbStatus.textContent = statusLabel;
+    }
+
+    /**
+     * Rendert het doorzoekbare Bronnenregister (Sectie 06).
+     */
+    function renderSources() {
+      const grid = document.getElementById('sourcesGrid');
+      const empty = document.getElementById('sourcesEmptyState');
+      const countEl = document.getElementById('sourcesCount');
+      const query = (document.getElementById('sourceSearch').value || '').toLowerCase().trim();
+
+      const filtered = sourcesData.filter((src) => {
+        const matchesCat = activeSourceCategory === 'all' || src.category === activeSourceCategory;
+        const searchable = `${src.id} ${src.category} ${src.author} ${src.title} ${src.publication} ${src.summary}`.toLowerCase();
+        return matchesCat && (!query || searchable.includes(query));
+      });
+
+      countEl.textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+
+      grid.innerHTML = filtered.map((src) => {
+        let catBadge = 'bg-meekrap-tint text-meekrap border-meekrap-border';
+        if (src.category === 'Filosofie') catBadge = 'bg-archival-ochreBg text-archival-ochre border-archival-ochreBorder';
+        if (src.category === 'Wetgeving & Beleid') catBadge = 'bg-archival-greenBg text-archival-green border-archival-greenBorder';
+
+        return `
+          <article class="print-avoid-break bg-parchment rounded-2xl border border-linen p-5 flex flex-col justify-between gap-3">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono text-[11px] font-semibold px-2 py-0.5 rounded border print-color ${catBadge}">${escapeHtml(src.category)}</span>
+                <span class="font-mono text-[11px] text-taupe">${escapeHtml(src.id)}</span>
+              </div>
+              <h3 class="font-editorial text-lg font-bold text-ink leading-snug">${escapeHtml(src.title)}</h3>
+              <div class="text-xs font-mono text-meekrap font-medium">${escapeHtml(src.author)} &bull; ${escapeHtml(src.publication)}</div>
+              <p class="text-xs sm:text-sm text-taupe leading-relaxed">${escapeHtml(src.summary)}</p>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function setSourceCategory(cat) {
+      activeSourceCategory = cat;
+      document.querySelectorAll('.src-cat-btn').forEach((btn) => {
+        const isCurrent = btn.getAttribute('data-src-cat') === cat;
+        btn.className = isCurrent
+          ? 'src-cat-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-meekrap text-white transition cursor-pointer'
+          : 'src-cat-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer';
+      });
+      renderSources();
+    }
+
+    function resetSourceFilters() {
+      document.getElementById('sourceSearch').value = '';
+      setSourceCategory('all');
+    }
+
+    /**
+     * Exporteert het volledige onderzoeksdossier + huidige auditstatus als JSON.
+     */
+    function exportDossierJson() {
+      try {
+        const payload = {
+          titel: 'Ethisch Onderzoeksdossier: AI-Ethiek, Tim Huckaby & Verantwoorde Architectuur',
+          export_utc: new Date().toISOString(),
+          huckaby_driedeling: triadData,
+          filosofisch_kader: thinkersData,
+          ethics_by_design_audit: auditCategories.map((cat) => ({
+            categorie: cat.title,
+            criteria: cat.items.map((item) => ({
+              id: item.id,
+              titel: item.title,
+              afgevinkt: Boolean(auditState[item.id])
+            }))
+          })),
+          bronnenregister: sourcesData
+        };
+
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'onderzoek-ai-ethiek-huckaby.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('Onderzoeksdossier gedownload als JSON');
+      } catch (err) {
+        showToast('JSON-export kon niet worden gestart');
+      }
+    }
+
+    /**
+     * Actieve sectie-highlight in de zijbalk via IntersectionObserver.
+     */
+    function initScrollSpy() {
+      const sections = document.querySelectorAll('main > section[id]');
+      const navLinks = document.querySelectorAll('.sidebar-nav-link');
+      if (!('IntersectionObserver' in window) || sections.length === 0) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute('id');
+              navLinks.forEach((link) => {
+                link.classList.toggle('nav-link-active', link.getAttribute('data-nav-target') === id);
+              });
+            }
+          });
+        },
+        { rootMargin: '-18% 0px -65% 0px', threshold: 0 }
+      );
+
+      sections.forEach((sec) => observer.observe(sec));
+    }
+
+    /**
+     * Subtiele toast-melding.
+     */
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = msg;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 2800);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('sourceSearch').addEventListener('input', renderSources);
+      setFontSize('md');
+      selectTriad('A');
+      selectThinker('huckaby');
+      selectArchNode('E1');
+      loadAuditState();
+      renderSources();
+      initScrollSpy();
+    });
+  </script>
+</body>
+</html>
