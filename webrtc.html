@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Astrometrische Eclipsanalyse, Riemann-Zeta &amp; WebRTC TeleAPI-Synthese</title>
+    <title>Astrometrische &amp; Wiskundige Synthese — WebRTC Livestream, Chat &amp; TeleAPI</title>
     <style>
         /* =====================================================================
            ZEEUWS MEEKRAB DESIGN TOKENS & TYPOGRAFIE (100% LOKAAL / ZERO-CDN)
@@ -459,6 +459,123 @@
             color: var(--status-warn);
         }
 
+        /* Real-time P2P Chat Interface */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--meekrab-border);
+            border-radius: 9px;
+            background-color: #FFFFFF;
+            overflow: hidden;
+        }
+
+        .chat-header-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 0.85rem;
+            background-color: var(--meekrab-soft);
+            border-bottom: 1px solid var(--meekrab-border);
+        }
+
+        .chat-messages {
+            height: 255px;
+            overflow-y: auto;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            background-color: #FCFBFB;
+        }
+
+        .chat-msg {
+            max-width: 86%;
+            padding: 0.52rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            line-height: 1.42;
+            border: 1px solid var(--meekrab-border);
+            word-wrap: break-word;
+        }
+
+        .chat-msg.local {
+            align-self: flex-end;
+            background-color: var(--meekrab-primary);
+            color: #FFFFFF;
+            border-color: var(--meekrab-deep);
+        }
+
+        .chat-msg.remote {
+            align-self: flex-start;
+            background-color: #FFFFFF;
+            color: var(--ink-primary);
+            border-left: 3px solid var(--meekrab-primary);
+        }
+
+        .chat-msg.system {
+            align-self: center;
+            max-width: 96%;
+            background-color: var(--meekrab-soft);
+            color: var(--ink-secondary);
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            text-align: center;
+        }
+
+        .chat-msg-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.66rem;
+            font-family: var(--font-mono);
+            opacity: 0.85;
+            margin-bottom: 0.2rem;
+        }
+
+        .chat-msg pre.chat-json-block {
+            margin: 0.35rem 0 0 0;
+            padding: 0.45rem;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.22);
+            font-size: 0.68rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .chat-msg.remote pre.chat-json-block {
+            background-color: #F4EFEF;
+            color: var(--meekrab-deep);
+        }
+
+        .chat-input-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            padding: 0.6rem;
+            border-top: 1px solid var(--meekrab-border);
+            background-color: #FFFFFF;
+        }
+
+        .chat-input {
+            flex: 1;
+            min-width: 180px;
+            padding: 0.48rem 0.7rem;
+            border-radius: 7px;
+            border: 1px solid var(--meekrab-border);
+            font-size: 0.79rem;
+            font-family: var(--font-sans);
+            color: var(--ink-primary);
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--meekrab-primary);
+            box-shadow: 0 0 0 3px rgba(139, 30, 36, 0.12);
+        }
+
         /* SDP Textareas, JSON viewer & Logs */
         textarea.mono-box, pre.json-preview {
             width: 100%;
@@ -477,7 +594,7 @@
         pre.json-preview {
             background-color: #1E1E1E;
             color: #F4EFEF;
-            max-height: 215px;
+            height: 255px;
             overflow: auto;
             resize: none;
             border-color: #333333;
@@ -493,12 +610,12 @@
             background-color: #1E1E1E;
             color: #F4EFEF;
             border-radius: 8px;
-            padding: 0.75rem;
+            padding: 0.65rem 0.75rem;
             font-family: var(--font-mono);
-            font-size: 0.71rem;
-            height: 155px;
+            font-size: 0.7rem;
+            height: 118px;
             overflow-y: auto;
-            line-height: 1.45;
+            line-height: 1.42;
             border: 1px solid #333333;
         }
 
@@ -649,7 +766,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.46rem 0.75rem;
+            padding: 0.44rem 0.75rem;
             border-radius: 7px;
             border: 1px solid var(--meekrab-border);
             background-color: #FFFFFF;
@@ -901,7 +1018,7 @@
     <div class="top-archive-bar"></div>
 
     <!-- =======================================================================
-         1. HEADER & ARCHIEF-BALK
+         1. HEADER & NAVIGATIE
          ======================================================================= -->
     <header class="site-header">
         <div class="container">
@@ -914,9 +1031,9 @@
                             <span class="badge badge-privacy">Privacy-status: PII-gefilterd</span>
                             <span class="badge badge-outline">100% Lokaal / Zero-Tracker</span>
                         </div>
-                        <h1 class="site-title">Astrometrische Eclipsanalyse, Riemann-Zeta &amp; WebRTC TeleAPI-Synthese</h1>
+                        <h1 class="site-title">Astrometrische &amp; Wiskundige Synthese — WebRTC Livestream, Chat &amp; TeleAPI</h1>
                         <p class="site-subtitle">
-                            Zonsverduistering 12 augustus 2026 (Tafelbergheide) &bull; Kritieke Lijn &zeta;(&frac12; + it) &bull; Gedecentraliseerde W3C WebRTC &amp; IETF vCon Telemetrie
+                            Zonsverduistering van 12 augustus 2026 (Tafelbergheide) &bull; Kritieke Lijn &zeta;(&frac12; + it) &bull; Gedecentraliseerde W3C WebRTC Livestream, P2P Chat &amp; IETF vCon
                         </p>
                     </div>
 
@@ -940,44 +1057,44 @@
                 </div>
 
                 <nav class="section-nav no-print" aria-label="Module-navigatie">
-                    <a href="#module-1" class="nav-link active">Module 1: WebRTC Video &amp; TeleAPI / vCon</a>
+                    <a href="#module-1" class="nav-link active">Module 1: WebRTC Livestream, Chat &amp; TeleAPI</a>
                     <a href="#module-2" class="nav-link">Module 2: Riemann-Zeta Plotter &zeta;(&frac12; + it)</a>
                     <a href="#module-3" class="nav-link">Module 3: PDF-Integratie &amp; 22-Pagina Index</a>
-                    <a href="#module-4" class="nav-link">Module 4: Telecom- &amp; Open-Standaarden Ecosysteem</a>
+                    <a href="#module-4" class="nav-link">Module 4: Open Telecom-Ecosysteem &amp; W3C CLA</a>
                 </nav>
             </div>
         </div>
     </header>
 
-    <!-- Verborgen synth-canvas voor de 30fps WebRTC telemetrie-videostream -->
+    <!-- Verborgen synth-canvas voor de 60fps WebRTC telemetrie-livestream -->
     <canvas id="syntheticStreamCanvas" width="640" height="360" style="display:none;"></canvas>
 
     <!-- Hoofdinhoud -->
     <main class="container main-content">
 
         <!-- ===================================================================
-             MODULE 1 — WEBRTC LIVE VIDEO- & TELEAPI-VERBINDING (W3C CLA, TADHACK & VCON)
+             MODULE 1 — WEBRTC LIVESTREAM, P2P CHATFUNCTIE & TELEAPI / IETF vCon
              =================================================================== -->
         <section id="module-1" class="dossier-section">
             <div class="section-kicker">
                 <span class="kicker-label">Module 01 &bull; W3C CLA, TADHack &amp; IETF vCon</span>
-                <span class="kicker-meta">RTCPeerConnection + RTCDataChannel &bull; Zero-Server P2P (iceServers: [])</span>
+                <span class="kicker-meta">RTCPeerConnection + RTCDataChannel ("telemetrie-chat") &bull; Zero-Server P2P</span>
             </div>
-            <h2 class="section-title">WebRTC Live Video- &amp; TeleAPI-Verbinding</h2>
+            <h2 class="section-title">WebRTC Livestream, P2P Chatfunctie &amp; TeleAPI / IETF vCon Integratie</h2>
             <hr class="meekrab-rule">
 
-            <!-- Bovenste Besturingspaneel: Videobron, TeleAPI-adapter & Loopback -->
+            <!-- Bovenste Besturingspaneel: Streambron, TeleAPI Adapter & Loopback -->
             <div class="card-soft print-avoid" style="margin-bottom: 1.2rem;">
                 <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.85rem;">
                     <!-- Videobron-kiezer -->
                     <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.65rem;">
-                        <span style="font-size:0.75rem; font-weight:700; color:var(--meekrab-primary); text-transform:uppercase;">1. Videobron:</span>
-                        <div class="source-switch no-print" role="group" aria-label="Videobron selectie">
+                        <span style="font-size:0.75rem; font-weight:700; color:var(--meekrab-primary); text-transform:uppercase;">1. Livestream Bron:</span>
+                        <div class="source-switch no-print" role="group" aria-label="Livestream bronselectie">
                             <button type="button" id="btnSourceSynth" class="active" onclick="switchMediaSource('synthetic')">
-                                (a) Synthetische Live-Canvas Stream (30 fps)
+                                60fps Canvas Telemetriestream
                             </button>
                             <button type="button" id="btnSourceCam" onclick="switchMediaSource('camera')">
-                                (b) Lokale Camera &amp; Microfoon
+                                Camera &amp; Microfoon (getUserMedia)
                             </button>
                         </div>
                     </div>
@@ -986,13 +1103,13 @@
                     <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;" class="no-print">
                         <label for="teleApiSelect" style="font-size:0.75rem; font-weight:700; color:var(--meekrab-primary); text-transform:uppercase;">2. TeleAPI:</label>
                         <select id="teleApiSelect" onchange="onTeleApiChange()" style="padding:0.44rem 0.65rem; border-radius:7px; border:1px solid var(--meekrab-border); background:#FFFFFF; font-size:0.75rem; font-weight:600; color:var(--ink-primary);">
-                            <option value="W3C WebRTC / ORCA Native">W3C WebRTC / ORCA Native</option>
-                            <option value="Jambonz Open-Source Voice/WS API">Jambonz Open-Source Voice/WS API</option>
-                            <option value="Asterisk ARI / SIP-WebRTC Gateway">Asterisk ARI / SIP-WebRTC Gateway</option>
-                            <option value="SignalWire SWML / RELAY">SignalWire SWML / RELAY</option>
+                            <option value="W3C WebRTC / ORCA">W3C WebRTC / ORCA</option>
+                            <option value="Jambonz WebSocket / REST">Jambonz WebSocket / REST</option>
+                            <option value="Asterisk ARI">Asterisk ARI</option>
+                            <option value="SignalWire SWML">SignalWire SWML</option>
                         </select>
                         <button type="button" id="btnStartLoopback" class="btn btn-primary" onclick="startLocalLoopback()">
-                            Start Lokale Loopback Video- &amp; Dataverbinding
+                            Start Lokale Loopback Livestream &amp; Chat
                         </button>
                         <button type="button" class="btn btn-outline" onclick="resetWebRTC(false)">
                             Reset
@@ -1000,57 +1117,100 @@
                     </div>
                 </div>
 
-                <!-- Live Protocol-, Codec- en DTLS-SRTP Statusbalk -->
+                <!-- Live Protocol-, DataChannel- en DTLS-SRTP Statusbalk -->
                 <div style="display:flex; flex-wrap:wrap; gap:0.55rem; align-items:center; margin-top:0.85rem; padding-top:0.75rem; border-top:1px solid var(--meekrab-border);">
                     <span class="status-pill" id="pillIce">ICE: Niet verbonden</span>
-                    <span class="status-pill" id="pillDc">DataChannel: Gesloten</span>
-                    <span class="status-pill" id="pillTeleApi">TeleAPI: W3C WebRTC / ORCA Native</span>
+                    <span class="status-pill" id="pillDc">DataChannel (telemetrie-chat): Fallback / Lokaal</span>
+                    <span class="status-pill" id="pillTeleApi">TeleAPI: W3C WebRTC / ORCA</span>
                     <span class="status-pill" id="pillSecurity">Beveiliging: DTLS-SRTP (W3C RF-CLA)</span>
-                    <span class="status-pill" id="pillCodec">Codec: VP8/VP9 + Opus (30 fps)</span>
-                    <span class="status-pill" id="pillPackets">Telemetrie TX/RX: 0 / 0</span>
+                    <span class="status-pill" id="pillCodec">Stream: 60 fps Canvas (VP8/VP9)</span>
                 </div>
             </div>
 
-            <!-- Dubbele Videospeler: Lokaal & Remote Peer -->
+            <!-- Dubbele Videoviewport: Lokale Livestream Bron & Ontvangen WebRTC Livestream -->
             <div class="grid-2 print-avoid" style="margin-bottom: 1.2rem;">
                 <div class="card">
-                    <div class="card-heading">Lokale Peer (Peer A &mdash; Uitgaande MediaStream)</div>
+                    <div class="card-heading">Lokale Livestream Bron (Zender)</div>
                     <div class="video-frame">
                         <video id="localVideo" autoplay muted playsinline></video>
-                        <div class="video-overlay-tag" id="localOverlayTag">PEER A &bull; ASTROMETRIE &amp; RIEMANN CANVAS</div>
+                        <div class="video-overlay-tag" id="localOverlayTag">ZENDER &bull; 60 FPS TAFELBERGHEIDE &amp; RIEMANN</div>
                         <div class="video-live-pill"><span class="pulse-dot"></span> LOKAAL LIVE</div>
                     </div>
                     <p style="font-size:0.75rem; color:var(--ink-secondary); margin:0.55rem 0 0 0;">
-                        Bronstream (real-time oscilloscoop, eclips-geometrie en &zeta;-baan of fysieke camera/microfoon) gekoppeld via <code>addTrack()</code>.
+                        Bronstream (60fps Tafelbergheide &amp; Riemann telemetriecanvas of fysieke camera/microfoon) gekoppeld via <code>addTrack()</code>.
                     </p>
                 </div>
 
                 <div class="card">
-                    <div class="card-heading">Remote Peer (Peer B &mdash; Ontvangen P2P WebRTC Video)</div>
+                    <div class="card-heading">Ontvangen WebRTC Livestream (Peer)</div>
                     <div class="video-frame">
                         <video id="remoteVideo" autoplay playsinline></video>
-                        <div class="video-overlay-tag" id="remoteOverlayTag">PEER B &bull; WACHT OP LOOPBACK / SDP</div>
-                        <div class="video-live-pill" id="remoteLivePill" style="display:none;"><span class="pulse-dot"></span> P2P VERBONDEN</div>
+                        <div class="video-overlay-tag" id="remoteOverlayTag">PEER &bull; WACHT OP LOOPBACK / SDP</div>
+                        <div class="video-live-pill" id="remoteLivePill" style="display:none;"><span class="pulse-dot"></span> P2P LIVESTREAM</div>
                     </div>
                     <p style="font-size:0.75rem; color:var(--ink-secondary); margin:0.55rem 0 0 0;">
-                        Ontvangt de remote audio/videotracks via het <code>ontrack</code>-event en voedt de real-time <strong>IETF vCon</strong> conversatiecontainer.
+                        Ontvangt de remote audio/videotracks via <code>ontrack</code> en synchroniseert met het P2P datakanaal <code>telemetrie-chat</code>.
                     </p>
                 </div>
             </div>
 
-            <!-- Uitklapbare Handmatige SDP Offer / Answer Uitwisseling (voor tweede browsertabblad) -->
-            <details class="meekrab-details no-print" style="margin-bottom: 1.2rem;">
+            <!-- Geïntegreerde Real-Time P2P Chatfunctie & Live IETF vCon Container -->
+            <div class="grid-2 print-avoid" style="margin-bottom: 1.2rem;">
+                <!-- P2P Chat Interface -->
+                <div class="chat-container">
+                    <div class="chat-header-bar">
+                        <div>
+                            <div class="card-heading" style="margin:0;">Real-Time P2P Chat (<span class="mono">telemetrie-chat</span>)</div>
+                            <div style="font-size:0.69rem; color:var(--ink-secondary);" id="chatModeIndicator">
+                                Modus: Lokale Fallback (berichten worden direct vastgelegd in vCon; schakelt live over bij P2P)
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm no-print" onclick="sendTelemetrySnapshotToChat()">
+                            Zend Telemetrie-Snapshot
+                        </button>
+                    </div>
+
+                    <div id="chatMessagesBox" class="chat-messages" aria-live="polite">
+                        <!-- Berichten worden dynamisch gerenderd -->
+                    </div>
+
+                    <form class="chat-input-bar no-print" onsubmit="handleChatFormSubmit(event)">
+                        <input type="text" id="chatTextInput" class="chat-input" placeholder="Typ een bericht of observatie voor het datakanaal..." autocomplete="off">
+                        <button type="submit" class="btn btn-primary">Verzend</button>
+                    </form>
+                </div>
+
+                <!-- Live IETF vCon Container & Export -->
+                <div class="card-soft" style="display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.55rem;">
+                            <div class="card-heading" style="margin:0;">IETF vCon (Virtualized Conversation) Exporteur</div>
+                            <div style="display:flex; gap:0.35rem;" class="no-print">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="copyVconJson()">Kopieer vCon</button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="downloadVconJson()">Download .vcon.json</button>
+                            </div>
+                        </div>
+                        <pre id="vconJsonPreview" class="json-preview" aria-label="Live IETF vCon JSON object"></pre>
+                    </div>
+                    <p style="font-size:0.73rem; color:var(--ink-secondary); margin:0.55rem 0 0 0;">
+                        Bundelt automatische sessiemetadata, alle <code>telemetrie-chat</code> dialogen (tekst &amp; snapshots) en de actuele &zeta;(&frac12; + it) / eclips-parameters in het open IETF vCon-formaat.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Uitklapbaar Paneel voor Handmatige SDP Offer / Answer Uitwisseling + Signaling Log -->
+            <details class="meekrab-details no-print">
                 <summary>
-                    <span>Handmatige SDP Offer / Answer-uitwisseling (voor verbinding met een tweede browsertabblad of LAN-peer)</span>
-                    <span class="mono" style="font-size:0.7rem;">Klik om uit te klappen &darr;</span>
+                    <span>Handmatige SDP Offer / Answer-uitwisseling (zero-server signaling tussen twee browsertabs of apparaten) &amp; Signaling Log</span>
+                    <span class="mono" style="font-size:0.7rem;">Uitklappen &darr;</span>
                 </summary>
                 <p style="font-size:0.79rem; color:var(--ink-secondary); margin-top:0; margin-bottom:0.85rem;">
-                    Zonder centrale signaling-server koppel je twee browsertabbladen door op Peer A een <strong>SDP Offer</strong> te genereren, dit te plakken op Peer B om een <strong>SDP Answer</strong> te maken, en het Answer terug te bevestigen op Peer A.
+                    Koppel twee browsertabbladen of apparaten zonder centrale server: genereer een <strong>SDP Offer</strong> op de zender, plak dit bij de ontvanger om een <strong>SDP Answer</strong> aan te maken, en bevestig het Answer op de zender.
                 </p>
-                <div class="grid-2">
+                <div class="grid-2" style="margin-bottom:0.85rem;">
                     <div class="card">
                         <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.45rem;">
-                            <strong style="font-size:0.79rem; color:var(--meekrab-primary);">1. SDP Offer (Initiator)</strong>
+                            <strong style="font-size:0.79rem; color:var(--meekrab-primary);">1. SDP Offer (Zender)</strong>
                             <div style="display:flex; gap:0.35rem;">
                                 <button type="button" class="btn btn-primary btn-sm" onclick="generateManualOffer()">Genereer Offer</button>
                                 <button type="button" class="btn btn-outline btn-sm" onclick="copyField('sdpOfferText', 'SDP Offer')">Kopieer</button>
@@ -1060,7 +1220,7 @@
                     </div>
                     <div class="card">
                         <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.45rem;">
-                            <strong style="font-size:0.79rem; color:var(--meekrab-primary);">2. SDP Answer (Ontvanger)</strong>
+                            <strong style="font-size:0.79rem; color:var(--meekrab-primary);">2. SDP Answer (Peer)</strong>
                             <div style="display:flex; gap:0.35rem;">
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="processOfferCreateAnswer()">Maak Answer</button>
                                 <button type="button" class="btn btn-primary btn-sm" onclick="confirmRemoteAnswer()">Bevestig Answer</button>
@@ -1070,44 +1230,21 @@
                         <textarea id="sdpAnswerText" class="mono-box" placeholder="Gegenereerd SDP Answer (of plak ontvangen Answer en klik op 'Bevestig Answer')..."></textarea>
                     </div>
                 </div>
+                <div id="webrtcLogBox" class="log-box" aria-live="polite">
+                    <div><span class="log-entry-time">[INIT]</span> WebRTC Livestream &amp; DataChannel ("telemetrie-chat") geïnitialiseerd.</div>
+                </div>
             </details>
-
-            <!-- IETF vCon Container-Generator & Realtime Telemetrie-Log -->
-            <div class="grid-2 print-avoid">
-                <!-- IETF vCon Container -->
-                <div class="card-soft">
-                    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.55rem;">
-                        <div class="card-heading" style="margin:0;">IETF vCon (Virtualized Conversation) Container</div>
-                        <div style="display:flex; gap:0.35rem;" class="no-print">
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="copyVconJson()">Kopieer vCon</button>
-                            <button type="button" class="btn btn-primary btn-sm" onclick="downloadVconJson()">Download .vcon.json</button>
-                        </div>
-                    </div>
-                    <pre id="vconJsonPreview" class="json-preview" aria-label="Live IETF vCon JSON object"></pre>
-                </div>
-
-                <!-- Live RTCDataChannel Telemetrie- & ICE-log -->
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.55rem;">
-                        <div class="card-heading" style="margin:0;">Live RTCDataChannel Telemetrie &amp; Signaling Log</div>
-                        <button type="button" class="btn btn-outline btn-sm no-print" onclick="transmitTelemetry(true)">Zend Pakket</button>
-                    </div>
-                    <div id="webrtcLogBox" class="log-box" aria-live="polite">
-                        <div><span class="log-entry-time">[INIT]</span> VORTEX WebRTC &amp; vCon telemetriemotor gereed (zero-server modus).</div>
-                    </div>
-                </div>
-            </div>
         </section>
 
         <!-- ===================================================================
-             MODULE 2 — INTERACTIEVE RIEMANN-ZETA PLOTTER OP DE KRITIEKE LIJN ζ(½ + it)
+             MODULE 2 — INTERACTIEVE RIEMANN-ZETA PLOTTER ζ(1/2 + it)
              =================================================================== -->
         <section id="module-2" class="dossier-section">
             <div class="section-kicker">
                 <span class="kicker-label">Module 02 &bull; Analytische Getaltheorie &amp; Spectrale Nulpunten</span>
                 <span class="kicker-meta">Borwein-Eta Versnelling (N = 28 termen) &bull; Domein t &isin; [0, 35]</span>
             </div>
-            <h2 class="section-title">Interactieve Riemann-Zeta Plotter op de Kritieke Lijn <span class="serif" style="font-style:italic; color:var(--meekrab-primary);">&zeta;(&frac12; + it)</span></h2>
+            <h2 class="section-title">Interactieve Riemann-Zeta Plotter <span class="serif" style="font-style:italic; color:var(--meekrab-primary);">&zeta;(&frac12; + it)</span></h2>
             <hr class="meekrab-rule">
 
             <div class="formula-banner print-avoid">
@@ -1117,7 +1254,7 @@
                     &zeta;(&frac12; + <i>it</i>) = (1 &minus; 2<sup>&frac12;&minus;<i>it</i></sup>)<sup>&minus;1</sup> &sum;<sub><i>n</i>=1</sub><sup>&infin;</sup> (&minus;1)<sup><i>n</i>&minus;1</sup> / <i>n</i><sup>&frac12;+<i>it</i></sup>
                 </div>
                 <div style="font-size:0.79rem; color:var(--ink-secondary); max-width:540px;">
-                    Berekend via het <strong>Borwein-algoritme</strong> voor versnelde convergentie van de alternerende Dirichlet-eta-functie. Telkens wanneer de parameterkromme <code style="color:var(--meekrab-primary); font-weight:600;">&zeta;(&frac12; + it)</code> exact door de oorsprong <code style="color:var(--meekrab-primary); font-weight:700;">(0, 0)</code> snijdt, ligt daar een <strong>niet-triviaal Riemann-nulpunt</strong>.
+                    Berekend via het <strong>Borwein-algoritme</strong> voor versnelde convergentie van de alternerende Dirichlet-eta-functie over <code class="mono">t &isin; [0, 35]</code>. Telkens wanneer de baan exact door de oorsprong <code style="color:var(--meekrab-primary); font-weight:700;">(0, 0)</code> trekt, bevindt zich daar een <strong>niet-triviaal Riemann-nulpunt</strong>.
                 </div>
             </div>
 
@@ -1139,8 +1276,8 @@
                     </div>
                 </div>
 
-                <!-- Rechter 4 kolommen: Live Uitlezing, Slider & 5 Nulpunten -->
-                <div class="col-span-4" style="display:flex; flex-direction:column; gap:1rem;">
+                <!-- Rechter 4 kolommen: Live Uitlezing, Slider, 5 Nulpunten & Deel in Chat -->
+                <div class="col-span-4" style="display:flex; flex-direction:column; gap:0.95rem;">
                     <!-- Live Functiewaarde -->
                     <div class="card-accent">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.55rem;">
@@ -1175,7 +1312,7 @@
                         </div>
                         <input type="range" id="tSlider" class="meekrab-slider" min="0" max="35" step="0.005" value="14.1347">
 
-                        <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+                        <div style="display:flex; gap:0.5rem; margin-top:0.7rem;">
                             <button type="button" id="btnAnimateZeta" class="btn btn-primary" style="flex:1;" onclick="toggleZetaAnimation()">
                                 Play / Animeer
                             </button>
@@ -1185,10 +1322,10 @@
                         </div>
                     </div>
 
-                    <!-- Eerste 5 niet-triviale Riemann-nulpunten -->
+                    <!-- Eerste 5 niet-triviale Riemann-nulpunten + Deel in WebRTC Chat -->
                     <div class="card">
                         <div class="card-heading">Eerste Vijf Niet-Triviale Nulpunten</div>
-                        <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                        <div style="display:flex; flex-direction:column; gap:0.38rem; margin-bottom:0.75rem;">
                             <button type="button" class="zero-btn active" id="zbtn-1" onclick="setZetaT(14.13472514)">
                                 <span><strong class="mono">t&#8321; &approx; 14.1347</strong> &mdash; 1e nulpunt</span>
                                 <span class="zero-tag">(0, 0)</span>
@@ -1210,20 +1347,24 @@
                                 <span class="zero-tag">(0, 0)</span>
                             </button>
                         </div>
+
+                        <button type="button" class="btn btn-secondary no-print" style="width:100%;" onclick="shareCurrentZeroInChat()">
+                            Deel nulpunt in WebRTC Chat
+                        </button>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- ===================================================================
-             MODULE 3 — INGEBOUWDE PDF-DOCUMENTINTEGRATIE & PAGINA-INDEX (12 AUG 2026)
+             MODULE 3 — PDF-DOCUMENTINTEGRATIE & DOORZOEKBARE 22-PAGINA FORMULE-INDEX
              =================================================================== -->
         <section id="module-3" class="dossier-section">
             <div class="section-kicker">
                 <span class="kicker-label">Module 03 &bull; Zonsverduistering 12 Augustus 2026 &bull; Tafelbergheide</span>
                 <span class="kicker-meta">52&deg;13&prime; N, 5&deg;11&prime; O (~35 m +NAP) &bull; Saros 126 &bull; 22 Pagina's</span>
             </div>
-            <h2 class="section-title">Ingebouwde PDF-Documentintegratie &amp; Doorzoekbare 22-Pagina Formule-Index</h2>
+            <h2 class="section-title">PDF-Documentintegratie &amp; Doorzoekbare 22-Pagina Formule-Index (12 Augustus 2026)</h2>
             <hr class="meekrab-rule">
 
             <!-- Drag & Drop / Bestandskiezer voor lokale PDF-weergave -->
@@ -1231,9 +1372,9 @@
                 <div id="pdfDropZone" class="pdf-dropzone">
                     <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.85rem;">
                         <div style="max-width:650px;">
-                            <div class="card-heading" style="margin-bottom:0.25rem;">Lokale PDF-Lezer (Drag &amp; Drop of Bestandskiezer)</div>
+                            <div class="card-heading" style="margin-bottom:0.25rem;">Lokale PDF-Lezer (Zero-Cloud / Browser-Native)</div>
                             <p style="font-size:0.79rem; margin:0; color:var(--ink-secondary);">
-                                Sleep het 22-pagina's tellende PDF-rapport van de zonsverduistering (12 augustus 2026, Tafelbergheide) in dit vlak of selecteer het bestand lokaal. Het document wordt zonder serverupload ingebed via <code>URL.createObjectURL()</code>.
+                                Selecteer het 22-pagina's tellende PDF-rapport van de zonsverduistering (12 augustus 2026, Tafelbergheide) of sleep het bestand hierin. Het rapport wordt direct lokaal weergegeven via <code>URL.createObjectURL()</code> zonder serverupload.
                             </p>
                         </div>
                         <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" class="no-print">
@@ -1260,9 +1401,9 @@
 
             <!-- Zoek- en filterbalk voor de 22-pagina tellende inhouds- en formule-index -->
             <div class="filter-bar no-print">
-                <input type="search" id="pdfIndexSearch" class="search-input" placeholder="Zoek op pagina, formule of parameter (bijv. VSOP87, ELP-2000/82, ΔT, Danjon, Chauvenet, Rn, inversie)..." oninput="filterPdfIndex()">
+                <input type="search" id="pdfIndexSearch" class="search-input" placeholder="Zoek op pagina, formule of parameter (VSOP87, ELP-2000/82, -25,858, Delta T, WGS84, Chauvenet, Danjon, Rayleigh, Rn, Eclipse Calm, inversie)..." oninput="filterPdfIndex()">
                 <button type="button" class="filter-chip active" data-cat="all" onclick="setPdfCategory('all', this)">Alle (p. 1–22)</button>
-                <button type="button" class="filter-chip" data-cat="ephemeriden" onclick="setPdfCategory('ephemeriden', this)">Ephemeriden &amp; Baan</button>
+                <button type="button" class="filter-chip" data-cat="ephemeriden" onclick="setPdfCategory('ephemeriden', this)">Ephemeriden &amp; Maanbaan</button>
                 <button type="button" class="filter-chip" data-cat="tijd" onclick="setPdfCategory('tijd', this)">Tijd &amp; &Delta;T</button>
                 <button type="button" class="filter-chip" data-cat="refractie" onclick="setPdfCategory('refractie', this)">Parallax &amp; Refractie</button>
                 <button type="button" class="filter-chip" data-cat="meteo" onclick="setPdfCategory('meteo', this)">Micro-Meteorologie</button>
@@ -1275,7 +1416,7 @@
                         <tr>
                             <th style="width:10%;">Pagina</th>
                             <th style="width:24%;">Sectie &amp; Onderwerp</th>
-                            <th style="width:34%;">Wiskundige Formule / Kernparameter</th>
+                            <th style="width:35%;">Wiskundige Formule / Kernparameter</th>
                             <th>Fysische &amp; Astrometrische Duiding</th>
                         </tr>
                     </thead>
@@ -1285,68 +1426,74 @@
         </section>
 
         <!-- ===================================================================
-             MODULE 4 — TELECOM- & OPEN-STANDAARDEN ECOSYSTEEM
+             MODULE 4 — OPEN TELECOM-ECOSYSTEEM & W3C CLA OVERZICHT
              =================================================================== -->
         <section id="module-4" class="dossier-section">
             <div class="section-kicker">
                 <span class="kicker-label">Module 04 &bull; Open Standaarden &amp; Interoperabiliteit</span>
-                <span class="kicker-meta">TADHack &bull; W3C ORCA CLA &bull; IETF vCon &bull; Pion &bull; Jambonz &bull; Asterisk &bull; SignalWire</span>
+                <span class="kicker-meta">W3C CLA &bull; W3C ORCA &bull; TADHack &bull; IETF vCon &bull; Jambonz &bull; Asterisk &bull; SignalWire &bull; Pion WebRTC</span>
             </div>
-            <h2 class="section-title">Telecom- &amp; Open-Standaarden Ecosysteem (Vendor Lock-in Preventie)</h2>
+            <h2 class="section-title">Open Telecom-Ecosysteem &amp; W3C CLA Overzicht</h2>
             <hr class="meekrab-rule">
 
             <div class="table-wrap print-avoid" style="margin-bottom: 1.2rem;">
                 <table class="dossier-table">
                     <thead>
                         <tr>
-                            <th style="width:20%;">Component / Standaard</th>
-                            <th style="width:20%;">Domein &amp; Licentiemodel</th>
-                            <th style="width:32%;">Architectonische Functie</th>
-                            <th>Bijdrage aan Vendor Lock-in Preventie</th>
+                            <th style="width:21%;">Standaard / Platform</th>
+                            <th style="width:19%;">Categorie &amp; Licentie</th>
+                            <th style="width:32%;">Technische &amp; Juridische Kernfunctie</th>
+                            <th>Betekenis voor Open Interoperabiliteit</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>W3C WebRTC &amp; ORCA CLA</strong><br><a href="https://www.w3.org/groups/cg/orca/former-participants/" target="_blank" rel="noopener noreferrer" style="font-size:0.72rem; color:var(--meekrab-primary);">W3C ORCA Archief &nearr;</a></td>
-                            <td>Browser-API &amp; Octrooikader<br><code>Royalty-Free (RF) CLA</code></td>
-                            <td>Plugin-vrije peer-to-peer audio-, video- en datakanalen met verplichte DTLS/SRTP-versleuteling en objectgeori&euml;nteerde RTC-transportcontrole.</td>
-                            <td>Wederkerige royalty-free patentverplichtingen voorkomen dat grote telecom- of cloudpartijen basisprotocollen monopoliseren.</td>
+                            <td><strong>W3C Community CLA</strong><br><span class="mono" style="font-size:0.71rem;">Royalty-Free (RF)</span></td>
+                            <td>Octrooi- &amp; Licentiekader<br><code>Royalty-Free CLA</code></td>
+                            <td>Juridisch en octrooirechtelijk kader van het World Wide Web Consortium dat essenti&euml;le patentclaims kosteloos beschikbaar stelt voor implementaties van webstandaarden.</td>
+                            <td>Beschermt open communicatieprotocollen tegen achteraf ge&euml;iste licentiekosten en commerci&euml;le monopolievorming.</td>
                         </tr>
                         <tr>
-                            <td><strong>TADHack Ecosysteem</strong><br><a href="https://blog.tadhack.com/2015/12/15/tadhack-paris-review-1/" target="_blank" rel="noopener noreferrer" style="font-size:0.72rem; color:var(--meekrab-primary);">TADHack Paris Review &nearr;</a></td>
-                            <td>Open Innovatie &amp; CPaaS<br><code>Open Hackathon &amp; API's</code></td>
-                            <td>Wereldwijd platform voor programmeerbare telecom-applicaties op het snijvlak van WebRTC, spraak, messaging en conversatie-data.</td>
-                            <td>Stimuleert snelle prototyping op basis van open standaarden in plaats van gesloten, propri&euml;taire communicatiesilo's.</td>
+                            <td><strong>W3C ORCA</strong><br><a href="https://www.w3.org/groups/cg/orca/former-participants/" target="_blank" rel="noopener noreferrer" style="font-size:0.72rem; color:var(--meekrab-primary);">W3C ORCA Archief &nearr;</a></td>
+                            <td>Object-RTC API<br><code>W3C Community Group</code></td>
+                            <td>Ontwikkelde objectgeori&euml;nteerde real-time communicatie-API's bovenop ICE, DTLS en SRTP voor fijngranulaire controle over audio-, video- en datakanalen.</td>
+                            <td>Vormde de architectonische brug naar moderne, plugin-vrije WebRTC-transports zonder propri&euml;taire browser-extensies.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TADHack</strong><br><a href="https://blog.tadhack.com/2015/12/15/tadhack-paris-review-1/" target="_blank" rel="noopener noreferrer" style="font-size:0.72rem; color:var(--meekrab-primary);">TADHack Paris Review &nearr;</a></td>
+                            <td>Programmeerbare Telecom<br><code>TADHack Global 2015 &amp; Paris</code></td>
+                            <td>Wereldwijd open innovatie-ecosysteem sinds 2014 (o.a. TADHack Global 2015 in Lissabon en TADHack Paris) gericht op snelle prototyping met WebRTC, telecom-API's en vCon.</td>
+                            <td>Bewijst in de praktijk hoe open telecom-API's directe peer-to-peer en conversational toepassingen mogelijk maken zonder vendor lock-in.</td>
                         </tr>
                         <tr>
                             <td><strong>IETF vCon</strong><br><span class="mono" style="font-size:0.71rem;">Virtualized Conversation</span></td>
                             <td>Conversatie-Datacontainer<br><code>Open IETF JSON-Standaard</code></td>
-                            <td>Bundelt media, transcripties, telemetrie, metadata, toestemming (consent) en digitale handtekeningen in &eacute;&eacute;n draagbaar JSON-formaat.</td>
-                            <td>Maakt gespreks- en telemetriedata platformonafhankelijk uitwisselbaar en auditeerbaar conform AVG/GDPR-eisen.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Pion WebRTC</strong><br><span class="mono" style="font-size:0.71rem;">Pure Go Implementatie</span></td>
-                            <td>Server-side WebRTC Stack<br><code>MIT Open Source (Go)</code></td>
-                            <td>Volledige, lichtgewicht WebRTC-implementatie in Go voor SFU's, media-gateways, IoT-telemetrie en embedded communicatie-nodes.</td>
-                            <td>Biedt volledige controle over de server- en gatewaylaag zonder afhankelijkheid van gesloten browser- of cloudbinaries.</td>
+                            <td>Gestandaardiseerde, machine-leesbare JSON-container die media, chatdialogen, telemetrie, metadata, toestemming (consent) en handtekeningen bundelt.</td>
+                            <td>Garandeert volledige datadraagbaarheid en auditability tussen communicatieplatformen, onderzoeksomgevingen en archieven.</td>
                         </tr>
                         <tr>
                             <td><strong>Jambonz</strong><br><span class="mono" style="font-size:0.71rem;">Voice &amp; AI CPaaS</span></td>
                             <td>Programmeerbare Spraak<br><code>MIT Open Source</code></td>
-                            <td>Open-source CPaaS-alternatief dat SIP/WebRTC-telefonie via REST- en WebSocket-API's koppelt aan spraak- en AI-diensten (STT/TTS/LLM).</td>
-                            <td>Volledig zelf te hosten en carrier-neutraal: vrije keuze in SIP-trunks en spraakmodellen zonder platform-lock-in.</td>
+                            <td>Open-source alternatief voor gesloten CPaaS-platformen dat SIP en WebRTC via REST- en WebSocket-API's verbindt met spraak- en LLM-diensten.</td>
+                            <td>Volledig zelf te hosten en carrier-neutraal; vrije keuze in infrastructuur, SIP-trunks en spraakverwerking.</td>
                         </tr>
                         <tr>
                             <td><strong>Asterisk</strong><br><span class="mono" style="font-size:0.71rem;">Open-Source PBX / ARI</span></td>
                             <td>Telefonie &amp; Media Engine<br><code>GPLv2 Open Source</code></td>
-                            <td>Fundamentele bouwsteen voor PBX, IVR en SIP-naar-WebRTC-bruggen met programmeerbare call flows via AMI, ARI en AGI.</td>
-                            <td>Bewijst op enterprise-schaal dat open SIP/WebRTC-architectuur volledig kan concurreren met gesloten telefooncentrales.</td>
+                            <td>Sinds 1999 de de facto open-source standaard voor PBX, IVR en SIP-naar-WebRTC-gateways met programmeerbare interfaces (AMI, ARI en AGI).</td>
+                            <td>Verbindt klassieke telefonie en moderne browser-WebRTC op basis van open protocollen zonder gesloten centrale-licenties.</td>
                         </tr>
                         <tr>
                             <td><strong>SignalWire</strong><br><span class="mono" style="font-size:0.71rem;">SWML &amp; RELAY</span></td>
                             <td>Cloud CPaaS (FreeSWITCH)<br><code>Open-Core / Declaratieve API</code></td>
-                            <td>Combineert de open-source FreeSWITCH-mediastack met declaratieve workflows (SWML) en low-latency RELAY-verbindingen.</td>
-                            <td>Geworteld in open-source FreeSWITCH-architectuur met gestandaardiseerde SIP- en WebRTC-interoperabiliteit.</td>
+                            <td>Gebouwd op de open-source FreeSWITCH-mediastack, met declaratieve workflows via SignalWire Markup Language (SWML) en low-latency RELAY-events.</td>
+                            <td>Combineert open-source media-architectuur met programmeerbare spraak-, video- en realtime messaging-interfaces.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pion WebRTC</strong><br><span class="mono" style="font-size:0.71rem;">Pure Go Stack</span></td>
+                            <td>Server-side WebRTC<br><code>MIT Open Source (Go)</code></td>
+                            <td>Volledige, pure Go-implementatie van de WebRTC-standaard voor SFU's, media-gateways, IoT-telemetrie en gedistribueerde communicatie-nodes.</td>
+                            <td>Maakt robuuste server- en embedded WebRTC-knooppunten mogelijk onder een vrije, royalty-free open-sourcelicentie.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1354,13 +1501,13 @@
 
             <!-- Architectuursynthese -->
             <div class="card-accent print-avoid">
-                <div class="card-heading">Architectuursynthese: Waarom Browser-Native WebRTC, vCon &amp; Open Standaarden Lock-in Voorkomen</div>
+                <div class="card-heading">Architectuursynthese: Verifieerbaarheid zonder Vendor Lock-in</div>
                 <p style="font-size:0.84rem; margin:0; line-height:1.62;">
-                    De samenhang tussen de wiskundige analyse, het astrometrische eclipsrapport en de WebRTC TeleAPI-laag rust op &eacute;&eacute;n gedeeld ontwerpprincipe: <strong>volledige verifieerbaarheid van bron tot ontvanger zonder ondoorzichtige tussenlagen</strong>. Net zoals de analytische voortzetting van <code style="color:var(--meekrab-primary); font-weight:600;">&zeta;(&frac12; + it)</code> en de topocentrische raakvoorwaarden op de Tafelbergheide (<code style="font-weight:600;">52&deg;13&prime; N, 5&deg;11&prime; O</code>) exacte, reproduceerbare grenswaarden defini&euml;ren, elimineert een browser-native WebRTC-architectuur onder het <strong>W3C Royalty-Free CLA</strong> elke afhankelijkheid van centrale cloudbrokers. Door media direct via <code>RTCPeerConnection</code> (DTLS/SRTP) te transporteren, te koppelen aan open telecom-engines (<strong>Pion</strong>, <strong>Jambonz</strong>, <strong>Asterisk</strong>, <strong>SignalWire</strong>) en vast te leggen in draagbare <strong>IETF vCon</strong>-containers, behoudt de onderzoeker blijvend eigenaarschap over zowel het transportkanaal als het archief.
+                    De integratie van de Riemann-zeta berekening (<code style="color:var(--meekrab-primary); font-weight:600;">&zeta;(&frac12; + it)</code>), het 22-pagina's tellende astrometrische eclipsrapport van 12 augustus 2026 (Tafelbergheide, <code style="font-weight:600;">52&deg;13&prime; N, 5&deg;11&prime; O</code>) en de WebRTC TeleAPI-laag berust op &eacute;&eacute;n consistent ontwerpprincipe: <strong>volledige controle en reproduceerbaarheid van bron tot ontvanger</strong>. Onder het <strong>W3C Royalty-Free CLA</strong> en de open standaarden van het <strong>TADHack</strong>-ecosysteem communiceren peers rechtstreeks via <code>RTCPeerConnection</code> en <code>RTCDataChannel</code> (DTLS/SRTP), terwijl alle videostreams, P2P-chatberichten en telemetriemetingen draagbaar worden vastgelegd in een gestandaardiseerde <strong>IETF vCon</strong>-container.
                 </p>
                 <div style="margin-top:0.85rem; padding-top:0.75rem; border-top:1px solid var(--meekrab-border); display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.75rem;">
                     <span style="font-size:0.77rem; color:var(--ink-secondary);">
-                        <strong>Gekoppelde Archiefbronnen:</strong>
+                        <strong>Primaire Verwijzingen:</strong>
                         <a href="https://substack.com/home/post/p-223790195" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">Substack Publicatie (p-223790195)</a> &bull;
                         <a href="https://blog.tadhack.com/2015/12/15/tadhack-paris-review-1/" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">TADHack Paris Review</a> &bull;
                         <a href="https://www.w3.org/groups/cg/orca/former-participants/" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">W3C ORCA Community Group</a>
@@ -1375,13 +1522,13 @@
     <footer class="site-footer">
         <div class="container footer-inner">
             <div>
-                <strong>VORTEX OS / Geocentrum-Omgeving</strong> &bull; 25 november 2026 &bull;
+                <strong>Astrometrische &amp; Wiskundige Synthese</strong> &bull; VORTEX OS / Geocentrum-Omgeving &bull;
                 <a href="https://substack.com/home/post/p-223790195" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">Substack</a> &bull;
                 <a href="https://blog.tadhack.com/2015/12/15/tadhack-paris-review-1/" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">TADHack</a> &bull;
                 <a href="https://www.w3.org/groups/cg/orca/former-participants/" target="_blank" rel="noopener noreferrer" style="color:var(--meekrab-primary); font-weight:600; text-decoration:underline;">W3C ORCA</a>
             </div>
             <div class="mono" style="color:var(--meekrab-primary);">
-                PII-Gefilterd &bull; Zero-CDN &bull; W3C WebRTC &amp; IETF vCon
+                PII-Gefilterd &bull; Zero-CDN &bull; WebRTC Livestream, Chat &amp; IETF vCon
             </div>
         </div>
     </footer>
@@ -1467,7 +1614,6 @@
         let isZetaAnimating = false;
         let zetaAnimFrame = null;
         let lastZetaFrameTime = null;
-        let lastTelemetryMs = 0;
 
         const zetaCanvas = document.getElementById('zetaCanvas');
         const zetaCtx = zetaCanvas.getContext('2d');
@@ -1661,7 +1807,6 @@
             currentZeta = evaluateZetaCriticalLine(currentT);
             document.getElementById('tSlider').value = currentT;
             drawZetaPlot();
-            transmitTelemetry(false);
         }
 
         document.getElementById('tSlider').addEventListener('input', (e) => {
@@ -1669,7 +1814,6 @@
             currentT = parseFloat(e.target.value);
             currentZeta = evaluateZetaCriticalLine(currentT);
             drawZetaPlot();
-            transmitTelemetry(false);
         });
 
         function toggleZetaAnimation() {
@@ -1703,14 +1847,12 @@
                 currentZeta = evaluateZetaCriticalLine(currentT);
                 document.getElementById('tSlider').value = currentT;
                 drawZetaPlot();
-                transmitTelemetry(true);
                 stopZetaAnimation();
                 return;
             }
             currentZeta = evaluateZetaCriticalLine(currentT);
             document.getElementById('tSlider').value = currentT;
             drawZetaPlot();
-            transmitTelemetry(false);
             zetaAnimFrame = requestAnimationFrame(stepZetaAnimation);
         }
 
@@ -1720,7 +1862,7 @@
         });
 
         /* ---------------------------------------------------------------------
-           2. SYNTHETISCHE 30FPS ASTROMETRIE & RIEMANN LIVE-CANVAS STREAM
+           2. SYNTHETISCHE 60FPS CANVAS TELEMETRIESTREAM
            --------------------------------------------------------------------- */
         const synthCanvas = document.getElementById('syntheticStreamCanvas');
         const synthCtx = synthCanvas.getContext('2d');
@@ -1739,7 +1881,7 @@
 
             synthCtx.fillStyle = '#FFFFFF';
             synthCtx.font = 'bold 14px monospace';
-            synthCtx.fillText('VORTEX GEOCENTRUM // TELEAPI LIVE STREAM (30 FPS)', 16, 30);
+            synthCtx.fillText('VORTEX GEOCENTRUM // TELEAPI LIVESTREAM (60 FPS)', 16, 30);
 
             synthCtx.fillStyle = '#D8C7C8';
             synthCtx.font = '11px monospace';
@@ -1776,14 +1918,14 @@
             synthCtx.arc(dotX, dotY, 4.5, 0, Math.PI * 2);
             synthCtx.fill();
 
-            // Oscilloscoop onderaan links (Re & Im golfvorm)
+            // Oscilloscoop onderaan links
             synthCtx.strokeStyle = '#8B1E24';
             synthCtx.strokeRect(24, 300, 282, 44);
             synthCtx.strokeStyle = '#A7E3B9';
             synthCtx.lineWidth = 1.4;
             synthCtx.beginPath();
             for (let x = 0; x < 276; x += 3) {
-                const phase = (synthFrame * 0.08) + (x * 0.045);
+                const phase = (synthFrame * 0.06) + (x * 0.045);
                 const amp = Math.min(16, currentZeta.mod * 7 + 3);
                 const y = 322 + Math.sin(phase) * amp * Math.cos(phase * 0.35);
                 if (x === 0) synthCtx.moveTo(27 + x, y);
@@ -1805,7 +1947,7 @@
             synthCtx.arc(sunX, sunY, sunR, 0, Math.PI * 2);
             synthCtx.fill();
 
-            const moonOffset = 5.5 + Math.sin(synthFrame * 0.03) * 1.5;
+            const moonOffset = 5.5 + Math.sin(synthFrame * 0.025) * 1.5;
             synthCtx.fillStyle = '#171314';
             synthCtx.beginPath();
             synthCtx.arc(sunX - moonOffset, sunY - 2, sunR * 0.98, 0, Math.PI * 2);
@@ -1836,44 +1978,42 @@
             synthCtx.fillStyle = '#A7E3B9';
             synthCtx.font = '11px monospace';
             synthCtx.fillText(`TeleAPI  : ${activeTeleApi.slice(0, 26)}`, 340, 304);
-            synthCtx.fillText('Security : DTLS-SRTP / W3C RF-CLA', 340, 322);
+            synthCtx.fillText('ChatChan : telemetrie-chat (DTLS-SRTP)', 340, 322);
 
             requestAnimationFrame(renderSyntheticStream);
         }
 
         /* ---------------------------------------------------------------------
-           3. BROWSER-NATIVE WEBRTC LIVE VIDEO + TELEAPI + IETF VCON ENGINE
+           3. BROWSER-NATIVE WEBRTC LIVESTREAM, P2P CHAT & IETF VCON ENGINE
            --------------------------------------------------------------------- */
         let localStream = null;
         let streamSourceMode = 'synthetic';
-        let activeTeleApi = 'W3C WebRTC / ORCA Native';
+        let activeTeleApi = 'W3C WebRTC / ORCA';
         let pcA = null;
         let pcB = null;
         let dcA = null;
         let dcB = null;
-        let txCount = 0;
-        let rxCount = 0;
-        let heartbeatTimer = null;
+        const chatHistory = [];
         const sessionUuid = 'vcon-' + Math.random().toString(36).substring(2, 10) + '-20261125';
 
         const TELEAPI_PROFILES = {
-            'W3C WebRTC / ORCA Native': {
-                codec: 'VP8/VP9 + Opus (30 fps)',
+            'W3C WebRTC / ORCA': {
+                streamLabel: '60 fps Canvas (VP8/VP9)',
                 security: 'DTLS-SRTP (W3C RF-CLA)',
                 signaling: 'Direct Browser ICE / SDP'
             },
-            'Jambonz Open-Source Voice/WS API': {
-                codec: 'Opus 48kHz + VP8 (WebSocket/SIP)',
+            'Jambonz WebSocket / REST': {
+                streamLabel: 'Opus + VP8 (WebSocket/SIP)',
                 security: 'WSS + DTLS-SRTP (MIT Open Source)',
                 signaling: 'Jambonz REST / WebSocket Hook'
             },
-            'Asterisk ARI / SIP-WebRTC Gateway': {
-                codec: 'G.711/Opus + H.264/VP8 (Asterisk 20+)',
+            'Asterisk ARI': {
+                streamLabel: 'G.711/Opus + H.264/VP8 (ARI)',
                 security: 'SRTP-DTLS / SIP-TLS (GPLv2)',
                 signaling: 'Asterisk REST Interface (ARI)'
             },
-            'SignalWire SWML / RELAY': {
-                codec: 'Opus + VP9 Simulcast (FreeSWITCH)',
+            'SignalWire SWML': {
+                streamLabel: 'Opus + VP9 Simulcast (RELAY)',
                 security: 'DTLS-SRTP / RELAY Token',
                 signaling: 'Declarative SWML / RELAY'
             }
@@ -1881,6 +2021,7 @@
 
         function appendLog(msg, isHighlight = false) {
             const box = document.getElementById('webrtcLogBox');
+            if (!box) return;
             const ts = new Date().toLocaleTimeString('nl-NL', { hour12: false });
             const row = document.createElement('div');
             const safeMsg = String(msg).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -1892,29 +2033,42 @@
             box.scrollTop = box.scrollHeight;
         }
 
+        function isDataChannelOpen() {
+            return (dcA && dcA.readyState === 'open') || (dcB && dcB.readyState === 'open');
+        }
+
         function updateStatusPills(iceState, dcState) {
             if (iceState) {
                 const pIce = document.getElementById('pillIce');
                 pIce.textContent = 'ICE: ' + iceState;
                 pIce.className = 'status-pill ' + ((iceState === 'connected' || iceState === 'completed') ? 'connected' : (iceState === 'checking' ? 'connecting' : ''));
             }
-            if (dcState) {
-                const pDc = document.getElementById('pillDc');
-                pDc.textContent = 'DataChannel: ' + dcState;
-                pDc.className = 'status-pill ' + (dcState === 'open' ? 'connected' : '');
+            const pDc = document.getElementById('pillDc');
+            const chatInd = document.getElementById('chatModeIndicator');
+            if (isDataChannelOpen()) {
+                pDc.textContent = 'DataChannel (telemetrie-chat): Open (P2P Live)';
+                pDc.className = 'status-pill connected';
+                chatInd.textContent = 'Modus: P2P WebRTC Live (berichten gaan realtime over RTCDataChannel "telemetrie-chat")';
+                chatInd.style.color = '#1B6B3A';
+                chatInd.style.fontWeight = '600';
+            } else {
+                pDc.textContent = 'DataChannel (telemetrie-chat): ' + (dcState || 'Fallback / Lokaal');
+                pDc.className = 'status-pill';
+                chatInd.textContent = 'Modus: Lokale Fallback (berichten worden direct vastgelegd in vCon; schakelt live over bij P2P)';
+                chatInd.style.color = '#4A4A4A';
+                chatInd.style.fontWeight = '400';
             }
-            document.getElementById('pillPackets').textContent = `Telemetrie TX/RX: ${txCount} / ${rxCount}`;
         }
 
         function onTeleApiChange() {
             activeTeleApi = document.getElementById('teleApiSelect').value;
-            const prof = TELEAPI_PROFILES[activeTeleApi] || TELEAPI_PROFILES['W3C WebRTC / ORCA Native'];
+            const prof = TELEAPI_PROFILES[activeTeleApi] || TELEAPI_PROFILES['W3C WebRTC / ORCA'];
             document.getElementById('pillTeleApi').textContent = 'TeleAPI: ' + activeTeleApi;
             document.getElementById('pillSecurity').textContent = 'Beveiliging: ' + prof.security;
-            document.getElementById('pillCodec').textContent = 'Codec: ' + prof.codec;
+            document.getElementById('pillCodec').textContent = 'Stream: ' + prof.streamLabel;
             appendLog(`TeleAPI-adapter geschakeld naar ${activeTeleApi} (${prof.signaling}).`);
+            addChatMessage('Systeem', `TeleAPI-profiel gewijzigd naar: ${activeTeleApi}`, null);
             refreshVconPreview();
-            transmitTelemetry(true);
         }
 
         async function initMediaStream(mode) {
@@ -1926,30 +2080,29 @@
                 try {
                     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     streamSourceMode = 'camera';
-                    document.getElementById('localOverlayTag').textContent = 'PEER A • FYSIEKE CAMERA + AUDIO';
-                    appendLog('Fysieke camera & microfoon geactiveerd via getUserMedia().');
+                    document.getElementById('localOverlayTag').textContent = 'ZENDER • CAMERA & MICROFOON (LIVE)';
+                    appendLog('Camera & microfoon geactiveerd via getUserMedia().');
                 } catch (err) {
-                    appendLog(`Camera/microfoon niet beschikbaar (${err.name}); terugval naar synthetische live-canvas stream.`);
+                    appendLog(`Camera/microfoon niet beschikbaar (${err.name}); terugval naar 60fps canvas stream.`);
                     switchMediaSource('synthetic');
                     return;
                 }
             } else {
-                localStream = synthCanvas.captureStream(30);
+                localStream = synthCanvas.captureStream(60);
                 streamSourceMode = 'synthetic';
-                document.getElementById('localOverlayTag').textContent = 'PEER A • SYNTHETISCHE LIVE-CANVAS (30 FPS)';
-                appendLog('Synthetische 30fps live-canvas stream geactiveerd via captureStream(30).');
+                document.getElementById('localOverlayTag').textContent = 'ZENDER • 60 FPS CANVAS TELEMETRIESTREAM';
+                appendLog('60fps Canvas Telemetriestream geactiveerd via captureStream(60).');
             }
 
             document.getElementById('localVideo').srcObject = localStream;
 
-            // Update lopende peer-verbinding indien actief
             if (pcA && localStream) {
                 const vTrack = localStream.getVideoTracks()[0];
                 if (vTrack) {
                     const sender = pcA.getSenders().find(s => s.track && s.track.kind === 'video');
                     if (sender) {
                         await sender.replaceTrack(vTrack);
-                        appendLog('Actieve videostream bijgewerkt via RTCRtpSender.replaceTrack().');
+                        appendLog('Actieve videostream bijgewerkt via replaceTrack().');
                     }
                 }
             }
@@ -1962,62 +2115,139 @@
             initMediaStream(mode);
         }
 
-        function bindDataChannel(ch, roleLabel) {
-            ch.onopen = () => {
-                appendLog(`RTCDataChannel "${ch.label}" (${roleLabel}) geopend.`);
-                updateStatusPills(null, 'open');
-                transmitTelemetry(true);
-                if (heartbeatTimer) clearInterval(heartbeatTimer);
-                heartbeatTimer = setInterval(() => transmitTelemetry(true), 3000);
+        /* Real-Time P2P Chatfuncties */
+        function addChatMessage(senderRole, text, jsonPayload) {
+            const timestamp = new Date().toISOString();
+            const timeShort = new Date().toLocaleTimeString('nl-NL', { hour12: false });
+
+            const entry = {
+                sender: senderRole,
+                timestamp: timestamp,
+                text: text,
+                telemetry_snapshot: jsonPayload || undefined
             };
-            ch.onclose = () => {
-                appendLog(`RTCDataChannel (${roleLabel}) gesloten.`);
-                updateStatusPills(null, 'gesloten');
-                if (heartbeatTimer) clearInterval(heartbeatTimer);
-            };
-            ch.onmessage = (ev) => {
-                rxCount++;
-                updateStatusPills(null, 'open');
-                try {
-                    const data = JSON.parse(ev.data);
-                    appendLog(`RX [${data.teleapi}] t=${data.riemann.t} -> ζ=(${data.riemann.re}, ${data.riemann.im}i)`, true);
-                } catch (e) {
-                    appendLog('RX data: ' + ev.data, true);
-                }
-            };
+            chatHistory.push(entry);
+
+            const box = document.getElementById('chatMessagesBox');
+            const msgDiv = document.createElement('div');
+            const roleClass = senderRole === 'Lokaal' ? 'local' : (senderRole === 'Remote Peer' ? 'remote' : 'system');
+            msgDiv.className = 'chat-msg ' + roleClass;
+
+            const safeSender = senderRole.replace(/</g, '&lt;');
+            const safeText = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            let html = `<div class="chat-msg-meta"><span>${safeSender}</span><span>${timeShort}</span></div>`;
+            html += `<div>${safeText}</div>`;
+            if (jsonPayload) {
+                const safeJson = JSON.stringify(jsonPayload, null, 2).replace(/</g, '&lt;');
+                html += `<pre class="chat-json-block">${safeJson}</pre>`;
+            }
+
+            msgDiv.innerHTML = html;
+            box.appendChild(msgDiv);
+            box.scrollTop = box.scrollHeight;
+            refreshVconPreview();
         }
 
-        function buildCurrentTelemetry() {
+        function dispatchChatPacket(text, jsonPayload) {
+            // Toon direct lokaal als verzonden bericht
+            addChatMessage('Lokaal', text, jsonPayload);
+
+            // Verstuur over open WebRTC DataChannel indien verbonden
+            const activeCh = (dcA && dcA.readyState === 'open') ? dcA : ((dcB && dcB.readyState === 'open') ? dcB : null);
+            if (activeCh) {
+                const packet = {
+                    channel: 'telemetrie-chat',
+                    timestamp: new Date().toISOString(),
+                    teleapi: activeTeleApi,
+                    text: text,
+                    snapshot: jsonPayload || null
+                };
+                activeCh.send(JSON.stringify(packet));
+                appendLog(`TX [telemetrie-chat]: "${text}"`, true);
+            } else {
+                appendLog(`Lokaal opgeslagen in vCon (fallback-modus): "${text}"`);
+            }
+        }
+
+        function handleChatFormSubmit(event) {
+            event.preventDefault();
+            const input = document.getElementById('chatTextInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            input.value = '';
+            dispatchChatPacket(msg, null);
+        }
+
+        function buildTelemetrySnapshot() {
+            const matchedZero = RIEMANN_ZEROS.find(z => Math.abs(currentT - z.t) < 0.06);
             return {
-                timestamp: new Date().toISOString(),
                 teleapi: activeTeleApi,
-                riemann: {
+                riemann_zeta: {
                     t: Number(currentT.toFixed(5)),
                     re: Number(currentZeta.re.toFixed(5)),
                     im: Number(currentZeta.im.toFixed(5)),
-                    modulus: Number(currentZeta.mod.toFixed(5))
+                    modulus: Number(currentZeta.mod.toFixed(5)),
+                    nulpunt: matchedZero ? matchedZero.label : 'geen'
                 },
                 eclips_2026_08_12: {
                     locatie: 'Tafelbergheide (52°13\'N, 5°11\'O)',
                     saros: 126,
-                    obscuratie_pct: 89.2,
+                    max_obscuratie_pct: 89.2,
                     nettostraling_Wm2: -58,
                     grondinversie_dT_C: 3.20
                 }
             };
         }
 
+        function sendTelemetrySnapshotToChat() {
+            const snap = buildTelemetrySnapshot();
+            dispatchChatPacket(`Telemetrie-snapshot (t = ${snap.riemann_zeta.t}, |ζ| = ${snap.riemann_zeta.modulus})`, snap);
+        }
+
+        function shareCurrentZeroInChat() {
+            const snap = buildTelemetrySnapshot();
+            const zeroNote = snap.riemann_zeta.nulpunt !== 'geen'
+                ? `Niet-triviaal Riemann-nulpunt ${snap.riemann_zeta.nulpunt} gedeeld op kritieke lijn Re(s) = 1/2`
+                : `Punt op kritieke lijn Re(s) = 1/2 gedeeld`;
+            dispatchChatPacket(`${zeroNote} (t = ${snap.riemann_zeta.t})`, snap);
+            showToast('Nulpunt en telemetrie gedeeld in WebRTC Chat.');
+        }
+
+        function bindDataChannel(ch, channelOwner) {
+            ch.onopen = () => {
+                appendLog(`RTCDataChannel "${ch.label}" (${channelOwner}) geopend.`);
+                updateStatusPills(null, 'open');
+                if (channelOwner === 'Zender') {
+                    addChatMessage('Systeem', `WebRTC datakanaal "${ch.label}" is geopend (${activeTeleApi}).`, null);
+                }
+            };
+            ch.onclose = () => {
+                appendLog(`RTCDataChannel (${channelOwner}) gesloten.`);
+                updateStatusPills(null, 'gesloten');
+            };
+            ch.onmessage = (ev) => {
+                try {
+                    const packet = JSON.parse(ev.data);
+                    appendLog(`RX [${channelOwner} <- ${packet.channel}]: "${packet.text}"`, true);
+                    addChatMessage('Remote Peer', packet.text, packet.snapshot || null);
+                } catch (e) {
+                    addChatMessage('Remote Peer', String(ev.data), null);
+                }
+            };
+        }
+
         function buildVconObject() {
-            const prof = TELEAPI_PROFILES[activeTeleApi] || TELEAPI_PROFILES['W3C WebRTC / ORCA Native'];
+            const prof = TELEAPI_PROFILES[activeTeleApi] || TELEAPI_PROFILES['W3C WebRTC / ORCA'];
             return {
                 vcon: '0.0.1',
                 uuid: sessionUuid,
-                created_at: '2026-11-25T06:41:00+01:00',
+                created_at: '2026-11-25T06:46:00+01:00',
                 updated_at: new Date().toISOString(),
-                subject: 'Astrometrische Eclipsanalyse & Riemann-Zeta Telemetrie',
+                subject: 'Astrometrische & Wiskundige Synthese — WebRTC Livestream, Chat & TeleAPI',
                 parties: [
-                    { name: 'Lokale Waarnemingspost (Peer A)', role: 'initiator' },
-                    { name: 'Remote Archiefnode (Peer B)', role: 'recipient' }
+                    { name: 'Lokale Livestream Bron (Zender)', role: 'initiator' },
+                    { name: 'Ontvangen WebRTC Livestream (Peer)', role: 'recipient' }
                 ],
                 dialog: [
                     {
@@ -2026,17 +2256,25 @@
                         mediatype: streamSourceMode === 'camera' ? 'video/webm;codecs=vp8,opus' : 'video/webm;codecs=vp8',
                         metadata: {
                             teleapi_adapter: activeTeleApi,
-                            signaling_protocol: prof.signaling,
-                            transport_security: prof.security,
+                            datachannel: 'telemetrie-chat',
+                            signaling: prof.signaling,
+                            security: prof.security,
                             license_framework: 'W3C Royalty-Free Community CLA'
                         }
-                    }
+                    },
+                    ...chatHistory.map(m => ({
+                        type: 'text',
+                        start: m.timestamp,
+                        originator: m.sender,
+                        body: m.text,
+                        telemetry_attachment: m.telemetry_snapshot || undefined
+                    }))
                 ],
                 analysis: [
                     {
-                        type: 'astrometry_riemann_telemetry',
+                        type: 'live_telemetry_state',
                         encoding: 'json',
-                        body: buildCurrentTelemetry()
+                        body: buildTelemetrySnapshot()
                     }
                 ]
             };
@@ -2049,51 +2287,40 @@
             }
         }
 
-        function transmitTelemetry(force) {
-            const now = Date.now();
-            if (!force && now - lastTelemetryMs < 120) return;
-            const ch = (dcA && dcA.readyState === 'open') ? dcA : ((dcB && dcB.readyState === 'open') ? dcB : null);
-            if (!ch) return;
-            lastTelemetryMs = now;
-            ch.send(JSON.stringify(buildCurrentTelemetry()));
-            txCount++;
-            updateStatusPills(null, 'open');
-        }
-
         function resetWebRTC(silent) {
-            if (heartbeatTimer) clearInterval(heartbeatTimer);
             if (dcA) { try { dcA.close(); } catch (e) {} dcA = null; }
             if (dcB) { try { dcB.close(); } catch (e) {} dcB = null; }
             if (pcA) { try { pcA.close(); } catch (e) {} pcA = null; }
             if (pcB) { try { pcB.close(); } catch (e) {} pcB = null; }
 
             document.getElementById('remoteVideo').srcObject = null;
-            document.getElementById('remoteOverlayTag').textContent = 'PEER B • WACHT OP LOOPBACK / SDP';
+            document.getElementById('remoteOverlayTag').textContent = 'PEER • WACHT OP LOOPBACK / SDP';
             document.getElementById('remoteLivePill').style.display = 'none';
-            txCount = 0;
-            rxCount = 0;
-            updateStatusPills('Niet verbonden', 'Gesloten');
-            if (!silent) appendLog('WebRTC peer-verbindingen en datakanalen gereset.');
+            updateStatusPills('Niet verbonden', 'Fallback / Lokaal');
+            if (!silent) {
+                appendLog('WebRTC peer-verbindingen en datakanaal gereset.');
+                addChatMessage('Systeem', 'WebRTC-verbinding gereset naar lokale fallback-modus.', null);
+            }
         }
 
-        /* 1-klik Lokale Loopback Video- & Dataverbinding */
+        /* 1-klik Lokale Loopback Livestream & Chat */
         async function startLocalLoopback() {
             resetWebRTC(true);
             if (!localStream) await initMediaStream(streamSourceMode);
 
-            appendLog(`Start Lokale Loopback (${activeTeleApi}) met DTLS-SRTP...`);
+            appendLog(`Start Lokale Loopback Livestream & Chat (${activeTeleApi})...`);
             updateStatusPills('checking', 'verbinden');
 
             const cfg = { iceServers: [] };
             pcA = new RTCPeerConnection(cfg);
             pcB = new RTCPeerConnection(cfg);
 
-            dcA = pcA.createDataChannel('vortex-vcon-telemetrie', { ordered: true });
-            bindDataChannel(dcA, 'Peer A');
+            dcA = pcA.createDataChannel('telemetrie-chat', { ordered: true });
+            bindDataChannel(dcA, 'Zender');
 
             pcB.ondatachannel = (ev) => {
                 dcB = ev.channel;
-                bindDataChannel(dcB, 'Peer B');
+                bindDataChannel(dcB, 'Peer');
             };
 
             localStream.getTracks().forEach(track => pcA.addTrack(track, localStream));
@@ -2101,9 +2328,9 @@
             pcB.ontrack = (ev) => {
                 const remVid = document.getElementById('remoteVideo');
                 remVid.srcObject = (ev.streams && ev.streams[0]) ? ev.streams[0] : new MediaStream([ev.track]);
-                document.getElementById('remoteOverlayTag').textContent = 'PEER B • P2P LOOPBACK ACTIEF';
+                document.getElementById('remoteOverlayTag').textContent = 'PEER • P2P LIVESTREAM ACTIEF';
                 document.getElementById('remoteLivePill').style.display = 'inline-flex';
-                appendLog('Remote video/audiotrack ontvangen op Peer B via ontrack().');
+                appendLog('Ontvangen WebRTC Livestream actief op Peer via ontrack().');
             };
 
             pcA.onicecandidate = (e) => { if (e.candidate) pcB.addIceCandidate(e.candidate).catch(() => {}); };
@@ -2126,7 +2353,7 @@
             refreshVconPreview();
         }
 
-        /* Handmatige SDP Offer / Answer voor tweede browsertabblad */
+        /* Handmatige SDP Offer / Answer voor tweede browsertabblad of apparaat */
         function waitIceComplete(pc) {
             return new Promise((resolve) => {
                 if (pc.iceGatheringState === 'complete') return resolve();
@@ -2145,13 +2372,13 @@
             if (!localStream) await initMediaStream(streamSourceMode);
 
             pcA = new RTCPeerConnection({ iceServers: [] });
-            dcA = pcA.createDataChannel('vortex-vcon-telemetrie', { ordered: true });
-            bindDataChannel(dcA, 'Initiator');
+            dcA = pcA.createDataChannel('telemetrie-chat', { ordered: true });
+            bindDataChannel(dcA, 'Zender');
             localStream.getTracks().forEach(t => pcA.addTrack(t, localStream));
 
             pcA.ontrack = (ev) => {
                 document.getElementById('remoteVideo').srcObject = ev.streams[0];
-                document.getElementById('remoteOverlayTag').textContent = 'PEER B • REMOTE STREAM';
+                document.getElementById('remoteOverlayTag').textContent = 'PEER • REMOTE LIVESTREAM';
                 document.getElementById('remoteLivePill').style.display = 'inline-flex';
             };
             pcA.oniceconnectionstatechange = () => updateStatusPills(pcA.iceConnectionState, null);
@@ -2161,7 +2388,7 @@
             await waitIceComplete(pcA);
 
             document.getElementById('sdpOfferText').value = JSON.stringify(pcA.localDescription);
-            appendLog('Handmatig SDP Offer gegenereerd inclusief host ICE-kandidaten.');
+            appendLog('Handmatig SDP Offer gegenereerd voor datakanaal "telemetrie-chat".');
             showToast('SDP Offer gegenereerd.');
         }
 
@@ -2176,10 +2403,10 @@
 
             pcB = new RTCPeerConnection({ iceServers: [] });
             localStream.getTracks().forEach(t => pcB.addTrack(t, localStream));
-            pcB.ondatachannel = (ev) => { dcB = ev.channel; bindDataChannel(dcB, 'Ontvanger'); };
+            pcB.ondatachannel = (ev) => { dcB = ev.channel; bindDataChannel(dcB, 'Peer'); };
             pcB.ontrack = (ev) => {
                 document.getElementById('remoteVideo').srcObject = ev.streams[0];
-                document.getElementById('remoteOverlayTag').textContent = 'PEER B • REMOTE STREAM';
+                document.getElementById('remoteOverlayTag').textContent = 'PEER • REMOTE LIVESTREAM';
                 document.getElementById('remoteLivePill').style.display = 'inline-flex';
             };
             pcB.oniceconnectionstatechange = () => updateStatusPills(pcB.iceConnectionState, null);
@@ -2190,7 +2417,7 @@
             await waitIceComplete(pcB);
 
             document.getElementById('sdpAnswerText').value = JSON.stringify(pcB.localDescription);
-            appendLog('SDP Answer aangemaakt voor tweede tabblad.');
+            appendLog('SDP Answer aangemaakt voor tweede tabblad/apparaat.');
             showToast('SDP Answer gegenereerd.');
         }
 
@@ -2221,11 +2448,11 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showToast('vCon JSON-bestand gedownload.');
+            showToast('vCon JSON-bestand gedownload (.vcon.json).');
         }
 
         /* ---------------------------------------------------------------------
-           4. INGEBOUWDE PDF-DOCUMENTINTEGRATIE & DOORZOEKBAAR 22-PAGINA REGISTER
+           4. PDF-DOCUMENTINTEGRATIE & DOORZOEKBAAR 22-PAGINA FORMULE-INDEX
            --------------------------------------------------------------------- */
         let currentPdfUrl = null;
         let currentPdfCat = 'all';
@@ -2236,10 +2463,10 @@
             { page: 'p. 5–7', cat: 'ephemeriden', title: 'VSOP87 (Versie Da) & ELP-2000/82 Ephemeriden', formula: 'VSOP87: < 0,001 s | ELP-2000/82: 37.862 termen (~1/40 s)', desc: 'Zon-ephemeride (Bretagnon & Francou, 1988) en maan-ephemeride (Chapront-Touzé & Chapront, 1983: 20.560 lengte-, 7.684 breedte-, 9.618 afstandstermen).' },
             { page: 'p. 8–9', cat: 'ephemeriden', title: '1.2 Seculaire Acceleratie van de Maan & Baandynamica', formula: 'dL/dt² = −25,858″/cy² • dr/dt = +3,8 cm/jaar (LLR)', desc: 'Getijdenwrijving vertraagt aardrotatie (LOD +2,3 ms/eeuw), draagt hoekmoment over en laat de maanbaan spiraalsgewijs expanderen.' },
             { page: 'p. 9–11', cat: 'tijd', title: '2.1 Hiërarchie van Tijdsschaaldefinities', formula: 'TD / TT • ET • UT (VLBI) • UTC • GMT', desc: 'Afbakening tussen uniforme relativistische ephemeridetijd (TT/TD op geoïde/TAI) en aardrotatie-afhankelijke Universele Tijd (UT).' },
-            { page: 'p. 12–13', cat: 'tijd', title: '2.2 Polynomiale Berekening van ΔT & Correctieterm c', formula: 'ΔT = 62,92 + 0,32217t + 0,005589t² | c = −0,000012932(y − 1955)²', desc: 'Klokfoutcorrectie (TD − UT) voor 2005–2050 gecorrigeerd voor de LLR-maanversnelling (−25,858″/cy² t.o.v. −26″/cy²).' },
-            { page: 'p. 13–15', cat: 'refractie', title: '3. Astrometrische Geometrie & Topocentrische Parallax', formula: 'WGS84: 52°13′ N, 5°11′ O (~35 m +NAP) • π_m ≈ 1° (~3600″)', desc: 'Contactdefinities C_I t/m C_IV en 4-staps reductie van geocentrische coördinaten naar lijn-van-zicht raakvoorwaarde S(t) = s_s′ ± s_m′.' },
+            { page: 'p. 12–13', cat: 'tijd', title: '2.2 Polynomiale Berekening van ΔT & Correctieterm c', formula: 'ΔT = 62,92 + 0,32217t + 0,005589t² | c = −0,000012932(y − 1955)²', desc: 'Klokfoutcorrectie (Morrison & Stephenson 2004, TD − UT) gecorrigeerd voor de LLR-maanversnelling (−25,858″/cy² t.o.v. −26″/cy²).' },
+            { page: 'p. 13–15', cat: 'refractie', title: '3. Astrometrische Geometrie & Topocentrische Parallax', formula: 'WGS84: 52°13′ N, 5°11′ O (~35 m +NAP) • π_m ≈ 1° (~3600″)', desc: 'Contactdefinities C_I t/m C_IV en 4-staps reductie van geocentrische coördinaten op WGS84 naar lijn-van-zicht raakvoorwaarde S(t) = s_s′ ± s_m′.' },
             { page: 'p. 15–17', cat: 'refractie', title: '4. Atmosferische Refractie & Rayleigh-Verstrooiing', formula: 'Chauvenet (1/50, 1,02×) vs. Danjon (1/85, 1,01×, 75 km) • I ∝ λ⁻⁴', desc: 'Vergelijking schaduwmodellen, stratosferische SO₂/H₂SO₄-aerosolen, optische luchtmassa (AM = 8,63) en troposferische straalbuiging.' },
-            { page: 'p. 18–19', cat: 'meteo', title: '5. Micro-Meteorologie: Stralingsbalans, Eclipse Calm & Inversie', formula: 'R_n = (1 − α)S↓ + L↓ − L↑ (−58 W/m²) • ∂T/∂z > 0 (ΔT = +3,20 °C)', desc: 'Over dekzand (~1,2×10⁶ J m⁻³ K⁻¹) en Calluna vulgaris (α = 0,18): negatieve nettostraling, stijging RH, wegvallen convectie (H → 0) en grondinversie.' },
+            { page: 'p. 18–19', cat: 'meteo', title: '5. Micro-Meteorologie: Stralingsbalans, Eclipse Calm & Inversie', formula: 'R_n = (1 − α)S↓ + L↓ − L↑ (−58 W/m²) • ∂T/∂z > 0 (ΔT = +3,20 °C)', desc: 'Over dekzand (~1,2×10⁶ J m⁻³ K⁻¹) en Calluna vulgaris (α = 0,18): negatieve nettostraling, stijging RH, Eclipse Calm (H → 0) en grondinversie.' },
             { page: 'p. 20–22', cat: 'ephemeriden', title: 'Spectrale Decompositie, IERS/ITRS & Baanvoorspelling', formula: 'R = U P Vᵀ • IERS/ITRF Referentiekader & VLBI', desc: 'Matrixfactorisatie voor limb-oriëntatie, aardoriëntatieparameters (IERS/ITRS) en satellietbaanvoorspelling met J2-knoopdrift.' }
         ];
 
@@ -2299,7 +2526,7 @@
             document.getElementById('pdfFrame').src = currentPdfUrl;
             document.getElementById('pdfStatusText').textContent = `Ingebouwd document: ${file.name} (${Math.round(file.size / 1024)} KB)`;
             document.getElementById('pdfViewerWrapper').style.display = 'block';
-            appendLog(`PDF-rapport lokaal ingeladen in archiefviewer: ${file.name}`);
+            appendLog(`PDF-rapport lokaal ingeladen: ${file.name}`);
             showToast('PDF-rapport geladen in ingebouwde lezer.');
         }
 
@@ -2312,7 +2539,6 @@
             }
         }
 
-        // Drag & Drop handlers op PDF-dropzone
         const dropZone = document.getElementById('pdfDropZone');
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -2356,19 +2582,19 @@
 
         function copyFullDossier() {
             const dossierText = [
-                'ASTROMETRISCHE ECLIPSANALYSE, RIEMANN-ZETA & WEBRTC TELEAPI-SYNTHESE',
+                'ASTROMETRISCHE & WISKUNDIGE SYNTHESE — WEBRTC LIVESTREAM, CHAT & TELEAPI',
                 'VORTEX OS / Geocentrum-Omgeving | Datum: 25 november 2026 | Status: PII-gefilterd',
                 '====================================================================================================',
-                '1. WebRTC & TeleAPI / IETF vCon:',
+                '1. WebRTC Livestream, Chat (telemetrie-chat) & IETF vCon:',
                 `   - Actieve TeleAPI-adapter: ${activeTeleApi}`,
-                '   - Standaarden: W3C WebRTC / ORCA Royalty-Free CLA, TADHack ecosysteem, Pion, Jambonz, Asterisk, SignalWire & IETF vCon.',
+                '   - Standaarden: W3C CLA (Royalty-Free), W3C ORCA, TADHack, IETF vCon, Jambonz, Asterisk, SignalWire & Pion WebRTC.',
                 '2. Riemann-Zeta-Functie op de Kritieke Lijn Re(s) = 1/2:',
                 '   - Borwein-versnelde Dirichlet-eta evaluatie over t ∈ [0, 35].',
                 '   - Eerste vijf niet-triviale nulpunten: t1 ≈ 14.1347, t2 ≈ 21.0220, t3 ≈ 25.0109, t4 ≈ 30.4249, t5 ≈ 32.9351.',
                 '3. Zonsverduistering 12 augustus 2026 (Tafelbergheide, 52°13\' N, 5°11\' O, ~35 m +NAP, Saros 126):',
-                '   - Ephemeriden: VSOP87 (versie Da, < 0,001 s) & ELP-2000/82 (37.862 termen, ~1/40 s, seculaire versnelling -25,858"/cy², LLR +3,8 cm/jaar).',
-                '   - Tijd & ΔT: TD/TT, ET, UT, UTC, GMT; ΔT = 62,92 + 0,32217t + 0,005589t² met correctieterm c.',
-                '   - Refractie & Grenslaag: Danjon (1/85, 75 km luchtlaag) vs. Chauvenet (1/50); max obscuratie 89,2% (20:06 CEST), Rn = -58 W/m², Eclipse Calm (H -> 0) en grondinversie (ΔT = +3,20 °C).',
+                '   - Ephemeriden: VSOP87 (versie Da) & ELP-2000/82 (37.862 termen), seculaire maanacceleratie (-25,858"/cy²).',
+                '   - Tijd & ΔT: Morrison & Stephenson 2004 + LLR-correctieterm c.',
+                '   - Refractie & Grenslaag: Chauvenet (1/50) vs. Danjon (1/85), Rayleigh-verstrooiing, Rn = -58 W/m², Eclipse Calm en grondinversie (∂T/∂z > 0).',
                 '4. Bronnen: Substack (https://substack.com/home/post/p-223790195), TADHack (https://blog.tadhack.com/2015/12/15/tadhack-paris-review-1/), W3C ORCA (https://www.w3.org/groups/cg/orca/former-participants/).'
             ].join('\n');
 
@@ -2403,6 +2629,7 @@
             renderSyntheticStream();
             initMediaStream('synthetic');
             renderPdfIndex();
+            addChatMessage('Systeem', 'Welkom bij het P2P datakanaal "telemetrie-chat". Klik op "Start Lokale Loopback Livestream & Chat" of test direct in lokale fallback-modus.', null);
             refreshVconPreview();
         };
     </script>
