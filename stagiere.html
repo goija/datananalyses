@@ -95,4 +95,547 @@
         fieldset {
             border: 1px solid var(--border);
             border-radius: 4px;
-            padding:
+            padding: 1rem 1.25rem;
+            margin: 0 0 1.25rem 0;
+        }
+
+        legend {
+            font-weight: 700;
+            color: var(--meekrab-dark);
+            padding: 0 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.88rem;
+            margin-bottom: 0.3rem;
+        }
+
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.94rem;
+            font-family: inherit;
+        }
+
+        .consent-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            margin: 1rem 0;
+            font-size: 0.92rem;
+            cursor: pointer;
+        }
+
+        .consent-check input {
+            margin-top: 0.25rem;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--meekrab);
+        }
+
+        /* Planimeter & Veerpen Werkvlak */
+        .instrument-wrapper {
+            position: relative;
+            width: 100%;
+            height: 360px;
+            background-color: var(--parchment);
+            background-image:
+                linear-gradient(rgba(184, 134, 11, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(184, 134, 11, 0.08) 1px, transparent 1px);
+            background-size: 25px 25px;
+            border: 2px solid var(--brass);
+            border-radius: 6px;
+            overflow: hidden;
+            touch-action: none;
+            cursor: none;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #inkCanvas { z-index: 1; }
+        #instrumentCanvas { z-index: 2; pointer-events: none; }
+
+        .telemetry-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+            background: #1C1E21;
+            color: #F3EFE0;
+            padding: 0.9rem 1rem;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, monospace;
+            font-size: 0.85rem;
+        }
+
+        .telemetry-item span {
+            display: block;
+            color: var(--brass-light);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        button {
+            padding: 0.7rem 1.25rem;
+            font-size: 0.92rem;
+            font-weight: 600;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .btn-primary { background-color: var(--meekrab); color: #FFFFFF; }
+        .btn-primary:hover { background-color: var(--meekrab-dark); }
+        .btn-brass { background-color: var(--brass); color: #FFFFFF; }
+        .btn-brass:hover { background-color: #9A6F08; }
+        .btn-outline { background-color: #FFFFFF; color: var(--ink); border: 1px solid var(--border); }
+        .btn-outline:hover { background-color: #F2F0EA; }
+
+        #certificateOutput {
+            margin-top: 1.25rem;
+            padding: 1.1rem;
+            background: #F4F8F4;
+            border: 1px solid #B7D4B7;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, monospace;
+            font-size: 0.84rem;
+            display: none;
+            white-space: pre-wrap;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+<header role="banner">
+    <h1>Geheime AI-Verbintenisovereenkomst (Stagiair)</h1>
+    <p>Bindende Ondertekening met Compensatie-Poolplanimeter &amp; Veerpen &mdash; Zero-Cloud Architectuur</p>
+</header>
+
+<main role="main">
+
+    <!-- SECTIE 1: DE GEHEIME AI-OVEREENKOMST -->
+    <section aria-labelledby="heading-nda">
+        <h2 id="heading-nda">1. Voorwaarden van de Geheime AI-Verbintenis</h2>
+        <div class="nda-clauses">
+            <p><strong>Partijen:</strong> Opdrachtgever <strong>Rianne Goijarts</strong> (Architect &amp; Eigenaar), Toezichthouder <strong>Jorne Goijarts</strong> (Code-Audit &amp; Handhaving) en de ondergetekende <strong>Stagiair</strong>.</p>
+            <ol>
+                <li><strong>Strikt Lokale AI-Inferentie (Zero-Cloud):</strong> Alle broncode, datasets, archiefstukken, prompts, modelgewichten en rekenmodellen zijn strikt vertrouwelijk. Het is de stagiair verboden om enig fragment hiervan te uploaden naar externe cloud-AI's, publieke chatbots of commerciële API's.</li>
+                <li><strong>Verbod op Training &amp; Datalekkage:</strong> Niets uit deze stageomgeving mag worden gebruikt voor het trainen, fine-tunen of evalueren van externe AI-modellen van derden, overheden of Big Tech-leveranciers.</li>
+                <li><strong>Intellectueel Eigendom &amp; Verificatieplicht:</strong> Alle ontwikkelde semantische HTML5, scripts en analyses blijven intellectueel eigendom van Rianne Goijarts. AI wordt uitsluitend ingezet als gecontroleerde rekenmachine; elke uitkomst wordt door de stagiair wiskundig en inhoudelijk geverifieerd.</li>
+                <li><strong>Toezicht &amp; Onmiddellijke Opschorting:</strong> Jorne Goijarts houdt toezicht op naleving. Bij vermoeden van datalekkage of ongetoetste code-injectie vervalt de toegang tot de repositories met onmiddellijke ingang.</li>
+                <li><strong>Planimeter-Verbintenis:</strong> Door ondertekening met de veerpen op onderstaand perkament verklaart de stagiair zich onherroepelijk gebonden aan deze geheimhoudingsplicht.</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- SECTIE 2: ONDERTEKENING MET PLANIMETER & VEERPEN -->
+    <section aria-labelledby="heading-sign">
+        <h2 id="heading-sign">2. Ondertekening met Planimeter-Veerpen</h2>
+
+        <fieldset>
+            <legend>Identificatie Stagiair</legend>
+            <div class="form-grid">
+                <div>
+                    <label for="internName">Volledige Naam Stagiair *</label>
+                    <input type="text" id="internName" placeholder="Voor- en achternaam" required>
+                </div>
+                <div>
+                    <label for="internScope">Stageproject / AI-Domein</label>
+                    <input type="text" id="internScope" placeholder="Bijv. Lokale LLM / Semantische HTML5">
+                </div>
+                <div>
+                    <label for="signDate">Datum van Verbintenis</label>
+                    <input type="date" id="signDate" value="2026-11-25">
+                </div>
+            </div>
+        </fieldset>
+
+        <label class="consent-check">
+            <input type="checkbox" id="ndaConsent">
+            <span>Ik heb de Geheime AI-Verbintenisovereenkomst gelezen en verbind mij aan strikte geheimhouding, lokale verwerking en het toezicht van Jorne Goijarts.</span>
+        </label>
+
+        <div class="instrument-wrapper" id="canvasContainer" role="application" aria-label="Tekenveld voor handtekening met poolplanimeter en veerpen">
+            <canvas id="inkCanvas"></canvas>
+            <canvas id="instrumentCanvas"></canvas>
+        </div>
+
+        <div class="telemetry-bar" aria-live="polite" aria-label="Planimeter meetwaarden">
+            <div class="telemetry-item">
+                <span>Meetwiel (Nonius)</span>
+                <strong id="readoutVernier">0.000 omw</strong>
+            </div>
+            <div class="telemetry-item">
+                <span>Omsloten Oppervlakte</span>
+                <strong id="readoutArea">0.00 cm&sup2;</strong>
+            </div>
+            <div class="telemetry-item">
+                <span>Inktspoor Lengte</span>
+                <strong id="readoutLength">0.0 mm</strong>
+            </div>
+            <div class="telemetry-item">
+                <span>Poolhoek / Armhoek</span>
+                <strong id="readoutAngles">0.0&deg; / 0.0&deg;</strong>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button type="button" class="btn-primary" onclick="sealAgreement()">Verbintenis Bekrachtigen (SHA-256)</button>
+            <button type="button" class="btn-brass" onclick="exportSignaturePNG()">Download Bewijs (PNG)</button>
+            <button type="button" class="btn-outline" onclick="clearCanvas()">Perkament Wissen</button>
+        </div>
+
+        <div id="certificateOutput" role="status" aria-live="polite"></div>
+    </section>
+
+</main>
+
+<footer role="contentinfo">
+    Geheime AI-Verbintenis Stagiair &bull; Semantische HTML5 &bull; Lokale Planimeter-Kinematica &copy; 2026 Rianne Goijarts
+</footer>
+
+<script>
+    const container = document.getElementById('canvasContainer');
+    const inkCanvas = document.getElementById('inkCanvas');
+    const instCanvas = document.getElementById('instrumentCanvas');
+    const inkCtx = inkCanvas.getContext('2d');
+    const instCtx = instCanvas.getContext('2d');
+
+    let width = 0, height = 0;
+    let isDrawing = false;
+    let hasSigned = false;
+    let lastX = 0, lastY = 0, lastTime = 0;
+    let cursorX = 360, cursorY = 180;
+
+    // Poolplanimeter geometrie (verhouding 15.00 cm poolarm : 16.67 cm traceerarm)
+    let poleX = 90, poleY = 260;
+    let L1 = 210, L2 = 235;
+
+    let wheelIntegral = 0;
+    let pathLengthPx = 0;
+    const pxPerCm = 37.8;
+
+    function resizeCanvases() {
+        const rect = container.getBoundingClientRect();
+        width = rect.width;
+        height = rect.height;
+
+        const tempInk = document.createElement('canvas');
+        tempInk.width = inkCanvas.width || width;
+        tempInk.height = inkCanvas.height || height;
+        if (inkCanvas.width > 0) tempInk.getContext('2d').drawImage(inkCanvas, 0, 0);
+
+        inkCanvas.width = width;
+        inkCanvas.height = height;
+        instCanvas.width = width;
+        instCanvas.height = height;
+
+        inkCtx.drawImage(tempInk, 0, 0);
+        drawSignatureLine();
+
+        poleX = Math.max(60, width * 0.12);
+        poleY = height * 0.72;
+        L1 = Math.max(180, width * 0.34);
+        L2 = L1 * (16.67 / 15.00);
+
+        drawInstrument(cursorX, cursorY);
+    }
+
+    function drawSignatureLine() {
+        inkCtx.save();
+        inkCtx.strokeStyle = 'rgba(158, 42, 43, 0.35)';
+        inkCtx.lineWidth = 1;
+        inkCtx.setLineDash([4, 4]);
+        inkCtx.beginPath();
+        inkCtx.moveTo(width * 0.22, height * 0.78);
+        inkCtx.lineTo(width * 0.90, height * 0.78);
+        inkCtx.stroke();
+        inkCtx.fillStyle = 'rgba(90, 94, 98, 0.65)';
+        inkCtx.font = '12px Georgia, serif';
+        inkCtx.fillText('Handtekening Stagiair (Bindende AI-Geheimhouding)', width * 0.22, height * 0.85);
+        inkCtx.restore();
+    }
+
+    function solveElbow(tx, ty) {
+        const dx = tx - poleX;
+        const dy = ty - poleY;
+        let d = Math.hypot(dx, dy);
+        const maxReach = L1 + L2 - 2;
+        const minReach = Math.abs(L1 - L2) + 2;
+
+        if (d > maxReach) d = maxReach;
+        if (d < minReach) d = minReach;
+
+        const a = (L1 * L1 - L2 * L2 + d * d) / (2 * d);
+        const h = Math.sqrt(Math.max(0, L1 * L1 - a * a));
+
+        const midX = poleX + (a * dx) / d;
+        const midY = poleY + (a * dy) / d;
+
+        return {
+            ex: midX + (h * dy) / d,
+            ey: midY - (h * dx) / d
+        };
+    }
+
+    function drawInstrument(tx, ty) {
+        instCtx.clearRect(0, 0, width, height);
+        const { ex, ey } = solveElbow(tx, ty);
+
+        const poleAngle = Math.atan2(ey - poleY, ex - poleX) * (180 / Math.PI);
+        const armAngle = Math.atan2(ty - ey, tx - ex) * (180 / Math.PI);
+        document.getElementById('readoutAngles').textContent = `${poleAngle.toFixed(1)}° / ${armAngle.toFixed(1)}°`;
+
+        instCtx.save();
+
+        // Poolgewicht
+        instCtx.fillStyle = '#8C6206';
+        instCtx.beginPath();
+        instCtx.arc(poleX, poleY, 16, 0, Math.PI * 2);
+        instCtx.fill();
+        instCtx.strokeStyle = '#E5C158';
+        instCtx.lineWidth = 2.5;
+        instCtx.stroke();
+
+        // Poolarm
+        instCtx.strokeStyle = '#B8860B';
+        instCtx.lineWidth = 5;
+        instCtx.lineCap = 'round';
+        instCtx.beginPath();
+        instCtx.moveTo(poleX, poleY);
+        instCtx.lineTo(ex, ey);
+        instCtx.stroke();
+
+        // Traceerarm
+        instCtx.strokeStyle = '#C9971C';
+        instCtx.lineWidth = 6;
+        instCtx.beginPath();
+        instCtx.moveTo(ex, ey);
+        instCtx.lineTo(tx, ty);
+        instCtx.stroke();
+
+        // Meetwiel
+        const armLen = Math.hypot(tx - ex, ty - ey) || 1;
+        const ux = (tx - ex) / armLen;
+        const uy = (ty - ey) / armLen;
+        instCtx.save();
+        instCtx.translate(ex + ux * 28, ey + uy * 28);
+        instCtx.rotate(Math.atan2(uy, ux));
+        instCtx.fillStyle = '#2C2F33';
+        instCtx.fillRect(-10, -14, 20, 8);
+        instCtx.strokeStyle = '#E5C158';
+        instCtx.lineWidth = 1.5;
+        instCtx.strokeRect(-10, -14, 20, 8);
+        instCtx.restore();
+
+        // Scharnier
+        instCtx.fillStyle = '#E5C158';
+        instCtx.beginPath();
+        instCtx.arc(ex, ey, 7, 0, Math.PI * 2);
+        instCtx.fill();
+        instCtx.strokeStyle = '#5C4003';
+        instCtx.lineWidth = 1.5;
+        instCtx.stroke();
+
+        // Kalligrafische Veerpen
+        instCtx.save();
+        instCtx.translate(tx, ty);
+        instCtx.rotate(-0.55);
+
+        instCtx.fillStyle = '#3A3D40';
+        instCtx.beginPath();
+        instCtx.moveTo(0, 0);
+        instCtx.lineTo(5, -18);
+        instCtx.lineTo(-5, -18);
+        instCtx.closePath();
+        instCtx.fill();
+
+        instCtx.strokeStyle = '#F5F0E1';
+        instCtx.lineWidth = 3;
+        instCtx.beginPath();
+        instCtx.moveTo(0, -16);
+        instCtx.quadraticCurveTo(10, -60, 26, -110);
+        instCtx.stroke();
+
+        instCtx.fillStyle = 'rgba(158, 42, 43, 0.88)';
+        instCtx.beginPath();
+        instCtx.moveTo(2, -26);
+        instCtx.quadraticCurveTo(-14, -65, 26, -112);
+        instCtx.quadraticCurveTo(32, -68, 8, -26);
+        instCtx.closePath();
+        instCtx.fill();
+
+        instCtx.restore();
+        instCtx.restore();
+    }
+
+    function getPointerPos(e) {
+        const rect = inkCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startDraw(e) {
+        isDrawing = true;
+        hasSigned = true;
+        const pos = getPointerPos(e);
+        lastX = pos.x; lastY = pos.y;
+        cursorX = pos.x; cursorY = pos.y;
+        lastTime = performance.now();
+        drawInstrument(cursorX, cursorY);
+    }
+
+    function moveDraw(e) {
+        const pos = getPointerPos(e);
+        cursorX = pos.x; cursorY = pos.y;
+
+        if (isDrawing) {
+            const now = performance.now();
+            const dt = Math.max(1, now - lastTime);
+            const dx = pos.x - lastX;
+            const dy = pos.y - lastY;
+            const dist = Math.hypot(dx, dy);
+
+            const speed = dist / dt;
+            const lineWidth = Math.max(1.2, Math.min(4.8, 4.2 - speed * 1.4));
+
+            inkCtx.save();
+            inkCtx.strokeStyle = '#141B29';
+            inkCtx.lineWidth = lineWidth;
+            inkCtx.lineCap = 'round';
+            inkCtx.lineJoin = 'round';
+            inkCtx.beginPath();
+            inkCtx.moveTo(lastX, lastY);
+            inkCtx.lineTo(pos.x, pos.y);
+            inkCtx.stroke();
+            inkCtx.restore();
+
+            const { ex, ey } = solveElbow(pos.x, pos.y);
+            const armLen = Math.hypot(pos.x - ex, pos.y - ey) || 1;
+            const nx = -(pos.y - ey) / armLen;
+            const ny = (pos.x - ex) / armLen;
+            wheelIntegral += dx * nx + dy * ny;
+            pathLengthPx += dist;
+
+            const areaCm2 = Math.abs((wheelIntegral * L2) / (pxPerCm * pxPerCm));
+            const vernierRevs = wheelIntegral / 120;
+            const lengthMm = (pathLengthPx / pxPerCm) * 10;
+
+            document.getElementById('readoutVernier').textContent = `${vernierRevs.toFixed(3)} omw`;
+            document.getElementById('readoutArea').textContent = `${areaCm2.toFixed(2)} cm²`;
+            document.getElementById('readoutLength').textContent = `${lengthMm.toFixed(1)} mm`;
+
+            lastX = pos.x; lastY = pos.y;
+            lastTime = now;
+        }
+        drawInstrument(cursorX, cursorY);
+    }
+
+    function endDraw() { isDrawing = false; }
+
+    container.addEventListener('mousedown', startDraw);
+    window.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', endDraw);
+    container.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, { passive: false });
+    container.addEventListener('touchmove', (e) => { e.preventDefault(); moveDraw(e); }, { passive: false });
+    container.addEventListener('touchend', endDraw);
+
+    function clearCanvas() {
+        inkCtx.clearRect(0, 0, width, height);
+        drawSignatureLine();
+        hasSigned = false;
+        wheelIntegral = 0;
+        pathLengthPx = 0;
+        document.getElementById('readoutVernier').textContent = '0.000 omw';
+        document.getElementById('readoutArea').textContent = '0.00 cm²';
+        document.getElementById('readoutLength').textContent = '0.0 mm';
+        document.getElementById('certificateOutput').style.display = 'none';
+    }
+
+    async function sealAgreement() {
+        const name = document.getElementById('internName').value.trim();
+        const scope = document.getElementById('internScope').value.trim() || 'Algemeen AI-onderzoek';
+        const date = document.getElementById('signDate').value;
+        const consented = document.getElementById('ndaConsent').checked;
+        const out = document.getElementById('certificateOutput');
+
+        if (!name || !consented || !hasSigned) {
+            out.style.display = 'block';
+            out.style.background = '#FDF6F6';
+            out.style.borderColor = '#E2B4B4';
+            out.textContent = 'Let op: vul de naam van de stagiair in, vink het akkoord aan en plaats een handtekening met de veerpen.';
+            return;
+        }
+
+        const area = document.getElementById('readoutArea').textContent;
+        const length = document.getElementById('readoutLength').textContent;
+        const utc = new Date().toISOString();
+
+        const payload = `AI-NDA-STAGIAIR|NAAM:${name}|DOMEIN:${scope}|DATUM:${date}|UTC:${utc}|OPPERVLAKTE:${area}|LENGTE:${length}|EIGENAAR:Rianne Goijarts|TOEZICHT:Jorne Goijarts`;
+        const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload));
+        const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+        out.style.display = 'block';
+        out.style.background = '#F4F8F4';
+        out.style.borderColor = '#B7D4B7';
+        out.textContent =
+`=== VERZEGELDE AI-GEHEIMHOUDINGSVERBINTENIS (TIJDSCAPSULE) ===
+Stagiair        : ${name}
+AI-Domein       : ${scope}
+Datum / UTC     : ${date} (${utc})
+Opdrachtgever   : Rianne Goijarts
+Toezichthouder  : Jorne Goijarts
+Planimeter-meet : Oppervlakte ${area} | Inktspoor ${length}
+SHA-256 Zegel   : ${hashHex}
+Status          : Bindend vastgelegd (Zero-Cloud).`;
+    }
+
+    function exportSignaturePNG() {
+        const link = document.createElement('a');
+        const name = (document.getElementById('internName').value.trim() || 'stagiair').replace(/\s+/g, '_');
+        link.download = `ai_verbintenis_${name}.png`;
+        link.href = inkCanvas.toDataURL('image/png');
+        link.click();
+    }
+
+    window.addEventListener('resize', resizeCanvases);
+    resizeCanvases();
+</script>
+
+</body>
+</html>
