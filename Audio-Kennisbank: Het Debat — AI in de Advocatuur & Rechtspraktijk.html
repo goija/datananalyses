@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="nl" class="scroll-smooth" data-font-size="md">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audio-Kennisbank: Het Debat — AI in de Advocatuur &amp; Rechtspraktijk</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Playfair Display (Serif koppen), Inter (Body) & JetBrains Mono (Tijdstempels/Codes) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'Cambria', '"Times New Roman"', 'serif'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+          },
+          colors: {
+            meekrap: {
+              DEFAULT: '#A31C1C',
+              deep: '#821414',
+              light: '#B92B2B',
+              tint: '#F9EFEF',
+              border: '#E5C5C5',
+            },
+            parchment: '#FAF7F2',
+            linen: '#E4DDD3',
+            ink: '#1E1E1E',
+            taupe: '#5A524A',
+            brass: '#A67C37',
+            archival: {
+              green: '#245940',
+              greenBg: '#EEF6F1',
+              greenBorder: '#C5DEC9',
+              ochre: '#8F5B1E',
+              ochreBg: '#FBF5EA',
+              ochreBorder: '#E8D3AD',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Standaard basisleesbaarheid A+ (19px), dynamisch schakelbaar via data-font-size op <html> */
+    html {
+      font-size: 19px;
+    }
+    html[data-font-size="sm"] {
+      font-size: 16px;
+    }
+    html[data-font-size="md"] {
+      font-size: 19px;
+    }
+    html[data-font-size="lg"] {
+      font-size: 21px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #FFFFFF;
+      color: #1E1E1E;
+      line-height: 1.62;
+    }
+
+    h1, h2, h3, h4, .font-editorial {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    /* Zeeuwse Meekrap dossierrug op de vaste linker zijbalk */
+    .dossier-spine {
+      box-shadow: inset 6px 0 0 0 #A31C1C;
+    }
+
+    /* Drag-and-drop highlight voor de lokale audiospeler */
+    .dropzone-active {
+      border-color: #A31C1C !important;
+      background-color: #F9EFEF !important;
+    }
+
+    /* Print- en PDF-optimalisatie */
+    @media print {
+      html,
+      html[data-font-size="sm"],
+      html[data-font-size="md"],
+      html[data-font-size="lg"] {
+        font-size: 10.5pt !important;
+      }
+      body {
+        background-color: #FFFFFF !important;
+        color: #1E1E1E !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-full {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      .print-avoid-break {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .print-page-break {
+        break-before: page;
+        page-break-before: always;
+      }
+      .print-color {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl {
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-white text-ink antialiased selection:bg-meekrap-tint selection:text-meekrap-deep">
+
+  <!-- ===================================================================== -->
+  <!-- MOBIELE BOVENBALK (Compact onder lg-breakpoint)                       -->
+  <!-- ===================================================================== -->
+  <header class="no-print lg:hidden sticky top-0 z-40 bg-parchment/95 backdrop-blur-md border-b border-linen">
+    <div class="h-1.5 w-full bg-meekrap"></div>
+    <div class="px-4 py-3 flex items-center justify-between gap-2">
+      <div class="min-w-0">
+        <span class="block text-[10px] font-mono uppercase tracking-widest text-meekrap font-semibold">Audio-Kennisbank &bull; Zero-Cloud</span>
+        <span class="block font-editorial font-bold text-base text-ink truncate">Het Debat: AI in de Advocatuur</span>
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <!-- Tekstgrootte-schakelaar (Mobiel) -->
+        <div class="inline-flex items-center rounded-lg border border-linen bg-white p-0.5" role="group" aria-label="Tekstgrootte">
+          <button type="button" data-size-btn="sm" onclick="setFontSize('sm')" class="size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md text-taupe hover:text-meekrap transition cursor-pointer">A-</button>
+          <button type="button" data-size-btn="md" onclick="setFontSize('md')" class="size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md bg-meekrap text-white transition cursor-pointer">A+</button>
+          <button type="button" data-size-btn="lg" onclick="setFontSize('lg')" class="size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md text-taupe hover:text-meekrap transition cursor-pointer">A++</button>
+        </div>
+
+        <button type="button" onclick="exportKnowledgeJson()" class="p-2 rounded-lg border border-linen bg-white text-ink hover:border-meekrap hover:text-meekrap transition cursor-pointer" title="Exporteer Kennis (JSON)" aria-label="Exporteer Kennis (JSON)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+        </button>
+
+        <button type="button" onclick="window.print()" class="inline-flex items-center px-2.5 py-2 rounded-lg bg-meekrap hover:bg-meekrap-deep text-white text-xs font-semibold transition cursor-pointer">
+          PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Horizontale mobiele snelnavigatie -->
+    <nav aria-label="Mobiele navigatie" class="px-4 pb-2.5 pt-2 flex items-center gap-2 overflow-x-auto text-xs font-medium text-taupe border-t border-linen/80">
+      <a href="#audio-speler" class="shrink-0 px-2.5 py-1 rounded-md bg-meekrap-tint text-meekrap font-semibold">01. Audio</a>
+      <a href="#debatposities" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">02. Debat</a>
+      <a href="#kennisbank" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">03. Kennisbank</a>
+      <a href="#checklist" class="shrink-0 px-2.5 py-1 rounded-md hover:bg-white hover:text-ink transition">04. Checklist</a>
+    </nav>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- HOOFDCONTAINER: VASTE LINKER ZIJBALK (DESKTOP) + WITTE HOOFDKOLOM     -->
+  <!-- ===================================================================== -->
+  <div class="min-h-screen flex flex-col lg:flex-row max-w-[1640px] mx-auto">
+
+    <!-- =================================================================== -->
+    <!-- VASTE LINKER ZIJBALK (Warm archief-perkament #FAF7F2)               -->
+    <!-- =================================================================== -->
+    <aside class="no-print hidden lg:flex lg:flex-col lg:w-80 xl:w-[340px] shrink-0 bg-parchment border-r border-linen dossier-spine sticky top-0 h-screen overflow-y-auto">
+      <div class="p-7 flex flex-col h-full justify-between gap-6">
+        <div class="space-y-6">
+          <!-- Dossier-identificatie -->
+          <div class="pb-5 border-b border-linen">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-meekrap-tint border border-meekrap-border text-meekrap text-[11px] font-mono font-semibold uppercase tracking-wider">
+              <span class="w-1.5 h-1.5 rounded-full bg-meekrap"></span>
+              Zeeuwse Meekrap Editie
+            </div>
+            <h2 class="mt-3 font-editorial text-xl font-bold text-ink leading-snug">
+              Audio-Kennisbank: Het Debat
+            </h2>
+            <p class="mt-1.5 text-xs text-taupe leading-relaxed">
+              AI in de Advocatuur &amp; Rechtspraktijk &mdash; lokale Zero-Cloud speler, standpunten, 6 themakaarten en praktijk-checklist.
+            </p>
+          </div>
+
+          <!-- Tekstgrootte-schakelaar (Desktop) -->
+          <div class="bg-white rounded-xl border border-linen p-3.5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-mono uppercase tracking-wider text-taupe font-semibold">Leesbaarheid</span>
+              <span id="fontSizeLabel" class="text-[11px] font-mono text-meekrap font-semibold">19px (A+)</span>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5" role="group" aria-label="Tekstgrootte aanpassen">
+              <button type="button" data-size-btn="sm" onclick="setFontSize('sm')" class="size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer">A-</button>
+              <button type="button" data-size-btn="md" onclick="setFontSize('md')" class="size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-meekrap bg-meekrap text-white transition cursor-pointer">A+</button>
+              <button type="button" data-size-btn="lg" onclick="setFontSize('lg')" class="size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer">A++</button>
+            </div>
+          </div>
+
+          <!-- Sectie-index -->
+          <nav aria-label="Inhoudsopgave" class="space-y-1">
+            <div class="text-[11px] font-mono uppercase tracking-widest text-brass font-semibold mb-2 px-2">
+              Dossier-Index
+            </div>
+            <a href="#audio-speler" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition group">
+              <span>Lokale Audio-Speler</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">01</span>
+            </a>
+            <a href="#debatposities" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition group">
+              <span>Centrale Vraag &amp; Debat</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">02</span>
+            </a>
+            <a href="#kennisbank" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition group">
+              <span>Kennisbank (6 Thema&rsquo;s)</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">03</span>
+            </a>
+            <a href="#checklist" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-ink hover:bg-white hover:text-meekrap transition group">
+              <span>Praktijk-Checklist (6)</span>
+              <span class="text-xs font-mono text-taupe group-hover:text-meekrap">04</span>
+            </a>
+          </nav>
+
+          <!-- Compacte statusbox -->
+          <div class="bg-white rounded-xl border border-linen p-4 space-y-2 text-xs">
+            <div class="text-[11px] font-mono uppercase tracking-widest text-brass font-semibold">Lokale Opslag</div>
+            <div class="flex items-center justify-between text-taupe">
+              <span>Audio-notities:</span>
+              <strong id="sidebarNotesCount" class="font-mono text-ink">0</strong>
+            </div>
+            <div class="flex items-center justify-between text-taupe">
+              <span>Checklist voltooid:</span>
+              <strong id="sidebarChecklistCount" class="font-mono text-meekrap">0 / 6</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actieknoppen onderaan zijbalk -->
+        <div class="pt-5 border-t border-linen space-y-2.5">
+          <button type="button" onclick="window.print()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-meekrap hover:bg-meekrap-deep text-white text-sm font-semibold shadow-sm transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659" />
+            </svg>
+            Afdrukken / PDF
+          </button>
+
+          <button type="button" onclick="exportKnowledgeJson()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-meekrap-tint text-ink hover:text-meekrap border border-linen hover:border-meekrap-border text-sm font-semibold transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Exporteer Kennis (JSON)
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- =================================================================== -->
+    <!-- RECHTER HOOFDKOLOM (Helder wit #FFFFFF)                             -->
+    <!-- =================================================================== -->
+    <main class="print-full flex-1 min-w-0 bg-white px-5 sm:px-9 lg:px-14 py-8 lg:py-12 space-y-16">
+
+      <!-- ================================================================= -->
+      <!-- HERO-HEADER                                                       -->
+      <!-- ================================================================= -->
+      <header class="bg-parchment rounded-2xl border border-linen overflow-hidden">
+        <div class="h-2 bg-gradient-to-r from-meekrap via-meekrap-deep to-brass print-color"></div>
+        <div class="p-6 sm:p-10">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-meekrap-tint border border-meekrap-border text-meekrap font-mono text-xs font-semibold uppercase tracking-wider print-color">
+              <span class="w-2 h-2 rounded-full bg-meekrap"></span>
+              Audio-Kennisbank &bull; Zero-Cloud
+            </span>
+            <span class="text-xs font-mono text-taupe bg-white border border-linen px-2.5 py-1 rounded-md">
+              NOvA &bull; Verschoningsrecht &bull; RAG &bull; Procesintegriteit
+            </span>
+          </div>
+
+          <h1 class="font-editorial text-3xl sm:text-4xl xl:text-[42px] font-bold text-ink leading-tight tracking-tight">
+            Audio-Kennisbank: Het Debat &mdash; AI in de Advocatuur &amp; Rechtspraktijk
+          </h1>
+          <p class="mt-3 text-base sm:text-lg text-taupe leading-relaxed max-w-4xl">
+            Gestructureerde kennisverwerking van het audiodebat over generatieve AI in de advocatuur en accountancy: van gesloten enterprise-systemen en RAG tot hallucinaties, datalekken en cognitieve atrofie.
+          </p>
+        </div>
+      </header>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 01: LOKALE AUDIO-SPELER (ZERO-CLOUD) & TIJDSTEMPEL-NOTITIES-->
+      <!-- ================================================================= -->
+      <section id="audio-speler" class="scroll-mt-24 space-y-6">
+        <div class="pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 01 &bull; 100% Lokaal in de Browser</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            Lokale Audio-Speler (Zero-Cloud)
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-taupe max-w-3xl">
+            Laad het lokale audiobestand van <em>Het Debat</em> (MP3, WAV, M4A of OGG). Het bestand blijft volledig op uw eigen apparaat en wordt nooit ge&uuml;pload.
+          </p>
+        </div>
+
+        <div class="bg-parchment rounded-2xl border border-linen p-5 sm:p-7 space-y-6">
+          <!-- Drag & Drop Zone + Bestandskiezer -->
+          <div
+            id="audioDropzone"
+            class="no-print border-2 border-dashed border-linen hover:border-meekrap-border bg-white rounded-xl p-6 text-center transition cursor-pointer"
+            onclick="document.getElementById('audioFileInput').click()"
+          >
+            <input
+              type="file"
+              id="audioFileInput"
+              accept=".mp3,.wav,.m4a,.ogg,audio/*"
+              class="hidden"
+            />
+            <div class="mx-auto w-11 h-11 rounded-xl bg-meekrap-tint border border-meekrap-border text-meekrap flex items-center justify-center mb-3">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+              </svg>
+            </div>
+            <p class="font-semibold text-sm sm:text-base text-ink">
+              Sleep een lokaal audiobestand hierheen of <span class="text-meekrap underline">kies een bestand</span>
+            </p>
+            <p class="mt-1 text-xs font-mono text-taupe">
+              Ondersteund: MP3, WAV, M4A, OGG &bull; Verwerking via lokale Blob-URL (Zero-Cloud)
+            </p>
+          </div>
+
+          <!-- Speler-paneel -->
+          <div class="bg-white rounded-xl border border-linen p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="min-w-0">
+                <span class="text-[11px] font-mono uppercase tracking-wider text-taupe">Geladen audiobestand</span>
+                <div id="audioFileName" class="font-semibold text-sm sm:text-base text-ink truncate">
+                  Nog geen lokaal audiobestand geladen
+                </div>
+              </div>
+              <div class="font-mono text-xs text-meekrap bg-meekrap-tint border border-meekrap-border px-2.5 py-1 rounded-md self-start sm:self-auto">
+                Tijd: <span id="currentAudioTime">00:00</span>
+              </div>
+            </div>
+
+            <!-- HTML5 Audio Element -->
+            <audio id="localAudioPlayer" controls class="no-print w-full rounded-lg"></audio>
+
+            <!-- Afspeelsnelheid & Tijdstempel-notitie knop -->
+            <div class="no-print pt-2 border-t border-linen/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Afspeelsnelheid">
+                <span class="text-xs font-mono text-taupe mr-1.5">Snelheid:</span>
+                <button type="button" data-speed="0.75" onclick="setPlaybackSpeed(0.75)" class="speed-btn px-2.5 py-1 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer">0.75x</button>
+                <button type="button" data-speed="1" onclick="setPlaybackSpeed(1)" class="speed-btn px-2.5 py-1 rounded-lg text-xs font-mono font-semibold border border-meekrap bg-meekrap text-white transition cursor-pointer">1.0x</button>
+                <button type="button" data-speed="1.25" onclick="setPlaybackSpeed(1.25)" class="speed-btn px-2.5 py-1 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer">1.25x</button>
+                <button type="button" data-speed="1.5" onclick="setPlaybackSpeed(1.5)" class="speed-btn px-2.5 py-1 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer">1.5x</button>
+                <button type="button" data-speed="2" onclick="setPlaybackSpeed(2)" class="speed-btn px-2.5 py-1 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer">2.0x</button>
+              </div>
+            </div>
+
+            <!-- Persoonlijke Tijdstempel-notitie toevoegen -->
+            <div class="no-print pt-3 border-t border-linen/80 space-y-2.5">
+              <label for="timestampNoteInput" class="block text-xs font-mono uppercase tracking-wider text-taupe font-semibold">
+                Persoonlijke tijdstempel-notitie toevoegen (lokaal opgeslagen in browser)
+              </label>
+              <div class="flex flex-col sm:flex-row gap-2.5">
+                <input
+                  type="text"
+                  id="timestampNoteInput"
+                  placeholder="Typ uw observatie of citaat bij het huidige afspeelmoment..."
+                  class="flex-1 px-4 py-2.5 text-sm rounded-xl bg-parchment border border-linen text-ink placeholder-taupe/70 focus:outline-none focus:ring-2 focus:ring-meekrap/25 focus:border-meekrap transition"
+                />
+                <button
+                  type="button"
+                  onclick="addTimestampNote()"
+                  class="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-meekrap hover:bg-meekrap-deep text-white text-sm font-semibold transition cursor-pointer"
+                >
+                  <span>+ Noteer op <span id="btnNoteTime" class="font-mono">00:00</span></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Lijst met opgeslagen tijdstempel-notities -->
+            <div class="pt-3 border-t border-linen/80">
+              <div class="flex items-center justify-between mb-2.5">
+                <span class="text-xs font-mono uppercase tracking-wider text-brass font-semibold">
+                  Opgeslagen Tijdstempel-Notities (<span id="notesCount">0</span>)
+                </span>
+                <button type="button" onclick="clearAllNotes()" class="no-print text-xs font-mono text-taupe hover:text-meekrap underline cursor-pointer">
+                  Wis alle notities
+                </button>
+              </div>
+              <ul id="timestampNotesList" class="space-y-2">
+                <!-- Dynamisch gevuld vanuit localStorage -->
+              </ul>
+              <p id="emptyNotesHint" class="text-xs text-taupe italic">
+                Nog geen tijdstempel-notities vastgelegd. Klik tijdens het luisteren op &lsquo;+ Noteer&rsquo; om een moment op te slaan.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 02: CENTRALE VRAAG & DEBATPOSITIES                         -->
+      <!-- ================================================================= -->
+      <section id="debatposities" class="scroll-mt-24 print-page-break space-y-6">
+        <div class="pb-3 border-b border-linen">
+          <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 02 &bull; Kernstellingen uit Het Debat</span>
+          <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+            Centrale Vraag &amp; Debatposities
+          </h2>
+        </div>
+
+        <!-- Centrale Vraag -->
+        <blockquote class="print-avoid-break bg-meekrap-tint border-l-4 border-meekrap rounded-r-2xl p-6 sm:p-7 print-color">
+          <div class="text-xs font-mono uppercase tracking-widest text-meekrap font-bold mb-2">Centrale Debatvraag</div>
+          <p class="font-editorial text-xl sm:text-2xl font-bold text-ink leading-snug">
+            &ldquo;Ondermijnt de inzet van AI in de juridische praktijk onvermijdelijk de fundamentele kernwaarden van het beroep (geheimhoudingsplicht, verschoningsrecht, procesintegriteit), of is het met strak risicogebaseerd beleid en gesloten systemen een beheersbare tool?&rdquo;
+          </p>
+        </blockquote>
+
+        <!-- Twee kolommen: Standpunt A vs. Standpunt B -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Standpunt A -->
+          <article class="print-avoid-break bg-parchment rounded-2xl border border-linen border-t-4 border-t-archival-green p-6 space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-xs font-bold uppercase px-2.5 py-1 rounded bg-archival-greenBg text-archival-green border border-archival-greenBorder print-color">Standpunt A</span>
+              <span class="font-mono text-xs text-taupe">Beheerste Innovatie</span>
+            </div>
+            <h3 class="font-editorial text-2xl font-bold text-ink">Onmisbare evolutie binnen strikte kaders</h3>
+            <ul class="space-y-3 text-sm text-ink leading-relaxed">
+              <li class="bg-white rounded-xl border border-linen p-3.5">
+                <strong class="text-archival-green block">NOvA-richtlijn (geen verbod):</strong>
+                De Nederlandse Orde van Advocaten kiest niet voor een verbod, maar voor een schriftelijk, risicogebaseerd en kantoorbreed AI-beleid.
+              </li>
+              <li class="bg-white rounded-xl border border-linen p-3.5">
+                <strong class="text-archival-green block">Gesloten enterprise-systemen (Closed Tenants):</strong>
+                Professionele praktijk gebruikt geen publieke chatbots, maar afgeschermde omgevingen zoals <em>BaseNet Case Intelligence</em> en <em>Harvey</em> waar cli&euml;ntdata de omgeving niet verlaat.
+              </li>
+              <li class="bg-white rounded-xl border border-linen p-3.5">
+                <strong class="text-archival-green block">RAG (Retrieval-Augmented Generation):</strong>
+                Het model zoekt eerst verplicht in een gesloten, goedgekeurde bibliotheek met actuele Nederlandse wet- en regelgeving met directe bronvermelding.
+              </li>
+              <li class="bg-white rounded-xl border border-linen p-3.5">
+                <strong class="text-archival-green block">Vernieuwde Beroepsopleiding &amp; Stagiair-analogie:</strong>
+                Het credo <em>&ldquo;slim gebruiken, zelf blijven denken&rdquo;</em>; een AI-tool fungeert als een snelle eerstejaars stagiair waarbij de eindredactie en handtekening altijd bij de advocaat blijven.
+              </li>
+            </ul>
+          </article>
+
+          <!-- Standpunt B -->
+          <article class="print-avoid-break bg-parchment rounded-2xl border border-linen border-t-4 border-t-meekrap p-6 space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-xs font-bold uppercase px-2.5 py-1 rounded bg-meekrap-tint text-meekrap border border-meekrap-border print-color">Standpunt B</span>
+              <span class="font-mono text-xs text-taupe">Fundamentele Kritiek</span>
+            </div>
+            <h3 class="font-editorial text-2xl font-bold text-ink">Structurele botsing met absolute kernwaarden</h3>
+            <ul class="space-y-3 text-sm text-ink leading-relaxed">
+              <li class="bg-white rounded-xl border border-linen p-3.5">
+                <strong class="text-meekrap block">Probabilistische &ldquo;gokmachine&rdquo; &amp; Hallucinaties:</strong>
+                Generatieve AI heeft geen waarheidsbegrip maar berekent woordwaarschijnlijkheid. Het verzint met totale zelfverzekerdheid niet-bestaande ECLI-nummers, arresten en rechters.
+              </li>
+              <li class="bg-white rounded-xl border border-linen p-3.5">
+                <strong class="text-meekrap block">Misbruik van procesrecht:</strong>
+                Rechters kwalificeren door AI gegenereerde processtukken vol verzonnen jurisprudentie openlijk als procesmisbruik en vervuiling van het rechtswezen.
+              </li>
+              <li class="bg-white rounded-xl border border-linen p-3.5">
+                <strong class="text-meekrap block">Casus Rechtbank Rotterdam (ECLI ...9319):</strong>
+                Via de openstaande browsergeschiedenis van een beslagene bleek vertrouwelijke verschoningsgerechtigde informatie in een openbare AI-tool te zijn geplakt &mdash; onherroepelijke schending van het beroepsgeheim.
+              </li>
+              <li class="bg-white rounded-xl border border-linen p-3.5">
+                <strong class="text-meekrap block">Shadow AI (&ldquo;23:00-uur-scenario&rdquo;) &amp; Cognitieve atrofie:</strong>
+                Onder urendruk wint gemak het van papieren beleid. Routineus samenvatten holt het juridisch redeneervermogen uit tot <em>&ldquo;gebruiken, kopi&euml;ren en factureren&rdquo;</em>.
+              </li>
+            </ul>
+          </article>
+        </div>
+
+        <!-- Gemeenschappelijke Conclusie -->
+        <div class="print-avoid-break rounded-2xl border-2 border-meekrap bg-white p-6 sm:p-7 shadow-sm">
+          <div class="flex items-center gap-2.5 mb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-meekrap"></span>
+            <h3 class="font-editorial text-xl font-bold text-meekrap-deep">Gemeenschappelijke Conclusie</h3>
+          </div>
+          <p class="text-sm sm:text-base text-ink leading-relaxed">
+            Beide kampen vinden elkaar in &eacute;&eacute;n harde grens: <strong>blind vertrouwen in technologie is levensgevaarlijk</strong>. De juridische sector staat op een kritiek kruispunt met als fundamentele kernvraag: <em>als we de denkwijze in de zwarte doos niet meer intellectueel kunnen volgen, spreken we dan nog recht &mdash; of verwerken we alleen nog data?</em>
+          </p>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 03: DOORZOEKBARE KENNISBANK (6 THEMAKAARTEN MET FILTER)    -->
+      <!-- ================================================================= -->
+      <section id="kennisbank" class="scroll-mt-24 print-page-break space-y-6">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-3 border-b border-linen">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 03 &bull; Gestructureerde Kennismodule</span>
+            <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+              Doorzoekbare Kennisbank (6 Themakaarten)
+            </h2>
+            <p class="mt-2 text-sm sm:text-base text-taupe max-w-3xl">
+              Filter de kerninzichten uit het debat op categorie of doorzoek direct op trefwoorden zoals <em>ECLI</em>, <em>RAG</em>, <em>23:00</em> of <em>atrofie</em>.
+            </p>
+          </div>
+          <div class="no-print text-xs font-mono text-taupe bg-parchment border border-linen px-3 py-1.5 rounded-lg self-start md:self-auto">
+            Getoond: <strong id="kbCount" class="text-ink">6</strong> / 6 thema&rsquo;s
+          </div>
+        </div>
+
+        <!-- Zoekbalk & Categoriefilters -->
+        <div class="no-print bg-parchment rounded-2xl border border-linen p-4 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
+          <div class="relative flex-grow max-w-md">
+            <svg class="w-4 h-4 text-taupe absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input
+              type="text"
+              id="kbSearch"
+              placeholder="Zoek op onderwerp, casus, RAG, 9319, stagiair..."
+              class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-white border border-linen text-ink placeholder-taupe/70 focus:outline-none focus:ring-2 focus:ring-meekrap/25 focus:border-meekrap transition"
+            />
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filter kennisbank op categorie">
+            <button type="button" data-kb-filter="all" onclick="setKbFilter('all')" class="kb-filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-meekrap text-white transition cursor-pointer">
+              Alle (6)
+            </button>
+            <button type="button" data-kb-filter="Juridisch & Tucht" onclick="setKbFilter('Juridisch & Tucht')" class="kb-filter-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              Juridisch &amp; Tucht
+            </button>
+            <button type="button" data-kb-filter="Techniek & Security" onclick="setKbFilter('Techniek & Security')" class="kb-filter-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              Techniek &amp; Security
+            </button>
+            <button type="button" data-kb-filter="Mens & Ethiek" onclick="setKbFilter('Mens & Ethiek')" class="kb-filter-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer">
+              Mens &amp; Ethiek
+            </button>
+          </div>
+        </div>
+
+        <!-- 6 Themakaarten Grid -->
+        <div id="kbGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Dynamisch gevuld door JavaScript -->
+        </div>
+
+        <div id="kbEmptyState" class="hidden py-10 px-6 text-center bg-parchment rounded-2xl border border-linen">
+          <p class="text-taupe font-medium">Geen themakaarten gevonden voor deze zoekterm of categorie.</p>
+          <button type="button" onclick="resetKbFilters()" class="mt-3 px-4 py-2 rounded-xl bg-meekrap hover:bg-meekrap-deep text-white text-xs font-semibold transition cursor-pointer">
+            Filters herstellen
+          </button>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTIE 04: INTERACTIEVE PRAKTIJK-CHECKLIST (6 CRITERIA)           -->
+      <!-- ================================================================= -->
+      <section id="checklist" class="scroll-mt-24 print-page-break space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-3 border-b border-linen">
+          <div>
+            <span class="text-xs font-mono font-semibold uppercase tracking-widest text-brass">Sectie 04 &bull; Toetsingskader Rechtspraktijk</span>
+            <h2 class="mt-1 font-editorial text-2xl sm:text-3xl font-bold text-ink">
+              Praktijk-Checklist: Veilig AI-Gebruik
+            </h2>
+            <p class="mt-2 text-sm sm:text-base text-taupe max-w-3xl">
+              Vink de zes kernvereisten uit het debat af om te toetsen of uw kantoor- of dossierwerkwijze voldoet aan de eisen van geheimhouding en procesintegriteit.
+            </p>
+          </div>
+
+          <div class="no-print flex items-center gap-2 shrink-0">
+            <button type="button" onclick="setAllChecklist(true)" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-meekrap-tint text-meekrap border border-meekrap-border hover:bg-meekrap hover:text-white transition cursor-pointer">
+              Alles aanvinken
+            </button>
+            <button type="button" onclick="setAllChecklist(false)" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white text-taupe border border-linen hover:border-ink hover:text-ink transition cursor-pointer">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Voortgangsbalk -->
+        <div class="bg-parchment rounded-2xl border border-linen p-5 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="font-editorial font-bold text-base text-ink">Compliance-score</span>
+              <span id="checklistBadge" class="px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-meekrap-tint text-meekrap border border-meekrap-border print-color">
+                Nog niet getoetst
+              </span>
+            </div>
+            <div class="text-sm font-mono font-semibold text-ink">
+              <span id="checklistDoneCount">0</span> / 6 criteria (<span id="checklistPercent">0%</span>)
+            </div>
+          </div>
+          <div class="w-full h-3 bg-white rounded-full overflow-hidden border border-linen">
+            <div id="checklistProgressBar" class="h-full bg-gradient-to-r from-meekrap to-meekrap-light transition-all duration-300 rounded-full print-color" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- 6 Checklist-items -->
+        <div id="checklistItemsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamisch gevuld door JavaScript -->
+        </div>
+
+        <!-- Voetnoot -->
+        <footer class="print-avoid-break bg-parchment rounded-2xl border border-linen border-l-4 border-l-meekrap p-6">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-taupe">
+            <span class="font-semibold text-ink">Audio-Kennisbank: Het Debat &mdash; AI in de Advocatuur &amp; Rechtspraktijk</span>
+            <span class="font-mono text-[11px]">Zero-Cloud &bull; Lokale opslag &bull; Print- &amp; PDF-geoptimaliseerd</span>
+          </div>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast-melding (vervangt alert()) -->
+  <div id="toast" class="no-print fixed bottom-5 right-5 z-50 hidden items-center gap-2.5 px-4 py-3 rounded-xl bg-ink text-white text-sm font-medium shadow-xl border border-brass/50">
+    <span class="w-2 h-2 rounded-full bg-meekrap-light shrink-0"></span>
+    <span id="toastMessage">Actie uitgevoerd</span>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ZELFSTANDIGE JAVASCRIPT (Geen externe libraries of API-sleutels)      -->
+  <!-- ===================================================================== -->
+  <script>
+    const STORAGE_KEYS = {
+      NOTES: 'het_debat_ai_audio_notes_v1',
+      CHECKLIST: 'het_debat_ai_checklist_v1'
+    };
+
+    /**
+     * 6 Inhoudelijke themakaarten uit Het Debat.
+     */
+    const knowledgeCards = [
+      {
+        id: 'THEMA-01',
+        title: '1. Hallucinaties & Procesmisbruik',
+        category: 'Juridisch & Tucht',
+        badgeStyle: 'bg-meekrap-tint text-meekrap border-meekrap-border',
+        summary: 'AI-modellen genereren overtuigende processtukken met verzonnen ECLI-nummers, niet-bestaande uitspraken en fictieve namen van rechters.',
+        details: 'Wanneer een griffier de citaten nagaat, blijken de bronnen van A tot Z verzonnen. Rechters kwalificeren dit in toenemende mate niet als slordigheidje, maar als misbruik van procesrecht en vervuiling van het rechtswezen.'
+      },
+      {
+        id: 'THEMA-02',
+        title: '2. Verschoningsrecht & Casus Rotterdam (ECLI ...9319)',
+        category: 'Juridisch & Tucht',
+        badgeStyle: 'bg-meekrap-tint text-meekrap border-meekrap-border',
+        summary: 'Concrete uitspraak van de Rechtbank Rotterdam waarbij een openstaande browsergeschiedenis een onherroepelijk datalek blootlegde.',
+        details: 'Een beslagene had een openbare AI gevraagd een juridische reactie op te stellen over een verschoningsgerechtigde inclusief uiterst specifieke context. Met één muisklik verdween beschermde data in een commerciële database.'
+      },
+      {
+        id: 'THEMA-03',
+        title: '3. RAG & Closed Tenants',
+        category: 'Techniek & Security',
+        badgeStyle: 'bg-archival-greenBg text-archival-green border-archival-greenBorder',
+        summary: 'Technische waarborgen tegen hallucinaties en datalekken in professionele juridische software zoals BaseNet Case Intelligence en Harvey.',
+        details: 'Via Retrieval-Augmented Generation (RAG) zoekt het model eerst in een afgesloten, goedgekeurde bibliotheek met actuele Nederlandse wet- en regelgeving. Een closed tenant garandeert contractueel dat cliëntdata de kantooromgeving niet verlaat.'
+      },
+      {
+        id: 'THEMA-04',
+        title: '4. Shadow AI & Het 23:00-uur-scenario',
+        category: 'Techniek & Security',
+        badgeStyle: 'bg-archival-greenBg text-archival-green border-archival-greenBorder',
+        summary: 'Het risico zit niet alleen in de software-architectuur, maar in de menselijke psychologie onder hoge tijds- en urendruk.',
+        details: 'Om 23:00 uur ’s avonds kopieert een gestreste medewerker een conclusie van 40 pagina’s snel in de gratis browserversie van ChatGPT omdat de beveiligde enterprise-tool extra authenticatie vraagt — waarmee papieren kantoorbeleid een papieren tijger wordt.'
+      },
+      {
+        id: 'THEMA-05',
+        title: '5. Stagiair vs. Probabilistisch Model',
+        category: 'Mens & Ethiek',
+        badgeStyle: 'bg-archival-ochreBg text-archival-ochre border-archival-ochreBorder',
+        summary: 'Waarom de populaire vergelijking tussen een AI-tool en een eerstejaars advocaat-stagiair volgens critici fundamenteel mank gaat.',
+        details: 'Een menselijke stagiair heeft conceptueel begrip van waarheid en laat een gat vallen bij onwetendheid. Een probabilistisch taalmodel weet niets, berekent slechts woordwaarschijnlijkheid en hallucineert met de stelligheid van een topexpert.'
+      },
+      {
+        id: 'THEMA-06',
+        title: '6. Cognitieve Atrofie & Beroepsopleiding',
+        category: 'Mens & Ethiek',
+        badgeStyle: 'bg-archival-ochreBg text-archival-ochre border-archival-ochreBorder',
+        summary: 'De spanning tussen de vernieuwde beroepsopleiding advocaten ("slim gebruiken, zelf blijven denken") en het verschrompelen van analytisch vermogen.',
+        details: 'Wie complexe dossiers van 10.000 pagina’s routineus in 30 seconden laat samenvatten, ontwikkelt geen scherp juridisch instinct meer. Het credo dreigt dan ongemerkt te verschuiven naar "gebruiken, kopiëren en factureren".'
+      }
+    ];
+
+    /**
+     * 6 Praktijk-checklist criteria voor veilig AI-gebruik.
+     */
+    const checklistCriteria = [
+      {
+        id: 'CHK-1',
+        title: 'Schriftelijk, risicogebaseerd AI-beleid (NOvA-richtlijn)',
+        desc: 'Kantoorbreed beleid vastgesteld en aantoonbaar gecommuniceerd aan alle juristen en ondersteuners.'
+      },
+      {
+        id: 'CHK-2',
+        title: 'Uitsluitend Closed Tenants & Zero-Training garantie',
+        desc: 'Geen cliënt- of dossierdata in publieke AI-chatbots; alleen afgeschermde enterprise-omgevingen zonder modeltraining.'
+      },
+      {
+        id: 'CHK-3',
+        title: 'Verplichte bronverificatie (ECLI, wetstekst & feiten)',
+        desc: 'Elke gegenereerde uitspraak, wetsartikel en feitelijke stelling wordt handmatig geverifieerd tegen de primaire bron.'
+      },
+      {
+        id: 'CHK-4',
+        title: 'Gebruik van RAG op actuele Nederlandse rechtsbronnen',
+        desc: 'Inzet van Retrieval-Augmented Generation gekoppeld aan geverifieerde, actuele Nederlandse wet- en regelgeving.'
+      },
+      {
+        id: 'CHK-5',
+        title: 'Maatregelen tegen Shadow AI (het 23:00-uur-risico)',
+        desc: 'Laagdrempelige veilige tooling en technische/organisatorische borging zodat tijdsdruk niet leidt tot publieke tools.'
+      },
+      {
+        id: 'CHK-6',
+        title: 'Menselijke eindredactie & behoud van redeneervermogen',
+        desc: 'De verantwoordelijke advocaat doorgrondt de juridische redenering zelfstandig en voorkomt cognitieve atrofie.'
+      }
+    ];
+
+    let activeKbFilter = 'all';
+    let currentObjectUrl = null;
+    let savedNotes = [];
+    let checklistState = {};
+    let toastTimer = null;
+
+    /**
+     * Veilige HTML-escaping.
+     */
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * Formatteert seconden naar MM:SS of UU:MM:SS.
+     */
+    function formatSeconds(sec) {
+      const s = Math.max(0, Math.floor(Number(sec) || 0));
+      const hrs = Math.floor(s / 3600);
+      const mins = Math.floor((s % 3600) / 60);
+      const rem = s % 60;
+      const pad = (n) => String(n).padStart(2, '0');
+      return hrs > 0 ? `${pad(hrs)}:${pad(mins)}:${pad(rem)}` : `${pad(mins)}:${pad(rem)}`;
+    }
+
+    /**
+     * Tekstgrootte-schakelaar (A- = 16px, A+ = 19px, A++ = 21px).
+     */
+    function setFontSize(sizeKey) {
+      document.documentElement.setAttribute('data-font-size', sizeKey);
+      const labelMap = { sm: '16px (A-)', md: '19px (A+)', lg: '21px (A++)' };
+      const labelEl = document.getElementById('fontSizeLabel');
+      if (labelEl) labelEl.textContent = labelMap[sizeKey] || '19px (A+)';
+
+      document.querySelectorAll('.size-btn').forEach((btn) => {
+        const isCurrent = btn.getAttribute('data-size-btn') === sizeKey;
+        const isMobile = btn.closest('header') !== null;
+        if (isMobile) {
+          btn.className = isCurrent
+            ? 'size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md bg-meekrap text-white transition cursor-pointer'
+            : 'size-btn px-2 py-1 text-[11px] font-mono font-semibold rounded-md text-taupe hover:text-meekrap transition cursor-pointer';
+        } else {
+          btn.className = isCurrent
+            ? 'size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-meekrap bg-meekrap text-white transition cursor-pointer'
+            : 'size-btn py-1.5 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer';
+        }
+      });
+    }
+
+    /**
+     * Laadt een lokaal audiobestand in de HTML5-speler zonder upload (Zero-Cloud).
+     */
+    function loadLocalAudioFile(file) {
+      if (!file) return;
+      try {
+        if (currentObjectUrl) {
+          URL.revokeObjectURL(currentObjectUrl);
+        }
+        currentObjectUrl = URL.createObjectURL(file);
+        const audio = document.getElementById('localAudioPlayer');
+        audio.src = currentObjectUrl;
+        audio.load();
+        document.getElementById('audioFileName').textContent = `${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+        showToast(`Lokaal audiobestand geladen: ${file.name}`);
+      } catch (err) {
+        showToast('Audiobestand kon niet lokaal worden geladen');
+      }
+    }
+
+    /**
+     * Stelt de afspeelsnelheid in (0.75x t/m 2.0x).
+     */
+    function setPlaybackSpeed(rate) {
+      const audio = document.getElementById('localAudioPlayer');
+      audio.playbackRate = rate;
+      document.querySelectorAll('.speed-btn').forEach((btn) => {
+        const isCurrent = Number(btn.getAttribute('data-speed')) === rate;
+        btn.className = isCurrent
+          ? 'speed-btn px-2.5 py-1 rounded-lg text-xs font-mono font-semibold border border-meekrap bg-meekrap text-white transition cursor-pointer'
+          : 'speed-btn px-2.5 py-1 rounded-lg text-xs font-mono font-semibold border border-linen bg-parchment text-taupe hover:border-meekrap hover:text-meekrap transition cursor-pointer';
+      });
+      showToast(`Afspeelsnelheid ingesteld op ${rate}x`);
+    }
+
+    /**
+     * Laadt en bewaart tijdstempel-notities in localStorage.
+     */
+    function loadNotesFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEYS.NOTES);
+        savedNotes = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(savedNotes)) savedNotes = [];
+      } catch (err) {
+        savedNotes = [];
+      }
+      renderNotes();
+    }
+
+    function saveNotesToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify(savedNotes));
+      } catch (err) {
+        showToast('Lokale opslag niet beschikbaar');
+      }
+    }
+
+    function addTimestampNote() {
+      const input = document.getElementById('timestampNoteInput');
+      const text = (input.value || '').trim();
+      if (!text) {
+        showToast('Typ eerst een korte notitie');
+        input.focus();
+        return;
+      }
+
+      const audio = document.getElementById('localAudioPlayer');
+      const timeSec = Math.floor(audio.currentTime || 0);
+      const note = {
+        id: 'NOTE-' + Date.now(),
+        seconds: timeSec,
+        formattedTime: formatSeconds(timeSec),
+        text: text,
+        createdAt: new Date().toISOString()
+      };
+
+      savedNotes.push(note);
+      savedNotes.sort((a, b) => a.seconds - b.seconds);
+      saveNotesToStorage();
+      input.value = '';
+      renderNotes();
+      showToast(`Notitie opgeslagen op ${note.formattedTime}`);
+    }
+
+    function jumpToTimestamp(seconds) {
+      const audio = document.getElementById('localAudioPlayer');
+      if (!audio.src) {
+        showToast('Laad eerst een lokaal audiobestand om te springen');
+        return;
+      }
+      audio.currentTime = seconds;
+      audio.play().catch(() => {});
+    }
+
+    function deleteNote(noteId) {
+      savedNotes = savedNotes.filter((n) => n.id !== noteId);
+      saveNotesToStorage();
+      renderNotes();
+      showToast('Notitie verwijderd');
+    }
+
+    function clearAllNotes() {
+      savedNotes = [];
+      saveNotesToStorage();
+      renderNotes();
+      showToast('Alle tijdstempel-notities gewist');
+    }
+
+    function renderNotes() {
+      const list = document.getElementById('timestampNotesList');
+      const emptyHint = document.getElementById('emptyNotesHint');
+      const countEl = document.getElementById('notesCount');
+      const sidebarCount = document.getElementById('sidebarNotesCount');
+
+      countEl.textContent = savedNotes.length;
+      if (sidebarCount) sidebarCount.textContent = savedNotes.length;
+
+      if (savedNotes.length === 0) {
+        list.innerHTML = '';
+        emptyHint.classList.remove('hidden');
+        return;
+      }
+
+      emptyHint.classList.add('hidden');
+      list.innerHTML = savedNotes.map((n) => `
+        <li class="print-avoid-break flex items-start justify-between gap-3 p-3 rounded-xl bg-parchment border border-linen text-xs sm:text-sm">
+          <div class="flex items-start gap-2.5 min-w-0">
+            <button
+              type="button"
+              onclick="jumpToTimestamp(${n.seconds})"
+              class="shrink-0 font-mono text-xs font-bold px-2 py-0.5 rounded bg-meekrap text-white hover:bg-meekrap-deep transition cursor-pointer print-color"
+              title="Spring naar ${escapeHtml(n.formattedTime)}"
+            >
+              ${escapeHtml(n.formattedTime)}
+            </button>
+            <span class="text-ink leading-snug break-words">${escapeHtml(n.text)}</span>
+          </div>
+          <button
+            type="button"
+            onclick="deleteNote('${n.id}')"
+            class="no-print shrink-0 text-taupe hover:text-meekrap font-mono text-xs px-1.5 py-0.5 rounded cursor-pointer"
+            title="Verwijder notitie"
+            aria-label="Verwijder notitie"
+          >
+            &times;
+          </button>
+        </li>
+      `).join('');
+    }
+
+    /**
+     * Rendert de 6 doorzoekbare en filterbare themakaarten (Sectie 03).
+     */
+    function renderKnowledgeCards() {
+      const grid = document.getElementById('kbGrid');
+      const emptyState = document.getElementById('kbEmptyState');
+      const countEl = document.getElementById('kbCount');
+      const query = (document.getElementById('kbSearch').value || '').toLowerCase().trim();
+
+      const filtered = knowledgeCards.filter((card) => {
+        const matchesCat = activeKbFilter === 'all' || card.category === activeKbFilter;
+        const searchable = `${card.title} ${card.category} ${card.summary} ${card.details}`.toLowerCase();
+        return matchesCat && (!query || searchable.includes(query));
+      });
+
+      countEl.textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      grid.innerHTML = filtered.map((card) => `
+        <article class="print-avoid-break bg-parchment rounded-2xl border border-linen p-5 sm:p-6 flex flex-col justify-between gap-3 hover:border-meekrap-border transition">
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded border print-color ${card.badgeStyle}">
+                ${escapeHtml(card.category)}
+              </span>
+              <span class="font-mono text-[11px] text-taupe">${escapeHtml(card.id)}</span>
+            </div>
+            <h3 class="font-editorial text-xl font-bold text-ink leading-snug">${escapeHtml(card.title)}</h3>
+            <p class="text-sm font-medium text-ink leading-relaxed">${escapeHtml(card.summary)}</p>
+            <p class="text-xs sm:text-sm text-taupe leading-relaxed bg-white rounded-xl border border-linen p-3.5">
+              ${escapeHtml(card.details)}
+            </p>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function setKbFilter(category) {
+      activeKbFilter = category;
+      document.querySelectorAll('.kb-filter-btn').forEach((btn) => {
+        const isCurrent = btn.getAttribute('data-kb-filter') === category;
+        btn.className = isCurrent
+          ? 'kb-filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-meekrap text-white transition cursor-pointer'
+          : 'kb-filter-btn px-3.5 py-2 rounded-xl text-xs font-medium bg-white text-taupe border border-linen hover:border-meekrap-border hover:text-meekrap transition cursor-pointer';
+      });
+      renderKnowledgeCards();
+    }
+
+    function resetKbFilters() {
+      document.getElementById('kbSearch').value = '';
+      setKbFilter('all');
+    }
+
+    /**
+     * Praktijk-checklist (6 criteria) met localStorage en live voortgangsbalk.
+     */
+    function loadChecklistFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEYS.CHECKLIST);
+        checklistState = raw ? JSON.parse(raw) : {};
+      } catch (err) {
+        checklistState = {};
+      }
+      renderChecklist();
+    }
+
+    function saveChecklistToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklistState));
+      } catch (err) {
+        // Negeer opslagfouten in strikte privacy-modus
+      }
+    }
+
+    function toggleChecklistItem(id, isChecked) {
+      checklistState[id] = Boolean(isChecked);
+      saveChecklistToStorage();
+      updateChecklistProgress();
+    }
+
+    function setAllChecklist(val) {
+      checklistCriteria.forEach((c) => {
+        checklistState[c.id] = Boolean(val);
+      });
+      saveChecklistToStorage();
+      renderChecklist();
+    }
+
+    function renderChecklist() {
+      const container = document.getElementById('checklistItemsContainer');
+      container.innerHTML = checklistCriteria.map((item) => {
+        const checked = Boolean(checklistState[item.id]);
+        return `
+          <label class="print-avoid-break flex items-start gap-3.5 p-4 rounded-xl border ${checked ? 'border-meekrap-border bg-meekrap-tint/40' : 'border-linen bg-parchment'} hover:border-meekrap-border transition cursor-pointer">
+            <input
+              type="checkbox"
+              class="mt-1 w-4 h-4 rounded accent-[#A31C1C] shrink-0 cursor-pointer"
+              ${checked ? 'checked' : ''}
+              onchange="toggleChecklistItem('${item.id}', this.checked); renderChecklist();"
+            />
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-[11px] font-bold text-meekrap bg-white border border-linen px-1.5 py-0.5 rounded">${escapeHtml(item.id)}</span>
+                <span class="font-semibold text-sm text-ink leading-snug">${escapeHtml(item.title)}</span>
+              </div>
+              <p class="text-xs text-taupe leading-relaxed">${escapeHtml(item.desc)}</p>
+            </div>
+          </label>
+        `;
+      }).join('');
+      updateChecklistProgress();
+    }
+
+    function updateChecklistProgress() {
+      const total = checklistCriteria.length;
+      const done = checklistCriteria.filter((c) => Boolean(checklistState[c.id])).length;
+      const pct = Math.round((done / total) * 100);
+
+      document.getElementById('checklistDoneCount').textContent = done;
+      document.getElementById('checklistPercent').textContent = `${pct}%`;
+      document.getElementById('checklistProgressBar').style.width = `${pct}%`;
+
+      const sidebarCount = document.getElementById('sidebarChecklistCount');
+      if (sidebarCount) sidebarCount.textContent = `${done} / ${total}`;
+
+      const badge = document.getElementById('checklistBadge');
+      if (pct === 100) {
+        badge.textContent = 'Volledig geborgd';
+        badge.className = 'px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-archival-greenBg text-archival-green border border-archival-greenBorder print-color';
+      } else if (pct >= 50) {
+        badge.textContent = 'Gedeeltelijk op orde';
+        badge.className = 'px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-archival-ochreBg text-archival-ochre border border-archival-ochreBorder print-color';
+      } else {
+        badge.textContent = 'Aandacht vereist';
+        badge.className = 'px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold bg-meekrap-tint text-meekrap border border-meekrap-border print-color';
+      }
+    }
+
+    /**
+     * Exporteert alle kennis, checkliststatus en persoonlijke notities als JSON.
+     */
+    function exportKnowledgeJson() {
+      try {
+        const payload = {
+          titel: 'Audio-Kennisbank: Het Debat — AI in de Advocatuur & Rechtspraktijk',
+          export_utc: new Date().toISOString(),
+          centrale_vraag: 'Ondermijnt de inzet van AI in de juridische praktijk onvermijdelijk de fundamentele kernwaarden van het beroep (geheimhoudingsplicht, verschoningsrecht, procesintegriteit), of is het met strak risicogebaseerd beleid en gesloten systemen een beheersbare tool?',
+          gemeenschappelijke_conclusie: 'Blind vertrouwen in technologie is levensgevaarlijk; kernvraag of we nog recht spreken of slechts data verwerken als de zwarte doos niet meer intellectueel te volgen is.',
+          kennisbank_themas: knowledgeCards,
+          praktijk_checklist: checklistCriteria.map((c) => ({
+            id: c.id,
+            titel: c.title,
+            omschrijving: c.desc,
+            afgevinkt: Boolean(checklistState[c.id])
+          })),
+          persoonlijke_audio_notities: savedNotes
+        };
+
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'audio-kennisbank-het-debat-ai-advocatuur.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('Kennisbank & notities gedownload als JSON');
+      } catch (err) {
+        showToast('JSON-export kon niet worden gestart');
+      }
+    }
+
+    /**
+     * Subtiele toast-melding.
+     */
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = msg;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 2800);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Bestandskiezer & Drag-and-Drop voor lokale audio
+      const fileInput = document.getElementById('audioFileInput');
+      const dropzone = document.getElementById('audioDropzone');
+      const audio = document.getElementById('localAudioPlayer');
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          loadLocalAudioFile(e.target.files[0]);
+        }
+      });
+
+      ['dragenter', 'dragover'].forEach((evt) => {
+        dropzone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('dropzone-active');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach((evt) => {
+        dropzone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove('dropzone-active');
+        });
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer && e.dataTransfer.files;
+        if (files && files[0]) {
+          loadLocalAudioFile(files[0]);
+        }
+      });
+
+      // Live tijdstempel-update tijdens afspelen
+      audio.addEventListener('timeupdate', () => {
+        const formatted = formatSeconds(audio.currentTime);
+        document.getElementById('currentAudioTime').textContent = formatted;
+        document.getElementById('btnNoteTime').textContent = formatted;
+      });
+
+      // Enter-toets in notitieveld
+      document.getElementById('timestampNoteInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addTimestampNote();
+        }
+      });
+
+      // Live zoekfunctie kennisbank
+      document.getElementById('kbSearch').addEventListener('input', renderKnowledgeCards);
+
+      // Initialisatie
+      setFontSize('md');
+      loadNotesFromStorage();
+      renderKnowledgeCards();
+      loadChecklistFromStorage();
+    });
+  </script>
+</body>
+</html>
