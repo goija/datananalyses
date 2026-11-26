@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Het Grote 19×19 Pionnenschaakbord • Go-modus &amp; Monte Carlo</title>
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS — Strak Wit & Zeeuws Meekrab-rood
+       ========================================================================== */
+    :root {
+      --bg-page: #FAF7F5;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #FBF4F4;
+      --bg-cell-alt: #FDF9F8;
+      --border-soft: #E6D8D8;
+      --border-strong: #D4BDBD;
+      --grid-line: #E3D2D2;
+
+      --meekrab: #861627;
+      --meekrab-dark: #6B101E;
+      --meekrab-frame: #7A1323;
+      --meekrab-soft: #F7E8EA;
+      --meekrab-ring: rgba(134, 22, 39, 0.25);
+
+      --text-main: #2A1B1D;
+      --text-muted: #6E585B;
+      --text-inverse: #FFFFFF;
+
+      --radius-card: 14px;
+      --radius-btn: 10px;
+      --radius-pill: 999px;
+      --shadow-card: 0 2px 10px rgba(107, 16, 30, 0.05);
+      --shadow-board: 0 10px 28px rgba(107, 16, 30, 0.14);
+
+      --font-serif: Georgia, "Times New Roman", serif;
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    /* ==========================================================================
+       BASIS & RESET
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input {
+      font-family: inherit;
+    }
+
+    /* ==========================================================================
+       PAGINA-CONTAINER & HEADER
+       ========================================================================== */
+    .page-wrap {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 2.5rem;
+    }
+
+    .site-header {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      border-top: 4px solid var(--meekrab);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.28rem 0.75rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-soft);
+      background: var(--bg-subtle);
+      color: var(--meekrab);
+      letter-spacing: 0.01em;
+    }
+
+    .badge--solid {
+      background: var(--meekrab);
+      border-color: var(--meekrab);
+      color: var(--text-inverse);
+    }
+
+    .header-main {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem 1rem;
+    }
+
+    .site-title {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: clamp(1.45rem, 2.6vw, 2.05rem);
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .site-subtitle {
+      margin: 0.25rem 0 0;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+    }
+
+    .header-meta {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--meekrab);
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       HOOFDLAYOUT: 2 KOLOMMEN OP DESKTOP, GESTAPELD OP MOBIEL
+       ========================================================================== */
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.38fr) minmax(320px, 0.92fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ==========================================================================
+       KAARTEN
+       ========================================================================== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      padding: 1.15rem 1.2rem;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card-title {
+      margin: 0 0 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--meekrab);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    /* ==========================================================================
+       LINKERKOLOM: HET 19×19 BORD
+       ========================================================================== */
+    .board-card {
+      padding: 1.15rem;
+    }
+
+    .board-frame {
+      background: var(--meekrab-frame);
+      border: 2px solid var(--meekrab-dark);
+      border-radius: 12px;
+      padding: clamp(0.45rem, 1.2vw, 0.85rem);
+      box-shadow: var(--shadow-board);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* 21×21 CSS Grid: 1 rand voor labels rondom + 19×19 speelveld */
+    .board-matrix {
+      display: grid;
+      grid-template-columns: minmax(18px, 0.65fr) repeat(19, minmax(0, 1fr)) minmax(18px, 0.65fr);
+      grid-template-rows: minmax(18px, 0.65fr) repeat(19, minmax(0, 1fr)) minmax(18px, 0.65fr);
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      align-items: center;
+      justify-items: center;
+    }
+
+    .coord-label {
+      color: rgba(255, 255, 255, 0.94);
+      font-family: var(--font-mono);
+      font-size: clamp(0.54rem, 1.05vw, 0.74rem);
+      font-weight: 700;
+      line-height: 1;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .board-cell {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 1 / 1;
+      background: #FFFFFF;
+      border: 0.5px solid var(--grid-line);
+      padding: 0;
+      margin: 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.12s ease, box-shadow 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .board-cell:nth-child(even) {
+      background: var(--bg-cell-alt);
+    }
+
+    .board-cell:hover {
+      background: var(--meekrab-soft);
+      z-index: 2;
+    }
+
+    .board-cell:focus-visible {
+      outline: 2px solid var(--meekrab);
+      outline-offset: -2px;
+      z-index: 4;
+    }
+
+    /* Highlight voor laatst aangeklikt veld */
+    .board-cell.is-last {
+      box-shadow: inset 0 0 0 2px var(--meekrab);
+      z-index: 3;
+    }
+
+    /* Highlight voor geselecteerde pion in verplaats-modus */
+    .board-cell.is-selected {
+      background: #F4DCE0;
+      box-shadow: inset 0 0 0 2.5px var(--meekrab-dark);
+      z-index: 4;
+    }
+
+    /* Subtiele stip op het middelpunt J10 (0,0) wanneer leeg */
+    .board-cell.is-center.is-empty::after {
+      content: "";
+      width: 24%;
+      height: 24%;
+      min-width: 4px;
+      min-height: 4px;
+      border-radius: 50%;
+      background: rgba(134, 22, 39, 0.45);
+      pointer-events: none;
+    }
+
+    /* Pionnen: Krijtwit (hartje) & Zeeuws Meekrab-rood (stipje) */
+    .piece {
+      width: 82%;
+      height: 82%;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transition: transform 0.12s ease;
+    }
+
+    .board-cell:active .piece {
+      transform: scale(0.92);
+    }
+
+    .piece--white {
+      background: #FFFFFF;
+      border: 1.6px solid var(--meekrab);
+      box-shadow: 0 1px 2px rgba(107, 16, 30, 0.18);
+    }
+
+    .piece--white svg {
+      width: 54%;
+      height: 54%;
+      fill: var(--meekrab);
+      display: block;
+    }
+
+    .piece--red {
+      background: radial-gradient(circle at 35% 30%, #9E1E31 0%, var(--meekrab) 65%, var(--meekrab-dark) 100%);
+      border: 1.2px solid var(--meekrab-dark);
+      box-shadow: 0 1px 3px rgba(107, 16, 30, 0.28);
+    }
+
+    .piece--red::after {
+      content: "";
+      width: 26%;
+      height: 26%;
+      min-width: 3px;
+      min-height: 3px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      opacity: 0.95;
+    }
+
+    .board-caption {
+      margin: 0.85rem 0 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .board-caption strong {
+      color: var(--text-main);
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       KNOPPEN: PRESETS & ACTIES
+       ========================================================================== */
+    .preset-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .preset-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.68rem 0.9rem;
+      border-radius: var(--radius-btn);
+      border: 1px solid var(--border-soft);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--meekrab);
+      background: var(--bg-subtle);
+    }
+
+    .preset-btn.is-active {
+      background: var(--meekrab);
+      border-color: var(--meekrab-dark);
+      color: var(--text-inverse);
+    }
+
+    .preset-count {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 0.18rem 0.55rem;
+      border-radius: 6px;
+      background: var(--bg-subtle);
+      color: var(--meekrab);
+      white-space: nowrap;
+    }
+
+    .preset-btn.is-active .preset-count {
+      background: rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 480px) {
+      .mode-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mode-btn {
+      padding: 0.62rem 0.75rem;
+      border-radius: var(--radius-btn);
+      border: 1px solid var(--border-soft);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+    }
+
+    .mode-btn:hover {
+      border-color: var(--meekrab);
+      background: var(--bg-subtle);
+    }
+
+    .mode-btn.is-active {
+      background: var(--meekrab);
+      border-color: var(--meekrab-dark);
+      color: var(--text-inverse);
+    }
+
+    .mode-btn--go {
+      grid-column: 1 / -1;
+      border: 1.5px solid var(--meekrab);
+      background: var(--meekrab-soft);
+      color: var(--meekrab-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.72rem 0.85rem;
+      font-size: 0.88rem;
+    }
+
+    .mode-btn--go:hover {
+      background: #F2D8DC;
+    }
+
+    .mode-btn--go.is-active {
+      background: var(--meekrab);
+      color: #FFFFFF;
+      box-shadow: 0 0 0 3px var(--meekrab-ring);
+    }
+
+    .mode-hint {
+      margin: 0.65rem 0 0;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       GO-MODUS SUBPANEEL
+       ========================================================================== */
+    .go-panel {
+      margin-top: 0.85rem;
+      padding: 0.9rem;
+      border-radius: var(--radius-btn);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-strong);
+      display: none;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .go-panel.is-visible {
+      display: flex;
+    }
+
+    .go-turn-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .turn-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .turn-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .turn-swatch--white {
+      background: #FFFFFF;
+      border: 2px solid var(--meekrab);
+    }
+
+    .turn-swatch--red {
+      background: var(--meekrab);
+      border: 2px solid var(--meekrab-dark);
+    }
+
+    .go-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--meekrab);
+      color: #FFFFFF;
+      border: 1px solid var(--meekrab-dark);
+      border-radius: 8px;
+      padding: 0.58rem 0.75rem;
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--meekrab-dark);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .btn-secondary {
+      background: #FFFFFF;
+      color: var(--meekrab-dark);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      border-color: var(--meekrab);
+      background: var(--meekrab-soft);
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--text-main);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--meekrab);
+      cursor: pointer;
+    }
+
+    .go-status {
+      font-size: 0.82rem;
+      line-height: 1.45;
+      padding: 0.55rem 0.7rem;
+      border-radius: 8px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-soft);
+      border-left: 3px solid var(--meekrab);
+      color: var(--text-main);
+      min-height: 2.3rem;
+    }
+
+    .go-status.is-warning {
+      background: #FFF4F4;
+      border-left-color: #B42318;
+      color: #7A1323;
+    }
+
+    /* ==========================================================================
+       LIVE TELLING & COÖRDINAAT
+       ========================================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .stat-box {
+      padding: 0.7rem 0.8rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: var(--bg-card);
+    }
+
+    .stat-box--highlight {
+      background: var(--bg-subtle);
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .stat-value--accent {
+      color: var(--meekrab);
+    }
+
+    .capture-row {
+      margin-top: 0.6rem;
+      padding-top: 0.6rem;
+      border-top: 1px dashed var(--border-soft);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    /* ==========================================================================
+       KAART 4: UITLEG & ONDEDAAN MAKEN
+       ========================================================================== */
+    .rules-list {
+      margin: 0 0 0.85rem;
+      padding-left: 1.1rem;
+      font-size: 0.83rem;
+      color: var(--text-muted);
+    }
+
+    .rules-list li {
+      margin-bottom: 0.35rem;
+    }
+
+    .rules-list strong {
+      color: var(--text-main);
+    }
+
+    .utility-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .utility-row .btn-secondary {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <!-- Bovenste kopbalk met badges en titel -->
+    <header class="site-header">
+      <div class="badge-row">
+        <span class="badge badge--solid">19×19 Bord • 361 Pionnen</span>
+        <span class="badge">Go-modus &amp; Monte Carlo</span>
+        <span class="badge">Zeeuws Meekrab-rood &amp; Krijtwit</span>
+      </div>
+      <div class="header-main">
+        <div>
+          <h1 class="site-title">Het Grote 19×19 Pionnenschaakbord</h1>
+          <p class="site-subtitle">
+            Samen spelen op 361 velden rondom middelpunt J10 (0, 0) — met vrije opstellingen, Go-vrijheden en Monte Carlo-zetzoeker.
+          </p>
+        </div>
+        <div class="header-meta">19 × 19 = 361 • A t/m S &amp; 1 t/m 19</div>
+      </div>
+    </header>
+
+    <!-- Hoofdlijst: links het bord, rechts het bedieningspaneel -->
+    <main class="workspace">
+      <!-- LINKERKOLOM: 19×19 BORD -->
+      <section class="card board-card" aria-label="19 bij 19 Pionnenschaakbord">
+        <div class="board-frame">
+          <div id="boardMatrix" class="board-matrix" role="grid" aria-label="19 bij 19 speelveld">
+            <!-- Dynamisch gegenereerd door JavaScript -->
+          </div>
+        </div>
+        <p class="board-caption">
+          Klik op een veld om een pion te plaatsen of aan te passen. Het middelpunt is <strong>J10 (0, 0)</strong>.
+        </p>
+      </section>
+
+      <!-- RECHTERKOLOM: 4 OVERZICHTELIJKE KAARTEN -->
+      <aside class="sidebar">
+        <!-- KAART 1: PRESETS -->
+        <section class="card" aria-labelledby="heading-presets">
+          <h2 id="heading-presets" class="card-title">1. Kies een opstelling (Preset)</h2>
+          <div class="preset-list">
+            <button type="button" class="preset-btn is-active" data-preset="full">
+              <span>Volledig 19×19 (360 + J10 leeg)</span>
+              <span class="preset-count">360 pionnen</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="start">
+              <span>Startopstelling (2×38 pionnen)</span>
+              <span class="preset-count">76 pionnen</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="circle">
+              <span>Cirkel R=9 (sin²+cos²)</span>
+              <span class="preset-count">253 pionnen</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="empty">
+              <span>Leeg bord</span>
+              <span class="preset-count">0 pionnen</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- KAART 2: ACTIE BIJ KLIKKEN & GO-MODUS -->
+        <section class="card" aria-labelledby="heading-modes">
+          <h2 id="heading-modes" class="card-title">2. Actie bij klikken op een veld</h2>
+          <div class="mode-grid">
+            <button type="button" class="mode-btn is-active" data-mode="cycle">
+              Wissel (Wit → Rood → Leeg)
+            </button>
+            <button type="button" class="mode-btn" data-mode="move">
+              Verplaats Pion (Klik &amp; Klik)
+            </button>
+            <button type="button" class="mode-btn" data-mode="placeWhite">
+              Plaats Krijtwit (Hartje)
+            </button>
+            <button type="button" class="mode-btn" data-mode="placeRed">
+              Plaats Zeeuws Meekrab-rood
+            </button>
+            <button type="button" class="mode-btn mode-btn--go" data-mode="go">
+              <span>●</span>
+              <span>Go-modus (Vrijheden &amp; Slaan)</span>
+            </button>
+          </div>
+
+          <p id="modeHint" class="mode-hint">
+            Klik op elk veld om te wisselen tussen een krijtwitte pion, een meekrab-rode pion of een leeg veld.
+          </p>
+
+          <!-- Subpaneel voor Go-modus -->
+          <div id="goPanel" class="go-panel" aria-live="polite">
+            <div class="go-turn-row">
+              <div class="turn-indicator">
+                <span id="turnSwatch" class="turn-swatch turn-swatch--white"></span>
+                <span>Aan zet: <strong id="turnLabel">Krijtwit (Hartje)</strong></span>
+              </div>
+              <button type="button" id="btnPass" class="btn-secondary">Pas beurt</button>
+            </div>
+
+            <div class="go-actions">
+              <button type="button" id="btnAiMove" class="btn-primary">Monte Carlo AI Zet</button>
+              <button type="button" id="btnStartGoEmpty" class="btn-secondary">Nieuw potje (Leeg)</button>
+            </div>
+
+            <label class="checkbox-row">
+              <input type="checkbox" id="chkAutoAi" />
+              <span>Automatisch tegen Monte Carlo AI (Rood)</span>
+            </label>
+
+            <div id="goStatus" class="go-status">
+              Go-modus actief. Klik op een leeg veld om een steen te plaatsen. Groepen zonder vrijheden worden geslagen.
+            </div>
+          </div>
+        </section>
+
+        <!-- KAART 3: LIVE TELLING & COÖRDINAAT -->
+        <section class="card" aria-labelledby="heading-stats">
+          <h2 id="heading-stats" class="card-title">3. Live telling &amp; coördinaat</h2>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">Krijtwitte pionnen</span>
+              <span id="countWhite" class="stat-value">180</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Meekrab-rode pionnen</span>
+              <span id="countRed" class="stat-value stat-value--accent">180</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Lege velden</span>
+              <span id="countEmpty" class="stat-value">1</span>
+            </div>
+            <div class="stat-box stat-box--highlight">
+              <span class="stat-label">Laatst aangeklikt</span>
+              <span id="lastCoord" class="stat-value stat-value--accent">J10 (0,0)</span>
+            </div>
+          </div>
+
+          <div class="capture-row">
+            <div class="stat-box">
+              <span class="stat-label">Geslagen Krijtwit</span>
+              <span id="capturedWhite" class="stat-value">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Geslagen Meekrab-rood</span>
+              <span id="capturedRed" class="stat-value stat-value--accent">0</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- KAART 4: GO-REGELS, MONTE CARLO & HISTORIE -->
+        <section class="card" aria-labelledby="heading-info">
+          <h2 id="heading-info" class="card-title">4. Go-regels &amp; bediening</h2>
+          <ul class="rules-list">
+            <li><strong>Vrijheden &amp; slaan:</strong> Verbonden stenen van dezelfde kleur delen hun vrije horizontale/verticale buurvelden. Bij 0 vrijheden wordt de groep geslagen.</li>
+            <li><strong>Zelfmoord- &amp; Ko-regel:</strong> Een zet met 0 eigen vrijheden is verboden, tenzij je eerst stenen van de tegenstander slaat. Direct herhalen van de vorige stelling (Ko) wordt geblokkeerd.</li>
+            <li><strong>Monte Carlo AI:</strong> Evalueert kansrijke velden nabij bestaande stenen met snelle willekeurige playouts en bonussen voor slaan en vrijheden.</li>
+          </ul>
+          <div class="utility-row">
+            <button type="button" id="btnUndo" class="btn-secondary" disabled>Ongedaan maken</button>
+            <button type="button" id="btnResetCaptures" class="btn-secondary">Reset geslagen teller</button>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* ========================================================================
+         CONSTANTEN & HULPFUNCTIES
+         ======================================================================== */
+      const SIZE = 19;
+      const TOTAL = SIZE * SIZE; // 361
+      const EMPTY = 0;
+      const WHITE = 1; // Krijtwit (Hartje)
+      const RED = 2;   // Zeeuws Meekrab-rood (Stipje)
+      const COLS = "ABCDEFGHIJKLMNOPQRS"; // Inclusief I zodat J precies kolom 10 (index 9) is
+
+      // Inline SVG voor een scherp, platform-onafhankelijk meekrab-rood hartje
+      const HEART_SVG =
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+
+      const idx = (r, c) => r * SIZE + c;
+
+      /**
+       * Zet rij (0 = boven/rij 19, 18 = onder/rij 1) en kolom (0 = A, 18 = S)
+       * om naar een leesbaar coördinaat, bijv. "J10 (0,0)".
+       */
+      function formatCoord(r, c) {
+        const colLetter = COLS[c];
+        const rowNum = SIZE - r; // 19 t/m 1
+        const x = c - 9;
+        const y = rowNum - 10;   // gelijk aan 9 - r
+        return `${colLetter}${rowNum} (${x},${y})`;
+      }
+
+      /**
+       * Korte notatie zonder (x,y), bijv. "J10".
+       */
+      function shortCoord(r, c) {
+        return `${COLS[c]}${SIZE - r}`;
+      }
+
+      /**
+       * Retourneert de orthogonale buren binnen het 19×19 bord.
+       */
+      function getNeighbors(r, c) {
+        const list = [];
+        if (r > 0) list.push([r - 1, c]);
+        if (r < SIZE - 1) list.push([r + 1, c]);
+        if (c > 0) list.push([r, c - 1]);
+        if (c < SIZE - 1) list.push([r, c + 1]);
+        return list;
+      }
+
+      /**
+       * Maakt een string-sleutel van de bordstatus voor Ko-controle.
+       */
+      function boardKey(boardArr) {
+        return boardArr.join("");
+      }
+
+      /* ========================================================================
+         APPLICATIESTATUS
+         ======================================================================== */
+      const state = {
+        board: new Uint8Array(TOTAL),
+        mode: "cycle",             // 'cycle' | 'move' | 'placeWhite' | 'placeRed' | 'go'
+        activePreset: "full",
+        lastClicked: { r: 9, c: 9 },
+        selectedCell: null,        // Voor 'move'-modus: { r, c } of null
+        goTurn: WHITE,             // In Go-modus: WHITE of RED
+        capturedWhite: 0,
+        capturedRed: 0,
+        prevBoardKey: null,        // Voor eenvoudige Ko-regel
+        aiThinking: false,
+        history: []                // Stack voor Ongedaan maken
+      };
+
+      /* ========================================================================
+         DOM-REFERENTIES
+         ======================================================================== */
+      const boardMatrixEl = document.getElementById("boardMatrix");
+      const presetBtns = document.querySelectorAll(".preset-btn");
+      const modeBtns = document.querySelectorAll(".mode-btn");
+      const modeHintEl = document.getElementById("modeHint");
+
+      const goPanelEl = document.getElementById("goPanel");
+      const turnSwatchEl = document.getElementById("turnSwatch");
+      const turnLabelEl = document.getElementById("turnLabel");
+      const btnPass = document.getElementById("btnPass");
+      const btnAiMove = document.getElementById("btnAiMove");
+      const btnStartGoEmpty = document.getElementById("btnStartGoEmpty");
+      const chkAutoAi = document.getElementById("chkAutoAi");
+      const goStatusEl = document.getElementById("goStatus");
+
+      const countWhiteEl = document.getElementById("countWhite");
+      const countRedEl = document.getElementById("countRed");
+      const countEmptyEl = document.getElementById("countEmpty");
+      const lastCoordEl = document.getElementById("lastCoord");
+      const capturedWhiteEl = document.getElementById("capturedWhite");
+      const capturedRedEl = document.getElementById("capturedRed");
+
+      const btnUndo = document.getElementById("btnUndo");
+      const btnResetCaptures = document.getElementById("btnResetCaptures");
+
+      // Directe referentie naar alle 361 DOM-cellen voor snelle updates
+      const cellElements = new Array(TOTAL);
+
+      /* ========================================================================
+         GO-LOGICA: VRIJHEDEN, SLAAN & ZELFMOORDREGEL
+         ======================================================================== */
+
+      /**
+       * Flood-fill (iteratieve stack) voor een verbonden groep stenen en het aantal
+       * unieke lege aangrenzende velden (vrijheden).
+       */
+      function getGroupAndLiberties(boardArr, startR, startC) {
+        const color = boardArr[idx(startR, startC)];
+        const visited = new Set();
+        const liberties = new Set();
+        const group = [];
+        const stack = [[startR, startC]];
+
+        while (stack.length > 0) {
+          const [r, c] = stack.pop();
+          const pos = idx(r, c);
+          if (visited.has(pos)) continue;
+          visited.add(pos);
+          group.push(pos);
+
+          const neighbors = getNeighbors(r, c);
+          for (let i = 0; i < neighbors.length; i++) {
+            const [nr, nc] = neighbors[i];
+            const nPos = idx(nr, nc);
+            const val = boardArr[nPos];
+            if (val === EMPTY) {
+              liberties.add(nPos);
+            } else if (val === color && !visited.has(nPos)) {
+              stack.push([nr, nc]);
+            }
+          }
+        }
+
+        return { group, liberties: liberties.size };
+      }
+
+      /**
+       * Probeert een geldige Go-zet te spelen op een kopie van het bord.
+       * - Slaat aangrenzende vijandelijke groepen met 0 vrijheden.
+       * - Blokkeert zelfmoordzetten (0 eigen vrijheden zonder te slaan).
+       * - Blokkeert optioneel directe Ko-herhaling.
+       */
+      function tryGoMove(boardArr, r, c, color, forbiddenKey = null) {
+        const pos = idx(r, c);
+        if (boardArr[pos] !== EMPTY) {
+          return { ok: false, reason: "bezet" };
+        }
+
+        const nextBoard = new Uint8Array(boardArr);
+        nextBoard[pos] = color;
+        const opponent = color === WHITE ? RED : WHITE;
+        let captured = 0;
+
+        // 1. Controleer alle aangrenzende vijandelijke groepen
+        const neighbors = getNeighbors(r, c);
+        for (let i = 0; i < neighbors.length; i++) {
+          const [nr, nc] = neighbors[i];
+          if (nextBoard[idx(nr, nc)] === opponent) {
+            const { group, liberties } = getGroupAndLiberties(nextBoard, nr, nc);
+            if (liberties === 0) {
+              for (let j = 0; j < group.length; j++) {
+                nextBoard[group[j]] = EMPTY;
+              }
+              captured += group.length;
+            }
+          }
+        }
+
+        // 2. Controleer op illegale zelfmoordzet
+        const ownInfo = getGroupAndLiberties(nextBoard, r, c);
+        if (ownInfo.liberties === 0 && captured === 0) {
+          return { ok: false, reason: "zelfmoord" };
+        }
+
+        // 3. Eenvoudige Ko-controle
+        if (forbiddenKey && boardKey(nextBoard) === forbiddenKey) {
+          return { ok: false, reason: "ko" };
+        }
+
+        return {
+          ok: true,
+          board: nextBoard,
+          captured,
+          ownLiberties: ownInfo.liberties
+        };
+      }
+
+      /* ========================================================================
+         MONTE CARLO-ZETZOEKER (NIET-BLOKKEREND)
+         ======================================================================== */
+
+      /**
+       * Verzamelt kansrijke kandidaatvelden op het 19×19 bord.
+       * Als het bord stenen bevat, krijgen lege velden binnen afstand 1–2 van
+       * bestaande stenen prioriteit, aangevuld met enkele vrije verkenningsvelden.
+       */
+      function selectMonteCarloCandidates(boardArr, maxCandidates = 34) {
+        let stoneCount = 0;
+        const nearSet = new Set();
+        const allEmpty = [];
+
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            const pos = idx(r, c);
+            if (boardArr[pos] !== EMPTY) {
+              stoneCount++;
+              for (let dr = -2; dr <= 2; dr++) {
+                for (let dc = -2; dc <= 2; dc++) {
+                  const nr = r + dr;
+                  const nc = c + dc;
+                  if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
+                    const nPos = idx(nr, nc);
+                    if (boardArr[nPos] === EMPTY) nearSet.add(nPos);
+                  }
+                }
+              }
+            } else {
+              allEmpty.push(pos);
+            }
+          }
+        }
+
+        if (allEmpty.length === 0) return [];
+
+        // Op een leeg bord: kies klassieke sterpunten (Hoshi) en middelpunt J10
+        if (stoneCount === 0) {
+          const openingSpots = [
+            [9, 9], [3, 3], [3, 15], [15, 3], [15, 15],
+            [3, 9], [9, 3], [9, 15], [15, 9]
+          ];
+          return openingSpots;
+        }
+
+        // Schud nabije velden
+        const nearArr = Array.from(nearSet);
+        shuffleInPlace(nearArr);
+
+        const chosen = nearArr.slice(0, Math.min(nearArr.length, maxCandidates - 4));
+        const chosenSet = new Set(chosen);
+
+        // Vul eventueel aan met een paar willekeurige overige lege velden
+        shuffleInPlace(allEmpty);
+        for (let i = 0; i < allEmpty.length && chosen.length < maxCandidates; i++) {
+          if (!chosenSet.has(allEmpty[i])) {
+            chosen.push(allEmpty[i]);
+            chosenSet.add(allEmpty[i]);
+          }
+        }
+
+        return chosen.map((pos) => [Math.floor(pos / SIZE), pos % SIZE]);
+      }
+
+      function shuffleInPlace(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = tmp;
+        }
+      }
+
+      /**
+       * Kiest een willekeurige maar lokaal relevante zet tijdens een Monte Carlo-playout.
+       */
+      function randomPlayoutMove(simBoard, pool) {
+        for (let tries = 0; tries < 10; tries++) {
+          const pick = pool[Math.floor(Math.random() * pool.length)];
+          if (simBoard[pick] === EMPTY) {
+            return [Math.floor(pick / SIZE), pick % SIZE];
+          }
+        }
+        return null;
+      }
+
+      /**
+       * Berekent asynchroon (in kleine stapjes via setTimeout) de beste Monte Carlo-zet
+       * zodat de browser volledig responsief blijft.
+       */
+      function findMonteCarloMoveAsync(boardArr, color, forbiddenKey, onComplete) {
+        const candidates = selectMonteCarloCandidates(boardArr, 32);
+        if (candidates.length === 0) {
+          onComplete(null);
+          return;
+        }
+
+        // Bouw een compacte pool van actieve velden voor snelle, interactieve playouts
+        const playoutPool = [];
+        for (let i = 0; i < candidates.length; i++) {
+          playoutPool.push(idx(candidates[i][0], candidates[i][1]));
+        }
+
+        const PLAYOUTS_PER_CANDIDATE = 12;
+        const PLAYOUT_DEPTH = 14;
+        const BATCH_SIZE = 4;
+
+        let index = 0;
+        let bestMove = null;
+        let bestScore = -Infinity;
+
+        function processBatch() {
+          const end = Math.min(index + BATCH_SIZE, candidates.length);
+
+          for (; index < end; index++) {
+            const [r, c] = candidates[index];
+            const first = tryGoMove(boardArr, r, c, color, forbiddenKey);
+            if (!first.ok) continue;
+
+            // Basis-heuristiek: beloon direct slaan, gezonde vrijheden en vermijd zelf-atari
+            let score = first.captured * 10;
+            score += Math.min(first.ownLiberties, 4) * 1.4;
+            if (first.ownLiberties === 1 && first.captured === 0) {
+              score -= 4.5;
+            }
+            // Lichte voorkeur voor centrale lijnen boven de uiterste rand op een open bord
+            const edgeDist = Math.min(r, c, SIZE - 1 - r, SIZE - 1 - c);
+            if (edgeDist >= 2 && edgeDist <= 5) score += 0.6;
+            if (edgeDist === 0) score -= 0.8;
+
+            // Monte Carlo playouts
+            let simTotal = 0;
+            for (let p = 0; p < PLAYOUTS_PER_CANDIDATE; p++) {
+              let simBoard = new Uint8Array(first.board);
+              let turn = color === WHITE ? RED : WHITE;
+
+              for (let step = 0; step < PLAYOUT_DEPTH; step++) {
+                const move = randomPlayoutMove(simBoard, playoutPool);
+                if (!move) break;
+                const res = tryGoMove(simBoard, move[0], move[1], turn, null);
+                if (res.ok) {
+                  simBoard = res.board;
+                  if (res.captured > 0) {
+                    simTotal += turn === color ? res.captured * 3 : -res.captured * 3;
+                  }
+                  turn = turn === WHITE ? RED : WHITE;
+                }
+              }
+            }
+
+            const totalScore = score + simTotal / PLAYOUTS_PER_CANDIDATE + Math.random() * 0.25;
+            if (totalScore > bestScore) {
+              bestScore = totalScore;
+              bestMove = { r, c, score: totalScore };
+            }
+          }
+
+          if (index < candidates.length) {
+            setTimeout(processBatch, 0);
+          } else {
+            onComplete(bestMove);
+          }
+        }
+
+        // Start na één korte tick zodat de "denkt na..." melding direct tekent
+        setTimeout(processBatch, 20);
+      }
+
+      /* ========================================================================
+         BORD INITIALISEREN & RENDEREN
+         ======================================================================== */
+      function buildBoardDOM() {
+        const frag = document.createDocumentFragment();
+
+        for (let gridRow = 0; gridRow < SIZE + 2; gridRow++) {
+          for (let gridCol = 0; gridCol < SIZE + 2; gridCol++) {
+            const isTop = gridRow === 0;
+            const isBottom = gridRow === SIZE + 1;
+            const isLeft = gridCol === 0;
+            const isRight = gridCol === SIZE + 1;
+
+            // Hoeken blijven leeg
+            if ((isTop || isBottom) && (isLeft || isRight)) {
+              const corner = document.createElement("div");
+              corner.setAttribute("aria-hidden", "true");
+              frag.appendChild(corner);
+              continue;
+            }
+
+            // Kolomlabels A t/m S (boven en onder)
+            if (isTop || isBottom) {
+              const lbl = document.createElement("div");
+              lbl.className = "coord-label";
+              lbl.textContent = COLS[gridCol - 1];
+              lbl.setAttribute("aria-hidden", "true");
+              frag.appendChild(lbl);
+              continue;
+            }
+
+            // Rijlabels 19 t/m 1 (links en rechts)
+            if (isLeft || isRight) {
+              const lbl = document.createElement("div");
+              lbl.className = "coord-label";
+              lbl.textContent = String(SIZE - (gridRow - 1));
+              lbl.setAttribute("aria-hidden", "true");
+              frag.appendChild(lbl);
+              continue;
+            }
+
+            // Speelveldcel (r = 0..18, c = 0..18)
+            const r = gridRow - 1;
+            const c = gridCol - 1;
+            const cellBtn = document.createElement("button");
+            cellBtn.type = "button";
+            cellBtn.className = "board-cell";
+            if (r === 9 && c === 9) {
+              cellBtn.classList.add("is-center");
+            }
+            cellBtn.dataset.r = String(r);
+            cellBtn.dataset.c = String(c);
+            cellBtn.setAttribute("role", "gridcell");
+            cellBtn.setAttribute("aria-label", `Veld ${formatCoord(r, c)}`);
+
+            cellElements[idx(r, c)] = cellBtn;
+            frag.appendChild(cellBtn);
+          }
+        }
+
+        boardMatrixEl.appendChild(frag);
+      }
+
+      /**
+       * Rendert alle 361 velden, highlights, tellers en Go-status.
+       */
+      function renderAll() {
+        let whiteCount = 0;
+        let redCount = 0;
+        let emptyCount = 0;
+
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            const pos = idx(r, c);
+            const val = state.board[pos];
+            const cell = cellElements[pos];
+
+            if (val === WHITE) whiteCount++;
+            else if (val === RED) redCount++;
+            else emptyCount++;
+
+            // Update inhoud alleen wanneer de waarde is veranderd (snel & soepel)
+            const prevRendered = cell.dataset.val;
+            if (prevRendered !== String(val)) {
+              cell.dataset.val = String(val);
+              if (val === WHITE) {
+                cell.innerHTML = `<span class="piece piece--white">${HEART_SVG}</span>`;
+                cell.classList.remove("is-empty");
+              } else if (val === RED) {
+                cell.innerHTML = '<span class="piece piece--red"></span>';
+                cell.classList.remove("is-empty");
+              } else {
+                cell.innerHTML = "";
+                cell.classList.add("is-empty");
+              }
+            }
+
+            // Highlight voor laatst aangeklikt veld
+            const isLast =
+              state.lastClicked &&
+              state.lastClicked.r === r &&
+              state.lastClicked.c === c;
+            cell.classList.toggle("is-last", Boolean(isLast));
+
+            // Highlight voor geselecteerde pion in Verplaats-modus
+            const isSelected =
+              state.selectedCell &&
+              state.selectedCell.r === r &&
+              state.selectedCell.c === c;
+            cell.classList.toggle("is-selected", Boolean(isSelected));
+          }
+        }
+
+        // Update tellers
+        countWhiteEl.textContent = String(whiteCount);
+        countRedEl.textContent = String(redCount);
+        countEmptyEl.textContent = String(emptyCount);
+        capturedWhiteEl.textContent = String(state.capturedWhite);
+        capturedRedEl.textContent = String(state.capturedRed);
+
+        if (state.lastClicked) {
+          lastCoordEl.textContent = formatCoord(state.lastClicked.r, state.lastClicked.c);
+        }
+
+        // Update Go-beurt indicator
+        if (state.goTurn === WHITE) {
+          turnSwatchEl.className = "turn-swatch turn-swatch--white";
+          turnLabelEl.textContent = "Krijtwit (Hartje)";
+        } else {
+          turnSwatchEl.className = "turn-swatch turn-swatch--red";
+          turnLabelEl.textContent = "Meekrab-rood";
+        }
+
+        btnUndo.disabled = state.history.length === 0 || state.aiThinking;
+        btnAiMove.disabled = state.aiThinking;
+        btnPass.disabled = state.aiThinking;
+      }
+
+      /* ========================================================================
+         HISTORIE (ONGEDAAN MAKEN)
+         ======================================================================== */
+      function pushHistory() {
+        state.history.push({
+          board: new Uint8Array(state.board),
+          goTurn: state.goTurn,
+          capturedWhite: state.capturedWhite,
+          capturedRed: state.capturedRed,
+          prevBoardKey: state.prevBoardKey,
+          lastClicked: state.lastClicked ? { ...state.lastClicked } : null
+        });
+        // Houd maximaal 80 stappen in geheugen
+        if (state.history.length > 80) {
+          state.history.shift();
+        }
+      }
+
+      function undoLastAction() {
+        if (state.history.length === 0 || state.aiThinking) return;
+        const snap = state.history.pop();
+        state.board = snap.board;
+        state.goTurn = snap.goTurn;
+        state.capturedWhite = snap.capturedWhite;
+        state.capturedRed = snap.capturedRed;
+        state.prevBoardKey = snap.prevBoardKey;
+        state.lastClicked = snap.lastClicked;
+        state.selectedCell = null;
+        setGoStatus("Laatste actie ongedaan gemaakt.", false);
+        renderAll();
+      }
+
+      /* ========================================================================
+         PRESETS
+         ======================================================================== */
+      function applyPreset(presetName) {
+        if (state.aiThinking) return;
+        pushHistory();
+
+        const b = new Uint8Array(TOTAL);
+
+        if (presetName === "full") {
+          // Schaakbordpatroon van 180 krijtwit en 180 meekrab-rood met J10 (9,9) leeg
+          for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+              if (r === 9 && c === 9) {
+                b[idx(r, c)] = EMPTY;
+              } else {
+                b[idx(r, c)] = (r + c) % 2 === 0 ? WHITE : RED;
+              }
+            }
+          }
+        } else if (presetName === "start") {
+          // Bovenste 2 rijen krijtwit (38), onderste 2 rijen meekrab-rood (38)
+          for (let c = 0; c < SIZE; c++) {
+            b[idx(0, c)] = WHITE;
+            b[idx(1, c)] = WHITE;
+            b[idx(SIZE - 2, c)] = RED;
+            b[idx(SIZE - 1, c)] = RED;
+          }
+        } else if (presetName === "circle") {
+          // Cirkel R=9: alle velden met x² + y² <= 81 rondom J10 (253 pionnen)
+          for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+              const x = c - 9;
+              const y = 9 - r;
+              if (x * x + y * y <= 81) {
+                b[idx(r, c)] = (r + c) % 2 === 0 ? WHITE : RED;
+              }
+            }
+          }
+        } else if (presetName === "empty") {
+          // Alles leeg (0)
+        }
+
+        state.board = b;
+        state.activePreset = presetName;
+        state.selectedCell = null;
+        state.lastClicked = { r: 9, c: 9 };
+        state.goTurn = WHITE;
+        state.capturedWhite = 0;
+        state.capturedRed = 0;
+        state.prevBoardKey = null;
+
+        presetBtns.forEach((btn) => {
+          btn.classList.toggle("is-active", btn.dataset.preset === presetName);
+        });
+
+        if (state.mode === "go") {
+          setGoStatus("Opstelling geladen. Krijtwit is aan zet.", false);
+        }
+        renderAll();
+      }
+
+      /* ========================================================================
+         MODUS-BEHEER & STATUSMELDINGEN
+         ======================================================================== */
+      const MODE_HINTS = {
+        cycle: "Klik op elk veld om te wisselen tussen een krijtwitte pion, een meekrab-rode pion of een leeg veld.",
+        move: "Klik eerst op een pion om deze te selecteren, en daarna op een doelveld om de pion te verplaatsen.",
+        placeWhite: "Klik op een veld om een krijtwitte pion (hartje) te plaatsen.",
+        placeRed: "Klik op een veld om een Zeeuws meekrab-rode pion te plaatsen.",
+        go: "Speel volgens de Go-regels: stenen delen vrijheden, omsingelde groepen worden geslagen en zelfmoordzetten zijn verboden."
+      };
+
+      function setMode(newMode) {
+        state.mode = newMode;
+        state.selectedCell = null;
+
+        modeBtns.forEach((btn) => {
+          btn.classList.toggle("is-active", btn.dataset.mode === newMode);
+        });
+
+        modeHintEl.textContent = MODE_HINTS[newMode] || "";
+        goPanelEl.classList.toggle("is-visible", newMode === "go");
+        renderAll();
+      }
+
+      function setGoStatus(message, isWarning = false) {
+        goStatusEl.textContent = message;
+        goStatusEl.classList.toggle("is-warning", isWarning);
+      }
+
+      /* ========================================================================
+         KLIKAFHANDELING OP HET BORD
+         ======================================================================== */
+      function handleCellClick(r, c) {
+        if (state.aiThinking) return;
+
+        const pos = idx(r, c);
+        state.lastClicked = { r, c };
+
+        if (state.mode === "cycle") {
+          pushHistory();
+          const cur = state.board[pos];
+          state.board[pos] = cur === EMPTY ? WHITE : cur === WHITE ? RED : EMPTY;
+          renderAll();
+          return;
+        }
+
+        if (state.mode === "placeWhite") {
+          if (state.board[pos] !== WHITE) {
+            pushHistory();
+            state.board[pos] = WHITE;
+          }
+          renderAll();
+          return;
+        }
+
+        if (state.mode === "placeRed") {
+          if (state.board[pos] !== RED) {
+            pushHistory();
+            state.board[pos] = RED;
+          }
+          renderAll();
+          return;
+        }
+
+        if (state.mode === "move") {
+          if (!state.selectedCell) {
+            if (state.board[pos] !== EMPTY) {
+              state.selectedCell = { r, c };
+            }
+          } else {
+            const fromPos = idx(state.selectedCell.r, state.selectedCell.c);
+            if (fromPos === pos) {
+              // Deselecteren bij nogmaals klikken op dezelfde pion
+              state.selectedCell = null;
+            } else {
+              pushHistory();
+              state.board[pos] = state.board[fromPos];
+              state.board[fromPos] = EMPTY;
+              state.selectedCell = null;
+            }
+          }
+          renderAll();
+          return;
+        }
+
+        if (state.mode === "go") {
+          executeGoMove(r, c, false);
+        }
+      }
+
+      /**
+       * Voert een Go-zet uit voor de huidige speler (mens of AI).
+       */
+      function executeGoMove(r, c, isAi) {
+        const color = state.goTurn;
+        const result = tryGoMove(state.board, r, c, color, state.prevBoardKey);
+
+        if (!result.ok) {
+          if (result.reason === "bezet") {
+            setGoStatus(`Veld ${shortCoord(r, c)} is al bezet. Kies een leeg veld.`, true);
+          } else if (result.reason === "zelfmoord") {
+            setGoStatus(
+              `Zelfmoordzet op ${shortCoord(r, c)} niet toegestaan: je steen heeft 0 vrijheden en slaat niets.`,
+              true
+            );
+          } else if (result.reason === "ko") {
+            setGoStatus(
+              `Ko-regel op ${shortCoord(r, c)}: je mag de direct voorgaande bordstelling niet herhalen.`,
+              true
+            );
+          }
+          renderAll();
+          return false;
+        }
+
+        pushHistory();
+        state.prevBoardKey = boardKey(state.board);
+        state.board = result.board;
+        state.lastClicked = { r, c };
+
+        if (result.captured > 0) {
+          if (color === WHITE) state.capturedRed += result.captured;
+          else state.capturedWhite += result.captured;
+        }
+
+        const actor = isAi
+          ? `Monte Carlo AI (${color === WHITE ? "Krijtwit" : "Meekrab-rood"})`
+          : color === WHITE
+          ? "Krijtwit"
+          : "Meekrab-rood";
+
+        const captureTxt =
+          result.captured > 0
+            ? ` en slaat ${result.captured} ${result.captured === 1 ? "steen" : "stenen"}!`
+            : ` (${result.ownLiberties} ${result.ownLiberties === 1 ? "vrijheid" : "vrijheden"}).`;
+
+        state.goTurn = color === WHITE ? RED : WHITE;
+        setGoStatus(`${actor} speelt ${formatCoord(r, c)}${captureTxt}`, false);
+        renderAll();
+
+        // Als automatisch spelen tegen Monte Carlo AI (Rood) aan staat en Rood is aan zet:
+        if (!isAi && chkAutoAi.checked && state.goTurn === RED) {
+          triggerAiMove();
+        }
+        return true;
+      }
+
+      /**
+       * Start een niet-blokkerende Monte Carlo AI-berekening voor de huidige beurt.
+       */
+      function triggerAiMove() {
+        if (state.aiThinking || state.mode !== "go") return;
+
+        const aiColor = state.goTurn;
+        state.aiThinking = true;
+        btnAiMove.textContent = "Monte Carlo denkt na…";
+        setGoStatus(
+          `Monte Carlo AI berekent de beste zet voor ${aiColor === WHITE ? "Krijtwit" : "Meekrab-rood"}…`,
+          false
+        );
+        renderAll();
+
+        findMonteCarloMoveAsync(state.board, aiColor, state.prevBoardKey, (best) => {
+          state.aiThinking = false;
+          btnAiMove.textContent = "Monte Carlo AI Zet";
+
+          if (!best) {
+            state.goTurn = aiColor === WHITE ? RED : WHITE;
+            setGoStatus("Monte Carlo AI vindt geen geldige zet en past de beurt.", false);
+            renderAll();
+            return;
+          }
+
+          executeGoMove(best.r, best.c, true);
+        });
+      }
+
+      /* ========================================================================
+         EVENT LISTENERS
+         ======================================================================== */
+      boardMatrixEl.addEventListener("click", (event) => {
+        const cell = event.target.closest(".board-cell");
+        if (!cell) return;
+        const r = Number(cell.dataset.r);
+        const c = Number(cell.dataset.c);
+        handleCellClick(r, c);
+      });
+
+      presetBtns.forEach((btn) => {
+        btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
+      });
+
+      modeBtns.forEach((btn) => {
+        btn.addEventListener("click", () => setMode(btn.dataset.mode));
+      });
+
+      btnPass.addEventListener("click", () => {
+        if (state.aiThinking) return;
+        pushHistory();
+        const passedColor = state.goTurn === WHITE ? "Krijtwit" : "Meekrab-rood";
+        state.goTurn = state.goTurn === WHITE ? RED : WHITE;
+        state.prevBoardKey = null;
+        setGoStatus(`${passedColor} past de beurt.`, false);
+        renderAll();
+
+        if (chkAutoAi.checked && state.goTurn === RED) {
+          triggerAiMove();
+        }
+      });
+
+      btnAiMove.addEventListener("click", () => {
+        triggerAiMove();
+      });
+
+      btnStartGoEmpty.addEventListener("click", () => {
+        applyPreset("empty");
+        setMode("go");
+        setGoStatus("Nieuw potje Go gestart op een leeg 19×19 bord. Krijtwit begint.", false);
+      });
+
+      btnUndo.addEventListener("click", undoLastAction);
+
+      btnResetCaptures.addEventListener("click", () => {
+        if (state.aiThinking) return;
+        state.capturedWhite = 0;
+        state.capturedRed = 0;
+        renderAll();
+      });
+
+      /* ========================================================================
+         OPSTARTEN
+         ======================================================================== */
+      window.addEventListener("DOMContentLoaded", () => {
+        buildBoardDOM();
+        // Start met de volledige 19×19 preset (180 wit, 180 rood, J10 leeg)
+        applyPreset("full");
+        // Leeg de eerste historie-stap zodat "Ongedaan maken" pas actief wordt na de eerste gebruikersactie
+        state.history = [];
+        renderAll();
+      });
+    })();
+  </script>
+</body>
+</html>
