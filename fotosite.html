@@ -1,0 +1,2291 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beeld &amp; Verhaal — Fotoarchief</title>
+  <meta name="description" content="Een tijdloos fotoarchief met verhalen achter elk beeld, gehost via GitHub en Vercel.">
+  <style>
+    /* ==========================================================================
+       1. DESIGN TOKENS & BASISTYPOGRAFIE (MUSEALE STIJL & MEEKRAPROOD)
+       ========================================================================== */
+    :root {
+      --bg-page: #FAF8F5;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F3EFEA;
+      --accent: #A31C1C;           /* Diep meekraprood */
+      --accent-hover: #7D1414;
+      --accent-soft: #FDF2F2;
+      --accent-border: #E8C5C5;
+      --text-main: #1A1A1A;
+      --text-muted: #55524D;
+      --text-light: #76716A;
+      --border: #E5DFD7;
+      --border-strong: #D0C7BC;
+      --shadow-sm: 0 2px 8px rgba(26, 26, 26, 0.05);
+      --shadow-md: 0 8px 28px rgba(26, 26, 26, 0.09);
+      --shadow-lg: 0 20px 60px rgba(26, 26, 26, 0.18);
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --font-serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --base-size: 19px;           /* Hoge leesbaarheid als standaard */
+      --max-width: 1200px;
+      --transition: 0.2s ease;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: var(--base-size);
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    button, input, textarea, select {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* Focus-stijl voor toegankelijkheid */
+    :focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    /* ==========================================================================
+       2. HEADER & NAVIGATIEBALK
+       ========================================================================== */
+    .site-header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.9rem;
+      padding: 0.9rem 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-mark {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: var(--radius-sm);
+      background-color: var(--accent);
+      color: #FFFFFF;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .brand-title {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    /* Tekstgrootte-regelaar (A- / A / A+) */
+    .font-size-group {
+      display: inline-flex;
+      align-items: center;
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.15rem;
+    }
+
+    .font-btn {
+      background: transparent;
+      border: none;
+      padding: 0.35rem 0.6rem;
+      min-width: 2.2rem;
+      min-height: 2.2rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      transition: background-color var(--transition), color var(--transition);
+    }
+
+    .font-btn:hover {
+      background-color: var(--bg-surface);
+      color: var(--accent);
+    }
+
+    .font-btn.active {
+      background-color: var(--accent);
+      color: #FFFFFF;
+    }
+
+    /* Knoppen */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1.05rem;
+      min-height: 2.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-surface);
+      color: var(--text-main);
+      border-color: var(--border-strong);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background-color: var(--accent-soft);
+    }
+
+    .btn-ghost {
+      background-color: transparent;
+      color: var(--text-muted);
+      border-color: transparent;
+    }
+
+    .btn-ghost:hover {
+      background-color: var(--bg-subtle);
+      color: var(--text-main);
+    }
+
+    .btn-danger {
+      background-color: #FFFFFF;
+      color: var(--accent);
+      border-color: var(--accent-border);
+    }
+
+    .btn-danger:hover {
+      background-color: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.7rem;
+      min-height: 2rem;
+      font-size: 0.8rem;
+    }
+
+    /* ==========================================================================
+       3. INTRODUCTIE / HERO & FILTERBALK
+       ========================================================================== */
+    .hero {
+      padding: 2.75rem 0 1.75rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #FFFFFF 0%, var(--bg-page) 100%);
+    }
+
+    .hero-content {
+      max-width: 760px;
+    }
+
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.8rem, 3.6vw, 2.65rem);
+      line-height: 1.2;
+      margin: 0 0 0.75rem;
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .status-banner {
+      margin-top: 1.25rem;
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0.9rem;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      background-color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .status-dot.live {
+      background-color: #2E7D32;
+    }
+
+    /* Zoeken en categorieën */
+    .toolbar {
+      padding: 1.5rem 0 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .toolbar-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1 1 280px;
+      max-width: 480px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.65rem 2.4rem 0.65rem 2.5rem;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(163, 28, 28, 0.12);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      display: none;
+    }
+
+    .search-clear.visible {
+      display: block;
+    }
+
+    .result-count {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .category-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .cat-pill {
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      background-color: var(--bg-surface);
+      color: var(--text-main);
+      font-size: 0.84rem;
+      font-weight: 500;
+      transition: all var(--transition);
+      min-height: 2.2rem;
+    }
+
+    .cat-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .cat-pill.active {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .cat-count {
+      opacity: 0.75;
+      font-size: 0.78rem;
+      margin-left: 0.25rem;
+    }
+
+    /* ==========================================================================
+       4. FOTOGALERIJ RASTER & KAARTEN
+       ========================================================================== */
+    main {
+      flex: 1;
+      padding-bottom: 4rem;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+      gap: 1.75rem;
+      margin-top: 1rem;
+    }
+
+    .photo-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      cursor: pointer;
+    }
+
+    .photo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent-border);
+    }
+
+    .card-media {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      background-color: var(--bg-subtle);
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.45s ease;
+    }
+
+    .photo-card:hover .card-media img {
+      transform: scale(1.03);
+    }
+
+    .card-badge {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      background-color: rgba(255, 255, 255, 0.94);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      backdrop-filter: blur(4px);
+    }
+
+    .card-body {
+      padding: 1.25rem 1.35rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.85rem;
+      font-size: 0.78rem;
+      color: var(--text-light);
+      margin-bottom: 0.45rem;
+    }
+
+    .card-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      line-height: 1.3;
+      margin: 0 0 0.6rem;
+      color: var(--text-main);
+    }
+
+    .card-excerpt {
+      margin: 0 0 1.1rem;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.65;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.8rem;
+      border-top: 1px solid var(--bg-subtle);
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1.5rem;
+      background-color: var(--bg-surface);
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      margin-top: 1.5rem;
+    }
+
+    .empty-state h2 {
+      font-family: var(--font-serif);
+      margin: 0 0 0.5rem;
+      font-size: 1.4rem;
+    }
+
+    .empty-state p {
+      color: var(--text-muted);
+      margin: 0 0 1.25rem;
+    }
+
+    /* ==========================================================================
+       5. LEESWEERGAVE (LIGHTBOX / ARTIKEL-OVERLAY)
+       ========================================================================== */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(20, 18, 16, 0.78);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      overflow-y: auto;
+      padding: 1.25rem;
+    }
+
+    .overlay.open {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .reader-modal {
+      background-color: var(--bg-surface);
+      width: 100%;
+      max-width: 920px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      margin: auto 0;
+      animation: modalFadeIn 0.22s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reader-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background-color: var(--bg-surface);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .reader-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .reader-counter {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      padding: 0 0.4rem;
+    }
+
+    .reader-figure {
+      margin: 0;
+      background-color: #F2EEE9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .reader-figure img {
+      max-height: 70vh;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
+      background-color: #FFFFFF;
+    }
+
+    .reader-article {
+      padding: 2rem clamp(1.25rem, 5vw, 3.25rem) 2.75rem;
+    }
+
+    .reader-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 1.1rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .reader-cat {
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      padding: 0.15rem 0.65rem;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .reader-filename {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      background-color: var(--bg-subtle);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
+
+    .reader-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.6rem, 3vw, 2.25rem);
+      line-height: 1.22;
+      margin: 0 0 1.25rem;
+      color: var(--text-main);
+    }
+
+    .reader-story {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      line-height: 1.85;
+      color: var(--text-main);
+    }
+
+    .reader-story p {
+      margin: 0 0 1.2em;
+    }
+
+    .reader-story p:last-child {
+      margin-bottom: 0;
+    }
+
+    .reader-bottom-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.1rem clamp(1.25rem, 5vw, 3.25rem);
+      border-top: 1px solid var(--border);
+      background-color: var(--bg-page);
+    }
+
+    /* ==========================================================================
+       6. BEHEER- & GITHUB-EXPORT MODAL
+       ========================================================================== */
+    .admin-modal {
+      background-color: var(--bg-surface);
+      width: 100%;
+      max-width: 960px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      margin: auto 0;
+      animation: modalFadeIn 0.22s ease-out;
+    }
+
+    .admin-header {
+      padding: 1.15rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background-color: var(--bg-surface);
+    }
+
+    .admin-header h2 {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      margin: 0;
+    }
+
+    .admin-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      padding: 0.65rem 1.5rem 0;
+      background-color: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      padding: 0.65rem 1.1rem;
+      border: 1px solid transparent;
+      border-bottom: none;
+      background: transparent;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      position: relative;
+      top: 1px;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background-color: var(--bg-surface);
+      color: var(--accent);
+      border-color: var(--border);
+    }
+
+    .tab-panel {
+      display: none;
+      padding: 1.5rem;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Formulierstijlen */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    .form-label {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .form-hint {
+      font-size: 0.76rem;
+      color: var(--text-light);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-surface);
+      font-size: 0.92rem;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(163, 28, 28, 0.12);
+    }
+
+    textarea.form-control {
+      min-height: 170px;
+      resize: vertical;
+      line-height: 1.65;
+    }
+
+    .upload-dropzone {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1.1rem;
+      padding: 1rem;
+      border: 2px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-page);
+    }
+
+    .upload-preview {
+      width: 130px;
+      height: 98px;
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      color: var(--text-light);
+      font-size: 0.76rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .upload-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .form-actions {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    /* Beheerlijst & JSON-export */
+    .manage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .manage-item {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-page);
+    }
+
+    .manage-item-info {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      min-width: 220px;
+      flex: 1;
+    }
+
+    .manage-thumb {
+      width: 68px;
+      height: 52px;
+      border-radius: 4px;
+      object-fit: cover;
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .manage-item-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      line-height: 1.3;
+    }
+
+    .manage-item-sub {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .manage-item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .export-box {
+      background-color: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.15rem;
+    }
+
+    .export-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-bottom: 1rem;
+    }
+
+    .json-preview {
+      background-color: #1F1D1B;
+      color: #F4EFEA;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      line-height: 1.55;
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      max-height: 280px;
+      overflow: auto;
+      margin: 0;
+      white-space: pre;
+    }
+
+    /* Handleiding GitHub & Vercel */
+    .guide-box {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .folder-tree {
+      background-color: var(--bg-page);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.75;
+      overflow-x: auto;
+    }
+
+    .guide-steps {
+      margin: 0;
+      padding-left: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      font-size: 0.94rem;
+    }
+
+    .guide-steps strong {
+      color: var(--text-main);
+    }
+
+    .guide-note {
+      background-color: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-sm);
+      padding: 0.9rem 1.1rem;
+      font-size: 0.88rem;
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       7. FOOTER & TOAST MELDINGEN
+       ========================================================================== */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      background-color: var(--bg-surface);
+      padding: 1.75rem 0;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background-color: #1A1A1A;
+      color: #FFFFFF;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.88rem;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ==========================================================================
+       8. RESPONSIVE AANPASSINGEN (MOBIEL & TABLET)
+       ========================================================================== */
+    @media (max-width: 720px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .overlay {
+        padding: 0.5rem;
+      }
+
+      .reader-topbar,
+      .admin-header,
+      .tab-panel {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .reader-figure {
+        padding: 0.75rem;
+      }
+
+      .reader-bottom-nav {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigatiebalk -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#top" class="brand" aria-label="Naar boven">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+            <circle cx="12" cy="12" r="3.5"></circle>
+            <path d="M8 5l1.5-2h5L16 5"></path>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-title">Beeld &amp; Verhaal</span>
+          <span class="brand-subtitle">Persoonlijk fotoarchief</span>
+        </span>
+      </a>
+
+      <div class="header-controls">
+        <!-- Tekstgrootte aanpassen -->
+        <div class="font-size-group" role="group" aria-label="Tekstgrootte aanpassen">
+          <button type="button" class="font-btn" id="fontSmall" title="Kleinere tekst (17px)">A-</button>
+          <button type="button" class="font-btn active" id="fontNormal" title="Standaard tekst (19px)">A</button>
+          <button type="button" class="font-btn" id="fontLarge" title="Grotere tekst (22px)">A+</button>
+        </div>
+
+        <!-- Knop voor Beheer / Upload voorbereiden -->
+        <button type="button" class="btn btn-primary" id="openAdminBtn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          Beheer / Upload voorbereiden
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero / Introductie -->
+  <section class="hero" id="top">
+    <div class="container">
+      <div class="hero-content">
+        <span class="hero-eyebrow">Fotografie &amp; Kroniek</span>
+        <h1>Achter elk beeld schuilt een verhaal</h1>
+        <p>Blader door de collectie, filter op thema of zoek op plaats en herinnering. Klik op een foto om het volledige verhaal in alle rust te lezen.</p>
+        <div class="status-banner" id="sourceStatus" role="status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Collectie wordt geladen…</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hoofdinhoud: Zoeken, Categorieën en Galerij -->
+  <main class="container">
+    <section class="toolbar" aria-label="Zoeken en filteren">
+      <div class="toolbar-top">
+        <div class="search-wrapper">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+          </svg>
+          <input
+            type="search"
+            id="searchInput"
+            class="search-input"
+            placeholder="Zoek op titel, locatie of verhaal…"
+            aria-label="Zoek in foto's en verhalen"
+          >
+          <button type="button" id="clearSearchBtn" class="search-clear" aria-label="Zoekopdracht wissen">&times;</button>
+        </div>
+        <div class="result-count" id="resultCount">0 foto's</div>
+      </div>
+
+      <div class="category-bar" id="categoryBar" role="tablist" aria-label="Filter op categorie"></div>
+    </section>
+
+    <section aria-label="Fotogalerij">
+      <div class="gallery-grid" id="galleryGrid"></div>
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <h2>Geen foto's gevonden</h2>
+        <p>Pas uw zoekterm of gekozen categorie aan, of voeg een nieuwe foto toe via het beheerpaneel.</p>
+        <button type="button" class="btn btn-secondary" id="resetFiltersBtn">Toon alle foto's</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>Beeld &amp; Verhaal — Zelfstandig fotoarchief voor GitHub &amp; Vercel</span>
+      <span>Tip: gebruik pijltjestoetsen (&larr; / &rarr;) en Escape in de leesweergave</span>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       LEESWEERGAVE OVERLAY (LIGHTBOX + VOLLEDIG VERHAAL)
+       ======================================================================== -->
+  <div class="overlay" id="readerOverlay" role="dialog" aria-modal="true" aria-labelledby="readerTitle">
+    <div class="reader-modal">
+      <div class="reader-topbar">
+        <div class="reader-nav">
+          <button type="button" class="btn btn-secondary btn-sm" id="prevPhotoBtn" aria-label="Vorige foto">&larr; Vorige</button>
+          <span class="reader-counter" id="readerCounter">1 / 3</span>
+          <button type="button" class="btn btn-secondary btn-sm" id="nextPhotoBtn" aria-label="Volgende foto">Volgende &rarr;</button>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="closeReaderBtn" aria-label="Leesweergave sluiten">Sluiten &times;</button>
+      </div>
+
+      <figure class="reader-figure">
+        <img id="readerImage" src="" alt="">
+      </figure>
+
+      <article class="reader-article">
+        <div class="reader-meta">
+          <span class="reader-cat" id="readerCategory"></span>
+          <span id="readerDate"></span>
+          <span id="readerLocation"></span>
+          <span class="reader-filename" id="readerFilename"></span>
+        </div>
+        <h2 class="reader-title" id="readerTitle"></h2>
+        <div class="reader-story" id="readerStory"></div>
+      </article>
+
+      <div class="reader-bottom-nav">
+        <button type="button" class="btn btn-secondary btn-sm" id="prevPhotoBottomBtn">&larr; Vorig verhaal</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="closeReaderBottomBtn">Terug naar overzicht</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="nextPhotoBottomBtn">Volgend verhaal &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       BEHEER- & GITHUB-EXPORTEUR MODAL
+       ======================================================================== -->
+  <div class="overlay" id="adminOverlay" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+    <div class="admin-modal">
+      <div class="admin-header">
+        <h2 id="adminTitle">Beheer &amp; GitHub-upload voorbereiden</h2>
+        <button type="button" class="btn btn-ghost btn-sm" id="closeAdminBtn" aria-label="Beheerpaneel sluiten">Sluiten &times;</button>
+      </div>
+
+      <div class="admin-tabs" role="tablist">
+        <button type="button" class="tab-btn active" data-tab="tab-form" role="tab" aria-selected="true" id="tabBtnForm">Nieuwe foto &amp; verhaal</button>
+        <button type="button" class="tab-btn" data-tab="tab-manage" role="tab" aria-selected="false" id="tabBtnManage">Collectie &amp; fotos.json (<span id="manageCount">0</span>)</button>
+        <button type="button" class="tab-btn" data-tab="tab-guide" role="tab" aria-selected="false" id="tabBtnGuide">Hoe uploaden via GitHub &amp; Vercel?</button>
+      </div>
+
+      <!-- TAB 1: Formulier voor toevoegen of bewerken -->
+      <div class="tab-panel active" id="tab-form" role="tabpanel">
+        <form id="photoForm">
+          <input type="hidden" id="editId" value="">
+
+          <div class="form-grid">
+            <div class="form-group full">
+              <label class="form-label" for="fileInput">1. Kies een foto op uw computer (voor directe voorvertoning)</label>
+              <div class="upload-dropzone">
+                <div class="upload-preview" id="uploadPreview">Geen voorbeeld</div>
+                <div style="flex: 1; min-width: 220px;">
+                  <input type="file" id="fileInput" accept="image/*" class="form-control">
+                  <div class="form-hint" style="margin-top: 0.4rem;">
+                    De foto wordt lokaal getoond. Plaats dit afbeeldingsbestand straks in de map <code>fotos/</code> in uw GitHub-repository.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group full">
+              <label class="form-label" for="bestandInput">Pad / bestandsnaam in GitHub (map <code>fotos/</code>) *</label>
+              <input type="text" id="bestandInput" class="form-control" placeholder="fotos/mijn-foto.jpg" required>
+              <span class="form-hint">Wordt automatisch ingevuld zodra u een foto kiest, maar u kunt dit zelf aanpassen.</span>
+            </div>
+
+            <div class="form-group full">
+              <label class="form-label" for="titelInput">Titel van de foto *</label>
+              <input type="text" id="titelInput" class="form-control" placeholder="Bijv. Ochtendmist over de Zeeuwse dijk" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="datumInput">Datum *</label>
+              <input type="date" id="datumInput" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="locatieInput">Locatie</label>
+              <input type="text" id="locatieInput" class="form-control" placeholder="Bijv. Zierikzee, Zeeland">
+            </div>
+
+            <div class="form-group full">
+              <label class="form-label" for="categorieInput">Categorie *</label>
+              <input type="text" id="categorieInput" class="form-control" list="categorySuggestions" placeholder="Bijv. Landschap, Archief, Portret, Reizen" required>
+              <datalist id="categorySuggestions"></datalist>
+            </div>
+
+            <div class="form-group full">
+              <label class="form-label" for="verhaalInput">Verhaal bij deze foto *</label>
+              <textarea id="verhaalInput" class="form-control" placeholder="Schrijf hier het verhaal achter de foto. Laat een lege regel tussen alinea's voor een rustige bladspiegel." required></textarea>
+              <span class="form-hint">Gebruik een dubbele Enter (lege regel) om een nieuwe alinea te beginnen.</span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submitFormBtn">Toevoegen aan galerij</button>
+            <button type="button" class="btn btn-secondary" id="cancelEditBtn" style="display: none;">Bewerken annuleren</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- TAB 2: Bestaande items beheren & fotos.json exporteren -->
+      <div class="tab-panel" id="tab-manage" role="tabpanel">
+        <div class="manage-list" id="manageList"></div>
+
+        <div class="export-box">
+          <h3 style="margin: 0 0 0.4rem; font-family: var(--font-serif); font-size: 1.15rem;">Exporteer naar GitHub (<code>fotos.json</code>)</h3>
+          <p style="margin: 0 0 1rem; font-size: 0.86rem; color: var(--text-muted);">
+            Download of kopieer het onderstaande JSON-bestand en upload het naar de hoofdmap van uw GitHub-repository.
+          </p>
+
+          <div class="export-actions">
+            <button type="button" class="btn btn-primary" id="downloadJsonBtn">Download fotos.json</button>
+            <button type="button" class="btn btn-secondary" id="copyJsonBtn">Kopieer fotos.json</button>
+            <label class="btn btn-secondary" for="importJsonInput" style="margin: 0;">
+              Importeer bestaande fotos.json
+              <input type="file" id="importJsonInput" accept="application/json,.json" style="display: none;">
+            </label>
+          </div>
+
+          <pre class="json-preview" id="jsonPreview"></pre>
+        </div>
+      </div>
+
+      <!-- TAB 3: Uitleg GitHub & Vercel -->
+      <div class="tab-panel" id="tab-guide" role="tabpanel">
+        <div class="guide-box">
+          <div>
+            <h3 style="margin: 0 0 0.5rem; font-family: var(--font-serif);">Mappenstructuur in uw GitHub-repository</h3>
+            <div class="folder-tree" aria-label="Mappenstructuur">
+mijn-fotowebsite/<br>
+├── index.html          &larr; dit bestand<br>
+├── fotos.json          &larr; de lijst met foto's en verhalen<br>
+└── fotos/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── ochtendmist.jpg<br>
+&nbsp;&nbsp;&nbsp;&nbsp;├── haven-veere.jpg<br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── polderpad.webp
+            </div>
+          </div>
+
+          <div>
+            <h3 style="margin: 0 0 0.5rem; font-family: var(--font-serif);">Stappenplan: nieuw beeld publiceren</h3>
+            <ol class="guide-steps">
+              <li><strong>Eenmalige opzet:</strong> Maak een repository aan op <strong>GitHub</strong>, upload dit bestand als <code>index.html</code> en koppel de repository aan <strong>Vercel</strong> (Framework Preset: <em>Other</em>).</li>
+              <li><strong>Foto &amp; verhaal voorbereiden:</strong> Open hierboven het tabblad <em>Nieuwe foto &amp; verhaal</em>, kies uw lokale foto, vul titel, datum, locatie, categorie en verhaal in en klik op <em>Toevoegen aan galerij</em>.</li>
+              <li><strong><code>fotos.json</code> opslaan:</strong> Ga naar het tabblad <em>Collectie &amp; fotos.json</em> en klik op <strong>Download fotos.json</strong>.</li>
+              <li><strong>Uploaden naar GitHub:</strong> Upload het nieuwe afbeeldingsbestand in de map <code>fotos/</code> op GitHub, en vervang <code>fotos.json</code> in de hoofdmap door uw nieuwe versie.</li>
+              <li><strong>Automatisch live via Vercel:</strong> Zodra u de wijzigingen op GitHub opslaat (<em>Commit changes</em>), werkt Vercel uw website binnen ongeveer 20 tot 30 seconden automatisch bij.</li>
+            </ol>
+          </div>
+
+          <div class="guide-note">
+            <strong>Tip voor grote fotobestanden:</strong> Verklein foto's voor het web bij voorkeur tot ongeveer 1600–2000 pixels breed (JPG of WebP) voordat u ze in de map <code>fotos/</code> zet. Zo laadt uw galerij razendsnel op zowel computer als telefoon.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast-melding voor bevestigingen (vervangt alert/confirm) -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* ========================================================================
+       APPLICATIELOGICA — ZELFSTANDIGE FOTOWEBSITE VOOR GITHUB & VERCEL
+       ======================================================================== */
+    (function () {
+      'use strict';
+
+      /* ----------------------------------------------------------------------
+         1. INGEBEDDE SVG-VOORBEELDFOTO'S (MEEKRAPROOD & ANTRACIET)
+         Worden alleen getoond wanneer './fotos.json' nog niet bestaat.
+         ---------------------------------------------------------------------- */
+      function svgToDataUri(svgString) {
+        return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgString.trim());
+      }
+
+      const SAMPLE_SVGS = {
+        polder: svgToDataUri(`
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+            <rect width="800" height="600" fill="#F7F3EC"/>
+            <rect x="24" y="24" width="752" height="552" fill="none" stroke="#A31C1C" stroke-width="2" opacity="0.35"/>
+            <circle cx="610" cy="155" r="54" fill="#A31C1C" opacity="0.88"/>
+            <path d="M24 370 Q190 330 390 362 T776 350 L776 576 L24 576 Z" fill="#E9E1D6"/>
+            <path d="M24 415 Q240 385 450 412 T776 402 L776 576 L24 576 Z" fill="#2A2725" opacity="0.88"/>
+            <path d="M24 470 Q280 445 540 478 T776 468 L776 576 L24 576 Z" fill="#A31C1C" opacity="0.92"/>
+            <!-- Kerktoren en molen aan de horizon -->
+            <g fill="#2A2725">
+              <rect x="210" y="285" width="24" height="82"/>
+              <polygon points="205,285 222,232 239,285"/>
+              <rect x="234" y="325" width="46" height="42"/>
+              <polygon points="234,325 257,305 280,325"/>
+              <rect x="160" y="335" width="38" height="32"/>
+            </g>
+            <!-- Fijne gravure-lijnen in de lucht -->
+            <g stroke="#A31C1C" stroke-width="1.2" opacity="0.22">
+              <line x1="60" y1="110" x2="360" y2="110"/>
+              <line x1="90" y1="132" x2="430" y2="132"/>
+              <line x1="55" y1="154" x2="290" y2="154"/>
+              <line x1="120" y1="190" x2="490" y2="190"/>
+            </g>
+            <!-- Vogels -->
+            <g fill="none" stroke="#2A2725" stroke-width="2.2" stroke-linecap="round">
+              <path d="M360 165 q10 -10 20 0 q10 -10 20 0"/>
+              <path d="M415 140 q8 -8 16 0 q8 -8 16 0"/>
+              <path d="M330 192 q7 -7 14 0 q7 -7 14 0"/>
+            </g>
+          </svg>
+        `),
+
+        atelier: svgToDataUri(`
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+            <rect width="800" height="600" fill="#FAF7F2"/>
+            <rect x="24" y="24" width="752" height="552" fill="none" stroke="#2A2725" stroke-width="2" opacity="0.25"/>
+            <!-- Raamlicht -->
+            <polygon points="110,60 360,60 460,540 60,540" fill="#EFE8DD"/>
+            <!-- Boogvenster -->
+            <path d="M135 420 L135 190 A100 100 0 0 1 335 190 L335 420 Z" fill="#FFFFFF" stroke="#2A2725" stroke-width="5"/>
+            <line x1="235" y1="90" x2="235" y2="420" stroke="#2A2725" stroke-width="4"/>
+            <line x1="135" y1="240" x2="335" y2="240" stroke="#2A2725" stroke-width="4"/>
+            <line x1="135" y1="330" x2="335" y2="330" stroke="#2A2725" stroke-width="4"/>
+            <!-- Werktafel -->
+            <rect x="90" y="420" width="620" height="22" rx="4" fill="#2A2725"/>
+            <rect x="130" y="442" width="18" height="110" fill="#2A2725"/>
+            <rect x="652" y="442" width="18" height="110" fill="#2A2725"/>
+            <!-- Ingelijste prent in meekraprood -->
+            <rect x="440" y="160" width="230" height="260" rx="4" fill="#FFFFFF" stroke="#2A2725" stroke-width="6"/>
+            <rect x="462" y="182" width="186" height="216" fill="#FDF2F2" stroke="#A31C1C" stroke-width="2"/>
+            <circle cx="555" cy="260" r="46" fill="#A31C1C"/>
+            <path d="M475 375 L535 295 L585 345 L615 312 L640 375 Z" fill="#2A2725" opacity="0.88"/>
+            <!-- Boekenstapel -->
+            <rect x="355" y="388" width="76" height="32" rx="2" fill="#A31C1C"/>
+            <rect x="364" y="362" width="62" height="26" rx="2" fill="#2A2725"/>
+          </svg>
+        `),
+
+        kust: svgToDataUri(`
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+            <rect width="800" height="600" fill="#F6F2EB"/>
+            <rect x="24" y="24" width="752" height="552" fill="none" stroke="#A31C1C" stroke-width="2" opacity="0.35"/>
+            <!-- Lucht en wolken -->
+            <path d="M120 190 Q160 150 220 175 Q270 135 340 175 Q380 165 405 195 Z" fill="#E8DFD3"/>
+            <path d="M480 145 Q520 115 575 135 Q620 105 680 145 Z" fill="#E8DFD3"/>
+            <!-- Zee -->
+            <rect x="24" y="330" width="752" height="125" fill="#2A2725" opacity="0.9"/>
+            <!-- Golfslag -->
+            <g stroke="#FAF8F5" stroke-width="2" opacity="0.45" fill="none">
+              <path d="M60 365 Q130 355 200 365 T340 365 T480 365 T620 365 T740 365"/>
+              <path d="M90 398 Q170 388 250 398 T410 398 T570 398 T710 398"/>
+              <path d="M50 428 Q140 420 230 428 T410 428 T590 428 T745 428"/>
+            </g>
+            <!-- Duinen en strand -->
+            <path d="M24 445 Q240 415 480 465 T776 445 L776 576 L24 576 Z" fill="#E6DDD0"/>
+            <!-- Paalhoofden in meekraprood -->
+            <g fill="#A31C1C">
+              <rect x="130" y="395" width="16" height="120" rx="2"/>
+              <rect x="165" y="405" width="16" height="118" rx="2"/>
+              <rect x="200" y="416" width="16" height="114" rx="2"/>
+              <rect x="235" y="428" width="16" height="108" rx="2"/>
+              <rect x="270" y="440" width="16" height="102" rx="2"/>
+              <rect x="305" y="452" width="16" height="96" rx="2"/>
+            </g>
+            <!-- Vuurtoren in de verte -->
+            <g>
+              <polygon points="642,330 652,225 668,225 678,330" fill="#A31C1C"/>
+              <rect x="647" y="210" width="26" height="16" fill="#2A2725"/>
+              <polygon points="644,210 660,192 676,210" fill="#2A2725"/>
+              <circle cx="660" cy="218" r="5" fill="#FAF8F5"/>
+            </g>
+          </svg>
+        `)
+      };
+
+      const FALLBACK_PLACEHOLDER = svgToDataUri(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+          <rect width="800" height="600" fill="#F3EFEA"/>
+          <rect x="32" y="32" width="736" height="536" fill="none" stroke="#D0C7BC" stroke-width="2" stroke-dasharray="10 8"/>
+          <text x="400" y="285" text-anchor="middle" font-family="Georgia, serif" font-size="28" fill="#A31C1C">Afbeelding nog niet geüpload</text>
+          <text x="400" y="325" text-anchor="middle" font-family="sans-serif" font-size="18" fill="#55524D">Plaats het bestand in de map fotos/ op GitHub</text>
+        </svg>
+      `);
+
+      /* 3 realistische voorbeeldfoto's met verhalen */
+      const SAMPLE_PHOTOS = [
+        {
+          id: 'voorbeeld-1',
+          bestand: 'fotos/ochtendlicht-polder.jpg',
+          previewUrl: SAMPLE_SVGS.polder,
+          titel: 'Ochtendlicht boven de oude polder',
+          datum: '2026-09-14',
+          locatie: 'Schouwen-Duiveland, Zeeland',
+          categorie: 'Landschap',
+          verhaal: 'Vroeg op de dijk hangt de nevel nog laag over de sloten. Alleen de kerktoren in de verte steekt boven de witte band uit, terwijl het eerste zonlicht de akkers langzaam warm kleurt.\n\nOp zulke stille ochtenden lijkt het landschap nauwelijks veranderd sinds de zeventiende eeuw. De sloten trekken strakke lijnen naar de horizon en het enige geluid komt van een koppel ganzen dat traag over de dijk strijkt.\n\nDit is een voorbeelditem. Zodra u uw eigen fotos.json en afbeeldingen uploadt via GitHub, verschijnt hier automatisch uw eigen collectie.'
+        },
+        {
+          id: 'voorbeeld-2',
+          bestand: 'fotos/atelier-prentenkast.jpg',
+          previewUrl: SAMPLE_SVGS.atelier,
+          titel: 'De werktafel bij het noorderlicht',
+          datum: '2026-06-03',
+          locatie: 'Middelburg',
+          categorie: 'Archief',
+          verhaal: 'Naast het hoge raam liggen de mappen met oude prenten en gravures open. Het koele noorderlicht laat elke fijne arceerlijn en iedere tint meekraprood tot zijn recht komen zonder harde schaduwen.\n\nVeel van deze bladen hebben eeuwenlang in bescheiden verzamelingen gerust. Door ze digitaal vast te leggen en er het bijbehorende verhaal onder te schrijven, blijven ze toegankelijk voor iedereen die nieuwsgierig is naar de geschiedenis achter het beeld.'
+        },
+        {
+          id: 'voorbeeld-3',
+          bestand: 'fotos/paalhoofden-laagwater.jpg',
+          previewUrl: SAMPLE_SVGS.kust,
+          titel: 'Paalhoofden bij opkomend tij',
+          datum: '2026-03-21',
+          locatie: 'Westkapelle',
+          categorie: 'Kust',
+          verhaal: 'De houten palen staan als een ritmische rij wachters in het natte zand. Elke golf trekt zich iets minder ver terug dan de vorige; binnen een uur zal het hele strand weer onder water staan.\n\nWie hier vaker loopt, merkt hoe het licht per kwartier omslaat. Soms is de Noordzee loodgrijs, en een ogenblik later breekt de zon door het wolkendek en glanst het natte hout bijna koperkleurig.'
+        }
+      ];
+
+      /* ----------------------------------------------------------------------
+         2. APPLICATIESTATUS
+         ---------------------------------------------------------------------- */
+      const state = {
+        photos: [],
+        filteredPhotos: [],
+        selectedCategory: 'Alle',
+        searchQuery: '',
+        activeReaderIndex: -1,
+        isLiveSource: false,
+        pendingPreviewDataUrl: null,
+        confirmDeleteId: null
+      };
+
+      /* ----------------------------------------------------------------------
+         3. DOM-ELEMENTEN
+         ---------------------------------------------------------------------- */
+      const el = {
+        sourceStatus: document.getElementById('sourceStatus'),
+        statusDot: document.getElementById('statusDot'),
+        statusText: document.getElementById('statusText'),
+        searchInput: document.getElementById('searchInput'),
+        clearSearchBtn: document.getElementById('clearSearchBtn'),
+        resultCount: document.getElementById('resultCount'),
+        categoryBar: document.getElementById('categoryBar'),
+        galleryGrid: document.getElementById('galleryGrid'),
+        emptyState: document.getElementById('emptyState'),
+        resetFiltersBtn: document.getElementById('resetFiltersBtn'),
+        // Tekstgrootte
+        fontSmall: document.getElementById('fontSmall'),
+        fontNormal: document.getElementById('fontNormal'),
+        fontLarge: document.getElementById('fontLarge'),
+        // Leesweergave
+        readerOverlay: document.getElementById('readerOverlay'),
+        readerImage: document.getElementById('readerImage'),
+        readerCategory: document.getElementById('readerCategory'),
+        readerDate: document.getElementById('readerDate'),
+        readerLocation: document.getElementById('readerLocation'),
+        readerFilename: document.getElementById('readerFilename'),
+        readerTitle: document.getElementById('readerTitle'),
+        readerStory: document.getElementById('readerStory'),
+        readerCounter: document.getElementById('readerCounter'),
+        prevPhotoBtn: document.getElementById('prevPhotoBtn'),
+        nextPhotoBtn: document.getElementById('nextPhotoBtn'),
+        prevPhotoBottomBtn: document.getElementById('prevPhotoBottomBtn'),
+        nextPhotoBottomBtn: document.getElementById('nextPhotoBottomBtn'),
+        closeReaderBtn: document.getElementById('closeReaderBtn'),
+        closeReaderBottomBtn: document.getElementById('closeReaderBottomBtn'),
+        // Beheerpaneel
+        openAdminBtn: document.getElementById('openAdminBtn'),
+        adminOverlay: document.getElementById('adminOverlay'),
+        closeAdminBtn: document.getElementById('closeAdminBtn'),
+        tabBtns: document.querySelectorAll('.tab-btn'),
+        tabPanels: document.querySelectorAll('.tab-panel'),
+        manageCount: document.getElementById('manageCount'),
+        // Formulier
+        photoForm: document.getElementById('photoForm'),
+        editId: document.getElementById('editId'),
+        fileInput: document.getElementById('fileInput'),
+        uploadPreview: document.getElementById('uploadPreview'),
+        bestandInput: document.getElementById('bestandInput'),
+        titelInput: document.getElementById('titelInput'),
+        datumInput: document.getElementById('datumInput'),
+        locatieInput: document.getElementById('locatieInput'),
+        categorieInput: document.getElementById('categorieInput'),
+        categorySuggestions: document.getElementById('categorySuggestions'),
+        verhaalInput: document.getElementById('verhaalInput'),
+        submitFormBtn: document.getElementById('submitFormBtn'),
+        cancelEditBtn: document.getElementById('cancelEditBtn'),
+        // Beheer & Export
+        manageList: document.getElementById('manageList'),
+        jsonPreview: document.getElementById('jsonPreview'),
+        downloadJsonBtn: document.getElementById('downloadJsonBtn'),
+        copyJsonBtn: document.getElementById('copyJsonBtn'),
+        importJsonInput: document.getElementById('importJsonInput'),
+        // Toast
+        toast: document.getElementById('toast')
+      };
+
+      /* ----------------------------------------------------------------------
+         4. HULPFUNCTIES
+         ---------------------------------------------------------------------- */
+      let toastTimer = null;
+      function showToast(message) {
+        el.toast.textContent = message;
+        el.toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          el.toast.classList.remove('show');
+        }, 3200);
+      }
+
+      function formatDateNL(dateStr) {
+        if (!dateStr) return 'Datum onbekend';
+        try {
+          const parts = dateStr.split('-');
+          if (parts.length === 3) {
+            const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+            if (!isNaN(d.getTime())) {
+              return d.toLocaleDateString('nl-NL', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              });
+            }
+          }
+          return dateStr;
+        } catch (e) {
+          return dateStr;
+        }
+      }
+
+      function getImageSrc(photo) {
+        return photo.previewUrl || photo.bestand || FALLBACK_PLACEHOLDER;
+      }
+
+      function sanitizeFilename(name) {
+        return name
+          .toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9.\-_]+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '');
+      }
+
+      /* Zet interne lijst om naar schone JSON voor GitHub (zonder tijdelijke data-URLs) */
+      function buildExportJson() {
+        const clean = state.photos.map((p) => ({
+          id: p.id,
+          bestand: p.bestand,
+          titel: p.titel,
+          datum: p.datum,
+          locatie: p.locatie || '',
+          categorie: p.categorie || 'Algemeen',
+          verhaal: p.verhaal || ''
+        }));
+        return JSON.stringify(clean, null, 2);
+      }
+
+      /* ----------------------------------------------------------------------
+         5. TEKSTGROOTTE REGELAAR (A- / A / A+)
+         ---------------------------------------------------------------------- */
+      function applyFontSize(sizeKey) {
+        const map = { small: '17px', normal: '19px', large: '22px' };
+        const px = map[sizeKey] || '19px';
+        document.documentElement.style.setProperty('--base-size', px);
+
+        el.fontSmall.classList.toggle('active', sizeKey === 'small');
+        el.fontNormal.classList.toggle('active', sizeKey === 'normal');
+        el.fontLarge.classList.toggle('active', sizeKey === 'large');
+
+        try {
+          localStorage.setItem('fotowebsite_fontsize', sizeKey);
+        } catch (e) {
+          // Negeer als localStorage niet beschikbaar is
+        }
+      }
+
+      el.fontSmall.addEventListener('click', () => applyFontSize('small'));
+      el.fontNormal.addEventListener('click', () => applyFontSize('normal'));
+      el.fontLarge.addEventListener('click', () => applyFontSize('large'));
+
+      try {
+        const savedSize = localStorage.getItem('fotowebsite_fontsize');
+        if (savedSize) applyFontSize(savedSize);
+      } catch (e) {
+        // Standaard 19px blijft actief
+      }
+
+      /* ----------------------------------------------------------------------
+         6. LADEN VAN './fotos.json' (MET FALLBACK NAAR VOORBEELDCOLLECTIE)
+         ---------------------------------------------------------------------- */
+      async function loadPhotos() {
+        try {
+          const response = await fetch('./fotos.json', { cache: 'no-store' });
+          if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+          }
+          const data = await response.json();
+          if (!Array.isArray(data)) {
+            throw new Error('fotos.json bevat geen geldige lijst');
+          }
+          state.photos = data.map((item, idx) => ({
+            id: item.id || ('foto-' + Date.now() + '-' + idx),
+            bestand: item.bestand || '',
+            titel: item.titel || 'Zonder titel',
+            datum: item.datum || '',
+            locatie: item.locatie || '',
+            categorie: item.categorie || 'Algemeen',
+            verhaal: item.verhaal || ''
+          }));
+          state.isLiveSource = true;
+          el.statusDot.classList.add('live');
+          el.statusText.textContent = `Live collectie geladen uit fotos.json (${state.photos.length} ${state.photos.length === 1 ? 'foto' : "foto's"})`;
+        } catch (err) {
+          // Geen fotos.json aanwezig (bijv. in live preview of nieuwe repo) -> toon voorbeelden
+          state.photos = SAMPLE_PHOTOS.map((p) => ({ ...p }));
+          state.isLiveSource = false;
+          el.statusDot.classList.remove('live');
+          el.statusText.textContent = 'Voorbeeldweergave actief (geen fotos.json gevonden) — klaar om uw eigen collectie samen te stellen';
+        }
+
+        renderAll();
+      }
+
+      /* ----------------------------------------------------------------------
+         7. RENDEREN VAN CATEGORIEËN, GALERIJ EN BEHEERLIJST
+         ---------------------------------------------------------------------- */
+      function renderAll() {
+        applyFilters();
+        renderCategories();
+        renderGallery();
+        renderManageList();
+        updateCategorySuggestions();
+      }
+
+      function applyFilters() {
+        const q = state.searchQuery.trim().toLowerCase();
+        state.filteredPhotos = state.photos.filter((photo) => {
+          const matchesCat = state.selectedCategory === 'Alle' || photo.categorie === state.selectedCategory;
+          if (!matchesCat) return false;
+          if (!q) return true;
+          const haystack = [
+            photo.titel,
+            photo.locatie,
+            photo.categorie,
+            photo.verhaal,
+            photo.datum
+          ].join(' ').toLowerCase();
+          return haystack.includes(q);
+        });
+      }
+
+      function renderCategories() {
+        const counts = {};
+        state.photos.forEach((p) => {
+          const cat = p.categorie || 'Algemeen';
+          counts[cat] = (counts[cat] || 0) + 1;
+        });
+
+        const categories = ['Alle', ...Object.keys(counts).sort((a, b) => a.localeCompare(b, 'nl'))];
+        if (!categories.includes(state.selectedCategory)) {
+          state.selectedCategory = 'Alle';
+          applyFilters();
+        }
+
+        el.categoryBar.innerHTML = '';
+        categories.forEach((cat) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cat-pill' + (cat === state.selectedCategory ? ' active' : '');
+          btn.setAttribute('role', 'tab');
+          btn.setAttribute('aria-selected', cat === state.selectedCategory ? 'true' : 'false');
+
+          const count = cat === 'Alle' ? state.photos.length : counts[cat];
+          btn.innerHTML = `${escapeHtml(cat)} <span class="cat-count">(${count})</span>`;
+          btn.addEventListener('click', () => {
+            state.selectedCategory = cat;
+            applyFilters();
+            renderCategories();
+            renderGallery();
+          });
+          el.categoryBar.appendChild(btn);
+        });
+      }
+
+      function escapeHtml(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function renderGallery() {
+        const total = state.filteredPhotos.length;
+        el.resultCount.textContent = `${total} ${total === 1 ? 'foto' : "foto's"}`;
+
+        el.galleryGrid.innerHTML = '';
+        if (total === 0) {
+          el.emptyState.style.display = 'block';
+          return;
+        }
+        el.emptyState.style.display = 'none';
+
+        state.filteredPhotos.forEach((photo, index) => {
+          const card = document.createElement('article');
+          card.className = 'photo-card';
+          card.setAttribute('tabindex', '0');
+          card.setAttribute('role', 'button');
+          card.setAttribute('aria-label', `Lees verhaal bij ${photo.titel}`);
+
+          const imgSrc = getImageSrc(photo);
+          const dateText = formatDateNL(photo.datum);
+          const locationHtml = photo.locatie
+            ? `<span>&bull; ${escapeHtml(photo.locatie)}</span>`
+            : '';
+
+          card.innerHTML = `
+            <div class="card-media">
+              <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(photo.titel)}" loading="lazy">
+              <span class="card-badge">${escapeHtml(photo.categorie || 'Algemeen')}</span>
+            </div>
+            <div class="card-body">
+              <div class="card-meta">
+                <span>${escapeHtml(dateText)}</span>
+                ${locationHtml}
+              </div>
+              <h2 class="card-title">${escapeHtml(photo.titel)}</h2>
+              <p class="card-excerpt">${escapeHtml(photo.verhaal)}</p>
+              <div class="card-footer">
+                <span>Lees volledig verhaal</span>
+                <span aria-hidden="true">&rarr;</span>
+              </div>
+            </div>
+          `;
+
+          // Fallback wanneer een afbeelding nog niet op GitHub staat
+          const img = card.querySelector('img');
+          img.addEventListener('error', () => {
+            if (img.src !== FALLBACK_PLACEHOLDER) {
+              img.src = FALLBACK_PLACEHOLDER;
+            }
+          });
+
+          card.addEventListener('click', () => openReader(index));
+          card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              openReader(index);
+            }
+          });
+
+          el.galleryGrid.appendChild(card);
+        });
+      }
+
+      function updateCategorySuggestions() {
+        const unique = [...new Set(state.photos.map((p) => p.categorie).filter(Boolean))];
+        el.categorySuggestions.innerHTML = unique
+          .map((c) => `<option value="${escapeHtml(c)}"></option>`)
+          .join('');
+      }
+
+      /* ----------------------------------------------------------------------
+         8. ZOEKEN & FILTERS RESETTEN
+         ---------------------------------------------------------------------- */
+      el.searchInput.addEventListener('input', (e) => {
+        state.searchQuery = e.target.value;
+        el.clearSearchBtn.classList.toggle('visible', state.searchQuery.length > 0);
+        applyFilters();
+        renderGallery();
+      });
+
+      el.clearSearchBtn.addEventListener('click', () => {
+        state.searchQuery = '';
+        el.searchInput.value = '';
+        el.clearSearchBtn.classList.remove('visible');
+        applyFilters();
+        renderGallery();
+        el.searchInput.focus();
+      });
+
+      el.resetFiltersBtn.addEventListener('click', () => {
+        state.selectedCategory = 'Alle';
+        state.searchQuery = '';
+        el.searchInput.value = '';
+        el.clearSearchBtn.classList.remove('visible');
+        renderAll();
+      });
+
+      /* ----------------------------------------------------------------------
+         9. LEESWEERGAVE (LIGHTBOX / ARTIKEL-OVERLAY)
+         ---------------------------------------------------------------------- */
+      function openReader(index) {
+        if (index < 0 || index >= state.filteredPhotos.length) return;
+        state.activeReaderIndex = index;
+        updateReaderContent();
+        el.readerOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        el.readerOverlay.scrollTop = 0;
+        el.closeReaderBtn.focus();
+      }
+
+      function closeReader() {
+        el.readerOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+        state.activeReaderIndex = -1;
+      }
+
+      function updateReaderContent() {
+        const photo = state.filteredPhotos[state.activeReaderIndex];
+        if (!photo) return;
+
+        el.readerImage.src = getImageSrc(photo);
+        el.readerImage.alt = photo.titel;
+        el.readerImage.onerror = () => {
+          if (el.readerImage.src !== FALLBACK_PLACEHOLDER) {
+            el.readerImage.src = FALLBACK_PLACEHOLDER;
+          }
+        };
+
+        el.readerCategory.textContent = photo.categorie || 'Algemeen';
+        el.readerDate.textContent = formatDateNL(photo.datum);
+        el.readerLocation.textContent = photo.locatie ? `• ${photo.locatie}` : '';
+        el.readerFilename.textContent = photo.bestand || '';
+        el.readerTitle.textContent = photo.titel;
+
+        // Verhaal opsplitsen in nette alinea's
+        const paragraphs = String(photo.verhaal || '')
+          .split(/\n\s*\n/)
+          .map((p) => p.trim())
+          .filter(Boolean);
+
+        el.readerStory.innerHTML = '';
+        if (paragraphs.length === 0) {
+          const p = document.createElement('p');
+          p.textContent = 'Er is nog geen verhaal bij deze foto toegevoegd.';
+          el.readerStory.appendChild(p);
+        } else {
+          paragraphs.forEach((text) => {
+            const p = document.createElement('p');
+            // Enkele regeleindes behouden als <br>
+            const lines = text.split('\n');
+            lines.forEach((line, i) => {
+              p.appendChild(document.createTextNode(line));
+              if (i < lines.length - 1) p.appendChild(document.createElement('br'));
+            });
+            el.readerStory.appendChild(p);
+          });
+        }
+
+        const total = state.filteredPhotos.length;
+        el.readerCounter.textContent = `${state.activeReaderIndex + 1} / ${total}`;
+
+        const hasMultiple = total > 1;
+        el.prevPhotoBtn.disabled = !hasMultiple;
+        el.nextPhotoBtn.disabled = !hasMultiple;
+        el.prevPhotoBottomBtn.disabled = !hasMultiple;
+        el.nextPhotoBottomBtn.disabled = !hasMultiple;
+      }
+
+      function navigateReader(delta) {
+        const total = state.filteredPhotos.length;
+        if (total <= 1) return;
+        state.activeReaderIndex = (state.activeReaderIndex + delta + total) % total;
+        updateReaderContent();
+        el.readerOverlay.scrollTop = 0;
+      }
+
+      el.prevPhotoBtn.addEventListener('click', () => navigateReader(-1));
+      el.nextPhotoBtn.addEventListener('click', () => navigateReader(1));
+      el.prevPhotoBottomBtn.addEventListener('click', () => navigateReader(-1));
+      el.nextPhotoBottomBtn.addEventListener('click', () => navigateReader(1));
+      el.closeReaderBtn.addEventListener('click', closeReader);
+      el.closeReaderBottomBtn.addEventListener('click', closeReader);
+
+      el.readerOverlay.addEventListener('click', (e) => {
+        if (e.target === el.readerOverlay) closeReader();
+      });
+
+      // Touch-swipe ondersteuning in de leesweergave
+      let touchStartX = 0;
+      el.readerOverlay.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      el.readerOverlay.addEventListener('touchend', (e) => {
+        const diff = e.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(diff) > 65) {
+          navigateReader(diff > 0 ? -1 : 1);
+        }
+      }, { passive: true });
+
+      /* ----------------------------------------------------------------------
+         10. BEHEERPANEEL & TABS
+         ---------------------------------------------------------------------- */
+      function openAdmin(tabId) {
+        el.adminOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        if (tabId) switchTab(tabId);
+        renderManageList();
+      }
+
+      function closeAdmin() {
+        el.adminOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      function switchTab(tabId) {
+        el.tabBtns.forEach((btn) => {
+          const isActive = btn.dataset.tab === tabId;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        el.tabPanels.forEach((panel) => {
+          panel.classList.toggle('active', panel.id === tabId);
+        });
+      }
+
+      el.openAdminBtn.addEventListener('click', () => openAdmin('tab-form'));
+      el.closeAdminBtn.addEventListener('click', closeAdmin);
+      el.adminOverlay.addEventListener('click', (e) => {
+        if (e.target === el.adminOverlay) closeAdmin();
+      });
+
+      el.tabBtns.forEach((btn) => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      /* ----------------------------------------------------------------------
+         11. FORMULIER: FOTO TOEVOEGEN OF BEWERKEN (MET FILEREADER PREVIEW)
+         ---------------------------------------------------------------------- */
+      // Standaard datum op vandaag zetten
+      function setDefaultDate() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        el.datumInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+      setDefaultDate();
+
+      el.fileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        // Automatisch schoon pad in fotos/ voorstellen
+        const cleanName = sanitizeFilename(file.name) || 'foto.jpg';
+        el.bestandInput.value = 'fotos/' + cleanName;
+
+        // Lokale preview via FileReader
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          state.pendingPreviewDataUrl = evt.target.result;
+          el.uploadPreview.innerHTML = `<img src="${state.pendingPreviewDataUrl}" alt="Voorvertoning">`;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      function resetForm() {
+        el.photoForm.reset();
+        el.editId.value = '';
+        state.pendingPreviewDataUrl = null;
+        el.uploadPreview.innerHTML = 'Geen voorbeeld';
+        el.submitFormBtn.textContent = 'Toevoegen aan galerij';
+        el.cancelEditBtn.style.display = 'none';
+        setDefaultDate();
+      }
+
+      el.cancelEditBtn.addEventListener('click', resetForm);
+
+      el.photoForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const editId = el.editId.value.trim();
+        let bestand = el.bestandInput.value.trim();
+        if (bestand && !bestand.includes('/') && !bestand.startsWith('http')) {
+          bestand = 'fotos/' + bestand;
+        }
+
+        const titel = el.titelInput.value.trim();
+        const datum = el.datumInput.value;
+        const locatie = el.locatieInput.value.trim();
+        const categorie = el.categorieInput.value.trim() || 'Algemeen';
+        const verhaal = el.verhaalInput.value.trim();
+
+        if (!bestand || !titel || !verhaal) {
+          showToast('Vul alstublieft het bestandspad, de titel en het verhaal in.');
+          return;
+        }
+
+        if (editId) {
+          const idx = state.photos.findIndex((p) => p.id === editId);
+          if (idx !== -1) {
+            state.photos[idx] = {
+              ...state.photos[idx],
+              bestand,
+              titel,
+              datum,
+              locatie,
+              categorie,
+              verhaal,
+              previewUrl: state.pendingPreviewDataUrl || state.photos[idx].previewUrl
+            };
+            showToast('Wijzigingen opgeslagen in de huidige sessie.');
+          }
+        } else {
+          const newItem = {
+            id: 'foto-' + Date.now(),
+            bestand,
+            previewUrl: state.pendingPreviewDataUrl || null,
+            titel,
+            datum,
+            locatie,
+            categorie,
+            verhaal
+          };
+          // Nieuwste bovenaan plaatsen
+          state.photos.unshift(newItem);
+          showToast('Foto toegevoegd! Vergeet straks niet fotos.json te downloaden.');
+        }
+
+        resetForm();
+        renderAll();
+        switchTab('tab-manage');
+      });
+
+      /* ----------------------------------------------------------------------
+         12. COLLECTIE BEHEREN, VERWIJDEREN, VOLGORDE & JSON EXPORT/IMPORT
+         ---------------------------------------------------------------------- */
+      function renderManageList() {
+        el.manageCount.textContent = state.photos.length;
+        el.manageList.innerHTML = '';
+
+        if (state.photos.length === 0) {
+          el.manageList.innerHTML = '<p style="color: var(--text-muted); margin: 0 0 1rem;">Er staan nog geen foto\'s in de collectie.</p>';
+        } else {
+          state.photos.forEach((photo, index) => {
+            const row = document.createElement('div');
+            row.className = 'manage-item';
+
+            const isConfirmingDelete = state.confirmDeleteId === photo.id;
+
+            row.innerHTML = `
+              <div class="manage-item-info">
+                <img class="manage-thumb" src="${escapeHtml(getImageSrc(photo))}" alt="">
+                <div>
+                  <div class="manage-item-title">${escapeHtml(photo.titel)}</div>
+                  <div class="manage-item-sub">${escapeHtml(photo.bestand)} &bull; ${escapeHtml(photo.categorie)}</div>
+                </div>
+              </div>
+              <div class="manage-item-actions">
+                <button type="button" class="btn btn-secondary btn-sm" data-action="up" ${index === 0 ? 'disabled' : ''} title="Omhoog">&uarr;</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-action="down" ${index === state.photos.length - 1 ? 'disabled' : ''} title="Omlaag">&darr;</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-action="edit">Bewerken</button>
+                ${
+                  isConfirmingDelete
+                    ? `<button type="button" class="btn btn-primary btn-sm" data-action="confirm-delete">Zeker verwijderen?</button>
+                       <button type="button" class="btn btn-ghost btn-sm" data-action="cancel-delete">Annuleer</button>`
+                    : `<button type="button" class="btn btn-danger btn-sm" data-action="delete">Verwijder</button>`
+                }
+              </div>
+            `;
+
+            const thumb = row.querySelector('.manage-thumb');
+            thumb.addEventListener('error', () => {
+              if (thumb.src !== FALLBACK_PLACEHOLDER) thumb.src = FALLBACK_PLACEHOLDER;
+            });
+
+            row.addEventListener('click', (e) => {
+              const btn = e.target.closest('button[data-action]');
+              if (!btn) return;
+              const action = btn.dataset.action;
+
+              if (action === 'up' && index > 0) {
+                [state.photos[index - 1], state.photos[index]] = [state.photos[index], state.photos[index - 1]];
+                renderAll();
+              } else if (action === 'down' && index < state.photos.length - 1) {
+                [state.photos[index + 1], state.photos[index]] = [state.photos[index], state.photos[index + 1]];
+                renderAll();
+              } else if (action === 'edit') {
+                startEditing(photo);
+              } else if (action === 'delete') {
+                state.confirmDeleteId = photo.id;
+                renderManageList();
+              } else if (action === 'cancel-delete') {
+                state.confirmDeleteId = null;
+                renderManageList();
+              } else if (action === 'confirm-delete') {
+                state.photos = state.photos.filter((p) => p.id !== photo.id);
+                state.confirmDeleteId = null;
+                renderAll();
+                showToast('Item verwijderd uit de collectie.');
+              }
+            });
+
+            el.manageList.appendChild(row);
+          });
+        }
+
+        el.jsonPreview.textContent = buildExportJson();
+      }
+
+      function startEditing(photo) {
+        el.editId.value = photo.id;
+        el.bestandInput.value = photo.bestand || '';
+        el.titelInput.value = photo.titel || '';
+        el.datumInput.value = photo.datum || '';
+        el.locatieInput.value = photo.locatie || '';
+        el.categorieInput.value = photo.categorie || '';
+        el.verhaalInput.value = photo.verhaal || '';
+        state.pendingPreviewDataUrl = photo.previewUrl || null;
+
+        const previewSrc = getImageSrc(photo);
+        el.uploadPreview.innerHTML = `<img src="${escapeHtml(previewSrc)}" alt="Voorvertoning">`;
+        el.submitFormBtn.textContent = 'Wijzigingen opslaan';
+        el.cancelEditBtn.style.display = 'inline-flex';
+        switchTab('tab-form');
+        el.titelInput.focus();
+      }
+
+      // Download fotos.json
+      el.downloadJsonBtn.addEventListener('click', () => {
+        try {
+          const jsonText = buildExportJson();
+          const blob = new Blob([jsonText], { type: 'application/json;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'fotos.json';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast('fotos.json gedownload! Upload dit bestand naar uw GitHub-repository.');
+        } catch (err) {
+          showToast('Downloaden mislukt. Gebruik de knop "Kopieer fotos.json".');
+        }
+      });
+
+      // Kopieer fotos.json (betrouwbaar via document.execCommand voor iFrames en browsers)
+      el.copyJsonBtn.addEventListener('click', () => {
+        try {
+          const jsonText = buildExportJson();
+          const tempArea = document.createElement('textarea');
+          tempArea.value = jsonText;
+          tempArea.setAttribute('readonly', '');
+          tempArea.style.position = 'fixed';
+          tempArea.style.opacity = '0';
+          document.body.appendChild(tempArea);
+          tempArea.select();
+          tempArea.setSelectionRange(0, tempArea.value.length);
+          const ok = document.execCommand('copy');
+          document.body.removeChild(tempArea);
+          if (ok) {
+            showToast('fotos.json gekopieerd naar uw klembord!');
+          } else {
+            throw new Error('Copy command mislukt');
+          }
+        } catch (err) {
+          showToast('Kopiëren niet gelukt. Selecteer de tekst in het zwarte vak handmatig.');
+        }
+      });
+
+      // Bestaande fotos.json lokaal importeren
+      el.importJsonInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          try {
+            const parsed = JSON.parse(evt.target.result);
+            if (!Array.isArray(parsed)) throw new Error('Geen lijst');
+            state.photos = parsed.map((item, idx) => ({
+              id: item.id || ('foto-' + Date.now() + '-' + idx),
+              bestand: item.bestand || '',
+              titel: item.titel || 'Zonder titel',
+              datum: item.datum || '',
+              locatie: item.locatie || '',
+              categorie: item.categorie || 'Algemeen',
+              verhaal: item.verhaal || ''
+            }));
+            renderAll();
+            showToast(`${state.photos.length} foto's geïmporteerd uit fotos.json.`);
+          } catch (err) {
+            showToast('Ongeldig JSON-bestand. Kies een geldige fotos.json.');
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+
+      /* ----------------------------------------------------------------------
+         13. TOETSENBORDNAVIGATIE (ESCAPE, PIJLTJESTOETSEN)
+         ---------------------------------------------------------------------- */
+      document.addEventListener('keydown', (e) => {
+        if (el.readerOverlay.classList.contains('open')) {
+          if (e.key === 'Escape') {
+            closeReader();
+          } else if (e.key === 'ArrowLeft') {
+            navigateReader(-1);
+          } else if (e.key === 'ArrowRight') {
+            navigateReader(1);
+          }
+        } else if (el.adminOverlay.classList.contains('open')) {
+          if (e.key === 'Escape') {
+            closeAdmin();
+          }
+        }
+      });
+
+      // Start de applicatie
+      loadPhotos();
+    })();
+  </script>
+</body>
+</html>
