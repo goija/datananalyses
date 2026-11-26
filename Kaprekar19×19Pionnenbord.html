@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kaprekar 19×19 Pionnenbord — Meekrap Editie</title>
+  <style>
+    /* ==========================================================================
+       MEEKRAP DESIGN TOKENS (ARCHIEF- & MUSEUMESTHETIEK)
+       ========================================================================== */
+    :root {
+      /* Basisoppervlakken */
+      --bg-page: #FFFFFF;
+      --bg-linen: #FAF7F5;
+      --bg-linen-deep: #F3ECE8;
+      --border-warm: #E5DCD8;
+      --border-strong: #D0C2BC;
+
+      /* Typografie & Inkt */
+      --ink-main: #1E191A;
+      --ink-muted: #6B5E60;
+      --ink-soft: #968789;
+
+      /* Zeeuwse Meekrap (Alizarine-karmozijn) & Oker-goud accent */
+      --meekrap: #9B1B30;
+      --meekrap-dark: #6E1121;
+      --meekrap-tint: rgba(155, 27, 48, 0.08);
+      --ochre-gold: #C8963E;
+      --ochre-glow: rgba(200, 150, 62, 0.35);
+
+      /* Tonale Meekrap-kleurschaal per aantal Kaprekar-stappen (0 t/m 7) */
+      --step-0-bg: #EAE4E1;
+      --step-0-fg: #6B5E60;
+      --step-1-bg: #9B1B30;
+      --step-1-fg: #FFFFFF;
+      --step-2-bg: #D97B86;
+      --step-2-fg: #FFFFFF;
+      --step-3-bg: #C65363;
+      --step-3-fg: #FFFFFF;
+      --step-4-bg: #B03245;
+      --step-4-fg: #FFFFFF;
+      --step-5-bg: #7D1426;
+      --step-5-fg: #FFFFFF;
+      --step-6-bg: #520C18;
+      --step-6-fg: #FFFFFF;
+      --step-7-bg: #2D070E;
+      --step-7-fg: #FFFFFF;
+
+      /* Typografie */
+      --font-serif: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, "Times New Roman", serif;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-soft: 0 2px 10px rgba(30, 25, 26, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background-color: var(--bg-page);
+      color: var(--ink-main);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       HEADER & BOVENBALK
+       ========================================================================== */
+    .app-header {
+      background: var(--bg-page);
+      border-bottom: 1px solid var(--border-warm);
+      padding: 18px 24px;
+    }
+
+    .header-inner {
+      max-width: 1460px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-seal {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--meekrap);
+      color: #FFFFFF;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+      flex-shrink: 0;
+    }
+
+    .brand h1 {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--ink-main);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .brand p {
+      font-size: 0.84rem;
+      color: var(--ink-muted);
+      margin-top: 2px;
+    }
+
+    /* Modus-schakelaar */
+    .mode-switch {
+      display: inline-flex;
+      background: var(--bg-linen);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--ink-muted);
+      font-family: var(--font-sans);
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color 0.16s ease, color 0.16s ease;
+    }
+
+    .mode-btn:hover {
+      color: var(--ink-main);
+    }
+
+    .mode-btn.active {
+      background: var(--meekrap);
+      color: #FFFFFF;
+      box-shadow: 0 1px 4px rgba(155, 27, 48, 0.28);
+    }
+
+    /* ==========================================================================
+       HOOFDLAYOUT (BORD LINKS, INSPECTIE & BESTURING RECHTS)
+       ========================================================================== */
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 400px;
+      gap: 24px;
+      max-width: 1460px;
+      margin: 0 auto;
+      padding: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .workspace {
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 18px;
+      }
+    }
+
+    .panel {
+      background: var(--bg-linen);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .panel-title {
+      font-family: var(--font-serif);
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--ink-main);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-warm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .panel-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--meekrap);
+      background: var(--meekrap-tint);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    /* ==========================================================================
+       19×19 PIONNENBORD
+       ========================================================================== */
+    .board-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .coord-readout {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+      background: var(--bg-page);
+      border: 1px solid var(--border-warm);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+    }
+
+    .coord-readout strong {
+      color: var(--ink-main);
+    }
+
+    .highlight-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .board-scroll {
+      width: 100%;
+      overflow-x: auto;
+      padding: 4px 0 8px;
+    }
+
+    /* 20x20 grid: 1 rij/kolom voor coördinaten 1–19 + 19x19 speelvelden */
+    .board-grid {
+      display: grid;
+      grid-template-columns: 24px repeat(19, minmax(22px, 1fr));
+      grid-template-rows: 22px repeat(19, minmax(22px, 1fr));
+      gap: 3px;
+      width: 100%;
+      max-width: 820px;
+      margin: 0 auto;
+      background: var(--bg-page);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--radius-md);
+      padding: 8px;
+      user-select: none;
+      aspect-ratio: 1 / 1;
+    }
+
+    .axis-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+
+    .cell {
+      position: relative;
+      background: transparent;
+      border: 1px solid #F1EAE6;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      transition: background-color 0.14s ease, border-color 0.14s ease, opacity 0.18s ease;
+    }
+
+    .cell:hover {
+      background: var(--bg-linen);
+      border-color: var(--border-strong);
+      z-index: 3;
+    }
+
+    /* Geselecteerd veld */
+    .cell.is-selected {
+      background: rgba(155, 27, 48, 0.06);
+      border-color: var(--meekrap);
+      z-index: 4;
+    }
+
+    /* Actieve scanner-cursor tijdens automatisering */
+    .cell.is-cursor {
+      border-color: var(--meekrap);
+      box-shadow: 0 0 0 2px var(--meekrap);
+      z-index: 5;
+    }
+
+    /* Dimmen bij actief filter (legenda of snelfilter) */
+    .board-grid.has-filter .cell:not(.is-match) {
+      opacity: 0.2;
+    }
+
+    .board-grid.has-filter .cell.is-match {
+      opacity: 1;
+      z-index: 4;
+    }
+
+    /* Ronde pion op elk veld met veldnummer 1–361 */
+    .pawn {
+      width: 86%;
+      height: 86%;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: clamp(0.48rem, 0.88vw, 0.69rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      background: var(--bg-linen);
+      color: var(--ink-soft);
+      border: 1px solid var(--border-warm);
+      transition: transform 0.15s ease, background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+      pointer-events: none;
+    }
+
+    .cell:hover .pawn {
+      transform: scale(1.08);
+    }
+
+    /* Berekende pion-animatie */
+    .pawn.is-calculated {
+      border-color: transparent;
+      box-shadow: 0 1px 3px rgba(30, 25, 26, 0.16), inset 0 1px 1px rgba(255, 255, 255, 0.22);
+      animation: pawnReveal 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes pawnReveal {
+      0% { transform: scale(0.7); }
+      100% { transform: scale(1); }
+    }
+
+    /* Tonale Meekrap-stappen */
+    .pawn.step-0 {
+      background: var(--step-0-bg);
+      color: var(--step-0-fg);
+      border: 1.5px dashed #B8ABA5;
+      box-shadow: none;
+    }
+    .pawn.step-1 { background: var(--step-1-bg); color: var(--step-1-fg); }
+    .pawn.step-2 { background: var(--step-2-bg); color: var(--step-2-fg); }
+    .pawn.step-3 { background: var(--step-3-bg); color: var(--step-3-fg); }
+    .pawn.step-4 { background: var(--step-4-bg); color: var(--step-4-fg); }
+    .pawn.step-5 { background: var(--step-5-bg); color: var(--step-5-fg); }
+    .pawn.step-6 { background: var(--step-6-bg); color: var(--step-6-fg); }
+    .pawn.step-7 { background: var(--step-7-bg); color: var(--step-7-fg); }
+
+    /* Oker-gouden dubbele ring voor 136, 163, 316 en 361 */
+    .pawn.is-double-one {
+      box-shadow:
+        0 0 0 1.5px var(--bg-page),
+        0 0 0 3px var(--ochre-gold),
+        0 2px 6px var(--ochre-glow);
+    }
+
+    /* Extra accent wanneer een snelfilter actief is op deze cel */
+    .cell.is-highlighted .pawn {
+      box-shadow:
+        0 0 0 2px var(--bg-page),
+        0 0 0 4px var(--ochre-gold),
+        0 0 12px var(--ochre-glow);
+      transform: scale(1.06);
+    }
+
+    /* ==========================================================================
+       KLIKBARE LEGENDA (FILTER OP AANTAL STAPPEN 0–7)
+       ========================================================================== */
+    .legend-wrap {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-warm);
+    }
+
+    .legend-caption {
+      font-size: 0.76rem;
+      color: var(--ink-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .legend-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-warm);
+      background: var(--bg-page);
+      color: var(--ink-main);
+      font-family: var(--font-sans);
+      font-size: 0.76rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .legend-chip:hover {
+      border-color: var(--meekrap);
+      background: var(--bg-linen);
+    }
+
+    .legend-chip.active {
+      background: var(--meekrap);
+      border-color: var(--meekrap);
+      color: #FFFFFF;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-dot.is-step-0 {
+      border: 1.5px dashed #968789;
+    }
+
+    .legend-note {
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .gold-ring-sample {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--meekrap);
+      box-shadow: 0 0 0 1.5px var(--bg-linen), 0 0 0 3px var(--ochre-gold);
+      display: inline-block;
+      margin-left: 2px;
+    }
+
+    /* ==========================================================================
+       ZIJPANEEL: BESTURING, INSPECTIE & VERDELING
+       ========================================================================== */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--border-strong);
+      background: var(--bg-page);
+      color: var(--ink-main);
+      font-family: var(--font-sans);
+      font-size: 0.83rem;
+      font-weight: 600;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .btn:hover {
+      background: var(--bg-linen-deep);
+      border-color: var(--meekrap);
+    }
+
+    .btn-primary {
+      background: var(--meekrap);
+      border-color: var(--meekrap);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background: var(--meekrap-dark);
+      border-color: var(--meekrap-dark);
+    }
+
+    .btn-filter {
+      font-size: 0.78rem;
+      padding: 6px 11px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-strong);
+      color: var(--ink-main);
+    }
+
+    .btn-filter:hover {
+      border-color: var(--meekrap);
+      color: var(--meekrap);
+    }
+
+    .btn-filter.active {
+      background: var(--meekrap);
+      border-color: var(--meekrap);
+      color: #FFFFFF;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .field-group label {
+      font-size: 0.79rem;
+      color: var(--ink-muted);
+      display: flex;
+      justify-content: space-between;
+      font-weight: 500;
+    }
+
+    .field-group select {
+      background: var(--bg-page);
+      color: var(--ink-main);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-family: var(--font-sans);
+      font-size: 0.83rem;
+    }
+
+    .field-group input[type="range"] {
+      width: 100%;
+      accent-color: var(--meekrap);
+      cursor: pointer;
+    }
+
+    /* Inspectiepaneel */
+    .inspect-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .inspect-id {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .inspect-num {
+      font-family: var(--font-mono);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--ink-main);
+      line-height: 1;
+    }
+
+    .inspect-coord {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+    }
+
+    .inspect-badge-double {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #8A611C;
+      background: rgba(200, 150, 62, 0.16);
+      border: 1px solid rgba(200, 150, 62, 0.5);
+      padding: 3px 8px;
+      border-radius: 999px;
+      display: none;
+    }
+
+    .inspect-badge-double.visible {
+      display: inline-block;
+    }
+
+    .calc-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .calc-card {
+      background: var(--bg-page);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--radius-sm);
+      padding: 11px 13px;
+    }
+
+    .calc-card.active-mode {
+      border-color: var(--meekrap);
+      box-shadow: inset 3px 0 0 var(--meekrap);
+    }
+
+    .calc-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    .step-pill {
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--bg-linen-deep);
+      color: var(--ink-main);
+    }
+
+    .calc-list {
+      list-style: none;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--ink-main);
+      line-height: 1.6;
+    }
+
+    .calc-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .calc-idx {
+      color: var(--ink-soft);
+    }
+
+    .calc-target {
+      color: var(--meekrap);
+      font-weight: 700;
+    }
+
+    /* Live Statistieken / Verdeling */
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      margin-bottom: 6px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-warm);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--meekrap);
+      transition: width 0.12s linear;
+    }
+
+    .dist-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .dist-row {
+      display: grid;
+      grid-template-columns: 58px 1fr 34px;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--ink-main);
+    }
+
+    .dist-bar-bg {
+      height: 10px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-warm);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .dist-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 3px;
+      transition: width 0.15s ease;
+    }
+
+    .dist-count {
+      text-align: right;
+      color: var(--ink-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BOVENBALK -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-seal">6174</div>
+        <div>
+          <h1>Kaprekar 19×19 Pionnenbord</h1>
+          <p>Geautomatiseerde constante van Kaprekar voor velden 1 t/m 361 — Meekrap Editie</p>
+        </div>
+      </div>
+
+      <div class="mode-switch" role="group" aria-label="Kies Kaprekar-modus">
+        <button id="btnMode3" class="mode-btn" type="button" data-mode="3">3 cijfers (→ 495)</button>
+        <button id="btnMode4" class="mode-btn active" type="button" data-mode="4">4 cijfers (0xxx → 6174)</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOOFDWERKRUIMTE -->
+  <main class="workspace">
+
+    <!-- LINKERKOLOM: 19×19 PIONNENBORD & LEGENDA -->
+    <section class="panel" aria-label="19 bij 19 pionnenbord">
+      <div class="board-header">
+        <div id="coordReadout" class="coord-readout">
+          Pion: <strong>361</strong> &middot; Rij <strong>19</strong>, Kolom <strong>19</strong>
+        </div>
+
+        <div class="highlight-bar">
+          <button id="btnHighlight361" class="btn btn-filter" type="button">Markeer 361</button>
+          <button id="btnHighlightDouble" class="btn btn-filter" type="button">Dubbele 1-stap (136, 163, 316, 361)</button>
+        </div>
+      </div>
+
+      <div class="board-scroll">
+        <div id="boardGrid" class="board-grid" role="grid" aria-label="19 bij 19 raster van 1 tot en met 361"></div>
+      </div>
+
+      <!-- KLIKBARE LEGENDA -->
+      <div class="legend-wrap" aria-label="Filter op aantal Kaprekar-stappen">
+        <div class="legend-caption">
+          <span><strong>Kleurschaal &amp; Filter:</strong> klik op een stappental om pionnen uit te lichten</span>
+          <span id="filterHint" style="font-family: var(--font-mono); color: var(--meekrap);"></span>
+        </div>
+        <div id="legendGrid" class="legend-grid"></div>
+        <div class="legend-note">
+          <span class="gold-ring-sample" aria-hidden="true"></span>
+          <span>Oker-gouden dubbele ring markeert de vier dubbele 1-stap getallen binnen 1–361: <strong>136, 163, 316 en 361</strong>.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECHTERKOLOM: BESTURING, LIVE INSPECTIE & VERDELING -->
+    <aside class="sidebar">
+
+      <!-- AUTOMATISERING -->
+      <section class="panel" aria-label="Automatisering en besturing">
+        <div class="panel-title">
+          <span>Automatisering</span>
+          <span id="statusTag" class="panel-tag">Gereed</span>
+        </div>
+
+        <div class="btn-grid">
+          <button id="btnStartPause" class="btn btn-primary" type="button">Start</button>
+          <button id="btnStep" class="btn" type="button">Stap (+1)</button>
+          <button id="btnFillAll" class="btn" type="button">Alles direct</button>
+          <button id="btnReset" class="btn" type="button">Reset bord</button>
+        </div>
+
+        <div class="field-group">
+          <label for="orderSelect"><span>Scanvolgorde</span></label>
+          <select id="orderSelect">
+            <option value="linear">Lineair (1 → 361)</option>
+            <option value="spiral">Spiraal vanuit midden (181)</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="speedRange">
+            <span>Animatiesnelheid</span>
+            <span id="speedLabel" style="font-family: var(--font-mono);">30 ms/pion</span>
+          </label>
+          <input id="speedRange" type="range" min="1" max="100" value="80" />
+        </div>
+      </section>
+
+      <!-- LIVE INSPECTIEPANEEL -->
+      <section class="panel" aria-label="Inspectie van geselecteerde pion">
+        <div class="panel-title">
+          <span>Inspectie</span>
+          <span id="inspectLockTag" class="panel-tag">Geselecteerd</span>
+        </div>
+
+        <div class="inspect-hero">
+          <div class="inspect-id">
+            <span id="inspectNum" class="inspect-num">361</span>
+            <span id="inspectCoord" class="inspect-coord">(rij 19, kol 19)</span>
+          </div>
+          <span id="doubleBadge" class="inspect-badge-double">Dubbele 1-stap</span>
+        </div>
+
+        <div class="calc-stack">
+          <div id="calcCard3" class="calc-card">
+            <div class="calc-card-head">
+              <span>3 cijfers → 495</span>
+              <span id="pill3" class="step-pill">1 stap</span>
+            </div>
+            <ul id="list3" class="calc-list"></ul>
+          </div>
+
+          <div id="calcCard4" class="calc-card active-mode">
+            <div class="calc-card-head">
+              <span>4 cijfers (0xxx) → 6174</span>
+              <span id="pill4" class="step-pill">1 stap</span>
+            </div>
+            <ul id="list4" class="calc-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- VERDELING & LIVE TELLING -->
+      <section class="panel" aria-label="Verdeling van aantallen stappen">
+        <div class="panel-title">
+          <span>Verdeling over het bord</span>
+          <span id="distModeTag" class="panel-tag">6174</span>
+        </div>
+
+        <div class="progress-header">
+          <span>Berekende pionnen</span>
+          <span id="progressText">0 / 361</span>
+        </div>
+        <div class="progress-track">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+
+        <div id="distList" class="dist-list"></div>
+      </section>
+
+    </aside>
+  </main>
+
+  <script>
+    (() => {
+      /* ========================================================================
+         CONSTANTEN & CONFIGURATIE
+         ======================================================================== */
+      const GRID_SIZE = 19;
+      const TOTAL_CELLS = GRID_SIZE * GRID_SIZE; // 361
+      const DOUBLE_ONE_SET = new Set([136, 163, 316, 361]);
+
+      const STEP_META = [
+        { step: 0, label: "0 / gelijk", color: "var(--step-0-bg)", isZero: true },
+        { step: 1, label: "1 stap",     color: "var(--step-1-bg)" },
+        { step: 2, label: "2 st.",      color: "var(--step-2-bg)" },
+        { step: 3, label: "3 st.",      color: "var(--step-3-bg)" },
+        { step: 4, label: "4 st.",      color: "var(--step-4-bg)" },
+        { step: 5, label: "5 st.",      color: "var(--step-5-bg)" },
+        { step: 6, label: "6 st.",      color: "var(--step-6-bg)" },
+        { step: 7, label: "7 st.",      color: "var(--step-7-bg)" }
+      ];
+
+      /* ========================================================================
+         KAPREKAR-WISKUNDE (3 CIJFERS → 495, 4 CIJFERS → 6174)
+         ======================================================================== */
+
+      /**
+       * Berekent de volledige Kaprekar-reeks voor een geheel getal met d cijfers.
+       * Repdigits (zoals 111, 222, 333 in 3-cijfermodus) geven step = 0 en isRepdigit = true.
+       * In 4-cijfermodus zijn 0111, 0222, 0333 géén repdigits en convergeren ze naar 6174.
+       */
+      function computeKaprekar(num, digits) {
+        const target = digits === 3 ? 495 : 6174;
+        let current = String(num).padStart(digits, "0");
+
+        if (/^(\d)\1+$/.test(current)) {
+          return {
+            steps: 0,
+            isRepdigit: true,
+            target,
+            history: [
+              { expr: `${current} − ${current}`, result: "0".repeat(digits), hit: false }
+            ]
+          };
+        }
+
+        const history = [];
+        let steps = 0;
+
+        while (Number(current) !== target && steps < 10) {
+          const chars = current.split("");
+          const desc = [...chars].sort((a, b) => b.localeCompare(a)).join("");
+          const asc = [...chars].sort((a, b) => a.localeCompare(b)).join("");
+          const diff = Number(desc) - Number(asc);
+          const nextStr = String(diff).padStart(digits, "0");
+          steps++;
+          history.push({
+            expr: `${desc} − ${asc}`,
+            result: nextStr,
+            hit: diff === target
+          });
+          current = nextStr;
+        }
+
+        return { steps, isRepdigit: false, target, history };
+      }
+
+      /**
+       * Converteert veldnummer (1..361) naar 1-gebaseerde rij en kolom (1..19).
+       */
+      function numToRowCol(n) {
+        const idx = n - 1;
+        return {
+          row: Math.floor(idx / GRID_SIZE) + 1,
+          col: (idx % GRID_SIZE) + 1
+        };
+      }
+
+      /**
+       * Genereert scanvolgorde: lineair (1..361) of spiraal vanuit midden (181).
+       */
+      function buildScanOrder(type) {
+        if (type === "linear") {
+          return Array.from({ length: TOTAL_CELLS }, (_, i) => i + 1);
+        }
+
+        // Midden van 19x19 is (rij 10, kol 10) => 0-based (9, 9) => nummer 181
+        const order = [];
+        let r = 9;
+        let c = 9;
+        order.push(r * GRID_SIZE + c + 1);
+
+        const dr = [0, 1, 0, -1];
+        const dc = [1, 0, -1, 0];
+        let stepLen = 1;
+        let dir = 0;
+
+        while (order.length < TOTAL_CELLS) {
+          for (let repeat = 0; repeat < 2; repeat++) {
+            for (let s = 0; s < stepLen; s++) {
+              r += dr[dir];
+              c += dc[dir];
+              if (r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE) {
+                order.push(r * GRID_SIZE + c + 1);
+              }
+            }
+            dir = (dir + 1) % 4;
+          }
+          stepLen++;
+        }
+        return order;
+      }
+
+      /* ========================================================================
+         APPLICATIESTATUS
+         ======================================================================== */
+      const state = {
+        mode: 4,                     // 3 (495) of 4 (6174)
+        orderType: "linear",         // "linear" | "spiral"
+        order: buildScanOrder("linear"),
+        cursorIdx: 0,
+        calculated: new Map(),       // num -> resultaatobject in huidige modus
+        running: false,
+        timerId: null,
+        selectedNum: 361,            // vastgeklikte pion
+        hoverNum: null,              // tijdelijk gehoverde pion
+        highlightFilter: null,       // null | "361" | "double"
+        stepFilter: null             // null | 0..7
+      };
+
+      const cellMap = new Map();
+      const pawnMap = new Map();
+
+      // DOM-referenties
+      const boardGrid = document.getElementById("boardGrid");
+      const coordReadout = document.getElementById("coordReadout");
+      const btnMode3 = document.getElementById("btnMode3");
+      const btnMode4 = document.getElementById("btnMode4");
+      const btnHighlight361 = document.getElementById("btnHighlight361");
+      const btnHighlightDouble = document.getElementById("btnHighlightDouble");
+      const legendGrid = document.getElementById("legendGrid");
+      const filterHint = document.getElementById("filterHint");
+      const statusTag = document.getElementById("statusTag");
+      const btnStartPause = document.getElementById("btnStartPause");
+      const btnStep = document.getElementById("btnStep");
+      const btnFillAll = document.getElementById("btnFillAll");
+      const btnReset = document.getElementById("btnReset");
+      const orderSelect = document.getElementById("orderSelect");
+      const speedRange = document.getElementById("speedRange");
+      const speedLabel = document.getElementById("speedLabel");
+      const inspectLockTag = document.getElementById("inspectLockTag");
+      const inspectNum = document.getElementById("inspectNum");
+      const inspectCoord = document.getElementById("inspectCoord");
+      const doubleBadge = document.getElementById("doubleBadge");
+      const calcCard3 = document.getElementById("calcCard3");
+      const calcCard4 = document.getElementById("calcCard4");
+      const pill3 = document.getElementById("pill3");
+      const pill4 = document.getElementById("pill4");
+      const list3 = document.getElementById("list3");
+      const list4 = document.getElementById("list4");
+      const distModeTag = document.getElementById("distModeTag");
+      const progressText = document.getElementById("progressText");
+      const progressFill = document.getElementById("progressFill");
+      const distList = document.getElementById("distList");
+
+      /* ========================================================================
+         OPBOUW VAN HET 19×19 BORD & LEGENDA
+         ======================================================================== */
+      function initBoard() {
+        const frag = document.createDocumentFragment();
+
+        // Hoekcel linksboven
+        const corner = document.createElement("div");
+        corner.className = "axis-label";
+        corner.textContent = "·";
+        frag.appendChild(corner);
+
+        // Kolomcoördinaten 1–19
+        for (let c = 1; c <= GRID_SIZE; c++) {
+          const lbl = document.createElement("div");
+          lbl.className = "axis-label";
+          lbl.textContent = String(c);
+          frag.appendChild(lbl);
+        }
+
+        // 19 rijen (1–19)
+        for (let r = 1; r <= GRID_SIZE; r++) {
+          const rowLbl = document.createElement("div");
+          rowLbl.className = "axis-label";
+          rowLbl.textContent = String(r);
+          frag.appendChild(rowLbl);
+
+          for (let c = 1; c <= GRID_SIZE; c++) {
+            const num = (r - 1) * GRID_SIZE + c;
+            const cell = document.createElement("button");
+            cell.type = "button";
+            cell.className = "cell";
+            cell.dataset.num = String(num);
+            cell.title = `Pion ${num} (rij ${r}, kolom ${c})`;
+
+            const pawn = document.createElement("span");
+            pawn.className = "pawn";
+            pawn.textContent = String(num);
+            if (DOUBLE_ONE_SET.has(num)) {
+              pawn.classList.add("is-double-one");
+            }
+
+            cell.appendChild(pawn);
+
+            cell.addEventListener("mouseenter", () => {
+              state.hoverNum = num;
+              updateCoordReadout(num);
+              renderInspection(num, true);
+            });
+
+            cell.addEventListener("click", () => {
+              selectPawn(num);
+            });
+
+            cellMap.set(num, cell);
+            pawnMap.set(num, pawn);
+            frag.appendChild(cell);
+          }
+        }
+
+        boardGrid.innerHTML = "";
+        boardGrid.appendChild(frag);
+
+        // Bij verlaten van het bord terugkeren naar de geselecteerde pion
+        boardGrid.addEventListener("mouseleave", () => {
+          state.hoverNum = null;
+          updateCoordReadout(state.selectedNum);
+          renderInspection(state.selectedNum, false);
+        });
+      }
+
+      function initLegend() {
+        legendGrid.innerHTML = STEP_META.map((m) => `
+          <button type="button" class="legend-chip" data-step="${m.step}">
+            <span class="legend-dot ${m.isZero ? "is-step-0" : ""}" style="background: ${m.color};"></span>
+            <span>${m.label}</span>
+          </button>
+        `).join("");
+
+        legendGrid.querySelectorAll(".legend-chip").forEach((chip) => {
+          chip.addEventListener("click", () => {
+            const stepVal = Number(chip.dataset.step);
+            toggleStepFilter(stepVal);
+          });
+        });
+      }
+
+      /* ========================================================================
+         RENDERING: PIONNEN, FILTERS, INSPECTIE & VERDELING
+         ======================================================================== */
+      function applyPawnStyle(num, res) {
+        const pawn = pawnMap.get(num);
+        if (!pawn) return;
+
+        // Reset oude stapklassen
+        pawn.className = "pawn is-calculated";
+        if (DOUBLE_ONE_SET.has(num)) {
+          pawn.classList.add("is-double-one");
+        }
+        const clampedStep = Math.min(Math.max(res.steps, 0), 7);
+        pawn.classList.add(`step-${clampedStep}`);
+      }
+
+      function resetPawnStyle(num) {
+        const pawn = pawnMap.get(num);
+        if (!pawn) return;
+        pawn.className = "pawn";
+        if (DOUBLE_ONE_SET.has(num)) {
+          pawn.classList.add("is-double-one");
+        }
+      }
+
+      function updateCoordReadout(num) {
+        const { row, col } = numToRowCol(num);
+        coordReadout.innerHTML = `Pion: <strong>${num}</strong> &middot; Rij <strong>${row}</strong>, Kolom <strong>${col}</strong>`;
+      }
+
+      function selectPawn(num) {
+        const prev = cellMap.get(state.selectedNum);
+        if (prev) prev.classList.remove("is-selected");
+
+        state.selectedNum = num;
+        const curr = cellMap.get(num);
+        if (curr) curr.classList.add("is-selected");
+
+        updateCoordReadout(num);
+        renderInspection(num, false);
+      }
+
+      function renderInspection(num, isPreview) {
+        const { row, col } = numToRowCol(num);
+        inspectNum.textContent = String(num);
+        inspectCoord.textContent = `(rij ${row}, kol ${col})`;
+        inspectLockTag.textContent = isPreview ? "Voorbeeld" : "Geselecteerd";
+        doubleBadge.classList.toggle("visible", DOUBLE_ONE_SET.has(num));
+
+        const res3 = computeKaprekar(num, 3);
+        const res4 = computeKaprekar(num, 4);
+
+        calcCard3.classList.toggle("active-mode", state.mode === 3);
+        calcCard4.classList.toggle("active-mode", state.mode === 4);
+
+        pill3.textContent = res3.isRepdigit
+          ? "0 (gelijke cijfers)"
+          : `${res3.steps} ${res3.steps === 1 ? "stap" : "stappen"}`;
+        pill4.textContent = res4.isRepdigit
+          ? "0 (gelijke cijfers)"
+          : `${res4.steps} ${res4.steps === 1 ? "stap" : "stappen"}`;
+
+        list3.innerHTML = res3.history
+          .map((h, i) => `<li><span class="calc-idx">${i + 1}.</span><span>${h.expr} = <strong class="${h.hit ? "calc-target" : ""}">${h.result}</strong></span></li>`)
+          .join("");
+
+        list4.innerHTML = res4.history
+          .map((h, i) => `<li><span class="calc-idx">${i + 1}.</span><span>${h.expr} = <strong class="${h.hit ? "calc-target" : ""}">${h.result}</strong></span></li>`)
+          .join("");
+      }
+
+      function renderDistribution() {
+        const counts = [0, 0, 0, 0, 0, 0, 0, 0];
+        for (const res of state.calculated.values()) {
+          const s = Math.min(Math.max(res.steps, 0), 7);
+          counts[s]++;
+        }
+
+        const done = state.calculated.size;
+        progressText.textContent = `${done} / ${TOTAL_CELLS}`;
+        progressFill.style.width = `${(done / TOTAL_CELLS) * 100}%`;
+        distModeTag.textContent = state.mode === 3 ? "495" : "6174";
+
+        const maxVal = Math.max(1, ...counts);
+
+        distList.innerHTML = STEP_META.map((m) => {
+          const count = counts[m.step];
+          const pct = done === 0 ? 0 : (count / maxVal) * 100;
+          return `
+            <div class="dist-row">
+              <span>${m.label}</span>
+              <div class="dist-bar-bg">
+                <div class="dist-bar-fill" style="width: ${pct}%; background: ${m.color};"></div>
+              </div>
+              <span class="dist-count">${count}</span>
+            </div>
+          `;
+        }).join("");
+      }
+
+      /* ========================================================================
+         FILTERS & HIGHLIGHTS (361, DUBBELE 1-STAP & KLIKBARE LEGENDA)
+         ======================================================================== */
+      function refreshBoardFilters() {
+        const hasAnyFilter = state.highlightFilter !== null || state.stepFilter !== null;
+        boardGrid.classList.toggle("has-filter", hasAnyFilter);
+
+        btnHighlight361.classList.toggle("active", state.highlightFilter === "361");
+        btnHighlightDouble.classList.toggle("active", state.highlightFilter === "double");
+
+        legendGrid.querySelectorAll(".legend-chip").forEach((chip) => {
+          chip.classList.toggle("active", state.stepFilter === Number(chip.dataset.step));
+        });
+
+        // Hulptekst voor actief filter
+        if (state.stepFilter !== null) {
+          const meta = STEP_META[state.stepFilter];
+          filterHint.textContent = `Filter actief: ${meta.label} (klik nogmaals om te wissen)`;
+        } else if (state.highlightFilter === "361") {
+          filterHint.textContent = "Uitgelicht: pion 361";
+        } else if (state.highlightFilter === "double") {
+          filterHint.textContent = "Uitgelicht: 136, 163, 316 en 361";
+        } else {
+          filterHint.textContent = "";
+        }
+
+        for (let num = 1; num <= TOTAL_CELLS; num++) {
+          const cell = cellMap.get(num);
+          let isMatch = false;
+          let isHighlighted = false;
+
+          if (state.highlightFilter === "361") {
+            isMatch = num === 361;
+            isHighlighted = isMatch;
+          } else if (state.highlightFilter === "double") {
+            isMatch = DOUBLE_ONE_SET.has(num);
+            isHighlighted = isMatch;
+          } else if (state.stepFilter !== null) {
+            const res = state.calculated.get(num);
+            isMatch = res !== undefined && res.steps === state.stepFilter;
+          }
+
+          cell.classList.toggle("is-match", isMatch);
+          cell.classList.toggle("is-highlighted", isHighlighted);
+        }
+      }
+
+      function toggleHighlightFilter(type) {
+        state.stepFilter = null;
+        state.highlightFilter = state.highlightFilter === type ? null : type;
+        refreshBoardFilters();
+        if (state.highlightFilter !== null) {
+          selectPawn(361);
+        }
+      }
+
+      function toggleStepFilter(stepVal) {
+        state.highlightFilter = null;
+        state.stepFilter = state.stepFilter === stepVal ? null : stepVal;
+        // Als er nog geen pionnen berekend zijn, vul het bord direct zodat het filter resultaat toont
+        if (state.stepFilter !== null && state.calculated.size === 0) {
+          fillAllImmediately();
+        }
+        refreshBoardFilters();
+      }
+
+      /* ========================================================================
+         AUTOMATISERING & STAP-LOGICA
+         ======================================================================== */
+      function clearCursor() {
+        boardGrid.querySelectorAll(".is-cursor").forEach((el) => el.classList.remove("is-cursor"));
+      }
+
+      function getDelayMs() {
+        // Slider 1 (traag: 260ms) tot 100 (snel: 5ms)
+        const v = Number(speedRange.value);
+        return Math.max(5, Math.round(265 - v * 2.6));
+      }
+
+      function updateSpeedLabel() {
+        speedLabel.textContent = `${getDelayMs()} ms/pion`;
+      }
+
+      function stepOnce() {
+        if (state.cursorIdx >= TOTAL_CELLS) {
+          pauseAutomation();
+          statusTag.textContent = "Voltooid";
+          clearCursor();
+          return false;
+        }
+
+        const num = state.order[state.cursorIdx];
+        const res = computeKaprekar(num, state.mode);
+        state.calculated.set(num, res);
+        state.cursorIdx++;
+
+        clearCursor();
+        const cell = cellMap.get(num);
+        if (cell) cell.classList.add("is-cursor");
+
+        applyPawnStyle(num, res);
+
+        // Werk inspectie bij als de gebruiker niet over een andere pion hovert
+        if (state.hoverNum === null) {
+          selectPawn(num);
+        }
+
+        renderDistribution();
+        if (state.stepFilter !== null) {
+          refreshBoardFilters();
+        }
+
+        if (state.cursorIdx >= TOTAL_CELLS) {
+          pauseAutomation();
+          statusTag.textContent = "Voltooid";
+          clearCursor();
+        }
+        return true;
+      }
+
+      function startAutomation() {
+        if (state.cursorIdx >= TOTAL_CELLS) {
+          resetBoard();
+        }
+        state.running = true;
+        btnStartPause.textContent = "Pauze";
+        statusTag.textContent = "Actief";
+        scheduleTick();
+      }
+
+      function scheduleTick() {
+        if (!state.running) return;
+        state.timerId = setTimeout(() => {
+          if (stepOnce() && state.running) {
+            scheduleTick();
+          }
+        }, getDelayMs());
+      }
+
+      function pauseAutomation() {
+        state.running = false;
+        if (state.timerId) {
+          clearTimeout(state.timerId);
+          state.timerId = null;
+        }
+        btnStartPause.textContent = "Start";
+        if (state.cursorIdx > 0 && state.cursorIdx < TOTAL_CELLS) {
+          statusTag.textContent = "Gepauzeerd";
+        }
+      }
+
+      function fillAllImmediately() {
+        pauseAutomation();
+        clearCursor();
+        for (let i = state.cursorIdx; i < TOTAL_CELLS; i++) {
+          const num = state.order[i];
+          const res = computeKaprekar(num, state.mode);
+          state.calculated.set(num, res);
+          applyPawnStyle(num, res);
+        }
+        state.cursorIdx = TOTAL_CELLS;
+        statusTag.textContent = "Voltooid";
+        renderDistribution();
+        refreshBoardFilters();
+        renderInspection(state.hoverNum ?? state.selectedNum, state.hoverNum !== null);
+      }
+
+      function resetBoard() {
+        pauseAutomation();
+        clearCursor();
+        state.calculated.clear();
+        state.cursorIdx = 0;
+        state.order = buildScanOrder(state.orderType);
+
+        for (let num = 1; num <= TOTAL_CELLS; num++) {
+          resetPawnStyle(num);
+        }
+
+        statusTag.textContent = "Gereed";
+        renderDistribution();
+        refreshBoardFilters();
+      }
+
+      function setMode(newMode) {
+        if (state.mode === newMode) return;
+        state.mode = newMode;
+        btnMode3.classList.toggle("active", newMode === 3);
+        btnMode4.classList.toggle("active", newMode === 4);
+
+        // Herbereken direct alle reeds berekende pionnen in de nieuwe modus
+        for (const num of state.calculated.keys()) {
+          const res = computeKaprekar(num, state.mode);
+          state.calculated.set(num, res);
+          applyPawnStyle(num, res);
+        }
+
+        renderDistribution();
+        refreshBoardFilters();
+        renderInspection(state.hoverNum ?? state.selectedNum, state.hoverNum !== null);
+      }
+
+      /* ========================================================================
+         EVENT LISTENERS & INITIALISATIE
+         ======================================================================== */
+      btnMode3.addEventListener("click", () => setMode(3));
+      btnMode4.addEventListener("click", () => setMode(4));
+
+      btnStartPause.addEventListener("click", () => {
+        if (state.running) pauseAutomation();
+        else startAutomation();
+      });
+
+      btnStep.addEventListener("click", () => {
+        pauseAutomation();
+        stepOnce();
+      });
+
+      btnFillAll.addEventListener("click", fillAllImmediately);
+      btnReset.addEventListener("click", resetBoard);
+
+      orderSelect.addEventListener("change", (e) => {
+        state.orderType = e.target.value;
+        resetBoard();
+      });
+
+      speedRange.addEventListener("input", updateSpeedLabel);
+      btnHighlight361.addEventListener("click", () => toggleHighlightFilter("361"));
+      btnHighlightDouble.addEventListener("click", () => toggleHighlightFilter("double"));
+
+      // Opstarten
+      initBoard();
+      initLegend();
+      updateSpeedLabel();
+      selectPawn(361);
+      renderDistribution();
+    })();
+  </script>
+</body>
+</html>
