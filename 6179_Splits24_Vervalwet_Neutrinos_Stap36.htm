@@ -1,0 +1,3188 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6.179 Pionnen ÷ 24³⁶ — Vervalwet N(t), Neutrino's & Feynman-diagram</title>
+  <style>
+    :root {
+      --bg: #f6f1e7;
+      --panel: #fcf9f2;
+      --panel-alt: #efe7d6;
+      --border: #d5c7ae;
+      --text: #241918;
+      --muted: #6b5b54;
+      --meekrap: #8b1e24;
+      --meekrap-dark: #631217;
+      --meekrap-soft: #f5e2e3;
+      --ochre: #c8922a;
+      --ochre-light: #f3dfb0;
+      --teal: #235d63;
+      --teal-soft: #e2f0f1;
+      --quantum: #1f2d52;
+      --quantum-soft: #e4e9f5;
+      --weak: #6a2c70;
+      --weak-soft: #f3e6f5;
+      --ink: #1e1615;
+      --shadow: 0 6px 20px rgba(36, 25, 24, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--meekrap-dark), var(--meekrap) 62%, #242b4a);
+      color: #fffaf2;
+      padding: 13px 20px;
+      border-bottom: 3px solid var(--ochre);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .badge-main {
+      background: var(--ochre);
+      color: #1f140a;
+      font-weight: 800;
+      font-size: 1.0rem;
+      padding: 7px 11px;
+      border-radius: 10px;
+      letter-spacing: 0.02em;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+      white-space: nowrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.14rem;
+      font-weight: 700;
+    }
+
+    header p {
+      margin: 2px 0 0;
+      font-size: 0.79rem;
+      color: #f3dfd8;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    button, select {
+      font: inherit;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 5px 9px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.79rem;
+      transition: all 0.15s ease;
+    }
+
+    button:hover {
+      background: var(--panel-alt);
+      border-color: #b8a586;
+    }
+
+    button.primary {
+      background: var(--meekrap);
+      color: #fffaf2;
+      border-color: var(--meekrap-dark);
+    }
+
+    button.primary:hover {
+      background: var(--meekrap-dark);
+    }
+
+    button.quantum-btn {
+      background: var(--quantum);
+      color: #fffaf2;
+      border-color: #121b33;
+    }
+
+    button.quantum-btn:hover {
+      background: #141e38;
+    }
+
+    .weak-btn-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+
+    button.weak-btn {
+      background: linear-gradient(135deg, var(--weak), #4c1d52);
+      color: #fffaf2;
+      border-color: #3a143f;
+      padding: 5px 4px;
+      font-size: 0.72rem;
+      line-height: 1.22;
+      text-align: center;
+    }
+
+    button.weak-btn:hover { background: linear-gradient(135deg, #57225c, #3b1440); }
+    button.weak-btn.plus-btn { background: linear-gradient(135deg, #8b1e24, #5c1216); border-color: #460c10; }
+    button.weak-btn.ec-btn { background: linear-gradient(135deg, #235d63, #173f44); border-color: #102e32; }
+    button.weak-btn:disabled { opacity: 0.6; cursor: wait; }
+
+    .header-actions button {
+      background: rgba(255, 250, 242, 0.14);
+      color: #fffaf2;
+      border-color: rgba(255, 250, 242, 0.3);
+    }
+
+    .header-actions button:hover { background: rgba(255, 250, 242, 0.24); }
+    .header-actions button.accent { background: var(--ochre); color: #1f140a; border-color: var(--ochre); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 500px;
+      gap: 15px;
+      padding: 14px 16px 24px;
+      max-width: 1880px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1260px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .toolbar {
+      padding: 8px 12px;
+      background: var(--panel-alt);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 7px;
+      font-size: 0.8rem;
+    }
+
+    .toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 500;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 760px;
+      background: #efe8d8;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .canvas-wrap:active { cursor: grabbing; }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .canvas-hud {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(30, 22, 21, 0.92);
+      color: #fffaf2;
+      border: 1px solid var(--ochre);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.77rem;
+      z-index: 10;
+      display: none;
+      backdrop-filter: blur(4px);
+    }
+
+    .canvas-hud strong { color: #f6cf76; }
+
+    .hover-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(30, 22, 21, 0.96);
+      color: #fffaf2;
+      border: 1px solid var(--ochre);
+      border-radius: 9px;
+      padding: 7px 10px;
+      font-size: 0.77rem;
+      line-height: 1.38;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+      z-index: 15;
+      display: none;
+      white-space: nowrap;
+    }
+
+    .hover-tooltip strong { color: #f6cf76; }
+
+    .canvas-footer {
+      padding: 8px 12px;
+      background: var(--panel-alt);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.79rem;
+      color: var(--muted);
+    }
+
+    .step-bar {
+      padding: 9px 12px;
+      border-top: 1px solid var(--border);
+      background: #faf5ea;
+    }
+
+    .step-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .step-pill {
+      padding: 3px 6px;
+      font-size: 0.7rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      font-weight: 600;
+    }
+
+    .step-pill.active { background: var(--meekrap); color: #fffaf2; border-color: var(--meekrap-dark); }
+    .step-pill.chem { border-color: var(--teal); }
+    .step-pill.chem.active { background: var(--teal); border-color: #163d41; }
+    .step-pill.subatomic { border-color: var(--quantum); background: #eef2fa; }
+    .step-pill.subatomic.active { background: var(--quantum); color: #fffaf2; border-color: #111930; }
+    .step-pill.quark-highlight { box-shadow: 0 0 0 1.5px var(--ochre); }
+    .step-pill.planck { border-color: var(--ochre); background: #fdf5e0; }
+    .step-pill.planck.active { background: var(--ochre); color: #1f140a; border-color: #8f6414; }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .side-section {
+      padding: 11px 13px;
+    }
+
+    .side-section h2 {
+      margin: 0 0 7px;
+      font-size: 0.92rem;
+      color: var(--meekrap);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .quark-panel {
+      border: 1.5px solid #9fb0db;
+      background: linear-gradient(180deg, #f4f7fd, #fcf9f2);
+    }
+
+    .quark-panel.active-step {
+      border-color: var(--ochre);
+      box-shadow: 0 0 0 2px rgba(200, 146, 42, 0.25), var(--shadow);
+    }
+
+    /* Isotoop-kiezer & Vervalwet N(t) */
+    .isotope-box {
+      background: #efe7d6;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 7px 9px;
+      margin-bottom: 8px;
+    }
+
+    .isotope-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.73rem;
+      font-weight: 700;
+      color: #4d2c12;
+      margin-bottom: 5px;
+    }
+
+    .isotope-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .iso-btn {
+      padding: 4px 3px;
+      font-size: 0.71rem;
+      text-align: center;
+      background: var(--panel);
+      border: 1px solid #c6b698;
+      line-height: 1.2;
+    }
+
+    .iso-btn.active {
+      background: var(--meekrap);
+      color: #fffaf2;
+      border-color: var(--meekrap-dark);
+    }
+
+    .isotope-detail {
+      background: rgba(255, 250, 242, 0.85);
+      border: 1px solid #dfd3bc;
+      border-radius: 6px;
+      padding: 5px 7px;
+      font-size: 0.71rem;
+      line-height: 1.32;
+      color: #2b201e;
+      margin-bottom: 7px;
+    }
+
+    .isotope-eq {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-weight: 700;
+      color: var(--quantum);
+      font-size: 0.73rem;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* Vervalwet N(t) tijdregelaar */
+    .decay-law-box {
+      background: #fcf9f2;
+      border: 1px solid #c7b696;
+      border-radius: 8px;
+      padding: 7px 8px;
+    }
+
+    .decay-law-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+      font-size: 0.73rem;
+      font-weight: 700;
+      color: var(--meekrap-dark);
+      margin-bottom: 5px;
+    }
+
+    .n0-toggle {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .n0-btn {
+      padding: 2px 6px;
+      font-size: 0.68rem;
+      border-radius: 5px;
+      background: var(--panel-alt);
+    }
+
+    .n0-btn.active {
+      background: var(--quantum);
+      color: #fffaf2;
+      border-color: var(--quantum);
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 5px;
+    }
+
+    .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--meekrap);
+      cursor: pointer;
+    }
+
+    .quick-hl-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .hl-chip {
+      padding: 2px 6px;
+      font-size: 0.68rem;
+      border-radius: 5px;
+      background: var(--panel-alt);
+    }
+
+    .hl-chip:hover { background: var(--ochre-light); }
+
+    .decay-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .d-stat {
+      background: #f4efe4;
+      border: 1px solid #dfd3bc;
+      border-radius: 6px;
+      padding: 4px 6px;
+    }
+
+    .d-stat span {
+      display: block;
+      font-size: 0.63rem;
+      color: var(--muted);
+    }
+
+    .d-stat strong {
+      font-size: 0.72rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: var(--ink);
+      display: block;
+    }
+
+    .d-stat small {
+      font-size: 0.64rem;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    .decay-curve-wrap {
+      width: 100%;
+      height: 112px;
+      background: #faf5ea;
+      border: 1px solid #e2d6bf;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    #decayCurveCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Live Feynman-diagram box */
+    .feynman-box {
+      background: #fcf9f2;
+      border: 1px solid #c5b69a;
+      border-radius: 9px;
+      padding: 6px 8px;
+      margin-bottom: 8px;
+    }
+
+    .feynman-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--quantum);
+      margin-bottom: 4px;
+    }
+
+    .feynman-canvas-wrap {
+      width: 100%;
+      height: 142px;
+      background: #faf5ea;
+      border: 1px solid #e2d6bf;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    #feynmanCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .preset-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+
+    .preset-btn {
+      padding: 4px 5px;
+      font-size: 0.74rem;
+      text-align: center;
+      background: var(--panel);
+      border: 1px solid #b8c4e0;
+    }
+
+    .preset-btn.active {
+      background: var(--quantum);
+      color: #fffaf2;
+      border-color: var(--quantum);
+    }
+
+    .decay-controls {
+      background: var(--weak-soft);
+      border: 1px solid #d5b2d9;
+      border-radius: 9px;
+      padding: 6px 8px;
+      margin-bottom: 7px;
+    }
+
+    .decay-log {
+      margin-top: 5px;
+      font-size: 0.71rem;
+      color: #3f1843;
+      line-height: 1.32;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid #e3cde6;
+      border-radius: 6px;
+      padding: 4px 7px;
+    }
+
+    .quark-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .q-slot {
+      display: grid;
+      grid-template-columns: 64px 1fr 1fr;
+      align-items: center;
+      gap: 5px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 3px 6px;
+      font-size: 0.75rem;
+    }
+
+    .q-slot.decaying-slot {
+      background: #f8e8fa;
+      border-color: var(--weak);
+      box-shadow: 0 0 0 1.5px rgba(106, 44, 112, 0.35);
+    }
+
+    .q-slot-label {
+      font-weight: 700;
+      color: var(--quantum);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .color-orb {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      flex-shrink: 0;
+    }
+
+    .q-slot select {
+      padding: 3px 5px;
+      font-size: 0.72rem;
+      width: 100%;
+    }
+
+    .color-status-bar {
+      padding: 5px 8px;
+      border-radius: 7px;
+      font-size: 0.73rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .color-status-bar.neutral { background: #e4f3e8; border: 1px solid #8fc49e; color: #1b4d2b; }
+    .color-status-bar.confined { background: #fae4e4; border: 1px solid #d98888; color: #7d1919; }
+
+    .mass-bar-wrap {
+      background: #efe7d6;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 8px;
+      font-size: 0.72rem;
+    }
+
+    .mass-bar-track {
+      height: 7px;
+      background: #1f2d52;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 4px 0;
+      display: flex;
+    }
+
+    .mass-bar-bare {
+      background: #c8922a;
+      height: 100%;
+      transition: width 0.25s ease;
+    }
+
+    .mass-legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .hero-box {
+      background: var(--meekrap-soft);
+      border: 1px solid #dfb6b8;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 7px;
+    }
+
+    .hero-box.chem-mode { background: var(--teal-soft); border-color: #9ec5c7; }
+    .hero-box.subatomic-mode { background: var(--quantum-soft); border-color: #9fb0db; }
+    .hero-box.planck-mode {
+      background: linear-gradient(135deg, #1e2744, #3a1922);
+      border: 1.5px solid var(--ochre);
+      color: #fffaf2;
+    }
+
+    .hero-val {
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--meekrap);
+      line-height: 1.15;
+    }
+
+    .hero-box.chem-mode .hero-val { color: var(--teal); }
+    .hero-box.subatomic-mode .hero-val { color: var(--quantum); }
+    .hero-box.planck-mode .hero-val { color: #f7cf6e; }
+
+    .hero-sub {
+      font-size: 0.73rem;
+      color: var(--muted);
+      margin-top: 2px;
+      word-break: break-all;
+    }
+
+    .hero-box.planck-mode .hero-sub { color: #e2d7cc; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 6px;
+    }
+
+    .stat-card {
+      background: #f4efe4;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 4px 7px;
+    }
+
+    .stat-card.full { grid-column: 1 / -1; }
+
+    .stat-card span {
+      display: block;
+      font-size: 0.64rem;
+      color: var(--muted);
+    }
+
+    .stat-card strong {
+      font-size: 0.74rem;
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="badge-main">6.179 ÷ 24³⁶</div>
+      <div>
+        <h1>6.179 Pionnen — Vervalwet N(t) = N₀ · (½)^(t/T½), Neutrino-opbrengst &amp; Feynman-diagram</h1>
+        <p>Tijdregelaar voor overgebleven moederkernen N(t), dochterkernen en uitgezonden neutrino's voor ¹⁴C, ²²Na, ⁴⁰K en ⁷Be</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btnSplitNext" class="accent" type="button">Splits ÷ 24 (+1)</button>
+      <button id="btnSplitPrev" type="button">← Terug (× 24)</button>
+      <button id="btnAutoCascade" type="button">Auto-splits (0 → 36)</button>
+      <button id="btnExportCsv" type="button">Exporteer CSV</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <button id="btnJump0" type="button">0: 6.179</button>
+          <button id="btnJump17" type="button">17: Avogadro</button>
+          <button id="btnJump21" type="button">21: Kern</button>
+          <button id="btnJump23" class="primary" type="button">23–25: Quarks</button>
+          <button id="btnJump36" class="quantum-btn" type="button">36: Planck (ℓₚ)</button>
+        </div>
+
+        <div class="toolbar-group">
+          <label class="checkbox-label">
+            <input id="chkShowGrid24" type="checkbox" checked />
+            24-vakken &amp; veldlijnen
+          </label>
+          <label class="checkbox-label">
+            <input id="chkMouseVisible" type="checkbox" checked />
+            Muis (klik = ÷24)
+          </label>
+        </div>
+
+        <div class="toolbar-group">
+          <button id="btnZoomOut" type="button" title="Uitzoomen">−</button>
+          <span id="zoomLabel">100%</span>
+          <button id="btnZoomIn" type="button" title="Inzoomen">+</button>
+          <button id="btnResetView" type="button">Reset</button>
+        </div>
+      </div>
+
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="boardCanvas"></canvas>
+        <div class="canvas-hud" id="canvasHud"></div>
+        <div class="hover-tooltip" id="hoverTooltip"></div>
+      </div>
+
+      <div class="canvas-footer">
+        <span id="statusBanner">Stap 23: <strong>Quarks, vervalwet N(t) &amp; neutrino-emissie</strong></span>
+        <span id="hoverCoords">Hover: —</span>
+      </div>
+
+      <div class="step-bar">
+        <div class="step-pills" id="stepPills"></div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <!-- Quark-Inspecteur met Isotopen, Vervalwet N(t), Live Feynman-diagram & Zwakke Interactie -->
+      <section class="card side-section quark-panel active-step" id="quarkInspectorCard">
+        <h2>
+          <span>Quark-Inspecteur &amp; Vervalwet (Stap 23–25)</span>
+          <button id="btnRotateColors" type="button" style="padding:2px 7px;font-size:0.71rem;">Kleurwissel ↻</button>
+        </h2>
+
+        <!-- Kernisotoop-voorbeelden + Tijdregelaar N(t) -->
+        <div class="isotope-box">
+          <div class="isotope-header">
+            <span>Kies isotoop (¹⁴C, ²²Na, ⁴⁰K, ⁷Be):</span>
+            <div class="n0-toggle" title="Kies startaantal kernen N₀">
+              <button id="btnN0Avogadro" class="n0-btn active" type="button">N₀ = 6.179×24¹⁷</button>
+              <button id="btnN06179" class="n0-btn" type="button">N₀ = 6.179</button>
+            </div>
+          </div>
+
+          <div class="isotope-row">
+            <button id="isoC14" class="iso-btn active" type="button">¹⁴C<br/><small>5.730 j (β⁻)</small></button>
+            <button id="isoNa22" class="iso-btn" type="button">²²Na<br/><small>2,60 j (β⁺)</small></button>
+            <button id="isoK40" class="iso-btn" type="button">⁴⁰K<br/><small>1,25 Gj (EC)</small></button>
+            <button id="isoBe7" class="iso-btn" type="button">⁷Be<br/><small>53,2 d (EC)</small></button>
+          </div>
+
+          <div class="isotope-detail" id="isotopeDetail">
+            <span class="isotope-eq">¹⁴₆C → ¹⁴₇N + e⁻ + ν̄ₑ  (Q = 0,156 MeV · T½ = 5.730 jaar)</span>
+            Koolstof-14 bezit 8 neutronen en 6 protonen. Eén d-quark in een neutron vervalt via W⁻ tot u-quark (stikstof-14).
+          </div>
+
+          <!-- Interactieve Tijdregelaar N(t) = N0 * (1/2)^(t / T1/2) -->
+          <div class="decay-law-box">
+            <div class="decay-law-top">
+              <span>N(t) = N₀ · (½)^(t/T½)</span>
+              <span id="timeElapsedReadout">t = 1,00 T½ (5.730 jaar)</span>
+              <button id="btnPlayDecayTime" type="button" style="padding:2px 7px;font-size:0.7rem;" class="primary">▶ Tijd</button>
+            </div>
+
+            <div class="slider-row">
+              <input id="decayTimeSlider" type="range" min="0" max="10" step="0.01" value="1" />
+            </div>
+
+            <div class="quick-hl-row">
+              <button class="hl-chip" data-hl="0" type="button">t = 0</button>
+              <button class="hl-chip" data-hl="0.5" type="button">0,5 T½</button>
+              <button class="hl-chip" data-hl="1" type="button">1 T½ (50%)</button>
+              <button class="hl-chip" data-hl="2" type="button">2 T½ (25%)</button>
+              <button class="hl-chip" data-hl="3.3219" type="button">3,32 T½ (10%)</button>
+              <button class="hl-chip" data-hl="5" type="button">5 T½</button>
+              <button class="hl-chip" data-hl="10" type="button">10 T½</button>
+            </div>
+
+            <div class="decay-stats-grid">
+              <div class="d-stat">
+                <span>Overgebleven N(t)</span>
+                <strong id="statRemainingNuclei">8,984 × 10²⁶</strong>
+                <small id="statRemainingPct">50,00% ¹⁴C</small>
+              </div>
+              <div class="d-stat">
+                <span>Dochterkernen D(t)</span>
+                <strong id="statDaughterNuclei">8,984 × 10²⁶</strong>
+                <small id="statDaughterPct">50,00% ¹⁴N</small>
+              </div>
+              <div class="d-stat">
+                <span id="neutrinoStatTitle">Uitgezonden ν̄ₑ</span>
+                <strong id="statNeutrinosEmitted">8,984 × 10²⁶</strong>
+                <small id="statActivityBq">A = 3,45 × 10¹⁵ Bq</small>
+              </div>
+            </div>
+
+            <div class="decay-curve-wrap">
+              <canvas id="decayCurveCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Feynman-diagram -->
+        <div class="feynman-box">
+          <div class="feynman-header">
+            <span id="feynmanTitle">Live Feynman-diagram: d → u + W⁻ → u + e⁻ + ν̄ₑ</span>
+            <span style="font-size:0.67rem;color:var(--muted);">tijd t →</span>
+          </div>
+          <div class="feynman-canvas-wrap">
+            <canvas id="feynmanCanvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Zwakke interactie knoppen -->
+        <div class="decay-controls">
+          <div class="weak-btn-grid">
+            <button id="btnBetaMinus" class="weak-btn" type="button">
+              β⁻-verval<br/><small>d → u + e⁻ + ν̄ₑ</small>
+            </button>
+            <button id="btnBetaPlus" class="weak-btn plus-btn" type="button">
+              β⁺-verval<br/><small>u → d + e⁺ + νₑ</small>
+            </button>
+            <button id="btnElectronCapture" class="weak-btn ec-btn" type="button">
+              Elektronvangst<br/><small>u + e⁻ → d + νₑ</small>
+            </button>
+          </div>
+          <div class="decay-log" id="decayLog">
+            <strong>Klaar voor simulatie:</strong> Klik op een vervalknop voor de quarkanimatie of versleep de tijdregelaar N(t) hierboven.
+          </div>
+        </div>
+
+        <!-- Hadron presets & quark slots -->
+        <div class="preset-row">
+          <button id="presetNeutron" class="preset-btn active" type="button">Neutron (udd)</button>
+          <button id="presetProton" class="preset-btn" type="button">Proton (uud)</button>
+          <button id="presetPion" class="preset-btn" type="button">Meson π⁺ (ud̄)</button>
+        </div>
+
+        <div class="quark-slots" id="quarkSlotsContainer"></div>
+
+        <div class="color-status-bar neutral" id="colorStatusBar">
+          <span id="colorStatusText">Kleurlading: R + G + B = Wit (neutraal)</span>
+          <span id="chargeBadge">Q = 0 e</span>
+        </div>
+
+        <div class="mass-bar-wrap">
+          <div style="display:flex;justify-content:space-between;font-weight:700;">
+            <span id="hadronNameLabel">Neutron (n⁰ · udd)</span>
+            <span id="hadronTotalMass">939,57 MeV/c²</span>
+          </div>
+          <div class="mass-bar-track">
+            <div class="mass-bar-bare" id="massBarBare" style="width: 1.2%;"></div>
+          </div>
+          <div class="mass-legend">
+            <span id="bareMassLabel">Kale quarks: 11,50 MeV (1,22%)</span>
+            <span id="bindingMassLabel">Gluon-energie: 928,07 MeV (98,78%)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Huidige splitsingsstap -->
+      <section class="card side-section">
+        <h2>Splitsingsstap <span id="stepTitleNum">23</span> / 36</h2>
+        <div class="hero-box subatomic-mode" id="heroBox">
+          <div class="hero-val" id="heroValue">Neutron (n⁰ · udd) — Stap 23</div>
+          <div class="hero-sub" id="heroSub">6.179 ÷ 24²³ = 1,111 × 10⁻²⁸ pionnen</div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card full">
+            <span>Exacte deler 24ᵏ (BigInt)</span>
+            <strong id="statDivisor">55.636.939.778.898.370.931.762.208.768</strong>
+          </div>
+          <div class="stat-card">
+            <span>Fractie van 1 pion</span>
+            <strong id="statFraction">1,111 × 10⁻²⁸</strong>
+          </div>
+          <div class="stat-card">
+            <span>Karakteristieke lengte (λ)</span>
+            <strong id="statLength">3,39 × 10⁻¹⁸ m</strong>
+          </div>
+          <div class="stat-card">
+            <span>Verhouding tot ℓₚ</span>
+            <strong id="statPlanckRatio">2,10 × 10¹⁷ × ℓₚ</strong>
+          </div>
+          <div class="stat-card">
+            <span>Fysisch domein</span>
+            <strong id="statRegime">Quarks</strong>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    (() => {
+      const START_PAWNS = 6179n;
+      const BASE = 24n;
+      const MAX_STEP = 36;
+      const PLANCK_LENGTH = 1.616255e-35;
+      const MOL_LENGTH_STEP17 = 6.48e-10;
+      const N0_AVOGADRO_SCALE = 6179 * Math.pow(24, 17); // 1.796839575e27 kernen
+
+      const QUARK_FLAVORS = {
+        u:   { symbol: "u",  name: "Up",        charge:  2 / 3, chargeStr: "+2/3", mass: 2.16,  anti: false },
+        d:   { symbol: "d",  name: "Down",      charge: -1 / 3, chargeStr: "−1/3", mass: 4.67,  anti: false },
+        s:   { symbol: "s",  name: "Strange",   charge: -1 / 3, chargeStr: "−1/3", mass: 93.4,  anti: false },
+        ubar:{ symbol: "ū", name: "Anti-up",   charge: -2 / 3, chargeStr: "−2/3", mass: 2.16,  anti: true },
+        dbar:{ symbol: "d̄", name: "Anti-down", charge:  1 / 3, chargeStr: "+1/3", mass: 4.67,  anti: true },
+        sbar:{ symbol: "s̄", name: "Anti-str.", charge:  1 / 3, chargeStr: "+1/3", mass: 93.4,  anti: true }
+      };
+
+      const COLOR_CHARGES = {
+        R:    { code: "R",  label: "Rood (R)",       hex: "#b3242a", anti: false },
+        G:    { code: "G",  label: "Groen (G)",      hex: "#287a44", anti: false },
+        B:    { code: "B",  label: "Blauw (B)",      hex: "#1f538a", anti: false },
+        Rbar: { code: "R̄", label: "Anti-rood (R̄)",  hex: "#2aa198", anti: true },
+        Gbar: { code: "Ḡ", label: "Anti-groen (Ḡ)", hex: "#9b3d82", anti: true },
+        Bbar: { code: "B̄", label: "Anti-blauw (B̄)", hex: "#c8922a", anti: true }
+      };
+
+      const SEC_PER_DAY = 86400;
+      const SEC_PER_YEAR = 365.25 * SEC_PER_DAY;
+
+      const ISOTOPE_EXAMPLES = {
+        C14: {
+          id: "C14",
+          motherLabel: "¹⁴C",
+          daughterLabel: "¹⁴N",
+          mode: "beta_minus",
+          preset: "neutron",
+          halfLifeValue: 5730,
+          halfLifeUnit: "jaar",
+          halfLifeSeconds: 5730 * SEC_PER_YEAR,
+          neutrinoLabel: "Uitgezonden ν̄ₑ",
+          neutrinoShort: "ν̄ₑ",
+          branchNote: "100% β⁻ → ¹⁴N + e⁻ + ν̄ₑ",
+          equation: "¹⁴₆C → ¹⁴₇N + e⁻ + ν̄ₑ  (Q = 0,156 MeV · T½ = 5.730 jaar)",
+          note: "Koolstof-14 (6p, 8n) zet één d-quark in een neutron via W⁻ om in een u-quark (stikstof-14) onder uitzending van e⁻ en ν̄ₑ."
+        },
+        Na22: {
+          id: "Na22",
+          motherLabel: "²²Na",
+          daughterLabel: "²²Ne",
+          mode: "beta_plus",
+          preset: "proton",
+          halfLifeValue: 2.602,
+          halfLifeUnit: "jaar",
+          halfLifeSeconds: 2.6018 * SEC_PER_YEAR,
+          neutrinoLabel: "Uitgezonden νₑ",
+          neutrinoShort: "νₑ",
+          branchNote: "90,4% β⁺ (e⁺) + 9,6% EC",
+          equation: "²²₁₁Na → ²²₁₀Ne + e⁺ + νₑ  (Q = 2,842 MeV · T½ = 2,602 jaar)",
+          note: "Natrium-22 (11p, 11n) zet een proton om in een neutron (neon-22) via W⁺-emissie van een positron (e⁺) en elektron-neutrino (νₑ)."
+        },
+        K40: {
+          id: "K40",
+          motherLabel: "⁴⁰K",
+          daughterLabel: "⁴⁰Ca / ⁴⁰Ar",
+          mode: "ec",
+          preset: "proton",
+          halfLifeValue: 1.248,
+          halfLifeUnit: "Ga (mld j)",
+          halfLifeSeconds: 1.248e9 * SEC_PER_YEAR,
+          neutrinoLabel: "Uitgezonden ν̄ₑ + νₑ",
+          neutrinoShort: "89,3% ν̄ₑ / 10,7% νₑ",
+          branchNote: "89,28% β⁻ (⁴⁰Ca) + 10,72% EC (⁴⁰Ar)",
+          equation: "⁴⁰₁₉K + e⁻_K → ⁴⁰₁₈Ar + νₑ + γ (1,461 MeV)  (T½ = 1,248 × 10⁹ jaar)",
+          note: "Kalium-40 vervalt voor 89,28% via β⁻ naar ⁴⁰Ca (ν̄ₑ) en voor 10,72% via K-schil-elektronvangst naar ⁴⁰Ar (νₑ + 1,461 MeV γ)."
+        },
+        Be7: {
+          id: "Be7",
+          motherLabel: "⁷Be",
+          daughterLabel: "⁷Li",
+          mode: "ec",
+          preset: "proton",
+          halfLifeValue: 53.22,
+          halfLifeUnit: "dagen",
+          halfLifeSeconds: 53.22 * SEC_PER_DAY,
+          neutrinoLabel: "Uitgezonden νₑ",
+          neutrinoShort: "νₑ",
+          branchNote: "100% EC → ⁷Li + νₑ",
+          equation: "⁷₄Be + e⁻_K → ⁷₃Li + νₑ  (Q_EC = 0,862 MeV · T½ = 53,22 dagen)",
+          note: "Beryllium-7 heeft te weinig energie (0,862 MeV < 1,022 MeV) voor β⁺-verval en vervalt 100% via elektronvangst naar lithium-7."
+        }
+      };
+
+      const HADRON_PRESETS = {
+        neutron: {
+          id: "neutron",
+          type: "baryon",
+          quarks: [
+            { flavor: "u", color: "R" },
+            { flavor: "d", color: "G" },
+            { flavor: "d", color: "B" }
+          ]
+        },
+        proton: {
+          id: "proton",
+          type: "baryon",
+          quarks: [
+            { flavor: "u", color: "R" },
+            { flavor: "u", color: "G" },
+            { flavor: "d", color: "B" }
+          ]
+        },
+        pion: {
+          id: "pion",
+          type: "meson",
+          quarks: [
+            { flavor: "u", color: "R" },
+            { flavor: "dbar", color: "Rbar" }
+          ]
+        }
+      };
+
+      const REGIMES = [
+        { k: 0, tag: "Macro", tier: "macro", name: "6.179 hele pionnen (257 × 24 + 11)", mode: "macro0" },
+        { k: 1, tag: "24-blok", tier: "macro", name: "257 groepen van 24 + rest 11/24", mode: "macro1" },
+        { k: 2, tag: "576-blok", tier: "macro", name: "10 supergroepen (24²) + 419/576", mode: "macro2" },
+        { k: 3, tag: "Sub-pion", tier: "macro", name: "Korrelfractie (0,4470 pion)", mode: "sub" },
+        { k: 4, tag: "Korrel", tier: "macro", name: "Fijne korrels (1 / 24⁴ pion)", mode: "sub" },
+        { k: 5, tag: "Micro", tier: "macro", name: "Micro-deeltjes (1 / 24⁵ pion)", mode: "sub" },
+        { k: 6, tag: "Nano", tier: "chem", name: "Nano-clusters (1 / 24⁶ pion)", mode: "cluster" },
+        { k: 7, tag: "Polymeer", tier: "chem", name: "Supramoleculaire ketens (÷ 24⁷)", mode: "cluster" },
+        { k: 8, tag: "Polymeer", tier: "chem", name: "Korte molecuulketens (÷ 24⁸)", mode: "cluster" },
+        { k: 9, tag: "Pigment", tier: "chem", name: "Meekrap-pigmentclusters (C₁₄H₈O₄)", mode: "ring" },
+        { k: 10, tag: "Aromaat", tier: "chem", name: "Antrachinon-ringstructuren (÷ 24¹⁰)", mode: "ring" },
+        { k: 11, tag: "Aromaat", tier: "chem", name: "Benzeen- & chinonringen (÷ 24¹¹)", mode: "ring" },
+        { k: 12, tag: "Molecuul", tier: "chem", name: "Kleine organische moleculen (÷ 24¹²)", mode: "ring" },
+        { k: 13, tag: "Molecuul", tier: "chem", name: "Tri-atomaire moleculen (H₂O / CO₂)", mode: "molecule" },
+        { k: 14, tag: "Covalent", tier: "chem", name: "Covalente elektronenparen (÷ 24¹⁴)", mode: "molecule" },
+        { k: 15, tag: "Orbitaal", tier: "chem", name: "Moleculaire orbitalen (÷ 24¹⁵)", mode: "molecule" },
+        { k: 16, tag: "Cluster", tier: "chem", name: "Molecuul-clusters (148.296 mol.)", mode: "molecule" },
+        { k: 17, tag: "Avogadro", tier: "chem", name: "Avogadro-schaal 24¹⁷: exact 6.179 moleculen", mode: "avogadro" },
+        { k: 18, tag: "Atoom", tier: "subatomic", name: "Individueel atoom & Bohr-straal (27 pm)", mode: "atom" },
+        { k: 19, tag: "K-schil", tier: "subatomic", name: "Binnenste elektronenschil & Compton-schaal (1,1 pm)", mode: "atom" },
+        { k: 20, tag: "Kernrand", tier: "subatomic", name: "Femtometer-overgang (46,9 fm)", mode: "atom" },
+        { k: 21, tag: "Atoomkern", tier: "subatomic", name: "Atoomkern: protonen & neutronen (1,95 fm)", mode: "nucleus" },
+        { k: 22, tag: "Nucleon", tier: "subatomic", name: "Binnen een enkel proton/neutron (0,081 fm)", mode: "nucleus" },
+        { k: 23, tag: "Quarks", tier: "subatomic", name: "Quarks (u, d) & gluon-fluxbuizen (3,39 am)", mode: "quarks" },
+        { k: 24, tag: "Gluonen", tier: "subatomic", name: "Sterke kernkracht & kleurlading (0,14 am)", mode: "quarks" },
+        { k: 25, tag: "Elektrozwak", tier: "subatomic", name: "Elektrozwakke schaal: W±, Z⁰ & Higgs-veld", mode: "quarks" },
+        { k: 26, tag: "Vacuüm", tier: "subatomic", name: "Kwantumvacuüm & virtuele deeltjesparen", mode: "vacuum" },
+        { k: 27, tag: "Vacuüm", tier: "subatomic", name: "Kwantumfluctuaties (÷ 24²⁷)", mode: "vacuum" },
+        { k: 28, tag: "GUT-veld", tier: "subatomic", name: "Grand Unified Theory (GUT) nadering", mode: "vacuum" },
+        { k: 29, tag: "GUT-schaal", tier: "subatomic", name: "GUT-unificatie X/Y-bosonen (÷ 24²⁹)", mode: "vacuum" },
+        { k: 30, tag: "GUT-schaal", tier: "subatomic", name: "Sub-GUT ijkvelden (÷ 24³⁰)", mode: "vacuum" },
+        { k: 31, tag: "Pre-snaar", tier: "subatomic", name: "Kwantumzwaartekracht-overgang (÷ 24³¹)", mode: "vacuum" },
+        { k: 32, tag: "Snaarschaal", tier: "subatomic", name: "1D-snaren & compacte dimensies (1,28 × 10⁻³⁰ m)", mode: "foam" },
+        { k: 33, tag: "Snaarschaal", tier: "subatomic", name: "Gesloten graviton-snaren (5,34 × 10⁻³² m)", mode: "foam" },
+        { k: 34, tag: "Kwantumschuim", tier: "subatomic", name: "Wheeler-kwantumschuim (2,23 × 10⁻³³ m)", mode: "foam" },
+        { k: 35, tag: "Sub-Planck", tier: "subatomic", name: "Laatste splitsing boven ℓₚ (9,28 × 10⁻³⁵ m)", mode: "foam" },
+        { k: 36, tag: "Planck ℓₚ", tier: "planck", name: "Planck-lengte ℓₚ = 1,616 × 10⁻³⁵ m bereikt (24³⁶)", mode: "planck" }
+      ];
+
+      function formatBigIntNL(bi) {
+        return bi.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      }
+
+      function fmtSciNL(num) {
+        if (num === 0) return "0";
+        if (num >= 1000 && num < 1e7) return num.toLocaleString("nl-NL", { maximumFractionDigits: 1 });
+        if (num >= 1 && num < 1000) return num.toLocaleString("nl-NL", { maximumFractionDigits: 3 });
+        if (num >= 0.001 && num < 1) return num.toLocaleString("nl-NL", { maximumFractionDigits: 5 });
+        return num.toExponential(3).replace(".", ",");
+      }
+
+      function getStepData(k) {
+        const bk = BigInt(k);
+        const denom = BASE ** bk;
+        const denomNum = Number(denom);
+        const pawnFraction = 6179 / denomNum;
+
+        let lengthMeters;
+        if (k <= 17) {
+          const factor = Math.pow(0.01 / MOL_LENGTH_STEP17, k / 17);
+          lengthMeters = 0.01 / factor;
+        } else {
+          lengthMeters = MOL_LENGTH_STEP17 / Math.pow(24, k - 17);
+        }
+
+        const planckRatio = lengthMeters / PLANCK_LENGTH;
+
+        let activeSub24 = 24;
+        let partialSub24 = 0;
+        if (k >= 3) {
+          const prevDenom = Number(BASE ** BigInt(k - 1));
+          const ratio = 6179 / prevDenom;
+          activeSub24 = Math.floor(ratio);
+          partialSub24 = ratio - activeSub24;
+        }
+
+        return {
+          k,
+          denom,
+          denomNum,
+          pawnFraction,
+          lengthMeters,
+          planckRatio,
+          activeSub24,
+          partialSub24,
+          regime: REGIMES[k]
+        };
+      }
+
+      const state = {
+        step: 23,
+        autoPlaying: false,
+        autoTimer: 0,
+        showGrid24: true,
+        showMouse: true,
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        isDragging: false,
+        dragMoved: false,
+        dragStartX: 0,
+        dragStartY: 0,
+        entities: [],
+        activeIsotope: "C14",
+        feynmanMode: "beta_minus",
+        // Vervalwet N(t) = N0 * (1/2)^(t / T1/2)
+        decayLaw: {
+          n0Mode: "avogadro", // "avogadro" (6179 * 24^17) | "6179"
+          halfLivesElapsed: 1.0,
+          playingTime: false
+        },
+        hadron: {
+          presetId: "neutron",
+          type: "baryon",
+          quarks: [
+            { flavor: "u", color: "R" },
+            { flavor: "d", color: "G" },
+            { flavor: "d", color: "B" }
+          ]
+        },
+        decayAnim: {
+          active: false,
+          mode: "beta_minus",
+          progress: 0,
+          quarkIndex: 2,
+          converted: false,
+          colorCode: "B",
+          sourceName: "Neutron (n⁰ · udd)"
+        },
+        mouse: {
+          x: 0,
+          y: 0,
+          targetX: 0,
+          targetY: 0,
+          angle: 0,
+          wiggle: 0
+        }
+      };
+
+      const canvasWrap = document.getElementById("canvasWrap");
+      const canvas = document.getElementById("boardCanvas");
+      const ctx = canvas.getContext("2d");
+      const feynmanCanvas = document.getElementById("feynmanCanvas");
+      const fCtx = feynmanCanvas.getContext("2d");
+      const decayCurveCanvas = document.getElementById("decayCurveCanvas");
+      const dCtx = decayCurveCanvas.getContext("2d");
+      const canvasHud = document.getElementById("canvasHud");
+      const hoverTooltip = document.getElementById("hoverTooltip");
+      const statusBanner = document.getElementById("statusBanner");
+      const hoverCoords = document.getElementById("hoverCoords");
+      const zoomLabel = document.getElementById("zoomLabel");
+
+      // Bereken N(t) = N0 * (1/2)^(t / T1/2), D(t) en neutrino's
+      function computeDecayLawMetrics() {
+        const iso = ISOTOPE_EXAMPLES[state.activeIsotope];
+        const n0 = state.decayLaw.n0Mode === "avogadro" ? N0_AVOGADRO_SCALE : 6179;
+        const hl = state.decayLaw.halfLivesElapsed;
+
+        const fractionRemaining = Math.pow(0.5, hl);
+        const fractionDecayed = 1 - fractionRemaining;
+
+        const remaining = n0 * fractionRemaining;
+        const decayed = n0 * fractionDecayed;
+        const neutrinosTotal = decayed; // 1 neutrino / antineutrino per vervallen kern
+
+        const lambda = Math.LN2 / iso.halfLifeSeconds;
+        const activityBq = lambda * remaining;
+        const elapsedReal = hl * iso.halfLifeValue;
+
+        return {
+          iso,
+          n0,
+          hl,
+          fractionRemaining,
+          fractionDecayed,
+          remaining,
+          decayed,
+          neutrinosTotal,
+          activityBq,
+          elapsedReal
+        };
+      }
+
+      // Teken exponentiële vervalcurve N(t) en stijgende neutrino-curve
+      function renderDecayCurve() {
+        const rect = decayCurveCanvas.getBoundingClientRect();
+        if (rect.width < 10 || rect.height < 10) return;
+        const dpr = window.devicePixelRatio || 1;
+        const tw = Math.round(rect.width * dpr);
+        const th = Math.round(rect.height * dpr);
+        if (decayCurveCanvas.width !== tw || decayCurveCanvas.height !== th) {
+          decayCurveCanvas.width = tw;
+          decayCurveCanvas.height = th;
+        }
+
+        const w = rect.width;
+        const h = rect.height;
+        const m = computeDecayLawMetrics();
+
+        const padL = 34;
+        const padR = 14;
+        const padT = 12;
+        const padB = 20;
+        const plotW = w - padL - padR;
+        const plotH = h - padT - padB;
+        const maxHL = 10;
+
+        dCtx.save();
+        dCtx.scale(dpr, dpr);
+
+        dCtx.fillStyle = "#faf5ea";
+        dCtx.fillRect(0, 0, w, h);
+
+        // Hulplijnen 100%, 50%, 0%
+        dCtx.strokeStyle = "rgba(180, 165, 140, 0.35)";
+        dCtx.lineWidth = 1;
+        [0, 0.5, 1].forEach(pct => {
+          const y = padT + (1 - pct) * plotH;
+          dCtx.beginPath();
+          dCtx.moveTo(padL, y);
+          dCtx.lineTo(padL + plotW, y);
+          dCtx.stroke();
+
+          dCtx.fillStyle = "#6b5b54";
+          dCtx.font = "600 8.5px ui-monospace, monospace";
+          dCtx.textAlign = "right";
+          dCtx.textBaseline = "middle";
+          dCtx.fillText(`${Math.round(pct * 100)}%`, padL - 4, y);
+        });
+
+        // X-as labels (0, 2, 4, 6, 8, 10 T1/2)
+        dCtx.textAlign = "center";
+        dCtx.textBaseline = "top";
+        for (let t = 0; t <= 10; t += 2) {
+          const x = padL + (t / maxHL) * plotW;
+          dCtx.fillText(`${t}T½`, x, padT + plotH + 4);
+        }
+
+        // Stijgende curve van uitgezonden neutrino's: N_nu(t) = N0 * (1 - 2^(-t/T1/2))
+        dCtx.beginPath();
+        for (let i = 0; i <= 100; i++) {
+          const t = (i / 100) * maxHL;
+          const fracNu = 1 - Math.pow(0.5, t);
+          const x = padL + (t / maxHL) * plotW;
+          const y = padT + (1 - fracNu) * plotH;
+          if (i === 0) dCtx.moveTo(x, y);
+          else dCtx.lineTo(x, y);
+        }
+        dCtx.strokeStyle = "#235d63";
+        dCtx.lineWidth = 1.7;
+        dCtx.setLineDash([4, 2.5]);
+        dCtx.stroke();
+        dCtx.setLineDash([]);
+
+        // Dalende vervalcurve N(t) = N0 * (1/2)^(t/T1/2)
+        dCtx.beginPath();
+        for (let i = 0; i <= 100; i++) {
+          const t = (i / 100) * maxHL;
+          const fracN = Math.pow(0.5, t);
+          const x = padL + (t / maxHL) * plotW;
+          const y = padT + (1 - fracN) * plotH;
+          if (i === 0) dCtx.moveTo(x, y);
+          else dCtx.lineTo(x, y);
+        }
+        dCtx.strokeStyle = "#8b1e24";
+        dCtx.lineWidth = 2.2;
+        dCtx.stroke();
+
+        // Huidige tijdstip-lijn en markers
+        const curX = padL + (m.hl / maxHL) * plotW;
+        const curYN = padT + (1 - m.fractionRemaining) * plotH;
+        const curYNu = padT + (1 - m.fractionDecayed) * plotH;
+
+        dCtx.beginPath();
+        dCtx.moveTo(curX, padT);
+        dCtx.lineTo(curX, padT + plotH);
+        dCtx.strokeStyle = "rgba(200, 146, 42, 0.8)";
+        dCtx.lineWidth = 1.3;
+        dCtx.stroke();
+
+        // Punt op N(t)
+        dCtx.beginPath();
+        dCtx.arc(curX, curYN, 4.2, 0, Math.PI * 2);
+        dCtx.fillStyle = "#8b1e24";
+        dCtx.fill();
+        dCtx.strokeStyle = "#fffaf2";
+        dCtx.lineWidth = 1.2;
+        dCtx.stroke();
+
+        // Punt op Neutrino-curve
+        dCtx.beginPath();
+        dCtx.arc(curX, curYNu, 3.8, 0, Math.PI * 2);
+        dCtx.fillStyle = "#235d63";
+        dCtx.fill();
+        dCtx.stroke();
+
+        // Compacte legenda rechtsboven in de grafiek
+        dCtx.font = "700 8.5px Inter, system-ui, sans-serif";
+        dCtx.textAlign = "right";
+        dCtx.fillStyle = "#8b1e24";
+        dCtx.fillText(`— N(t) ${m.iso.motherLabel}`, padL + plotW - 4, padT + 7);
+        dCtx.fillStyle = "#235d63";
+        dCtx.fillText(`-- Neutrino's (${m.iso.neutrinoShort})`, padL + plotW - 4, padT + 18);
+
+        dCtx.restore();
+      }
+
+      function updateDecayLawUI() {
+        const m = computeDecayLawMetrics();
+        const elapsedFmt = m.elapsedReal >= 1000
+          ? m.elapsedReal.toLocaleString("nl-NL", { maximumFractionDigits: 0 })
+          : m.elapsedReal.toLocaleString("nl-NL", { maximumFractionDigits: 2 });
+
+        document.getElementById("timeElapsedReadout").textContent =
+          `t = ${m.hl.toFixed(2).replace(".", ",")} T½ (${elapsedFmt} ${m.iso.halfLifeUnit})`;
+
+        document.getElementById("statRemainingNuclei").textContent = fmtSciNL(m.remaining);
+        document.getElementById("statRemainingPct").textContent =
+          `${(m.fractionRemaining * 100).toFixed(2).replace(".", ",")}% ${m.iso.motherLabel}`;
+
+        document.getElementById("statDaughterNuclei").textContent = fmtSciNL(m.decayed);
+        document.getElementById("statDaughterPct").textContent =
+          `${(m.fractionDecayed * 100).toFixed(2).replace(".", ",")}% ${m.iso.daughterLabel}`;
+
+        document.getElementById("neutrinoStatTitle").textContent = m.iso.neutrinoLabel;
+        document.getElementById("statNeutrinosEmitted").textContent = fmtSciNL(m.neutrinosTotal);
+        document.getElementById("statActivityBq").textContent = `A = ${fmtSciNL(m.activityBq)} Bq`;
+
+        document.getElementById("btnN0Avogadro").classList.toggle("active", state.decayLaw.n0Mode === "avogadro");
+        document.getElementById("btnN06179").classList.toggle("active", state.decayLaw.n0Mode === "6179");
+
+        renderDecayCurve();
+      }
+
+      function analyzeHadron() {
+        const qs = state.hadron.quarks;
+        const isMeson = qs.length === 2;
+
+        let totalCharge = 0;
+        let bareMass = 0;
+        const flavorList = [];
+        const colorList = [];
+
+        qs.forEach(q => {
+          const fObj = QUARK_FLAVORS[q.flavor];
+          const cObj = COLOR_CHARGES[q.color];
+          totalCharge += fObj.charge;
+          bareMass += fObj.mass;
+          flavorList.push(fObj.symbol);
+          colorList.push(cObj.code);
+        });
+
+        let isColorNeutral = false;
+        let colorSummary = "";
+        if (!isMeson) {
+          const set = new Set(qs.map(q => q.color));
+          isColorNeutral = set.has("R") && set.has("G") && set.has("B");
+          colorSummary = isColorNeutral
+            ? `Kleurlading: ${colorList.join(" + ")} = Wit (neutraal)`
+            : `Kleurconfinement: ${colorList.join(" + ")} (niet kleurneutraal!)`;
+        } else {
+          const c1 = qs[0].color;
+          const c2 = qs[1].color;
+          isColorNeutral =
+            (c1 === "R" && c2 === "Rbar") ||
+            (c1 === "G" && c2 === "Gbar") ||
+            (c1 === "B" && c2 === "Bbar") ||
+            (c1 === "Rbar" && c2 === "R") ||
+            (c1 === "Gbar" && c2 === "G") ||
+            (c1 === "Bbar" && c2 === "B");
+          colorSummary = isColorNeutral
+            ? `Kleurlading: ${colorList.join(" + ")} = Wit (neutraal)`
+            : `Kleurconfinement: ${colorList.join(" + ")} (ongeldig kleurpaar!)`;
+        }
+
+        const sortedKey = [...qs.map(q => q.flavor)].sort().join("+");
+        let name = isMeson ? `Meson (${flavorList.join("")})` : `Baryon (${flavorList.join("")})`;
+        let totalMass = isMeson ? 139.57 : 938.27;
+
+        if (sortedKey === "d+u+u") {
+          name = "Proton (p⁺ · uud)";
+          totalMass = 938.272;
+        } else if (sortedKey === "d+d+u") {
+          name = "Neutron (n⁰ · udd)";
+          totalMass = 939.565;
+        } else if (sortedKey === "u+u+u") {
+          name = "Delta++ (Δ⁺⁺ · uuu)";
+          totalMass = 1232.0;
+        } else if (sortedKey === "d+d+d") {
+          name = "Delta− (Δ⁻ · ddd)";
+          totalMass = 1232.0;
+        } else if (sortedKey === "d+s+u") {
+          name = "Lambda (Λ⁰ · uds)";
+          totalMass = 1115.68;
+        } else if (sortedKey === "dbar+u") {
+          name = "Positief Pion (π⁺ · ud̄)";
+          totalMass = 139.570;
+        } else if (sortedKey === "d+ubar") {
+          name = "Negatief Pion (π⁻ · dū)";
+          totalMass = 139.570;
+        } else if (sortedKey === "u+ubar" || sortedKey === "d+dbar") {
+          name = `Neutraal Pion (π⁰ · ${flavorList.join("")})`;
+          totalMass = 134.977;
+        } else if (sortedKey === "sbar+u") {
+          name = "Positief Kaon (K⁺ · us̄)";
+          totalMass = 493.677;
+        } else {
+          const strangeCount = qs.filter(q => q.flavor.startsWith("s")).length;
+          totalMass = (isMeson ? 135 : 938) + strangeCount * 175;
+        }
+
+        const bindingEnergy = Math.max(0, totalMass - bareMass);
+        const barePct = (bareMass / totalMass) * 100;
+        const bindingPct = 100 - barePct;
+
+        const roundedQ = Math.round(totalCharge * 3) / 3;
+        let chargeFormatted = "0 e";
+        if (Math.abs(roundedQ - 1) < 0.01) chargeFormatted = "+1 e";
+        else if (Math.abs(roundedQ + 1) < 0.01) chargeFormatted = "−1 e";
+        else if (Math.abs(roundedQ - 2) < 0.01) chargeFormatted = "+2 e";
+        else if (Math.abs(roundedQ) > 0.01) chargeFormatted = `${roundedQ > 0 ? "+" : ""}${roundedQ.toFixed(2).replace(".", ",")} e`;
+
+        return {
+          isMeson,
+          name,
+          flavorStr: flavorList.join(""),
+          colorStr: colorList.join(" + "),
+          isColorNeutral,
+          colorSummary,
+          chargeFormatted,
+          bareMass,
+          bindingEnergy,
+          totalMass,
+          barePct,
+          bindingPct
+        };
+      }
+
+      function renderFeynmanDiagram() {
+        const rect = feynmanCanvas.getBoundingClientRect();
+        if (rect.width < 10 || rect.height < 10) return;
+        const dpr = window.devicePixelRatio || 1;
+        const tw = Math.round(rect.width * dpr);
+        const th = Math.round(rect.height * dpr);
+        if (feynmanCanvas.width !== tw || feynmanCanvas.height !== th) {
+          feynmanCanvas.width = tw;
+          feynmanCanvas.height = th;
+        }
+
+        const w = rect.width;
+        const h = rect.height;
+        const mode = state.decayAnim.active ? state.decayAnim.mode : state.feynmanMode;
+        const prog = state.decayAnim.active ? state.decayAnim.progress : 1.0;
+
+        fCtx.save();
+        fCtx.scale(dpr, dpr);
+
+        fCtx.fillStyle = "#faf5ea";
+        fCtx.fillRect(0, 0, w, h);
+
+        fCtx.strokeStyle = "rgba(180, 165, 140, 0.25)";
+        fCtx.lineWidth = 1;
+        fCtx.beginPath();
+        fCtx.moveTo(14, h - 13);
+        fCtx.lineTo(w - 14, h - 13);
+        fCtx.stroke();
+
+        fCtx.fillStyle = "#6b5b54";
+        fCtx.font = "600 8.5px ui-monospace, monospace";
+        fCtx.textAlign = "right";
+        fCtx.fillText("tijd →", w - 16, h - 4);
+
+        function drawFermionLine(x1, y1, x2, y2, color, arrowDir = 1, dashed = false) {
+          fCtx.save();
+          fCtx.beginPath();
+          if (dashed) fCtx.setLineDash([4, 3]);
+          fCtx.moveTo(x1, y1);
+          fCtx.lineTo(x2, y2);
+          fCtx.strokeStyle = color;
+          fCtx.lineWidth = 2.0;
+          fCtx.stroke();
+          fCtx.setLineDash([]);
+
+          const mx = (x1 + x2) / 2;
+          const my = (y1 + y2) / 2;
+          const ang = Math.atan2(y2 - y1, x2 - x1) + (arrowDir < 0 ? Math.PI : 0);
+          const sz = 5.2;
+          fCtx.beginPath();
+          fCtx.moveTo(mx + Math.cos(ang) * sz, my + Math.sin(ang) * sz);
+          fCtx.lineTo(mx + Math.cos(ang + 2.45) * sz, my + Math.sin(ang + 2.45) * sz);
+          fCtx.lineTo(mx + Math.cos(ang - 2.45) * sz, my + Math.sin(ang - 2.45) * sz);
+          fCtx.closePath();
+          fCtx.fillStyle = color;
+          fCtx.fill();
+          fCtx.restore();
+        }
+
+        function drawBosonWave(x1, y1, x2, y2, color, label) {
+          fCtx.save();
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          const len = Math.hypot(dx, dy) || 1;
+          const nx = -dy / len;
+          const ny = dx / len;
+          const steps = 28;
+
+          fCtx.beginPath();
+          for (let i = 0; i <= steps; i++) {
+            const f = i / steps;
+            const bx = x1 + dx * f;
+            const by = y1 + dy * f;
+            const amp = Math.sin(f * Math.PI * 6) * 4.2;
+            const px = bx + nx * amp;
+            const py = by + ny * amp;
+            if (i === 0) fCtx.moveTo(px, py);
+            else fCtx.lineTo(px, py);
+          }
+          fCtx.strokeStyle = color;
+          fCtx.lineWidth = 2.0;
+          fCtx.stroke();
+
+          fCtx.fillStyle = color;
+          fCtx.font = "800 9.5px ui-monospace, monospace";
+          fCtx.textAlign = "center";
+          fCtx.fillText(label, (x1 + x2) / 2 - nx * 10, (y1 + y2) / 2 - ny * 10);
+          fCtx.restore();
+        }
+
+        const qs = state.hadron.quarks;
+        const c0 = COLOR_CHARGES[qs[0]?.color || "R"];
+        const c1 = COLOR_CHARGES[qs[1]?.color || "G"];
+        const c2 = COLOR_CHARGES[qs[2]?.color || "B"];
+
+        const spec1Y = h - 24;
+        const spec2Y = h - 39;
+        drawFermionLine(34, spec1Y, w - 34, spec1Y, c0.hex, 1);
+        drawFermionLine(34, spec2Y, w - 34, spec2Y, c1.hex, 1);
+
+        fCtx.font = "700 9px ui-monospace, monospace";
+        fCtx.textAlign = "right";
+        fCtx.fillStyle = c0.hex;
+        fCtx.fillText(QUARK_FLAVORS[qs[0]?.flavor || "u"].symbol, 28, spec1Y + 3);
+        fCtx.fillStyle = c1.hex;
+        fCtx.fillText(QUARK_FLAVORS[qs[1]?.flavor || "d"].symbol, 28, spec2Y + 3);
+
+        const qY = h - 60;
+        const v1X = w * 0.40;
+        const v1Y = qY;
+        const v2X = w * 0.64;
+        const v2Y = 33;
+
+        const activeColorHex = c2.hex;
+        const activeColorCode = c2.code;
+
+        if (mode === "beta_minus") {
+          drawFermionLine(34, qY, v1X, v1Y, activeColorHex, 1);
+          drawFermionLine(v1X, v1Y, w - 34, qY, activeColorHex, 1);
+
+          fCtx.fillStyle = activeColorHex;
+          fCtx.textAlign = "right";
+          fCtx.fillText(`d(${activeColorCode})`, 30, qY + 3);
+          fCtx.textAlign = "left";
+          fCtx.fillText(`u(${activeColorCode})`, w - 30, qY + 3);
+
+          drawBosonWave(v1X, v1Y, v2X, v2Y, "#6a2c70", "W⁻");
+
+          drawFermionLine(v2X, v2Y, w - 36, 14, "#1f538a", 1);
+          drawFermionLine(v2X, v2Y, w - 36, 52, "#235d63", -1, true);
+
+          fCtx.textAlign = "left";
+          fCtx.fillStyle = "#1f538a";
+          fCtx.fillText("e⁻", w - 32, 17);
+          fCtx.fillStyle = "#235d63";
+          fCtx.fillText("ν̄ₑ", w - 32, 55);
+        } else if (mode === "beta_plus") {
+          drawFermionLine(34, qY, v1X, v1Y, activeColorHex, 1);
+          drawFermionLine(v1X, v1Y, w - 34, qY, activeColorHex, 1);
+
+          fCtx.fillStyle = activeColorHex;
+          fCtx.textAlign = "right";
+          fCtx.fillText(`u(${activeColorCode})`, 30, qY + 3);
+          fCtx.textAlign = "left";
+          fCtx.fillText(`d(${activeColorCode})`, w - 30, qY + 3);
+
+          drawBosonWave(v1X, v1Y, v2X, v2Y, "#8b1e24", "W⁺");
+
+          drawFermionLine(v2X, v2Y, w - 36, 14, "#c8922a", -1);
+          drawFermionLine(v2X, v2Y, w - 36, 52, "#235d63", 1, true);
+
+          fCtx.textAlign = "left";
+          fCtx.fillStyle = "#8a5a00";
+          fCtx.fillText("e⁺", w - 32, 17);
+          fCtx.fillStyle = "#235d63";
+          fCtx.fillText("νₑ", w - 32, 55);
+        } else {
+          drawFermionLine(34, qY, v1X, v1Y, activeColorHex, 1);
+          drawFermionLine(v1X, v1Y, w - 34, qY, activeColorHex, 1);
+
+          fCtx.fillStyle = activeColorHex;
+          fCtx.textAlign = "right";
+          fCtx.fillText(`u(${activeColorCode})`, 30, qY + 3);
+          fCtx.textAlign = "left";
+          fCtx.fillText(`d(${activeColorCode})`, w - 30, qY + 3);
+
+          drawFermionLine(36, 18, v2X, v2Y, "#1f538a", 1);
+          drawBosonWave(v2X, v2Y, v1X, v1Y, "#235d63", "W⁺");
+          drawFermionLine(v2X, v2Y, w - 36, 18, "#235d63", 1, true);
+
+          fCtx.textAlign = "right";
+          fCtx.fillStyle = "#1f538a";
+          fCtx.fillText("e⁻(K)", 33, 21);
+          fCtx.textAlign = "left";
+          fCtx.fillStyle = "#235d63";
+          fCtx.fillText("νₑ", w - 32, 21);
+        }
+
+        [
+          { x: v1X, y: v1Y },
+          { x: v2X, y: v2Y }
+        ].forEach(pt => {
+          fCtx.beginPath();
+          fCtx.arc(pt.x, pt.y, 3.4, 0, Math.PI * 2);
+          fCtx.fillStyle = "#1e1615";
+          fCtx.fill();
+        });
+
+        if (state.decayAnim.active) {
+          let px, py;
+          if (prog < 0.35) {
+            const f = prog / 0.35;
+            px = 34 + (v1X - 34) * f;
+            py = qY;
+          } else if (prog < 0.65) {
+            const f = (prog - 0.35) / 0.30;
+            px = v1X + (v2X - v1X) * f;
+            py = v1Y + (v2Y - v1Y) * f;
+          } else {
+            const f = (prog - 0.65) / 0.35;
+            px = v2X + (w - 36 - v2X) * f;
+            py = v2Y + (14 - v2Y) * f;
+          }
+          fCtx.beginPath();
+          fCtx.arc(px, py, 5.0, 0, Math.PI * 2);
+          fCtx.fillStyle = "rgba(200, 146, 42, 0.85)";
+          fCtx.fill();
+          fCtx.strokeStyle = "#1e1615";
+          fCtx.lineWidth = 1.2;
+          fCtx.stroke();
+        }
+
+        fCtx.restore();
+      }
+
+      function renderQuarkInspectorUI() {
+        const container = document.getElementById("quarkSlotsContainer");
+        container.innerHTML = "";
+        const isMeson = state.hadron.type === "meson";
+
+        state.hadron.quarks.forEach((q, idx) => {
+          const cObj = COLOR_CHARGES[q.color];
+          const row = document.createElement("div");
+          const isDecayingSlot = state.decayAnim.active && state.decayAnim.quarkIndex === idx;
+          row.className = "q-slot" + (isDecayingSlot ? " decaying-slot" : "");
+
+          const slotTitle = isMeson && idx === 1 ? "Antiquark" : `Quark ${idx + 1}`;
+          const flavorOptions = isMeson
+            ? (idx === 0 ? ["u", "d", "s"] : ["dbar", "ubar", "sbar"])
+            : ["u", "d", "s"];
+
+          const colorOptions = isMeson && idx === 1
+            ? ["Rbar", "Gbar", "Bbar"]
+            : ["R", "G", "B"];
+
+          row.innerHTML = `
+            <div class="q-slot-label">
+              <span class="color-orb" style="background:${cObj.hex}"></span>
+              <span>${slotTitle}</span>
+            </div>
+            <select data-idx="${idx}" data-field="flavor" ${state.decayAnim.active ? "disabled" : ""}>
+              ${flavorOptions.map(fk => {
+                const f = QUARK_FLAVORS[fk];
+                return `<option value="${fk}" ${q.flavor === fk ? "selected" : ""}>${f.symbol} (${f.name}, ${f.chargeStr}e)</option>`;
+              }).join("")}
+            </select>
+            <select data-idx="${idx}" data-field="color" ${state.decayAnim.active ? "disabled" : ""}>
+              ${colorOptions.map(ck => {
+                const c = COLOR_CHARGES[ck];
+                return `<option value="${ck}" ${q.color === ck ? "selected" : ""}>${c.label}</option>`;
+              }).join("")}
+            </select>
+          `;
+          container.appendChild(row);
+        });
+
+        container.querySelectorAll("select").forEach(sel => {
+          sel.addEventListener("change", e => {
+            const idx = parseInt(e.target.dataset.idx, 10);
+            const field = e.target.dataset.field;
+            state.hadron.quarks[idx][field] = e.target.value;
+            state.hadron.presetId = "custom";
+            updatePresetButtons();
+            renderQuarkInspectorUI();
+            updateUI();
+          });
+        });
+
+        const info = analyzeHadron();
+        const statusBar = document.getElementById("colorStatusBar");
+        statusBar.className = `color-status-bar ${info.isColorNeutral ? "neutral" : "confined"}`;
+        document.getElementById("colorStatusText").textContent = info.colorSummary;
+        document.getElementById("chargeBadge").textContent = `Q = ${info.chargeFormatted}`;
+
+        document.getElementById("hadronNameLabel").textContent = info.name;
+        document.getElementById("hadronTotalMass").textContent = `${info.totalMass.toFixed(2).replace(".", ",")} MeV/c²`;
+        document.getElementById("massBarBare").style.width = `${Math.max(2, info.barePct)}%`;
+        document.getElementById("bareMassLabel").textContent =
+          `Kale quarks: ${info.bareMass.toFixed(2).replace(".", ",")} MeV (${info.barePct.toFixed(2).replace(".", ",")}%)`;
+        document.getElementById("bindingMassLabel").textContent =
+          `Gluon-energie: ${info.bindingEnergy.toFixed(2).replace(".", ",")} MeV (${info.bindingPct.toFixed(2).replace(".", ",")}%)`;
+
+        const busy = state.decayAnim.active;
+        document.getElementById("btnBetaMinus").disabled = busy;
+        document.getElementById("btnBetaPlus").disabled = busy;
+        document.getElementById("btnElectronCapture").disabled = busy;
+
+        const fTitle = document.getElementById("feynmanTitle");
+        const activeMode = state.decayAnim.active ? state.decayAnim.mode : state.feynmanMode;
+        if (activeMode === "beta_minus") {
+          fTitle.textContent = "Live Feynman-diagram: d → u + W⁻ → u + e⁻ + ν̄ₑ";
+        } else if (activeMode === "beta_plus") {
+          fTitle.textContent = "Live Feynman-diagram: u → d + W⁺ → d + e⁺ + νₑ";
+        } else {
+          fTitle.textContent = "Live Feynman-diagram: u + e⁻(K) → d + νₑ (via W⁺)";
+        }
+
+        renderFeynmanDiagram();
+        updateDecayLawUI();
+      }
+
+      function updatePresetButtons() {
+        document.getElementById("presetNeutron").classList.toggle("active", state.hadron.presetId === "neutron");
+        document.getElementById("presetProton").classList.toggle("active", state.hadron.presetId === "proton");
+        document.getElementById("presetPion").classList.toggle("active", state.hadron.presetId === "pion");
+      }
+
+      function updateIsotopeButtons() {
+        ["C14", "Na22", "K40", "Be7"].forEach(id => {
+          document.getElementById(`iso${id}`).classList.toggle("active", state.activeIsotope === id);
+        });
+      }
+
+      function applyIsotopeExample(isoKey) {
+        const iso = ISOTOPE_EXAMPLES[isoKey];
+        if (!iso) return;
+        state.activeIsotope = isoKey;
+        state.feynmanMode = iso.mode;
+        updateIsotopeButtons();
+
+        document.getElementById("isotopeDetail").innerHTML =
+          `<span class="isotope-eq">${iso.equation}</span>${iso.note}`;
+
+        updateDecayLawUI();
+        applyHadronPreset(iso.preset, true);
+        triggerWeakProcess(iso.mode);
+      }
+
+      function applyHadronPreset(presetKey, cancelDecay = true) {
+        const p = HADRON_PRESETS[presetKey];
+        if (!p) return;
+        if (cancelDecay) {
+          state.decayAnim.active = false;
+          state.decayAnim.progress = 0;
+        }
+        state.hadron = {
+          presetId: p.id,
+          type: p.type,
+          quarks: p.quarks.map(q => ({ ...q }))
+        };
+        updatePresetButtons();
+        renderQuarkInspectorUI();
+        if (state.step < 23 || state.step > 25) {
+          setStep(23);
+        } else {
+          updateUI();
+        }
+      }
+
+      function triggerWeakProcess(mode) {
+        if (state.decayAnim.active) return;
+
+        state.feynmanMode = mode;
+        if (state.step < 23 || state.step > 25) {
+          setStep(23);
+        }
+
+        let targetIdx = -1;
+
+        if (mode === "beta_minus") {
+          for (let i = state.hadron.quarks.length - 1; i >= 0; i--) {
+            if (state.hadron.quarks[i].flavor === "d") {
+              targetIdx = i;
+              break;
+            }
+          }
+          if (targetIdx === -1) {
+            state.hadron = {
+              presetId: "neutron",
+              type: "baryon",
+              quarks: [
+                { flavor: "u", color: "R" },
+                { flavor: "d", color: "G" },
+                { flavor: "d", color: "B" }
+              ]
+            };
+            targetIdx = 2;
+          }
+        } else {
+          if (state.hadron.type !== "baryon") {
+            state.hadron = {
+              presetId: "proton",
+              type: "baryon",
+              quarks: [
+                { flavor: "u", color: "R" },
+                { flavor: "u", color: "G" },
+                { flavor: "d", color: "B" }
+              ]
+            };
+            targetIdx = 1;
+          } else {
+            for (let i = state.hadron.quarks.length - 1; i >= 0; i--) {
+              if (state.hadron.quarks[i].flavor === "u") {
+                targetIdx = i;
+                break;
+              }
+            }
+            if (targetIdx === -1) {
+              state.hadron = {
+                presetId: "proton",
+                type: "baryon",
+                quarks: [
+                  { flavor: "u", color: "R" },
+                  { flavor: "u", color: "G" },
+                  { flavor: "d", color: "B" }
+                ]
+              };
+              targetIdx = 1;
+            }
+          }
+        }
+
+        const sourceInfo = analyzeHadron();
+        const targetColor = state.hadron.quarks[targetIdx].color;
+
+        state.decayAnim = {
+          active: true,
+          mode,
+          progress: 0,
+          quarkIndex: targetIdx,
+          converted: false,
+          colorCode: targetColor,
+          sourceName: sourceInfo.name
+        };
+
+        const logEl = document.getElementById("decayLog");
+        if (mode === "beta_minus") {
+          logEl.innerHTML =
+            `<strong>β⁻ Fase 1/3:</strong> Quark ${targetIdx + 1} (<strong>d</strong>, −1/3 e, kleur <strong>${targetColor}</strong>) koppelt aan het zwakke veld...`;
+        } else if (mode === "beta_plus") {
+          logEl.innerHTML =
+            `<strong>β⁺ Fase 1/3:</strong> Quark ${targetIdx + 1} (<strong>u</strong>, +2/3 e, kleur <strong>${targetColor}</strong>) bereidt positieve overgang voor...`;
+        } else {
+          logEl.innerHTML =
+            `<strong>Elektronvangst Fase 1/3:</strong> Binnenste <strong>K-schil-elektron (e⁻)</strong> beweegt naar Quark ${targetIdx + 1} (<strong>u</strong>, kleur <strong>${targetColor}</strong>)...`;
+        }
+
+        updatePresetButtons();
+        renderQuarkInspectorUI();
+        updateUI();
+      }
+
+      function buildEntities(k) {
+        const rect = canvasWrap.getBoundingClientRect();
+        const width = Math.max(320, rect.width);
+        const height = Math.max(320, rect.height);
+        const pad = 24;
+        const availW = width - pad * 2;
+        const availH = height - pad * 2;
+        const entities = [];
+        const data = getStepData(k);
+
+        if (k === 0) {
+          const blockCols = 6;
+          const blockRows = 43;
+          const gapX = 1.5;
+          const gapY = 0.55;
+          const totalW = blockCols * 24 + (blockCols - 1) * gapX;
+          const totalH = blockRows + (blockRows - 1) * gapY;
+          const unit = Math.min(availW / totalW, availH / totalH);
+          const ox = (width - totalW * unit) / 2;
+          const oy = (height - totalH * unit) / 2;
+
+          for (let n = 1; n <= 6179; n++) {
+            const bIdx = Math.floor((n - 1) / 24);
+            const pos24 = ((n - 1) % 24) + 1;
+            const bc = bIdx % blockCols;
+            const br = Math.floor(bIdx / blockCols);
+            entities.push({
+              id: n,
+              x: ox + (bc * (24 + gapX) + (pos24 - 0.5)) * unit,
+              y: oy + (br * (1 + gapY) + 0.5) * unit,
+              r: unit * 0.41,
+              fill: 1,
+              isLast: n === 6179,
+              title: `Pion ${n} / 6.179`,
+              detail: `Blok ${bIdx + 1} · Positie ${pos24}/24`
+            });
+          }
+        } else if (k === 1) {
+          const cols = 18;
+          const rows = 15;
+          const cell = Math.min(availW / cols, availH / rows);
+          const ox = (width - cols * cell) / 2;
+          const oy = (height - rows * cell) / 2;
+
+          for (let g = 1; g <= 258; g++) {
+            const c = (g - 1) % cols;
+            const r = Math.floor((g - 1) / cols);
+            const isRem = g === 258;
+            const cnt = isRem ? 11 : 24;
+            entities.push({
+              id: g,
+              x: ox + (c + 0.5) * cell,
+              y: oy + (r + 0.5) * cell,
+              r: cell * 0.40,
+              fill: cnt / 24,
+              isLast: isRem,
+              title: isRem ? `Restgroep 258: 11/24 (0,4583)` : `Groep ${g} / 257 (24/24 = 1)`,
+              detail: isRem ? `Laatste 11 pionnen (6.169–6.179)` : `24 pionnen samengevoegd`
+            });
+          }
+        } else if (k === 2) {
+          const cols = 6;
+          const rows = 2;
+          const cell = Math.min(availW / cols, availH / rows);
+          const ox = (width - cols * cell) / 2;
+          const oy = (height - rows * cell) / 2;
+
+          for (let s = 1; s <= 11; s++) {
+            const c = (s - 1) % cols;
+            const r = Math.floor((s - 1) / cols);
+            const isRem = s === 11;
+            entities.push({
+              id: s,
+              x: ox + (c + 0.5) * cell,
+              y: oy + (r + 0.5) * cell,
+              r: cell * 0.40,
+              fill: isRem ? 419 / 576 : 1,
+              isLast: isRem,
+              title: isRem ? `Restblok 11: 419/576 (0,7274)` : `Supergroep ${s} / 10 (576 pionnen)`,
+              detail: isRem ? `17 × 24 + 11 = 419 pionnen` : `24² = 576 pionnen`
+            });
+          }
+        } else {
+          const cols = 6;
+          const rows = 4;
+          const cell = Math.min(availW / cols, availH / rows);
+          const ox = (width - cols * cell) / 2;
+          const oy = (height - rows * cell) / 2;
+
+          const activeIdx = Math.max(1, data.activeSub24 + (data.partialSub24 > 0 ? 1 : 0));
+          const hInfo = analyzeHadron();
+
+          for (let p = 1; p <= 24; p++) {
+            const c = (p - 1) % cols;
+            const r = Math.floor((p - 1) / cols);
+            let fill = 0;
+            if (p <= data.activeSub24) fill = 1;
+            else if (p === data.activeSub24 + 1) fill = Math.max(0.10, data.partialSub24);
+
+            const isLast = p === activeIdx;
+            const isQuarkStep = k >= 23 && k <= 25;
+            entities.push({
+              id: p,
+              x: ox + (c + 0.5) * cell,
+              y: oy + (r + 0.5) * cell,
+              r: cell * 0.40,
+              fill,
+              isLast,
+              title: isQuarkStep
+                ? `${hInfo.name} in vak ${p}/24 (Stap ${k})`
+                : `Vak ${p}/24 op Stap ${k} (${data.regime.tag})`,
+              detail: isQuarkStep
+                ? `Lading ${hInfo.chargeFormatted} · Massa ${hInfo.totalMass.toFixed(2).replace(".", ",")} MeV/c²`
+                : `Schaal λ ≈ ${data.lengthMeters.toExponential(2).replace(".", ",")} m`
+            });
+          }
+        }
+
+        state.entities = entities;
+        const target = entities.find(e => e.isLast) || entities[0];
+        if (target) {
+          state.mouse.targetX = target.x;
+          state.mouse.targetY = target.y;
+          if (state.mouse.x === 0 && state.mouse.y === 0) {
+            state.mouse.x = target.x;
+            state.mouse.y = target.y;
+          }
+        }
+      }
+
+      function updateUI() {
+        const d = getStepData(state.step);
+        const hInfo = analyzeHadron();
+        const isQuarkStep = state.step >= 23 && state.step <= 25;
+
+        document.getElementById("quarkInspectorCard").classList.toggle("active-step", isQuarkStep);
+
+        if (isQuarkStep) {
+          const m = computeDecayLawMetrics();
+          canvasHud.style.display = "block";
+          canvasHud.innerHTML = `⚛️ <strong>${hInfo.name}</strong> · Lading <strong>${hInfo.chargeFormatted}</strong> · Massa <strong>${hInfo.totalMass.toFixed(2).replace(".", ",")} MeV/c²</strong><br/>Isotoop <strong>${m.iso.motherLabel}</strong> op t = ${m.hl.toFixed(2).replace(".", ",")} T½: <strong>${(m.fractionRemaining * 100).toFixed(1).replace(".", ",")}%</strong> over · <strong>${fmtSciNL(m.neutrinosTotal)}</strong> neutrino's (${m.iso.neutrinoShort})`;
+        } else {
+          canvasHud.style.display = "none";
+        }
+
+        const heroBox = document.getElementById("heroBox");
+        heroBox.classList.remove("chem-mode", "subatomic-mode", "planck-mode");
+        if (d.regime.tier === "planck") heroBox.classList.add("planck-mode");
+        else if (d.regime.tier === "subatomic") heroBox.classList.add("subatomic-mode");
+        else if (d.regime.tier === "chem") heroBox.classList.add("chem-mode");
+
+        document.getElementById("stepTitleNum").textContent = state.step;
+        document.getElementById("heroValue").textContent =
+          state.step === 36
+            ? `Planck-lengte ℓₚ (24³⁶)`
+            : isQuarkStep
+              ? `${hInfo.name} — Stap ${state.step}`
+              : `${d.regime.tag} — Stap ${state.step}`;
+
+        document.getElementById("heroSub").textContent =
+          `6.179 ÷ 24^${state.step} = ${fmtSciNL(d.pawnFraction)} pionnen`;
+
+        document.getElementById("statDivisor").textContent = formatBigIntNL(d.denom);
+        document.getElementById("statFraction").textContent = fmtSciNL(d.pawnFraction);
+        document.getElementById("statLength").textContent = `${d.lengthMeters.toExponential(2).replace(".", ",")} m`;
+        document.getElementById("statPlanckRatio").textContent =
+          d.planckRatio >= 1
+            ? `${fmtSciNL(d.planckRatio)} × ℓₚ`
+            : `≤ 1,00 × ℓₚ (kwantumgrens)`;
+        document.getElementById("statRegime").textContent = d.regime.tag;
+
+        statusBanner.innerHTML = isQuarkStep
+          ? `⚛️ <strong>Stap ${state.step} (Quark-inspecteur):</strong> ${hInfo.name} · ${hInfo.colorSummary} · ${hInfo.totalMass.toFixed(2).replace(".", ",")} MeV/c²`
+          : state.step === 36
+            ? `🌌 <strong>Stap 36 (Planck-lengte ℓₚ = 1,616 × 10⁻³⁵ m):</strong> Kleinste eenheid van ruimtetijd bereikt bij 24³⁶!`
+            : `✂️ <strong>Stap ${state.step} (÷ 24^${state.step}):</strong> ${d.regime.name}`;
+
+        document.querySelectorAll(".step-pill").forEach((el, idx) => {
+          el.classList.toggle("active", idx === state.step);
+        });
+      }
+
+      function setStep(k) {
+        state.step = Math.max(0, Math.min(MAX_STEP, k));
+        buildEntities(state.step);
+        updateUI();
+      }
+
+      function buildLadderUI() {
+        const pills = document.getElementById("stepPills");
+        pills.innerHTML = "";
+
+        for (let k = 0; k <= MAX_STEP; k++) {
+          const d = getStepData(k);
+          const pill = document.createElement("button");
+          pill.type = "button";
+          const qMark = k >= 23 && k <= 25 ? " quark-highlight" : "";
+          pill.className = `step-pill ${d.regime.tier}${qMark}`;
+          pill.textContent = k === 17 ? "17:Avog" : k === 21 ? "21:Kern" : k === 23 ? "23:Quark" : k === 36 ? "36:ℓₚ" : String(k);
+          pill.title = `Stap ${k}: 6.179 ÷ 24^${k} (${d.regime.name})`;
+          pill.addEventListener("click", () => {
+            state.autoPlaying = false;
+            document.getElementById("btnAutoCascade").textContent = "Auto-splits (0 → 36)";
+            setStep(k);
+          });
+          pills.appendChild(pill);
+        }
+      }
+
+      function drawWeakInteractionPropagator(ctx, originPt, r, anim) {
+        const { mode, progress } = anim;
+
+        if (mode === "ec") {
+          const dirAngle = -Math.PI / 5;
+          const vx = originPt.x + Math.cos(dirAngle) * r * 0.48;
+          const vy = originPt.y + Math.sin(dirAngle) * r * 0.48;
+
+          const inAngle = dirAngle - 0.55;
+          const startEx = vx + Math.cos(inAngle) * r * 0.72;
+          const startEy = vy + Math.sin(inAngle) * r * 0.72;
+
+          ctx.save();
+
+          if (progress < 0.45) {
+            const inFrac = progress / 0.45;
+            const curEx = startEx + (vx - startEx) * inFrac;
+            const curEy = startEy + (vy - startEy) * inFrac;
+
+            ctx.beginPath();
+            ctx.setLineDash([3 / state.zoom, 2 / state.zoom]);
+            ctx.moveTo(startEx, startEy);
+            ctx.lineTo(curEx, curEy);
+            ctx.strokeStyle = "#1f538a";
+            ctx.lineWidth = Math.max(1.5, r * 0.06);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.beginPath();
+            ctx.arc(curEx, curEy, r * 0.13, 0, Math.PI * 2);
+            ctx.fillStyle = "#1f538a";
+            ctx.fill();
+            ctx.strokeStyle = "#fffaf2";
+            ctx.lineWidth = 0.9;
+            ctx.stroke();
+
+            if (r * state.zoom >= 18) {
+              ctx.fillStyle = "#1f2d52";
+              ctx.font = `800 ${Math.max(8, r * 0.17)}px ui-monospace, monospace`;
+              ctx.textAlign = "center";
+              ctx.fillText("e⁻ (K)", curEx, curEy - r * 0.18);
+            }
+          } else {
+            const postFrac = (progress - 0.45) / 0.55;
+
+            ctx.beginPath();
+            const steps = 16;
+            const perpX = -Math.sin(dirAngle);
+            const perpY = Math.cos(dirAngle);
+            for (let i = 0; i <= steps; i++) {
+              const f = i / steps;
+              const bx = originPt.x + (vx - originPt.x) * f;
+              const by = originPt.y + (vy - originPt.y) * f;
+              const amp = Math.sin(f * Math.PI * 5) * r * 0.06 * (1 - postFrac * 0.35);
+              const px = bx + perpX * amp;
+              const py = by + perpY * amp;
+              if (i === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            }
+            ctx.strokeStyle = "#235d63";
+            ctx.lineWidth = Math.max(1.8, r * 0.075);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(vx, vy, r * 0.09, 0, Math.PI * 2);
+            ctx.fillStyle = "#235d63";
+            ctx.fill();
+
+            const nuAng = dirAngle + 0.58;
+            const nuLen = r * 0.65 * postFrac;
+            const nux = vx + Math.cos(nuAng) * nuLen;
+            const nuy = vy + Math.sin(nuAng) * nuLen;
+
+            ctx.beginPath();
+            ctx.setLineDash([3 / state.zoom, 2.5 / state.zoom]);
+            ctx.moveTo(vx, vy);
+            ctx.lineTo(nux, nuy);
+            ctx.strokeStyle = "#235d63";
+            ctx.lineWidth = Math.max(1.5, r * 0.06);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.beginPath();
+            ctx.arc(nux, nuy, r * 0.10, 0, Math.PI * 2);
+            ctx.fillStyle = "#235d63";
+            ctx.fill();
+
+            const gamAng = dirAngle - 0.52;
+            const gamLen = r * 0.55 * postFrac;
+            const gx = vx + Math.cos(gamAng) * gamLen;
+            const gy = vy + Math.sin(gamAng) * gamLen;
+            ctx.beginPath();
+            ctx.moveTo(vx, vy);
+            ctx.lineTo(gx, gy);
+            ctx.strokeStyle = "#c8922a";
+            ctx.lineWidth = Math.max(1.3, r * 0.05);
+            ctx.stroke();
+
+            if (r * state.zoom >= 18) {
+              ctx.fillStyle = "#173f44";
+              ctx.font = `800 ${Math.max(8, r * 0.17)}px ui-monospace, monospace`;
+              ctx.textAlign = "center";
+              ctx.fillText("W⁺", (originPt.x + vx) / 2 - perpX * r * 0.15, (originPt.y + vy) / 2 - perpY * r * 0.15);
+              ctx.fillText("νₑ", nux + Math.cos(nuAng) * r * 0.18, nuy + Math.sin(nuAng) * r * 0.18);
+              ctx.fillStyle = "#8a5a00";
+              ctx.fillText("γ", gx + Math.cos(gamAng) * r * 0.16, gy + Math.sin(gamAng) * r * 0.16);
+            }
+          }
+
+          ctx.restore();
+          return;
+        }
+
+        const isPlus = mode === "beta_plus";
+        const bosonColor = isPlus ? "#8b1e24" : "#6a2c70";
+        const bosonLabel = isPlus ? "W⁺" : "W⁻";
+        const leptonColor = isPlus ? "#c8922a" : "#1f538a";
+        const leptonLabel = isPlus ? "e⁺" : "e⁻";
+        const neutrinoLabel = isPlus ? "νₑ" : "ν̄ₑ";
+
+        if (progress < 0.32) {
+          const pulse = Math.sin((progress / 0.32) * Math.PI);
+          ctx.beginPath();
+          ctx.arc(originPt.x, originPt.y, r * (0.24 + pulse * 0.22), 0, Math.PI * 2);
+          ctx.strokeStyle = bosonColor;
+          ctx.lineWidth = Math.max(1.8, r * 0.08);
+          ctx.stroke();
+          return;
+        }
+
+        const wFrac = Math.min(1, (progress - 0.32) / 0.30);
+        const dirAngle = -Math.PI / 5;
+        const wLen = r * 0.62 * wFrac;
+        const vx = originPt.x + Math.cos(dirAngle) * wLen;
+        const vy = originPt.y + Math.sin(dirAngle) * wLen;
+
+        ctx.save();
+        ctx.beginPath();
+        const steps = 18;
+        const perpX = -Math.sin(dirAngle);
+        const perpY = Math.cos(dirAngle);
+        for (let i = 0; i <= steps; i++) {
+          const f = i / steps;
+          const bx = originPt.x + (vx - originPt.x) * f;
+          const by = originPt.y + (vy - originPt.y) * f;
+          const amp = Math.sin(f * Math.PI * 5) * r * 0.065;
+          const px = bx + perpX * amp;
+          const py = by + perpY * amp;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = bosonColor;
+        ctx.lineWidth = Math.max(1.8, r * 0.075);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(vx, vy, r * 0.09, 0, Math.PI * 2);
+        ctx.fillStyle = bosonColor;
+        ctx.fill();
+
+        if (r * state.zoom >= 18) {
+          ctx.fillStyle = bosonColor;
+          ctx.font = `800 ${Math.max(8, r * 0.17)}px ui-monospace, monospace`;
+          ctx.textAlign = "center";
+          ctx.fillText(bosonLabel, (originPt.x + vx) / 2 - perpX * r * 0.16, (originPt.y + vy) / 2 - perpY * r * 0.16);
+        }
+
+        if (progress >= 0.62) {
+          const lepFrac = Math.min(1, (progress - 0.62) / 0.38);
+          const lepLen = r * 0.58 * lepFrac;
+
+          const eAng = dirAngle - 0.52;
+          const ex = vx + Math.cos(eAng) * lepLen;
+          const ey = vy + Math.sin(eAng) * lepLen;
+
+          ctx.beginPath();
+          ctx.moveTo(vx, vy);
+          ctx.lineTo(ex, ey);
+          ctx.strokeStyle = leptonColor;
+          ctx.lineWidth = Math.max(1.6, r * 0.065);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(ex, ey, r * 0.12, 0, Math.PI * 2);
+          ctx.fillStyle = leptonColor;
+          ctx.fill();
+          ctx.strokeStyle = "#fffaf2";
+          ctx.lineWidth = 0.9;
+          ctx.stroke();
+
+          const nuAng = dirAngle + 0.62;
+          const nux = vx + Math.cos(nuAng) * lepLen;
+          const nuy = vy + Math.sin(nuAng) * lepLen;
+
+          ctx.beginPath();
+          ctx.setLineDash([3 / state.zoom, 2.5 / state.zoom]);
+          ctx.moveTo(vx, vy);
+          ctx.lineTo(nux, nuy);
+          ctx.strokeStyle = "#235d63";
+          ctx.lineWidth = Math.max(1.4, r * 0.055);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          ctx.beginPath();
+          ctx.arc(nux, nuy, r * 0.09, 0, Math.PI * 2);
+          ctx.fillStyle = "#235d63";
+          ctx.fill();
+
+          if (r * state.zoom >= 18) {
+            ctx.fillStyle = isPlus ? "#704804" : "#1f2d52";
+            ctx.font = `800 ${Math.max(8, r * 0.18)}px ui-monospace, monospace`;
+            ctx.fillText(leptonLabel, ex + Math.cos(eAng) * r * 0.18, ey + Math.sin(eAng) * r * 0.18);
+
+            ctx.fillStyle = "#235d63";
+            ctx.fillText(neutrinoLabel, nux + Math.cos(nuAng) * r * 0.19, nuy + Math.sin(nuAng) * r * 0.19);
+          }
+        }
+
+        ctx.restore();
+      }
+
+      function drawHadronQuarkStructure(ctx, r, scale, t) {
+        const qs = state.hadron.quarks;
+        const isMeson = qs.length === 2;
+        const hInfo = analyzeHadron();
+
+        if (isMeson) {
+          const d = r * 0.44 * scale;
+          const rot = Math.sin(t * 1.4) * 0.16;
+          const p1 = { x: Math.cos(rot) * -d, y: Math.sin(rot) * -d };
+          const p2 = { x: Math.cos(rot) * d,  y: Math.sin(rot) * d };
+
+          ctx.beginPath();
+          const steps = 16;
+          for (let i = 0; i <= steps; i++) {
+            const f = i / steps;
+            const bx = p1.x + (p2.x - p1.x) * f;
+            const by = p1.y + (p2.y - p1.y) * f;
+            const perpX = -(p2.y - p1.y) / (2 * d || 1);
+            const perpY = (p2.x - p1.x) / (2 * d || 1);
+            const wave = Math.sin(f * Math.PI * 4 + t * 6) * r * 0.08 * Math.sin(f * Math.PI);
+            const px = bx + perpX * wave;
+            const py = by + perpY * wave;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.strokeStyle = hInfo.isColorNeutral ? "rgba(31, 45, 82, 0.8)" : "#b3242a";
+          ctx.lineWidth = Math.max(1.6, r * 0.075);
+          ctx.stroke();
+
+          [p1, p2].forEach((pt, idx) => {
+            const q = qs[idx];
+            const fObj = QUARK_FLAVORS[q.flavor];
+            const cObj = COLOR_CHARGES[q.color];
+
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, r * 0.23 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = cObj.hex;
+            ctx.fill();
+            ctx.strokeStyle = "#fffaf2";
+            ctx.lineWidth = 1.1;
+            ctx.stroke();
+
+            if (r * state.zoom >= 18) {
+              ctx.fillStyle = "#fffaf2";
+              ctx.font = `800 ${Math.max(8, r * 0.21)}px ui-monospace, monospace`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText(fObj.symbol, pt.x, pt.y + 0.5);
+            }
+          });
+        } else {
+          const qDist = r * 0.43 * scale;
+          const qAngles = [
+            -Math.PI / 2 + Math.sin(t * 2.0) * 0.12,
+            (5 * Math.PI) / 6 + Math.sin(t * 2.2) * 0.12,
+            Math.PI / 6 + Math.cos(t * 1.9) * 0.12
+          ];
+          const qPts = qAngles.map(a => ({ x: Math.cos(a) * qDist, y: Math.sin(a) * qDist }));
+
+          ctx.strokeStyle = hInfo.isColorNeutral ? "rgba(31, 45, 82, 0.72)" : "#b3242a";
+          ctx.lineWidth = Math.max(1.4, r * 0.06);
+          for (let i = 0; i < 3; i++) {
+            const p1 = qPts[i];
+            const p2 = qPts[(i + 1) % 3];
+            const mx = (p1.x + p2.x) / 2 + Math.sin(t * 5 + i) * r * 0.07;
+            const my = (p1.y + p2.y) / 2 + Math.cos(t * 5 + i) * r * 0.07;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.quadraticCurveTo(mx, my, p2.x, p2.y);
+            ctx.stroke();
+          }
+
+          qPts.forEach((pt, idx) => {
+            const q = qs[idx];
+            const fObj = QUARK_FLAVORS[q.flavor];
+            const cObj = COLOR_CHARGES[q.color];
+
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, r * 0.21 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = cObj.hex;
+            ctx.fill();
+            ctx.strokeStyle = "#fffaf2";
+            ctx.lineWidth = 1.1;
+            ctx.stroke();
+
+            if (r * state.zoom >= 18) {
+              ctx.fillStyle = "#fffaf2";
+              ctx.font = `800 ${Math.max(8, r * 0.20)}px ui-monospace, monospace`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText(fObj.symbol, pt.x, pt.y + 0.5);
+            }
+
+            if (state.decayAnim.active && state.decayAnim.quarkIndex === idx) {
+              drawWeakInteractionPropagator(ctx, pt, r, state.decayAnim);
+            }
+          });
+        }
+      }
+
+      function drawMicroEntity(ctx, ent, mode, t) {
+        const { x, y, r, fill, isLast } = ent;
+        ctx.save();
+        ctx.translate(x, y);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.fillStyle = fill > 0
+          ? (mode === "planck" ? "rgba(31, 45, 82, 0.22)" : "rgba(35, 93, 99, 0.10)")
+          : "rgba(180, 165, 140, 0.14)";
+        ctx.fill();
+        ctx.lineWidth = isLast ? 2.1 : 1;
+        ctx.strokeStyle = isLast ? "#c8922a" : "rgba(110, 95, 80, 0.35)";
+        ctx.stroke();
+
+        if (fill <= 0) {
+          ctx.restore();
+          return;
+        }
+
+        const scale = Math.max(0.48, Math.min(1, fill + 0.2));
+
+        if (mode === "quarks") {
+          drawHadronQuarkStructure(ctx, r, scale, t);
+        } else if (mode === "cluster") {
+          const count = Math.max(3, Math.round(fill * 9));
+          for (let i = 0; i < count; i++) {
+            const ang = (i / count) * Math.PI * 2 + t * 0.35;
+            const dist = i === 0 ? 0 : r * 0.42 * scale;
+            ctx.beginPath();
+            ctx.arc(Math.cos(ang) * dist, Math.sin(ang) * dist, r * 0.16 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = i % 3 === 0 ? "#8b1e24" : i % 3 === 1 ? "#c8922a" : "#235d63";
+            ctx.fill();
+          }
+        } else if (mode === "ring") {
+          const rad = r * 0.52 * scale;
+          ctx.rotate(t * 0.25);
+          ctx.beginPath();
+          for (let i = 0; i < 6; i++) {
+            const a = (i / 6) * Math.PI * 2;
+            const px = Math.cos(a) * rad;
+            const py = Math.sin(a) * rad;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = "#1e1615";
+          ctx.lineWidth = Math.max(1.4, r * 0.07);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(0, 0, rad * 0.56, 0, Math.PI * 2);
+          ctx.strokeStyle = "#8b1e24";
+          ctx.lineWidth = Math.max(1, r * 0.05);
+          ctx.stroke();
+
+          for (let i = 0; i < 6; i++) {
+            const a = (i / 6) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.arc(Math.cos(a) * rad, Math.sin(a) * rad, r * 0.11 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = i === 0 || i === 3 ? "#c8922a" : "#8b1e24";
+            ctx.fill();
+          }
+        } else if (mode === "molecule" || mode === "avogadro") {
+          const orbRx = r * 0.66 * scale;
+          const orbRy = r * 0.26 * scale;
+          const shells = mode === "avogadro" ? 3 : 2;
+          for (let o = 0; o < shells; o++) {
+            ctx.save();
+            ctx.rotate((o * Math.PI) / shells + t * 0.35);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, orbRx, orbRy, 0, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(35, 93, 99, 0.55)";
+            ctx.lineWidth = Math.max(1, r * 0.045);
+            ctx.stroke();
+
+            const eAng = t * 2.5 + o * 2.1;
+            ctx.beginPath();
+            ctx.arc(Math.cos(eAng) * orbRx, Math.sin(eAng) * orbRy, r * 0.08 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = "#1f2d52";
+            ctx.fill();
+            ctx.restore();
+          }
+          ctx.beginPath();
+          ctx.arc(0, 0, r * 0.20 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = "#8b1e24";
+          ctx.fill();
+        } else if (mode === "atom") {
+          [0.42, 0.68].forEach((sr, idx) => {
+            ctx.beginPath();
+            ctx.arc(0, 0, r * sr * scale, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(31, 45, 82, 0.45)";
+            ctx.lineWidth = Math.max(1, r * 0.04);
+            ctx.stroke();
+
+            const eAng = t * (3.2 - idx) + idx * 1.7;
+            ctx.beginPath();
+            ctx.arc(Math.cos(eAng) * r * sr * scale, Math.sin(eAng) * r * sr * scale, r * 0.08 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = "#1f2d52";
+            ctx.fill();
+          });
+          ctx.beginPath();
+          ctx.arc(0, 0, r * 0.16 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = "#8b1e24";
+          ctx.fill();
+        } else if (mode === "nucleus") {
+          const nucleons = [
+            { dx: 0, dy: 0, p: true },
+            { dx: -0.22, dy: -0.14, p: false },
+            { dx: 0.22, dy: -0.14, p: true },
+            { dx: -0.20, dy: 0.18, p: true },
+            { dx: 0.20, dy: 0.18, p: false },
+            { dx: 0, dy: -0.26, p: false },
+            { dx: 0, dy: 0.26, p: true }
+          ];
+          ctx.rotate(Math.sin(t * 1.5) * 0.15);
+          nucleons.forEach(nuc => {
+            ctx.beginPath();
+            ctx.arc(nuc.dx * r * scale, nuc.dy * r * scale, r * 0.17 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = nuc.p ? "#8b1e24" : "#c8922a";
+            ctx.fill();
+            ctx.strokeStyle = "#fffaf2";
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
+          });
+        } else if (mode === "vacuum") {
+          for (let l = 0; l < 3; l++) {
+            const ang = (l * Math.PI * 2) / 3 + t * 0.8;
+            const lx = Math.cos(ang) * r * 0.30 * scale;
+            const ly = Math.sin(ang) * r * 0.30 * scale;
+            ctx.beginPath();
+            ctx.arc(lx, ly, r * 0.22 * scale, 0, Math.PI * 2);
+            ctx.strokeStyle = l === 0 ? "#8b1e24" : l === 1 ? "#c8922a" : "#1f2d52";
+            ctx.lineWidth = Math.max(1.1, r * 0.05);
+            ctx.setLineDash([3, 2]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+        } else if (mode === "foam") {
+          ctx.beginPath();
+          const steps = 36;
+          for (let i = 0; i <= steps; i++) {
+            const a = (i / steps) * Math.PI * 2;
+            const wave = 1 + 0.16 * Math.sin(5 * a + t * 4.5) + 0.09 * Math.cos(3 * a - t * 3.2);
+            const sr = r * 0.50 * scale * wave;
+            const px = Math.cos(a) * sr;
+            const py = Math.sin(a) * sr;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = "#8b1e24";
+          ctx.lineWidth = Math.max(1.6, r * 0.075);
+          ctx.stroke();
+        } else if (mode === "planck") {
+          const gridN = 4;
+          const box = r * 1.05 * scale;
+          const step = box / gridN;
+          const start = -box / 2;
+
+          ctx.strokeStyle = "rgba(31, 45, 82, 0.65)";
+          ctx.lineWidth = Math.max(0.9, r * 0.04);
+          for (let gx = 0; gx <= gridN; gx++) {
+            const warp = Math.sin(t * 2.5 + gx) * r * 0.04;
+            ctx.beginPath();
+            ctx.moveTo(start + gx * step, start + warp);
+            ctx.lineTo(start + gx * step, start + box - warp);
+            ctx.stroke();
+          }
+          for (let gy = 0; gy <= gridN; gy++) {
+            const warp = Math.cos(t * 2.5 + gy) * r * 0.04;
+            ctx.beginPath();
+            ctx.moveTo(start + warp, start + gy * step);
+            ctx.lineTo(start + box - warp, start + gy * step);
+            ctx.stroke();
+          }
+
+          ctx.beginPath();
+          ctx.arc(0, 0, r * 0.18 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = "#c8922a";
+          ctx.fill();
+          ctx.strokeStyle = "#8b1e24";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+
+      function drawMouseCharacter(ctx, x, y, angle, baseSize, wiggle, isSubatomic) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        const s = baseSize;
+
+        if (isSubatomic) {
+          ctx.beginPath();
+          ctx.arc(0, 0, s * 1.45, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(200, 146, 42, 0.16)";
+          ctx.fill();
+          ctx.strokeStyle = "rgba(31, 45, 82, 0.55)";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 2]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.75, 0);
+        const tailWave = Math.sin(wiggle * 6) * s * 0.35;
+        ctx.bezierCurveTo(-s * 1.35, tailWave, -s * 1.65, -tailWave, -s * 2.05, tailWave * 0.6);
+        ctx.strokeStyle = "#d88c94";
+        ctx.lineWidth = Math.max(1.6, s * 0.14);
+        ctx.lineCap = "round";
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.ellipse(-s * 0.05, 0, s * 0.85, s * 0.56, 0, 0, Math.PI * 2);
+        ctx.fillStyle = "#4a4341";
+        ctx.fill();
+        ctx.lineWidth = Math.max(1.2, s * 0.1);
+        ctx.strokeStyle = "#1c1514";
+        ctx.stroke();
+
+        [-1, 1].forEach(side => {
+          ctx.beginPath();
+          ctx.arc(s * 0.32, side * s * 0.48, s * 0.31, 0, Math.PI * 2);
+          ctx.fillStyle = "#5c5350";
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(s * 0.35, side * s * 0.48, s * 0.18, 0, Math.PI * 2);
+          ctx.fillStyle = "#e8a5ad";
+          ctx.fill();
+        });
+
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(s * 0.56, -s * 0.2, s * 0.13, 0, Math.PI * 2);
+        ctx.arc(s * 0.56, s * 0.2, s * 0.13, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#111111";
+        ctx.beginPath();
+        ctx.arc(s * 0.6, -s * 0.2, s * 0.07, 0, Math.PI * 2);
+        ctx.arc(s * 0.6, s * 0.2, s * 0.07, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(s * 0.88, 0, s * 0.14, 0, Math.PI * 2);
+        ctx.fillStyle = "#e07a86";
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      let lastTs = 0;
+      function render(ts) {
+        const dt = Math.min(0.05, (ts - lastTs) / 1000 || 0.016);
+        lastTs = ts;
+
+        if (state.autoPlaying) {
+          state.autoTimer += dt;
+          if (state.autoTimer >= 0.65) {
+            state.autoTimer = 0;
+            if (state.step < MAX_STEP) {
+              setStep(state.step + 1);
+            } else {
+              state.autoPlaying = false;
+              document.getElementById("btnAutoCascade").textContent = "Auto-splits (0 → 36)";
+            }
+          }
+        }
+
+        // Afspelen van vervalwet-tijdregelaar
+        if (state.decayLaw.playingTime) {
+          state.decayLaw.halfLivesElapsed += dt * 0.85;
+          if (state.decayLaw.halfLivesElapsed > 10) {
+            state.decayLaw.halfLivesElapsed = 0;
+          }
+          document.getElementById("decayTimeSlider").value = state.decayLaw.halfLivesElapsed.toFixed(2);
+          updateDecayLawUI();
+          updateUI();
+        }
+
+        if (state.decayAnim.active) {
+          state.decayAnim.progress += dt / 4.0;
+          const switchPoint = state.decayAnim.mode === "ec" ? 0.45 : 0.35;
+
+          if (!state.decayAnim.converted && state.decayAnim.progress >= switchPoint) {
+            state.decayAnim.converted = true;
+            const idx = state.decayAnim.quarkIndex;
+            const logEl = document.getElementById("decayLog");
+
+            if (state.decayAnim.mode === "beta_minus") {
+              state.hadron.quarks[idx].flavor = "u";
+              state.hadron.presetId = "proton";
+              logEl.innerHTML =
+                `<strong>β⁻ Fase 2/3:</strong> Quark ${idx + 1} is veranderd in <strong>u (+2/3 e)</strong> (kleur <strong>${state.decayAnim.colorCode}</strong>); <strong>W⁻ (−1 e)</strong> zendt <strong>e⁻ + ν̄ₑ</strong> uit.`;
+            } else if (state.decayAnim.mode === "beta_plus") {
+              state.hadron.quarks[idx].flavor = "d";
+              state.hadron.presetId = "neutron";
+              logEl.innerHTML =
+                `<strong>β⁺ Fase 2/3:</strong> Quark ${idx + 1} is veranderd in <strong>d (−1/3 e)</strong> (kleur <strong>${state.decayAnim.colorCode}</strong>); <strong>W⁺ (+1 e)</strong> vervalt in <strong>e⁺ + νₑ</strong>.`;
+            } else {
+              state.hadron.quarks[idx].flavor = "d";
+              state.hadron.presetId = "neutron";
+              logEl.innerHTML =
+                `<strong>Elektronvangst Fase 2/3:</strong> K-schil <strong>e⁻</strong> ingevangen via <strong>W⁺</strong>; Quark ${idx + 1} is nu <strong>d (−1/3 e)</strong>, <strong>νₑ + γ</strong> ontsnappen.`;
+            }
+
+            updatePresetButtons();
+            renderQuarkInspectorUI();
+            updateUI();
+          }
+
+          renderFeynmanDiagram();
+
+          if (state.decayAnim.progress >= 1) {
+            const finishedMode = state.decayAnim.mode;
+            const srcName = state.decayAnim.sourceName;
+            state.decayAnim.active = false;
+            state.decayAnim.progress = 0;
+            const finalInfo = analyzeHadron();
+            const logEl = document.getElementById("decayLog");
+
+            if (finishedMode === "beta_minus") {
+              logEl.innerHTML =
+                `<strong>β⁻ voltooid:</strong> ${srcName} → <strong>${finalInfo.name}</strong> + <strong>e⁻</strong> + <strong>ν̄ₑ</strong> · Vrijgekomen energie <strong>Q = 0,782 MeV</strong>.`;
+            } else if (finishedMode === "beta_plus") {
+              logEl.innerHTML =
+                `<strong>β⁺ voltooid:</strong> ${srcName} → <strong>${finalInfo.name}</strong> + <strong>e⁺</strong> + <strong>νₑ</strong> · Drempel <strong>2mₑc² = 1,022 MeV</strong>.`;
+            } else {
+              logEl.innerHTML =
+                `<strong>Elektronvangst voltooid:</strong> ${srcName} + <strong>e⁻ (K)</strong> → <strong>${finalInfo.name}</strong> + <strong>νₑ</strong> + <strong>γ</strong>.`;
+            }
+
+            renderQuarkInspectorUI();
+            updateUI();
+          }
+        }
+
+        const rect = canvasWrap.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const tw = Math.round(rect.width * dpr);
+        const th = Math.round(rect.height * dpr);
+        if (canvas.width !== tw || canvas.height !== th) {
+          canvas.width = tw;
+          canvas.height = th;
+          buildEntities(state.step);
+          renderFeynmanDiagram();
+          renderDecayCurve();
+        }
+
+        state.mouse.wiggle += dt * 3.2;
+        const dx = state.mouse.targetX - state.mouse.x;
+        const dy = state.mouse.targetY - state.mouse.y;
+        if (Math.hypot(dx, dy) > 0.2) {
+          state.mouse.x += dx * Math.min(1, dt * 10);
+          state.mouse.y += dy * Math.min(1, dt * 10);
+          state.mouse.angle = Math.atan2(dy, dx);
+        }
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+
+        ctx.fillStyle = state.step === 36 ? "#e6e2d6" : "#efe8d8";
+        ctx.fillRect(0, 0, rect.width, rect.height);
+
+        ctx.translate(state.panX, state.panY);
+        ctx.scale(state.zoom, state.zoom);
+
+        const regimeMode = REGIMES[state.step].mode;
+        const isMicro = !["macro0", "macro1", "macro2", "sub"].includes(regimeMode);
+
+        for (let i = 0; i < state.entities.length; i++) {
+          const ent = state.entities[i];
+          const r = ent.r;
+
+          if (isMicro) {
+            drawMicroEntity(ctx, ent, regimeMode, state.mouse.wiggle);
+            continue;
+          }
+
+          if (ent.fill >= 1) {
+            ctx.beginPath();
+            ctx.arc(ent.x, ent.y, r, 0, Math.PI * 2);
+            ctx.fillStyle = ent.isLast ? "#c8922a" : "#8b1e24";
+            ctx.fill();
+
+            if (state.showGrid24 && r * state.zoom >= 7) {
+              ctx.strokeStyle = "rgba(255, 250, 242, 0.35)";
+              ctx.lineWidth = 0.7 / state.zoom;
+              for (let s = 0; s < 24; s++) {
+                const a = -Math.PI / 2 + (s / 24) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(ent.x, ent.y);
+                ctx.lineTo(ent.x + Math.cos(a) * r, ent.y + Math.sin(a) * r);
+                ctx.stroke();
+              }
+            }
+          } else {
+            ctx.beginPath();
+            ctx.arc(ent.x, ent.y, r, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(180, 165, 140, 0.22)";
+            ctx.fill();
+            ctx.strokeStyle = "#8b1e24";
+            ctx.lineWidth = 1.1 / state.zoom;
+            ctx.stroke();
+
+            if (ent.fill > 0) {
+              const endAng = -Math.PI / 2 + ent.fill * Math.PI * 2;
+              ctx.beginPath();
+              ctx.moveTo(ent.x, ent.y);
+              ctx.arc(ent.x, ent.y, r, -Math.PI / 2, endAng);
+              ctx.closePath();
+              ctx.fillStyle = "#c8922a";
+              ctx.fill();
+            }
+          }
+
+          if (state.showGrid24 && state.step === 0 && ent.id % 24 === 0) {
+            ctx.beginPath();
+            ctx.moveTo(ent.x + r * 1.18, ent.y - r * 1.2);
+            ctx.lineTo(ent.x + r * 1.18, ent.y + r * 1.2);
+            ctx.strokeStyle = "#1e1615";
+            ctx.lineWidth = 1.5 / state.zoom;
+            ctx.stroke();
+          }
+        }
+
+        if (state.showMouse) {
+          const mouseSize = Math.max(9 / state.zoom, state.step >= 2 ? 15 : 9);
+          drawMouseCharacter(ctx, state.mouse.x, state.mouse.y, state.mouse.angle, mouseSize, state.mouse.wiggle, state.step >= 18);
+        }
+
+        ctx.restore();
+        requestAnimationFrame(render);
+      }
+
+      // Event listeners voor Vervalwet N(t)
+      document.getElementById("decayTimeSlider").addEventListener("input", e => {
+        state.decayLaw.playingTime = false;
+        document.getElementById("btnPlayDecayTime").textContent = "▶ Tijd";
+        state.decayLaw.halfLivesElapsed = parseFloat(e.target.value);
+        updateDecayLawUI();
+        updateUI();
+      });
+
+      document.querySelectorAll(".hl-chip").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.decayLaw.playingTime = false;
+          document.getElementById("btnPlayDecayTime").textContent = "▶ Tijd";
+          const val = parseFloat(btn.dataset.hl);
+          state.decayLaw.halfLivesElapsed = val;
+          document.getElementById("decayTimeSlider").value = val;
+          updateDecayLawUI();
+          updateUI();
+        });
+      });
+
+      document.getElementById("btnPlayDecayTime").addEventListener("click", e => {
+        state.decayLaw.playingTime = !state.decayLaw.playingTime;
+        e.target.textContent = state.decayLaw.playingTime ? "❚❚ Pauze" : "▶ Tijd";
+      });
+
+      document.getElementById("btnN0Avogadro").addEventListener("click", () => {
+        state.decayLaw.n0Mode = "avogadro";
+        updateDecayLawUI();
+        updateUI();
+      });
+
+      document.getElementById("btnN06179").addEventListener("click", () => {
+        state.decayLaw.n0Mode = "6179";
+        updateDecayLawUI();
+        updateUI();
+      });
+
+      // Isotoop-knoppen
+      document.getElementById("isoC14").addEventListener("click", () => applyIsotopeExample("C14"));
+      document.getElementById("isoNa22").addEventListener("click", () => applyIsotopeExample("Na22"));
+      document.getElementById("isoK40").addEventListener("click", () => applyIsotopeExample("K40"));
+      document.getElementById("isoBe7").addEventListener("click", () => applyIsotopeExample("Be7"));
+
+      // Hadron preset & zwakke interactie knoppen
+      document.getElementById("presetNeutron").addEventListener("click", () => {
+        state.feynmanMode = "beta_minus";
+        applyHadronPreset("neutron");
+      });
+      document.getElementById("presetProton").addEventListener("click", () => {
+        state.feynmanMode = "beta_plus";
+        applyHadronPreset("proton");
+      });
+      document.getElementById("presetPion").addEventListener("click", () => {
+        applyHadronPreset("pion");
+      });
+
+      document.getElementById("btnBetaMinus").addEventListener("click", () => triggerWeakProcess("beta_minus"));
+      document.getElementById("btnBetaPlus").addEventListener("click", () => triggerWeakProcess("beta_plus"));
+      document.getElementById("btnElectronCapture").addEventListener("click", () => triggerWeakProcess("ec"));
+
+      document.getElementById("btnRotateColors").addEventListener("click", () => {
+        if (state.decayAnim.active) return;
+        const cycle = { R: "G", G: "B", B: "R", Rbar: "Gbar", Gbar: "Bbar", Bbar: "Rbar" };
+        state.hadron.quarks.forEach(q => {
+          q.color = cycle[q.color] || q.color;
+        });
+        renderQuarkInspectorUI();
+        updateUI();
+      });
+
+      // Navigatie & Zoom knoppen
+      document.getElementById("btnSplitNext").addEventListener("click", () => {
+        state.autoPlaying = false;
+        document.getElementById("btnAutoCascade").textContent = "Auto-splits (0 → 36)";
+        setStep(state.step + 1);
+      });
+
+      document.getElementById("btnSplitPrev").addEventListener("click", () => {
+        state.autoPlaying = false;
+        document.getElementById("btnAutoCascade").textContent = "Auto-splits (0 → 36)";
+        setStep(state.step - 1);
+      });
+
+      document.getElementById("btnJump0").addEventListener("click", () => { state.autoPlaying = false; setStep(0); });
+      document.getElementById("btnJump17").addEventListener("click", () => { state.autoPlaying = false; setStep(17); });
+      document.getElementById("btnJump21").addEventListener("click", () => { state.autoPlaying = false; setStep(21); });
+      document.getElementById("btnJump23").addEventListener("click", () => { state.autoPlaying = false; setStep(23); });
+      document.getElementById("btnJump36").addEventListener("click", () => { state.autoPlaying = false; setStep(36); });
+
+      document.getElementById("btnAutoCascade").addEventListener("click", e => {
+        if (state.step >= MAX_STEP) setStep(0);
+        state.autoPlaying = !state.autoPlaying;
+        state.autoTimer = 0;
+        e.target.textContent = state.autoPlaying ? "Pauzeren" : "Auto-splits (0 → 36)";
+      });
+
+      document.getElementById("chkShowGrid24").addEventListener("change", e => {
+        state.showGrid24 = e.target.checked;
+      });
+
+      document.getElementById("chkMouseVisible").addEventListener("change", e => {
+        state.showMouse = e.target.checked;
+      });
+
+      document.getElementById("btnZoomIn").addEventListener("click", () => {
+        state.zoom = Math.min(20, state.zoom * 1.25);
+        zoomLabel.textContent = `${Math.round(state.zoom * 100)}%`;
+      });
+
+      document.getElementById("btnZoomOut").addEventListener("click", () => {
+        state.zoom = Math.max(0.6, state.zoom / 1.25);
+        zoomLabel.textContent = `${Math.round(state.zoom * 100)}%`;
+      });
+
+      document.getElementById("btnResetView").addEventListener("click", () => {
+        state.zoom = 1;
+        state.panX = 0;
+        state.panY = 0;
+        zoomLabel.textContent = "100%";
+      });
+
+      canvasWrap.addEventListener("wheel", e => {
+        e.preventDefault();
+        const rect = canvasWrap.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.18 : 1 / 1.18;
+        const newZoom = Math.min(20, Math.max(0.6, state.zoom * factor));
+        state.panX = mx - ((mx - state.panX) / state.zoom) * newZoom;
+        state.panY = my - ((my - state.panY) / state.zoom) * newZoom;
+        state.zoom = newZoom;
+        zoomLabel.textContent = `${Math.round(state.zoom * 100)}%`;
+      }, { passive: false });
+
+      canvasWrap.addEventListener("mousedown", e => {
+        state.isDragging = true;
+        state.dragMoved = false;
+        state.dragStartX = e.clientX - state.panX;
+        state.dragStartY = e.clientY - state.panY;
+      });
+
+      window.addEventListener("mousemove", e => {
+        const rect = canvasWrap.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+
+        if (state.isDragging) {
+          const nx = e.clientX - state.dragStartX;
+          const ny = e.clientY - state.dragStartY;
+          if (Math.hypot(nx - state.panX, ny - state.panY) > 4) state.dragMoved = true;
+          state.panX = nx;
+          state.panY = ny;
+        }
+
+        if (sx >= 0 && sy >= 0 && sx <= rect.width && sy <= rect.height) {
+          const wx = (sx - state.panX) / state.zoom;
+          const wy = (sy - state.panY) / state.zoom;
+          let found = null;
+          for (let i = 0; i < state.entities.length; i++) {
+            const ent = state.entities[i];
+            if (Math.hypot(wx - ent.x, wy - ent.y) <= ent.r * 1.15) {
+              found = ent;
+              break;
+            }
+          }
+          if (found) {
+            hoverCoords.textContent = `Hover: ${found.title}`;
+            hoverTooltip.style.display = "block";
+            hoverTooltip.style.left = `${Math.min(rect.width - 270, sx + 14)}px`;
+            hoverTooltip.style.top = `${Math.max(8, sy - 46)}px`;
+            hoverTooltip.innerHTML = `<strong>${found.title}</strong><br/>${found.detail}`;
+          } else {
+            hoverCoords.textContent = "Hover: —";
+            hoverTooltip.style.display = "none";
+          }
+        } else {
+          hoverTooltip.style.display = "none";
+        }
+      });
+
+      window.addEventListener("mouseup", e => {
+        if (!state.isDragging) return;
+        const wasDrag = state.dragMoved;
+        state.isDragging = false;
+        if (!wasDrag) {
+          const rect = canvasWrap.getBoundingClientRect();
+          const sx = e.clientX - rect.left;
+          const sy = e.clientY - rect.top;
+          if (sx >= 0 && sy >= 0 && sx <= rect.width && sy <= rect.height) {
+            const wx = (sx - state.panX) / state.zoom;
+            const wy = (sy - state.panY) / state.zoom;
+
+            if (state.showMouse && Math.hypot(wx - state.mouse.x, wy - state.mouse.y) <= 24 / state.zoom) {
+              setStep(state.step < MAX_STEP ? state.step + 1 : 0);
+              return;
+            }
+
+            for (let i = 0; i < state.entities.length; i++) {
+              const ent = state.entities[i];
+              if (Math.hypot(wx - ent.x, wy - ent.y) <= ent.r * 1.15) {
+                state.mouse.targetX = ent.x;
+                state.mouse.targetY = ent.y;
+                break;
+              }
+            }
+          }
+        }
+      });
+
+      document.getElementById("btnExportCsv").addEventListener("click", () => {
+        const m = computeDecayLawMetrics();
+        const rows = [
+          ["isotoop", "halfwaardetijd_T1_2", "eenheid", "t_in_T1_2", "N0", "overgebleven_N_t", "vervallen_D_t", "uitgezonden_neutrinos", "activiteit_Bq"].join(";"),
+          [
+            m.iso.id,
+            String(m.iso.halfLifeValue).replace(".", ","),
+            m.iso.halfLifeUnit,
+            String(m.hl).replace(".", ","),
+            m.n0.toExponential(6).replace(".", ","),
+            m.remaining.toExponential(6).replace(".", ","),
+            m.decayed.toExponential(6).replace(".", ","),
+            m.neutrinosTotal.toExponential(6).replace(".", ","),
+            m.activityBq.toExponential(6).replace(".", ",")
+          ].join(";")
+        ];
+        const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `vervalwet_${m.iso.id}_N_t_neutrinos.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Initialisatie
+      buildLadderUI();
+      renderQuarkInspectorUI();
+      setStep(23);
+      requestAnimationFrame(render);
+    })();
+  </script>
+</body>
+</html>
