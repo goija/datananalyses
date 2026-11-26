@@ -1,0 +1,2636 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camer van Rhetorica — Zeeuwse Rederijkers &amp; Kroniek-Archief (fotos.json)</title>
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS — Crisp Wit, Perkament, Zeeuws Meekrab-rood & Antiek Goud
+       ========================================================================== */
+    :root {
+      --bg-page: #FAF8F5;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F5EFE7;
+      --bg-tint: #FDF6F6;
+
+      --meekrab: #8B1E24;
+      --meekrab-hover: #A3262C;
+      --meekrab-dark: #681318;
+      --meekrab-soft: #F7E8E9;
+      --meekrab-ring: rgba(139, 30, 36, 0.22);
+
+      --gold: #B88A44;
+      --gold-soft: #F5ECD9;
+      --gold-border: rgba(184, 138, 68, 0.45);
+
+      --ink: #1E1A1A;
+      --ink-muted: #5C504F;
+      --ink-light: #7E706E;
+
+      --border: #E5DCD4;
+      --border-strong: #D3C5B8;
+
+      --ok-bg: #EDF7F0;
+      --ok-text: #1B5E32;
+      --ok-border: #B7DFC5;
+
+      --err-bg: #FDF0F0;
+      --err-text: #8B1E24;
+      --err-border: #E5B4B7;
+
+      --radius-card: 12px;
+      --radius-btn: 8px;
+      --radius-pill: 999px;
+
+      --shadow-sm: 0 2px 8px rgba(30, 26, 26, 0.05);
+      --shadow-md: 0 8px 24px rgba(30, 26, 26, 0.09);
+      --shadow-lg: 0 18px 48px rgba(30, 26, 26, 0.22);
+
+      --font-serif: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    /* ==========================================================================
+       BASIS & RESET
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-page);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, textarea, select {
+      font-family: inherit;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* ==========================================================================
+       PAGINA-STRUCTUUR & HEADER MET RUITVORMIG BLAZOEN
+       ========================================================================== */
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 3rem;
+    }
+
+    .masthead {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--meekrab);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .masthead::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0.7;
+    }
+
+    .masthead-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    @media (max-width: 760px) {
+      .masthead-grid {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+      }
+    }
+
+    .blazoen-wrap {
+      width: 158px;
+      height: 158px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 6px 14px rgba(104, 19, 24, 0.18));
+    }
+
+    .blazoen-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .eyebrow-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 0.55rem;
+    }
+
+    @media (max-width: 760px) {
+      .eyebrow-row {
+        justify-content: center;
+      }
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.22rem 0.7rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      border: 1px solid var(--gold-border);
+      background: var(--bg-page);
+      color: var(--meekrab);
+    }
+
+    .pill--solid {
+      background: var(--meekrab);
+      border-color: var(--meekrab);
+      color: #FFFFFF;
+    }
+
+    .masthead-title {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: clamp(1.55rem, 2.8vw, 2.25rem);
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .masthead-sub {
+      margin: 0.4rem 0 0.7rem;
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      color: var(--ink-muted);
+    }
+
+    .randschrift-bar {
+      display: inline-block;
+      padding: 0.4rem 0.85rem;
+      background: var(--bg-page);
+      border: 1px solid var(--gold-border);
+      border-left: 3px solid var(--gold);
+      border-radius: 6px;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 0.88rem;
+      color: var(--meekrab-dark);
+    }
+
+    /* ==========================================================================
+       NAVIGATIE-TABS (4 TABS)
+       ========================================================================== */
+    .tab-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 0.5rem;
+      margin-bottom: 1.35rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-btn {
+      flex: 1 1 200px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.72rem 1rem;
+      border: 1px solid transparent;
+      border-radius: var(--radius-btn);
+      background: transparent;
+      color: var(--ink-muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      text-align: center;
+    }
+
+    .tab-btn:hover {
+      background: var(--bg-page);
+      color: var(--meekrab);
+      border-color: var(--border);
+    }
+
+    .tab-btn.is-active {
+      background: var(--meekrab);
+      color: #FFFFFF;
+      border-color: var(--meekrab-dark);
+      box-shadow: 0 2px 8px rgba(139, 30, 36, 0.22);
+    }
+
+    .tab-num {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      opacity: 0.85;
+      padding: 0.1rem 0.38rem;
+      border-radius: 4px;
+      background: rgba(139, 30, 36, 0.1);
+    }
+
+    .tab-btn.is-active .tab-num {
+      background: rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.is-active {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       ALGEMENE KAARTEN, KNOPPEN & FORMULIERELEMENTEN
+       ========================================================================== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 1.35rem;
+    }
+
+    .section-heading {
+      margin: 0 0 0.45rem;
+      font-family: var(--font-serif);
+      font-size: 1.45rem;
+      color: var(--ink);
+    }
+
+    .section-lead {
+      margin: 0 0 1.2rem;
+      color: var(--ink-muted);
+      font-size: 0.94rem;
+    }
+
+    .ornament-rule {
+      border: 0;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold), var(--border) 60%, transparent);
+      margin: 1.15rem 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius-btn);
+      border: 1px solid var(--border-strong);
+      background: var(--bg-card);
+      color: var(--ink);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: var(--meekrab);
+      color: var(--meekrab);
+      background: var(--bg-tint);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn--primary {
+      background: var(--meekrab);
+      border-color: var(--meekrab-dark);
+      color: #FFFFFF;
+    }
+
+    .btn--primary:hover:not(:disabled) {
+      background: var(--meekrab-hover);
+      border-color: var(--meekrab-dark);
+      color: #FFFFFF;
+    }
+
+    .btn--gold {
+      background: var(--gold-soft);
+      border-color: var(--gold);
+      color: #6B4B16;
+    }
+
+    .btn--gold:hover:not(:disabled) {
+      background: #EFE0C0;
+      color: #4E360E;
+    }
+
+    .btn--danger {
+      background: var(--err-bg);
+      border-color: var(--err-border);
+      color: var(--meekrab-dark);
+    }
+
+    .btn--danger:hover:not(:disabled) {
+      background: var(--meekrab);
+      border-color: var(--meekrab-dark);
+      color: #FFFFFF;
+    }
+
+    .btn--sm {
+      padding: 0.42rem 0.72rem;
+      font-size: 0.8rem;
+    }
+
+    /* ==========================================================================
+       TAB 1: KRONIEK & JSON-GALERIJ
+       ========================================================================== */
+    .toolbar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .toolbar-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-box {
+      flex: 1 1 280px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.65rem 0.9rem 0.65rem 2.35rem;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-btn);
+      font-size: 0.9rem;
+      background: var(--bg-page);
+      color: var(--ink);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--meekrab);
+      background: #FFFFFF;
+      box-shadow: 0 0 0 3px var(--meekrab-ring);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--ink-light);
+      pointer-events: none;
+    }
+
+    .counter-badge {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--meekrab);
+      background: var(--meekrab-soft);
+      border: 1px solid var(--err-border);
+      padding: 0.42rem 0.8rem;
+      border-radius: var(--radius-pill);
+      white-space: nowrap;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .filter-btn {
+      padding: 0.38rem 0.8rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-strong);
+      background: var(--bg-page);
+      color: var(--ink-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--meekrab);
+      color: var(--meekrab);
+    }
+
+    .filter-btn.is-active {
+      background: var(--meekrab);
+      border-color: var(--meekrab-dark);
+      color: #FFFFFF;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.15rem;
+    }
+
+    @media (max-width: 400px) {
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .item-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .item-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--gold);
+    }
+
+    .item-card:focus-visible {
+      outline: 3px solid var(--meekrab);
+      outline-offset: 2px;
+    }
+
+    .item-media {
+      position: relative;
+      height: 170px;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .item-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .item-media-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: linear-gradient(145deg, #FAF8F5 0%, #F4EAE3 100%);
+      color: var(--meekrab);
+      text-align: center;
+    }
+
+    .item-media-fallback svg {
+      width: 68px;
+      height: 68px;
+      margin-bottom: 0.4rem;
+    }
+
+    .item-cat-tag {
+      position: absolute;
+      top: 0.7rem;
+      right: 0.7rem;
+      background: rgba(139, 30, 36, 0.92);
+      color: #FFFFFF;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      padding: 0.22rem 0.62rem;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .item-body {
+      padding: 1.05rem 1.15rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .item-title {
+      margin: 0 0 0.4rem;
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      line-height: 1.3;
+      color: var(--ink);
+    }
+
+    .item-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.75rem;
+      font-size: 0.78rem;
+      color: var(--ink-light);
+      margin-bottom: 0.65rem;
+    }
+
+    .item-file {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--meekrab-dark);
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      padding: 0.14rem 0.45rem;
+      border-radius: 4px;
+      margin-bottom: 0.7rem;
+      word-break: break-all;
+      align-self: flex-start;
+    }
+
+    .item-preview {
+      margin: 0 0 1rem;
+      font-family: var(--font-serif);
+      font-size: 0.9rem;
+      color: var(--ink-muted);
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .item-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--meekrab);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-card);
+      color: var(--ink-muted);
+    }
+
+    /* ==========================================================================
+       LEES-MODAL (VOLLEDIG VERHAAL UIT TAB 1)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 26, 26, 0.58);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1000;
+    }
+
+    .modal-backdrop.is-open {
+      display: flex;
+    }
+
+    .modal-dialog {
+      background: var(--bg-card);
+      border: 1px solid var(--gold-border);
+      border-top: 4px solid var(--meekrab);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 820px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 1.1rem 1.4rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-page);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 1.45rem;
+      color: var(--ink);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.45rem;
+      flex-shrink: 0;
+    }
+
+    .modal-body {
+      padding: 1.5rem 1.65rem 2rem;
+      overflow-y: auto;
+    }
+
+    .modal-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.65rem;
+      padding: 0.85rem 1rem;
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 1.35rem;
+      font-size: 0.8rem;
+    }
+
+    .meta-kv-label {
+      display: block;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-light);
+      font-weight: 700;
+      margin-bottom: 0.15rem;
+    }
+
+    .meta-kv-val {
+      font-family: var(--font-mono);
+      color: var(--ink);
+      word-break: break-word;
+    }
+
+    .story-prose {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      line-height: 1.78;
+      color: var(--ink);
+    }
+
+    .story-prose p {
+      margin: 0 0 1.05rem;
+    }
+
+    .story-prose p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ==========================================================================
+       TAB 2: REDERIJKERS VAN THOLEN (1440–1680)
+       ========================================================================== */
+    .history-intro {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.35rem;
+    }
+
+    @media (max-width: 860px) {
+      .history-intro {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .quote-box {
+      background: var(--bg-page);
+      border: 1px solid var(--gold-border);
+      border-left: 4px solid var(--meekrab);
+      border-radius: 8px;
+      padding: 1.1rem 1.2rem;
+      font-family: var(--font-serif);
+    }
+
+    .quote-box blockquote {
+      margin: 0 0 0.5rem;
+      font-style: italic;
+      font-size: 1.02rem;
+      color: var(--meekrab-dark);
+    }
+
+    .quote-box cite {
+      font-style: normal;
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      font-family: var(--font-sans);
+    }
+
+    .kamers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.35rem;
+    }
+
+    .kamer-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--gold);
+      border-radius: var(--radius-card);
+      padding: 1.15rem 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kamer-card--featured {
+      border-top-color: var(--meekrab);
+      background: linear-gradient(180deg, #FFFDFC 0%, #FFFFFF 100%);
+    }
+
+    .kamer-year {
+      display: inline-block;
+      align-self: flex-start;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 4px;
+      background: var(--meekrab-soft);
+      color: var(--meekrab);
+      margin-bottom: 0.5rem;
+    }
+
+    .kamer-card h3 {
+      margin: 0 0 0.45rem;
+      font-family: var(--font-serif);
+      font-size: 1.18rem;
+      color: var(--ink);
+    }
+
+    .kamer-card p {
+      margin: 0 0 0.65rem;
+      font-size: 0.9rem;
+      color: var(--ink-muted);
+      flex: 1;
+    }
+
+    .kamer-status {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding-top: 0.55rem;
+      border-top: 1px dashed var(--border);
+      color: var(--ink-light);
+    }
+
+    .iconografie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .icon-box {
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+    }
+
+    .icon-box h4 {
+      margin: 0 0 0.4rem;
+      font-family: var(--font-serif);
+      font-size: 1.02rem;
+      color: var(--meekrab);
+    }
+
+    .icon-box p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--ink-muted);
+    }
+
+    /* ==========================================================================
+       TAB 3: HEDENDAAGS SINNESPEL (DE ONZICHTBARE BOEDELNOTARIS)
+       ========================================================================== */
+    .sinnespel-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.9fr);
+      gap: 1.35rem;
+      align-items: start;
+    }
+
+    @media (max-width: 940px) {
+      .sinnespel-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .book-sheet {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: clamp(1.3rem, 3vw, 2.5rem);
+      position: relative;
+    }
+
+    .book-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      margin-bottom: 1.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .size-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .size-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--ink-light);
+      margin-right: 0.25rem;
+    }
+
+    .size-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-page);
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    .size-btn.is-active {
+      background: var(--meekrab);
+      border-color: var(--meekrab-dark);
+      color: #FFFFFF;
+    }
+
+    .book-header {
+      text-align: center;
+      margin-bottom: 1.65rem;
+    }
+
+    .book-kicker {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.35rem;
+    }
+
+    .book-title {
+      margin: 0 0 0.35rem;
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      color: var(--meekrab-dark);
+    }
+
+    .book-subtitle {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-style: italic;
+      color: var(--ink-muted);
+      font-size: 0.96rem;
+    }
+
+    .book-prose {
+      font-family: var(--font-serif);
+      line-height: 1.85;
+      color: var(--ink);
+      text-align: justify;
+      hyphens: auto;
+    }
+
+    .book-prose.size-s { font-size: 0.95rem; }
+    .book-prose.size-m { font-size: 1.08rem; }
+    .book-prose.size-l { font-size: 1.24rem; }
+
+    .book-prose p {
+      margin: 0 0 1.15rem;
+    }
+
+    .book-prose p:first-of-type::first-letter {
+      float: left;
+      font-size: 3.6em;
+      line-height: 0.82;
+      padding: 0.08em 0.14em 0 0;
+      font-weight: 700;
+      color: var(--meekrab);
+      font-family: var(--font-serif);
+    }
+
+    .book-quote {
+      margin: 1.35rem 0;
+      padding: 0.9rem 1.25rem;
+      background: var(--bg-page);
+      border-left: 3px solid var(--gold);
+      font-style: italic;
+      color: var(--meekrab-dark);
+    }
+
+    .allegorie-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--meekrab);
+      border-radius: var(--radius-card);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .allegorie-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      margin-top: 0.9rem;
+    }
+
+    .allegorie-item {
+      padding: 0.8rem 0.95rem;
+      border-radius: 8px;
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+    }
+
+    .allegorie-name {
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: var(--ink);
+    }
+
+    .allegorie-role {
+      display: inline-block;
+      margin-top: 0.15rem;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--meekrab);
+    }
+
+    .allegorie-desc {
+      margin: 0.35rem 0 0;
+      font-size: 0.84rem;
+      color: var(--ink-muted);
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       TAB 4: JSON-WERKBANK (fotos.json)
+       ========================================================================== */
+    .workbench-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .workbench-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .wb-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .confirm-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      padding: 0.75rem 0.95rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      background: var(--err-bg);
+      border: 1px solid var(--err-border);
+      color: var(--meekrab-dark);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .confirm-banner.is-visible {
+      display: flex;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 540px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .field--full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--ink-muted);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 0.58rem 0.75rem;
+      border: 1px solid var(--border-strong);
+      border-radius: 7px;
+      font-size: 0.88rem;
+      background: #FFFFFF;
+      color: var(--ink);
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--meekrab);
+      box-shadow: 0 0 0 3px var(--meekrab-ring);
+    }
+
+    .field textarea {
+      min-height: 150px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .json-status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.55rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .json-status-bar.is-valid {
+      background: var(--ok-bg);
+      color: var(--ok-text);
+      border: 1px solid var(--ok-border);
+    }
+
+    .json-status-bar.is-invalid {
+      background: var(--err-bg);
+      color: var(--err-text);
+      border: 1px solid var(--err-border);
+    }
+
+    .json-editor {
+      width: 100%;
+      min-height: 440px;
+      padding: 0.9rem;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.79rem;
+      line-height: 1.5;
+      background: #FCFBF9;
+      color: var(--ink);
+      resize: vertical;
+    }
+
+    .json-editor:focus {
+      outline: none;
+      border-color: var(--meekrab);
+      background: #FFFFFF;
+      box-shadow: 0 0 0 3px var(--meekrab-ring);
+    }
+
+    /* ==========================================================================
+       TOAST MELDING (VERVANGT ALERT)
+       ========================================================================== */
+    .toast {
+      position: fixed;
+      right: 1.25rem;
+      bottom: 1.25rem;
+      background: var(--ink);
+      color: #FFFFFF;
+      padding: 0.75rem 1.15rem;
+      border-radius: 8px;
+      border-left: 4px solid var(--gold);
+      box-shadow: var(--shadow-md);
+      font-size: 0.86rem;
+      font-weight: 600;
+      z-index: 2000;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: all 0.22s ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    .site-footer {
+      margin-top: 2.2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--ink-light);
+    }
+
+    /* ==========================================================================
+       PRINTVRIENDELIJKE STIJLEN (@media print)
+       ========================================================================== */
+    @media print {
+      body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+      }
+
+      .tab-nav,
+      .toolbar,
+      .book-controls,
+      .modal-actions,
+      .site-footer,
+      .toast,
+      .wb-toolbar,
+      .form-actions {
+        display: none !important;
+      }
+
+      .shell {
+        max-width: 100%;
+        padding: 0;
+      }
+
+      .card, .book-sheet, .masthead {
+        box-shadow: none !important;
+        border: none !important;
+      }
+
+      /* Alleen de geopende lees-modal printen wanneer "Print verhaal" is geklikt */
+      body.print-modal-only .shell {
+        display: none !important;
+      }
+
+      body.print-modal-only .modal-backdrop {
+        position: static !important;
+        background: #FFFFFF !important;
+        padding: 0 !important;
+        display: block !important;
+      }
+
+      body.print-modal-only .modal-dialog {
+        max-width: 100% !important;
+        max-height: none !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+
+      body.print-modal-only .modal-body {
+        overflow: visible !important;
+        padding: 1rem 0 !important;
+      }
+
+      /* Bij het printen van het Sinnespel: focus op de boektekst */
+      body.print-sinnespel-only .masthead,
+      body.print-sinnespel-only .allegorie-card {
+        display: none !important;
+      }
+
+      body.print-sinnespel-only .sinnespel-layout {
+        display: block !important;
+      }
+
+      body.print-sinnespel-only .book-sheet {
+        padding: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <!-- ======================================================================
+         HEADER MET RUITVORMIG REDERIJKERSBLAZOEN (INLINE SVG)
+         ====================================================================== -->
+    <header class="masthead">
+      <div class="masthead-grid">
+        <!-- Ruitvormig Blazoen geïnspireerd op Westkerke (ca. 1600) -->
+        <div class="blazoen-wrap" aria-hidden="true">
+          <svg class="blazoen-svg" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="frameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#A3262C" />
+                <stop offset="50%" stop-color="#8B1E24" />
+                <stop offset="100%" stop-color="#5D1014" />
+              </linearGradient>
+              <linearGradient id="parchmentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#FCF9F2" />
+                <stop offset="100%" stop-color="#EFE4D2" />
+              </linearGradient>
+              <!-- Paden langs de vier schuine randen voor het historische randschrift -->
+              <path id="edgeTL" d="M 32,102 L 102,32" />
+              <path id="edgeTR" d="M 118,32 L 188,102" />
+              <path id="edgeBL" d="M 32,118 L 102,188" />
+              <path id="edgeBR" d="M 118,188 L 188,118" />
+            </defs>
+
+            <!-- Buitenste houten/meekrab-rood ruitkader -->
+            <polygon points="110,6 214,110 110,214 6,110" fill="url(#frameGrad)" stroke="#4C0C10" stroke-width="2.5" />
+            <!-- Gouden sierlijn op het kader -->
+            <polygon points="110,13 207,110 110,207 13,110" fill="none" stroke="#B88A44" stroke-width="1.3" opacity="0.85" />
+            <!-- Binnenste perkamenten paneel -->
+            <polygon points="110,33 187,110 110,187 33,110" fill="url(#parchmentGrad)" stroke="#B88A44" stroke-width="1.6" />
+
+            <!-- Historisch randschrift langs de schuine randen -->
+            <text fill="#FAF4E8" font-family="Georgia, serif" font-size="6.3" font-style="italic" letter-spacing="0.25">
+              <textPath href="#edgeTL" startOffset="50%" text-anchor="middle">Sij blijven hem gehecht</textPath>
+            </text>
+            <text fill="#FAF4E8" font-family="Georgia, serif" font-size="6.1" font-style="italic" letter-spacing="0.2">
+              <textPath href="#edgeTR" startOffset="50%" text-anchor="middle">Al sijn sij slecht van daden</textPath>
+            </text>
+            <text fill="#FAF4E8" font-family="Georgia, serif" font-size="6.3" font-style="italic" letter-spacing="0.25">
+              <textPath href="#edgeBL" startOffset="50%" text-anchor="middle">Westkerke • ca. 1600</textPath>
+            </text>
+            <text fill="#FAF4E8" font-family="Georgia, serif" font-size="6.3" font-style="italic" letter-spacing="0.25">
+              <textPath href="#edgeBR" startOffset="50%" text-anchor="middle">[.......] con raden</textPath>
+            </text>
+
+            <!-- Gouden hoekpuntjes op de vier punten van het kader -->
+            <circle cx="110" cy="21" r="2.2" fill="#B88A44" />
+            <circle cx="199" cy="110" r="2.2" fill="#B88A44" />
+            <circle cx="110" cy="199" r="2.2" fill="#B88A44" />
+            <circle cx="21" cy="110" r="2.2" fill="#B88A44" />
+
+            <!-- Gestileerd Zeeuws dijklandschap onderaan in de ruit -->
+            <path d="M 55,132 Q 86,120 110,127 Q 134,134 165,132 L 110,185 Z" fill="#E3D3BE" opacity="0.7" />
+            <path d="M 65,142 Q 110,129 155,142 L 110,185 Z" fill="#C9B296" opacity="0.55" />
+
+            <!-- Herdersstaf (schuin achter de plant) -->
+            <path d="M 79,147 L 134,76 C 141,67 151,74 144,83 C 141,87 137,87 135,84"
+                  fill="none" stroke="#6E4E2E" stroke-width="3.2" stroke-linecap="round" />
+
+            <!-- Gestileerde Meekrapplant (Rubia tinctorum, sterbladigen) met rode bloempjes -->
+            <g stroke="#3F5A36" stroke-width="2" stroke-linecap="round" fill="#4E6E43">
+              <!-- Hoofdstengel -->
+              <line x1="110" y1="156" x2="110" y2="69" stroke-width="2.4" />
+              <!-- Zijtakjes -->
+              <path d="M 110,115 L 93,97" fill="none" />
+              <path d="M 110,108 L 128,92" fill="none" />
+              <!-- Kransvormige sterbladeren (onderste krans) -->
+              <ellipse cx="97" cy="136" rx="11" ry="3.2" transform="rotate(-18 97 136)" />
+              <ellipse cx="123" cy="136" rx="11" ry="3.2" transform="rotate(18 123 136)" />
+              <!-- Middelste bladkrans -->
+              <ellipse cx="95" cy="118" rx="12" ry="3.2" transform="rotate(-24 95 118)" />
+              <ellipse cx="125" cy="118" rx="12" ry="3.2" transform="rotate(24 125 118)" />
+              <!-- Bovenste bladkrans -->
+              <ellipse cx="98" cy="100" rx="9" ry="2.6" transform="rotate(-28 98 100)" />
+              <ellipse cx="122" cy="100" rx="9" ry="2.6" transform="rotate(28 122 100)" />
+            </g>
+
+            <!-- Kleine meekrab-rode bloempjes zoals op het paneel van Westkerke -->
+            <g fill="#A3262C" stroke="#FAF8F5" stroke-width="0.6">
+              <circle cx="110" cy="65" r="4.2" />
+              <circle cx="101" cy="74" r="3.4" />
+              <circle cx="119" cy="74" r="3.4" />
+              <circle cx="91" cy="95" r="3.6" />
+              <circle cx="130" cy="90" r="3.6" />
+              <circle cx="105" cy="83" r="3.0" />
+              <circle cx="116" cy="84" r="3.0" />
+            </g>
+            <!-- Gouden hartjes in de bloempjes -->
+            <g fill="#E5C17A">
+              <circle cx="110" cy="65" r="1.2" />
+              <circle cx="91" cy="95" r="1.1" />
+              <circle cx="130" cy="90" r="1.1" />
+            </g>
+          </svg>
+        </div>
+
+        <div>
+          <div class="eyebrow-row">
+            <span class="pill pill--solid">Camer van Rhetorica</span>
+            <span class="pill">Zeeland &amp; Tholen • 1440–1680</span>
+            <span class="pill">Digitale Tijdcapsule • fotos.json</span>
+          </div>
+          <h1 class="masthead-title">Camer van Rhetorica — Zeeuwse Rederijkers &amp; Kroniek-Archief</h1>
+          <p class="masthead-sub">
+            Zelfstandig archief voor historische Thoolse rederijkerskamers, hedendaagse sinnespel-kronieken en live beheer van <code>fotos.json</code>.
+          </p>
+          <div class="randschrift-bar">
+            “Sij blijven hem gehecht Al sijn sij slecht van daden [.......] con raden”
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ======================================================================
+         NAVIGATIE (4 TABS)
+         ====================================================================== -->
+    <nav class="tab-nav" role="tablist" aria-label="Hoofdnavigatie">
+      <button type="button" class="tab-btn is-active" role="tab" aria-selected="true" data-tab="galerij">
+        <span class="tab-num">I</span>
+        <span>Kroniek &amp; JSON-Galerij</span>
+      </button>
+      <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="rederijkers">
+        <span class="tab-num">II</span>
+        <span>Rederijkers van Tholen (1440–1680)</span>
+      </button>
+      <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="sinnespel">
+        <span class="tab-num">III</span>
+        <span>Hedendaags Sinnespel: De Onzichtbare Boedelnotaris</span>
+      </button>
+      <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="werkbank">
+        <span class="tab-num">IV</span>
+        <span>JSON-Werkbank (fotos.json)</span>
+      </button>
+    </nav>
+
+    <!-- ======================================================================
+         TAB 1: KRONIEK & JSON-GALERIJ
+         ====================================================================== -->
+    <section id="tab-galerij" class="tab-panel is-active" role="tabpanel">
+      <div class="toolbar">
+        <div class="toolbar-top">
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="7"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="search"
+              id="gallerySearch"
+              class="search-input"
+              placeholder="Zoek op titel, verhaal, locatie, categorie of bestandsnaam…"
+              aria-label="Zoek in de kroniek en JSON-galerij"
+            />
+          </div>
+          <span id="galleryCounter" class="counter-badge">6 van 6 items</span>
+        </div>
+        <div id="categoryFilters" class="filter-row" aria-label="Filter op categorie">
+          <!-- Dynamisch gegenereerd uit de geladen JSON-items -->
+        </div>
+      </div>
+
+      <div id="galleryGrid" class="gallery-grid" aria-live="polite">
+        <!-- Kaarten worden gerenderd door JavaScript -->
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB 2: REDERIJKERS VAN THOLEN (1440–1680)
+         ====================================================================== -->
+    <section id="tab-rederijkers" class="tab-panel" role="tabpanel">
+      <div class="card" style="margin-bottom: 1.25rem;">
+        <h2 class="section-heading">De Rederijkerscultuur op het Eiland Tholen (1440–1680)</h2>
+        <p class="section-lead">
+          Historisch overzicht op basis van het artikel <em>Wolven</em> door Hans Zuurdeeg, over dichters, voordrachtkunstenaars, kerkelijk verzet en de bewaard gebleven ruitvormige blazoenen.
+        </p>
+
+        <div class="history-intro">
+          <div>
+            <p style="margin-top: 0;">
+              De rederijkerscultuur ontstond in Vlaanderen en bloeide in Zeeland tussen circa <strong>1440 en 1680</strong>. Rederijkers waren dichters en voordrachtkunstenaars die zich toelegden op de <em>retorica</em> — de kunst van het overtuigen. Zij kwamen regelmatig bijeen in hun kamers en organiseerden publieke festivals met parades en toneelspektakel.
+            </p>
+            <p style="margin-bottom: 0;">
+              Op het eiland Tholen waren de calvinistische predikanten daar echter niet gelukkig mee. Zij ageerden vanaf de kansel tegen de rederijkers, met als gevolg dat de kamers op Tholen in het begin van de 17e eeuw ophielden te bestaan.
+            </p>
+          </div>
+          <div class="quote-box">
+            <blockquote>
+              “Sij blijven hem gehecht Al sijn sij slecht van daden [.......] con raden”
+            </blockquote>
+            <cite>
+              Nauwelijks leesbaar randschrift op de lijst van het rederijkersbord van Westkerke, opgetekend door de projectgroep rederijkers in Zeeland.
+            </cite>
+          </div>
+        </div>
+      </div>
+
+      <!-- De vijf Thoolse rederijkerskamers -->
+      <div class="kamers-grid">
+        <article class="kamer-card">
+          <span class="kamer-year">1597 • Verbod</span>
+          <h3>Stad Tholen — ‘Camer van Rhetorica’</h3>
+          <p>
+            In de stad Tholen werd de druk vanuit de kansel al vroeg beslissend: in <strong>1597</strong> moest <strong>Anthoni Leys</strong> als prins van de <em>‘camer van rhetorica’</em> de keur (het reglement) van de kamer inleveren bij het stadsbestuur. Samenkomsten werden zowel in de stad als elders verboden.
+          </p>
+          <div class="kamer-status">Bron: Archief stad Tholen, v.inv.nr. 1, fol. 53</div>
+        </article>
+
+        <article class="kamer-card">
+          <span class="kamer-year">1598 • Bewaard</span>
+          <h3>Sint-Annaland</h3>
+          <p>
+            Een van de drie ruitvormige, geschilderde rederijkersborden van het eiland Tholen die de tand des tijds hebben doorstaan. Het paneel dateert uit <strong>1598</strong> en getuigt van de levendige kamercultuur op het platteland vlak voor de eeuwwisseling.
+          </p>
+          <div class="kamer-status">Status: Ruitvormig rederijkersbord bewaard gebleven</div>
+        </article>
+
+        <article class="kamer-card kamer-card--featured">
+          <span class="kamer-year">ca. 1600 • Westkerke</span>
+          <h3>Westkerke — De Goede en Slechte Herder</h3>
+          <p>
+            Op het ruitvormige paneel verdedigt een <strong>goede herder</strong> zijn schapen met zijn staf tegen een wolf, terwijl de <strong>slechte herder</strong> wegvlucht. In het midden staat een plant die sterke gelijkenis vertoont met de <strong>meekrapplant</strong> (<em>Rubia tinctorum</em>, familie van de sterbladigen, 60–90 cm hoog), maar dan geschilderd met <strong>rode bloempjes</strong> in plaats van kleine gele bloemen. Op de keerzijde zijn later primitief de wapens van Westkerke en Zeeland aangebracht.
+          </p>
+          <div class="kamer-status">Status: Bewaard (Gemeente Tholen) • Met historisch randschrift</div>
+        </article>
+
+        <article class="kamer-card">
+          <span class="kamer-year">1612 • Bewaard</span>
+          <h3>De Drie Koornairen — Oud-Vossemeer</h3>
+          <p>
+            De kamer <em>De Drie Koornairen</em> te Oud-Vossemeer liet een fraai ruitvormig rederijkersbord uit <strong>1612</strong> na. Samen met Sint-Annaland en Westkerke vormt dit het drietal bewaard gebleven Thoolse blazoenen.
+          </p>
+          <div class="kamer-status">Status: Ruitvormig rederijkersbord bewaard gebleven</div>
+        </article>
+
+        <article class="kamer-card">
+          <span class="kamer-year">Verloren in 1940</span>
+          <h3>Poortvliet</h3>
+          <p>
+            Ook Poortvliet kende een eigen rederijkerskamer met een geschilderd blazoen. Dit historische bord is helaas in <strong>1940 in Middelburg verbrand</strong> tijdens de oorlogshandelingen.
+          </p>
+          <div class="kamer-status">Status: Verloren gegaan bij de brand van Middelburg (1940)</div>
+        </article>
+      </div>
+
+      <!-- Iconografie & Kunst -->
+      <div class="card">
+        <h3 class="section-heading" style="font-size: 1.28rem;">Iconografie: Wolvenplaag, Bijbeltekst &amp; Zestiende-eeuwse Prentkunst</h3>
+        <p class="section-lead" style="margin-bottom: 0.75rem;">
+          Mogelijk vormden de echte wolven op het eiland Tholen de directe aanleiding voor de rederijkers van Westkerke om de Goede en Slechte Herder als blazoen te kiezen.
+        </p>
+
+        <div class="iconografie-grid">
+          <div class="icon-box">
+            <h4>Wolvenplaag op Tholen (1586–1609)</h4>
+            <p>
+              Na de ontvolking van het Thoolse platteland tijdens de Opstand loofde de Gemeene Magistraat al in <strong>1586</strong> een premie van £ 2 uit voor het vangen van een wolf (‘levende of doot’). Tussen 1587 en 1608/09 werden regelmatig wolven gevangen of geschoten in onder meer Poortvliet, Sint-Maartensdijk, Sint-Annaland, Oud-Vossemeer en Westkerke. De laatste wolf vóór het Twaalfjarig Bestand werd in 1608/09 in Westkerke geschoten.
+            </p>
+          </div>
+
+          <div class="icon-box">
+            <h4>Ezechiël 34 &amp; Johannes 10:11–14</h4>
+            <p>
+              In het Oude Testament (<strong>Ezechiël 34</strong>) is het thema een scherpe profetie tegen slechte herders en leiders die hun volk uitbuiten. In het Nieuwe Testament (<strong>Johannes 10:11–14</strong>) noemt Jezus zichzelf de Goede Herder die zijn leven inzet voor zijn schapen — in schril contrast met de herdersknecht die vlucht zodra er een wolf nadert, omdat de schapen niet van hem zijn.
+            </p>
+          </div>
+
+          <div class="icon-box">
+            <h4>Breughel (1565), Galle (1565) &amp; Luycken (1681)</h4>
+            <p>
+              De Vlaamse schilder <strong>Pieter Breughel de Oudere</strong> gebruikte het thema in <strong>1565</strong> (met een wolf die een herder naar de keel grijpt). Datzelfde jaar sneed graveur en uitgever <strong>Philip Galle</strong> een koperplaat naar Breughel waarop Christus met een schaap op zijn schouders de kudde beschermt terwijl op de achtergrond een knecht vlucht. In <strong>1681</strong> verbeeldde <strong>Jan Luycken</strong> het onderwerp opnieuw in de prent <em>De goede Harder (Ioan. x. 10)</em>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB 3: HEDENDAAGS SINNESPEL (DE ONZICHTBARE BOEDELNOTARIS)
+         ====================================================================== -->
+    <section id="tab-sinnespel" class="tab-panel" role="tabpanel">
+      <div class="sinnespel-layout">
+        <!-- Linkerzijde: klassieke boekzetting -->
+        <article class="book-sheet">
+          <div class="book-controls">
+            <div class="size-group" role="group" aria-label="Lettergrootte instellen">
+              <span class="size-label">Lettergrootte:</span>
+              <button type="button" class="size-btn" data-size="s">S</button>
+              <button type="button" class="size-btn is-active" data-size="m">M</button>
+              <button type="button" class="size-btn" data-size="l">L</button>
+            </div>
+            <button type="button" id="btnPrintSinnespel" class="btn btn--primary btn--sm">
+              Print Sinnespel
+            </button>
+          </div>
+
+          <header class="book-header">
+            <div class="book-kicker">Hedendaags Sinnespel • Naar Rederijkerstraditie</div>
+            <h2 class="book-title">De Onzichtbare Boedelnotaris</h2>
+            <p class="book-subtitle">Een allegorische satire aan de Buitenweg te Vlietdam</p>
+          </header>
+
+          <hr class="ornament-rule" />
+
+          <div id="sinnespelProse" class="book-prose size-m">
+            <p>
+              De regen tikte traag tegen de hoge ramen van het voormalige dijkhuis aan de Buitenweg, waar de stapels papier inmiddels hoger reikten dan de vensterbank. Clara legde de brief van haar rechtsbijstandverlener, mr. Sluiter, naast haar koffiekopje en las de bewuste zin nog een keer hardop voor aan de lege kamer.
+            </p>
+
+            <div class="book-quote">
+              “Ik adviseer u om de definitieve boedelbeschrijving van de boedelnotaris rustig af te wachten.”
+            </div>
+
+            <p>
+              Ze schoot in een korte, droge lach. <strong>Er was helemaal geen boedelnotaris.</strong> Niet in het dorp Vlietdam, niet in de regio, en als het zo doorging ook niet op de rest van het vasteland.
+            </p>
+
+            <p>
+              Het begon een halfjaar geleden nog zo overzichtelijk, toen oom Hendrik zijn laatste adem uitblies en een vervallen boerderij, een scheefgezakt wagenhuis en een ondoorzichtige boekhouding naliet. De familie was het over precies niets eens, behalve over het feit dat er een onafhankelijke notaris moest komen om de boel te ontwarren. Maar zodra Clara de drempel van het eerste notariskantoor overstapte, maakte ze kennis met de onzichtbare muur die de <strong>notariswetten</strong> heette.
+            </p>
+
+            <p>
+              Notaris Krijger had zijn bril zorgvuldig gepoetst en zijn hand op een dik, lichtblauw wetboek gelegd. “Ik zou u graag van dienst zijn, mevrouw Vermeer,” had hij plechtig gezegd, “maar artikel 17 en 21 van de wet verplichten mij tot volstrekte onpartijdigheid én een verscherpt cliëntenonderzoek. Voordat ik mijzelf kan inschrijven als boedelnotaris, moet ik eerst zeker weten dat alle erfgenamen akkoord gaan met mijn opdracht, dat de herkomst van elke verdwenen gulden of euro vooraf is verklaard, en dat er geen enkel sluimerend geschil ligt over de waarde van het wagenhuis.”
+            </p>
+
+            <p>
+              “Maar meneer Krijger,” had Clara geantwoord, “dat sluimerende geschil en die verdwenen bedragen zijn precies de reden dat we een boedelnotaris nodig hebben.”
+            </p>
+
+            <p>
+              De notaris had slechts meelevend geknikt, alsof hij een kind uitlegde waarom de zon ’s avonds ondergaat. “De wet is de wet. Eerst moet het dossier schoon en eensgezind zijn; daarna mag ik pas aantreden om de onenigheid officieel vast te stellen.”
+            </p>
+
+            <p>
+              Bij het tweede kantoor, drie dorpen verderop, liep het niet veel anders. Daar wees men op de verscherpte poortwachtersplicht. Omdat er in het oude kadaster een vergeelde aantekening stond over een mogelijke olievlek onder het erf, en omdat de andere erfgenamen weigerden hun identiteitsbewijzen te laten verifiëren zolang hun eigen taxateur niet werd erkend, trok de notaris binnen vierentwintig uur zijn handen van de zaak af. <strong>Geen volledige voorafgaande naleving van de notariswetten, geen boedelnotaris.</strong>
+            </p>
+
+            <p>
+              Zo ontstond de perfecte cirkel. De bank weigerde afschriften te geven zonder een verklaring van een boedelnotaris. De notaris weigerde een verklaring af te geven zonder dat de bankafschriften eerst door alle erfgenamen gezamenlijk op tafel waren gelegd. De wederpartij maakte ondertussen haar eigen lijstjes op de achterkant van een sigarendoos, waarin het wagenhuis plotseling niet meer bestond en de opruimkosten als bij toverslag waren verdampt. En mr. Sluiter, veilig achter zijn bureau in de stad, bleef vriendelijke e-mails sturen met de mededeling dat Clara zich geen zorgen hoefde te maken: zodra de boedelnotaris de boedelbeschrijving klaar had, zou alles vanzelf duidelijk worden.
+            </p>
+
+            <p>
+              Clara keek naar buiten, waar de wind een losgeraakte dakpan van het niet-bestaande wagenhuis deed rammelen. Ze schoof het dikke dossier opzij, pakte een schoon vel papier en een zwarte vulpen. Als de wetten eerst volmaakte orde eisten voordat iemand de chaos mocht aanraken, dan zat er maar één ding op: ze moest mr. Sluiter maar eens vriendelijk uitleggen dat je eindeloos kunt wachten op een trein die pas mag vertrekken wanneer alle passagiers al op hun bestemming zijn aangekomen.
+            </p>
+          </div>
+        </article>
+
+        <!-- Rechterzijde: Spelers & Allegorie -->
+        <aside class="allegorie-card">
+          <h3 class="section-heading" style="font-size: 1.2rem;">Spelers &amp; Allegorie</h3>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--ink-muted);">
+            Sinnespel-duiding in de traditie van de Zeeuwse rederijkerskamers, waarin alledaagse figuren en obstakels als zinnebeeldige personages optreden.
+          </p>
+
+          <div class="allegorie-list">
+            <div class="allegorie-item">
+              <div class="allegorie-name">Clara Vermeer</div>
+              <span class="allegorie-role">De Wachtende</span>
+              <p class="allegorie-desc">
+                Staat symbool voor de rechtzoekende burger aan de Buitenweg die met een schoon vel papier en zwarte inkt de papieren cirkel probeert te doorbreken.
+              </p>
+            </div>
+
+            <div class="allegorie-item">
+              <div class="allegorie-name">Mr. Sluiter</div>
+              <span class="allegorie-role">De Afwachtende Raadsman</span>
+              <p class="allegorie-desc">
+                De hedendaagse pendant van de passieve herdersknecht: ver weg achter een stedelijk bureau verwijst hij geruststellend naar een boedelnotaris die niet bestaat.
+              </p>
+            </div>
+
+            <div class="allegorie-item">
+              <div class="allegorie-name">Notaris Krijger</div>
+              <span class="allegorie-role">De Poortwachter der Wetten</span>
+              <p class="allegorie-desc">
+                Met zijn lichtblauwe wetboek (art. 17 en 21) en verscherpte poortwachtersplicht eist hij eerst volmaakte vrede voordat hij het geschil mag vaststellen.
+              </p>
+            </div>
+
+            <div class="allegorie-item">
+              <div class="allegorie-name">Het Wagenhuis</div>
+              <span class="allegorie-role">Het Onzichtbare Bezit</span>
+              <p class="allegorie-desc">
+                Op de sigarendoos-lijstjes weggestreept als niet-bestaand, maar in de werkelijkheid hoorbaar wanneer de wind een losgeraakte dakpan doet rammelen.
+              </p>
+            </div>
+
+            <div class="allegorie-item">
+              <div class="allegorie-name">De Cirkelredenering</div>
+              <span class="allegorie-role">De Trein zonder Vertrek</span>
+              <p class="allegorie-desc">
+                De bank wacht op de notaris, de notaris wacht op de bank en de raadsman wacht op beiden: een trein die pas mag vertrekken wanneer alle passagiers al zijn aangekomen.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB 4: JSON-WERKBANK (fotos.json)
+         ====================================================================== -->
+    <section id="tab-werkbank" class="tab-panel" role="tabpanel">
+      <div class="card" style="margin-bottom: 1.15rem;">
+        <h2 class="section-heading">JSON-Werkbank (fotos.json)</h2>
+        <p class="section-lead" style="margin-bottom: 0.9rem;">
+          Voeg items toe, bewerk bestaande kronieken of importeer en exporteer direct een geldig <code>fotos.json</code>-bestand. Alle wijzigingen werken direct door in Tab I en worden lokaal opgeslagen in uw browser.
+        </p>
+
+        <div class="wb-toolbar">
+          <button type="button" id="btnRemoveExamples" class="btn btn--danger btn--sm">
+            Verwijder voorbeeld-items (voorbeeld-1 t/m 3)
+          </button>
+          <label class="btn btn--gold btn--sm" for="fileImportJson" style="margin: 0;">
+            Importeer fotos.json
+            <input type="file" id="fileImportJson" accept=".json,application/json" style="display: none;" />
+          </label>
+          <button type="button" id="btnRestoreDefaults" class="btn btn--sm">
+            Herstel standaarddata
+          </button>
+        </div>
+
+        <!-- Inline bevestigingsbalk (vervangt window.confirm) -->
+        <div id="confirmBanner" class="confirm-banner" role="alert">
+          <span id="confirmText">Weet u het zeker?</span>
+          <div style="display: flex; gap: 0.45rem;">
+            <button type="button" id="btnConfirmYes" class="btn btn--primary btn--sm">Bevestigen</button>
+            <button type="button" id="btnConfirmNo" class="btn btn--sm">Annuleren</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="workbench-grid">
+        <!-- Linkerkolom: Item-formulier -->
+        <div class="card">
+          <h3 class="section-heading" style="font-size: 1.15rem; margin-bottom: 0.8rem;">Item toevoegen of bewerken</h3>
+
+          <div class="field" style="margin-bottom: 0.9rem;">
+            <label for="wbSelectItem">Kies bestaand item om te bewerken (of kies Nieuw)</label>
+            <select id="wbSelectItem"></select>
+          </div>
+
+          <form id="wbForm" class="form-grid" novalidate>
+            <div class="field">
+              <label for="fId">ID</label>
+              <input type="text" id="fId" placeholder="bijv. foto-1795674692099" required />
+            </div>
+            <div class="field">
+              <label for="fDatum">Datum (JJJJ-MM-DD)</label>
+              <input type="date" id="fDatum" />
+            </div>
+            <div class="field field--full">
+              <label for="fTitel">Titel</label>
+              <input type="text" id="fTitel" placeholder="Titel van de kroniek of foto" required />
+            </div>
+            <div class="field field--full">
+              <label for="fBestand">Bestandspad</label>
+              <input type="text" id="fBestand" placeholder="bijv. fotos/blazoen-westkerke.jpg" />
+            </div>
+            <div class="field">
+              <label for="fLocatie">Locatie</label>
+              <input type="text" id="fLocatie" placeholder="bijv. Westkerke, Tholen" />
+            </div>
+            <div class="field">
+              <label for="fCategorie">Categorie</label>
+              <input type="text" id="fCategorie" placeholder="bijv. Archief, Landschap" />
+            </div>
+            <div class="field field--full">
+              <label for="fVerhaal">Verhaal (gebruik dubbele enter voor alinea’s)</label>
+              <textarea id="fVerhaal" placeholder="Schrijf hier het volledige verhaal..."></textarea>
+            </div>
+          </form>
+
+          <div class="form-actions">
+            <button type="button" id="btnSaveItem" class="btn btn--primary">Opslaan in fotos.json</button>
+            <button type="button" id="btnNewItem" class="btn">Nieuw leeg item</button>
+            <button type="button" id="btnDeleteSelected" class="btn btn--danger" style="margin-left: auto;">Verwijder dit item</button>
+          </div>
+        </div>
+
+        <!-- Rechterkolom: Live JSON-editor -->
+        <div class="card">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.7rem;">
+            <h3 class="section-heading" style="font-size: 1.15rem; margin: 0;">Live fotos.json</h3>
+            <div style="display: flex; gap: 0.45rem;">
+              <button type="button" id="btnCopyJson" class="btn btn--sm">Kopieer JSON</button>
+              <button type="button" id="btnDownloadJson" class="btn btn--primary btn--sm">Download fotos.json</button>
+            </div>
+          </div>
+
+          <div id="jsonStatusBar" class="json-status-bar is-valid">
+            <span id="jsonStatusText">Geldige JSON • 6 items</span>
+            <span id="jsonByteInfo" style="font-family: var(--font-mono); font-size: 0.74rem;"></span>
+          </div>
+
+          <textarea
+            id="jsonEditor"
+            class="json-editor"
+            spellcheck="false"
+            aria-label="Live JSON-editor voor fotos.json"
+          ></textarea>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span>Camer van Rhetorica — Zeeuwse Rederijkers &amp; Kroniek-Archief</span>
+      <span>100% zelfstandig &amp; offline bruikbaar • Geen externe afhankelijkheden</span>
+    </footer>
+  </div>
+
+  <!-- ========================================================================
+       LEES-MODAL VOOR VOLLEDIG VERHAAL (TAB 1)
+       ======================================================================== -->
+  <div id="readerModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <span id="modalCategory" class="pill pill--solid" style="margin-bottom: 0.4rem;">Categorie</span>
+          <h2 id="modalTitle" class="modal-title">Titel</h2>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="btnPrintModal" class="btn btn--primary btn--sm">Print verhaal</button>
+          <button type="button" id="btnEditFromModal" class="btn btn--sm">Bewerk in Werkbank</button>
+          <button type="button" id="btnCloseModal" class="btn btn--sm" aria-label="Sluiten">✕ Sluiten</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div id="modalMeta" class="modal-meta-grid"></div>
+        <div id="modalStory" class="story-prose"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast-melding -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* ======================================================================
+         STANDAARDDATASET (EXACT DE 6 VERPLICHTE ITEMS)
+         ====================================================================== */
+      const STORAGE_KEY = "camer_van_rhetorica_fotos_json_v1";
+
+      const DEFAULT_DATA = [
+        {
+          id: "foto-1795674692084",
+          bestand: "fotos/Advcatenportaal",
+          titel: "AI",
+          datum: "2026-11-26",
+          locatie: "",
+          categorie: "brazilie",
+          verhaal:
+            "De regen tikte traag tegen de hoge ramen van het voormalige dijkhuis aan de Buitenweg, waar de stapels papier inmiddels hoger reikten dan de vensterbank. Clara legde de brief van haar rechtsbijstandverlener, mr. Sluiter, naast haar koffiekopje en las de bewuste zin nog een keer hardop voor aan de lege kamer.\n\n" +
+            "\"Ik adviseer u om de definitieve boedelbeschrijving van de boedelnotaris rustig af te wachten.\"\n\n" +
+            "Ze schoot in een korte, droge lach. Er was helemaal geen boedelnotaris. Niet in het dorp Vlietdam, niet in de regio, en als het zo doorging ook niet op de rest van het vasteland.\n\n" +
+            "Het begon een halfjaar geleden nog zo overzichtelijk, toen oom Hendrik zijn laatste adem uitblies en een vervallen boerderij, een scheefgezakt wagenhuis en een ondoorzichtige boekhouding naliet. De familie was het over precies niets eens, behalve over het feit dat er een onafhankelijke notaris moest komen om de boel te ontwarren. Maar zodra Clara de drempel van het eerste notariskantoor overstapte, maakte ze kennis met de onzichtbare muur die de notariswetten heette.\n\n" +
+            "Notaris Krijger had zijn bril zorgvuldig gepoetst en zijn hand op een dik, lichtblauw wetboek gelegd. \"Ik zou u graag van dienst zijn, mevrouw Vermeer,\" had hij plechtig gezegd, \"maar artikel 17 en 21 van de wet verplichten mij tot volstrekte onpartijdigheid én een verscherpt cliëntenonderzoek. Voordat ik mijzelf kan inschrijven als boedelnotaris, moet ik eerst zeker weten dat alle erfgenamen akkoord gaan met mijn opdracht, dat de herkomst van elke verdwenen gulden of euro vooraf is verklaard, en dat er geen enkel sluimerend geschil ligt over de waarde van het wagenhuis.\"\n\n" +
+            "\"Maar meneer Krijger,\" had Clara geantwoord, \"dat sluimerende geschil en die verdwenen bedragen zijn precies de reden dat we een boedelnotaris nodig hebben.\"\n\n" +
+            "De notaris had slechts meelevend geknikt, alsof hij een kind uitlegde waarom de zon 's avonds ondergaat. \"De wet is de wet. Eerst moet het dossier schoon en eensgezind zijn; daarna mag ik pas aantreden om de onenigheid officieel vast te stellen.\"\n\n" +
+            "Bij het tweede kantoor, drie dorpen verderop, liep het niet veel anders. Daar wees men op de verscherpte poortwachtersplicht. Omdat er in het oude kadaster een vergeelde aantekening stond over een mogelijke olievlek onder het erf, en omdat de andere erfgenamen weigerden hun identiteitsbewijzen te laten verifiëren zolang hun eigen taxateur niet werd erkend, trok de notaris binnen vierentwintig uur zijn handen van de zaak af. Geen volledige voorafgaande naleving van de notariswetten, geen boedelnotaris.\n\n" +
+            "Zo ontstond de perfecte cirkel. De bank weigerde afschriften te geven zonder een verklaring van een boedelnotaris. De notaris weigerde een verklaring af te geven zonder dat de bankafschriften eerst door alle erfgenamen gezamenlijk op tafel waren gelegd. De wederpartij maakte ondertussen haar eigen lijstjes op de achterkant van een sigarendoos, waarin het wagenhuis plotseling niet meer bestond en de opruimkosten als bij toverslag waren verdampt. En mr. Sluiter, veilig achter zijn bureau in de stad, bleef vriendelijke e-mails sturen met de mededeling dat Clara zich geen zorgen hoefde te maken: zodra de boedelnotaris de boedelbeschrijving klaar had, zou alles vanzelf duidelijk worden.\n\n" +
+            "Clara keek naar buiten, waar de wind een losgeraakte dakpan van het niet-bestaande wagenhuis deed rammelen. Ze schoof het dikke dossier opzij, pakte een schoon vel papier en een zwarte vulpen. Als de wetten eerst volmaakte orde eisten voordat iemand de chaos mocht aanraken, dan zat er maar één ding op: ze moest mr. Sluiter maar eens vriendelijk uitleggen dat je eindeloos kunt wachten op een trein die pas mag vertrekken wanneer alle passagiers al op hun bestemming zijn aangekomen."
+        },
+        {
+          id: "foto-1795672561249",
+          bestand: "fotos/licentie_v3_handtekening.png",
+          titel: "Sean DuBois — Pion & WebRTC",
+          datum: "2026-11-26",
+          locatie: "",
+          categorie: "handtekening",
+          verhaal:
+            "Sean DuBois is member of the technical staff bij OpenAI (sinds 2024) en vooral bekend als de oprichter en maintainer van Pion (de open-source Go-implementatie van WebRTC) en mede-auteur van het open handboek WebRTC for the Curious. Zijn werk draait om spraak- en media-infrastructuur met extreem lage latentie voor browsers, telefonie en embedded hardware.\n\n" +
+            "Loopbaan langs de WebRTC- en telecomketen:\n" +
+            "• Etsy & Infiniscene: Eerste kennismaking met WebRTC en browser-based broadcasting; oprichting van Pion als transparant, modulair alternatief voor zware browser-implementaties.\n" +
+            "• Amazon (2018–2020): Bouwde een C-implementatie van WebRTC specifiek voor embedded devices.\n" +
+            "• Apple (2020–2021): Werkte aan FaceTime-links voor de browser en media quality-of-service (QoS).\n" +
+            "• Twitch (2021–2024): Ontwikkelde Pion-gebaseerde co-streaming en WebRTC-ondersteuning voor OBS Studio.\n" +
+            "• LiveKit: Richtte zich op SIP- en telefonie-integratie.\n" +
+            "• OpenAI (2024–heden): Verantwoordelijk voor de WebRTC-serverinfrastructuur (een Go-service op basis van Pion), ondersteuning voor WebRTC, SIP en microcontrollers in de Realtime API, 1-800-CHATGPT en browserbesturing voor ChatGPT Operator.\n\n" +
+            "Kernpunten uit zijn visie en talk (Your realtime AI is ngmi):\n" +
+            "Tijdens de AI Engineer World's Fair 2025 besprak hij samen met Kwindla Hultman Kramer (Daily) waarom veel realtime spraak-AI in de praktijk tekortschiet:\n\n" +
+            "• End-to-end latentie als producteis: De vertraging die een luisteraar ervaart omvat de volledige keten: microfoon, netwerktransport, inference, spraakgeneratie en playback. Packet loss, jitter en wisselende bandbreedte zijn geen implementatiedetails, maar harde randvoorwaarden.\n\n" +
+            "• WebRTC boven WebSockets voor live media: Betrouwbare pakketaflevering (zoals via TCP/WebSockets) zorgt er bij haperende verbindingen voor dat audio te laat aankomt. WebRTC laat de mediastack zelf omgaan met timing, bandbreedte-aanpassing en verbindingsmetingen. WebSockets blijven volgens hem vooral geschikt voor prototypes, gestructureerd server-to-server-verkeer en audioverwerking die sneller dan realtime moet gaan.\n\n" +
+            "• Spraak buiten de browser: Door SIP en lichte protocollen te combineren met hardware (zoals een Raspberry Pi of microcontrollers) kun je hetzelfde fysieke apparaat gebruiken en zelf bepalen of de verwerking lokaal of in de cloud draait."
+        },
+        {
+          id: "foto-1795672561250",
+          bestand: "fotos/pionnenschaakbord_19x19.png",
+          titel: "Het 19×19 Pionnenschaakbord & AlphaGo",
+          datum: "2026-11-26",
+          locatie: "Zeeland",
+          categorie: "Wiskunde & Spel",
+          verhaal:
+            "Het 19×19-rooster telt 361 velden rond middelpunt J10 (0, 0), met ruimte voor 180 krijtwitte en 180 meekrab-rode pionnen. Precies op dit 19×19-bord maakte AlphaGo (DeepMind) geschiedenis met Monte Carlo-boomzoeken en neurale netwerken.\n\n" +
+            "In oktober 2015 versloeg AlphaGo als eerste computerprogramma een menselijke Go-professional (Fan Hui) zonder handicap op een volledig 19×19-bord. In maart 2016 volgde de beroemde tweekamp tegen 9-dan-professional Lee Sedol (4–1). Daarna volgden de zelflerende opvolgers AlphaGo Zero, AlphaZero (ook voor schaken en shogi) en MuZero (dat leert zonder vooraf de spelregels te kennen)."
+        },
+        {
+          id: "voorbeeld-1",
+          bestand: "fotos/ochtendlicht-polder.jpg",
+          titel: "Ochtendlicht boven de oude polder",
+          datum: "2026-09-14",
+          locatie: "Schouwen-Duiveland, Zeeland",
+          categorie: "Landschap",
+          verhaal:
+            "Vroeg op de dijk hangt de nevel nog laag over de sloten. Alleen de kerktoren in de verte steekt boven de witte band uit, terwijl het eerste zonlicht de akkers langzaam warm kleurt.\n\n" +
+            "Op zulke stille ochtenden lijkt het landschap nauwelijks veranderd sinds de zeventiende eeuw. De sloten trekken strakke lijnen naar de horizon en het enige geluid komt van een koppel ganzen dat traag over de dijk strijkt.\n\n" +
+            "Dit is een voorbeelditem. Zodra u uw eigen fotos.json en afbeeldingen uploadt via GitHub, verschijnt hier automatisch uw eigen collectie."
+        },
+        {
+          id: "voorbeeld-2",
+          bestand: "fotos/atelier-prentenkast.jpg",
+          titel: "De werktafel bij het noorderlicht",
+          datum: "2026-06-03",
+          locatie: "Middelburg",
+          categorie: "Archief",
+          verhaal:
+            "Naast het hoge raam liggen de mappen met oude prenten en gravures open. Het koele noorderlicht laat elke fijne arceerlijn en iedere tint meekraprood tot zijn recht komen zonder harde schaduwen.\n\n" +
+            "Veel van deze bladen hebben eeuwenlang in bescheiden verzamelingen gerust. Door ze digitaal vast te leggen en er het bijbehorende verhaal onder te schrijven, blijven ze toegankelijk voor iedereen die nieuwsgierig is naar de geschiedenis achter het beeld."
+        },
+        {
+          id: "voorbeeld-3",
+          bestand: "fotos/paalhoofden-laagwater.jpg",
+          titel: "Paalhoofden bij opkomend tij",
+          datum: "2026-03-21",
+          locatie: "Westkapelle",
+          categorie: "Kust",
+          verhaal:
+            "De houten palen staan als een ritmische rij wachters in het natte zand. Elke golf trekt zich iets minder ver terug dan de vorige; binnen een uur zal het hele strand weer onder water staan.\n\n" +
+            "Wie hier vaker loopt, merkt hoe het licht per kwartier omslaat. Soms is de Noordzee loodgrijs, en een ogenblik later breekt de zon door het wolkendek en glanst het natte hout bijna koperkleurig."
+        }
+      ];
+
+      /* ======================================================================
+         APPLICATIESTATUS
+         ====================================================================== */
+      const state = {
+        items: [],
+        activeTab: "galerij",
+        searchQuery: "",
+        activeCategory: "Alle",
+        activeModalId: null,
+        editingIndex: -1, // -1 betekent nieuw item
+        pendingConfirmAction: null
+      };
+
+      /* ======================================================================
+         DOM-REFERENTIES
+         ====================================================================== */
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      const tabPanels = document.querySelectorAll(".tab-panel");
+
+      const gallerySearchEl = document.getElementById("gallerySearch");
+      const galleryCounterEl = document.getElementById("galleryCounter");
+      const categoryFiltersEl = document.getElementById("categoryFilters");
+      const galleryGridEl = document.getElementById("galleryGrid");
+
+      const readerModalEl = document.getElementById("readerModal");
+      const modalCategoryEl = document.getElementById("modalCategory");
+      const modalTitleEl = document.getElementById("modalTitle");
+      const modalMetaEl = document.getElementById("modalMeta");
+      const modalStoryEl = document.getElementById("modalStory");
+      const btnPrintModal = document.getElementById("btnPrintModal");
+      const btnEditFromModal = document.getElementById("btnEditFromModal");
+      const btnCloseModal = document.getElementById("btnCloseModal");
+
+      const sinnespelProseEl = document.getElementById("sinnespelProse");
+      const sizeBtns = document.querySelectorAll(".size-btn");
+      const btnPrintSinnespel = document.getElementById("btnPrintSinnespel");
+
+      const wbSelectItemEl = document.getElementById("wbSelectItem");
+      const fId = document.getElementById("fId");
+      const fDatum = document.getElementById("fDatum");
+      const fTitel = document.getElementById("fTitel");
+      const fBestand = document.getElementById("fBestand");
+      const fLocatie = document.getElementById("fLocatie");
+      const fCategorie = document.getElementById("fCategorie");
+      const fVerhaal = document.getElementById("fVerhaal");
+
+      const btnSaveItem = document.getElementById("btnSaveItem");
+      const btnNewItem = document.getElementById("btnNewItem");
+      const btnDeleteSelected = document.getElementById("btnDeleteSelected");
+      const btnRemoveExamples = document.getElementById("btnRemoveExamples");
+      const btnRestoreDefaults = document.getElementById("btnRestoreDefaults");
+      const fileImportJson = document.getElementById("fileImportJson");
+
+      const confirmBannerEl = document.getElementById("confirmBanner");
+      const confirmTextEl = document.getElementById("confirmText");
+      const btnConfirmYes = document.getElementById("btnConfirmYes");
+      const btnConfirmNo = document.getElementById("btnConfirmNo");
+
+      const jsonEditorEl = document.getElementById("jsonEditor");
+      const jsonStatusBarEl = document.getElementById("jsonStatusBar");
+      const jsonStatusTextEl = document.getElementById("jsonStatusText");
+      const jsonByteInfoEl = document.getElementById("jsonByteInfo");
+      const btnCopyJson = document.getElementById("btnCopyJson");
+      const btnDownloadJson = document.getElementById("btnDownloadJson");
+
+      const toastEl = document.getElementById("toast");
+      let toastTimer = null;
+
+      /* ======================================================================
+         HULPFUNCTIES: VEILIGE OPSLAG, TOAST & ESCAPE
+         ====================================================================== */
+      function cloneDefaults() {
+        return JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
+
+      function loadItems() {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              return parsed;
+            }
+          }
+        } catch (err) {
+          // Negeer localStorage-fouten in beperkte iframe-omgevingen
+        }
+        return cloneDefaults();
+      }
+
+      function persistItems() {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+        } catch (err) {
+          // Negeer opslagfouten in strikte sandbox-omgevingen
+        }
+      }
+
+      function showToast(message) {
+        toastEl.textContent = message;
+        toastEl.classList.add("is-visible");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toastEl.classList.remove("is-visible");
+        }, 2800);
+      }
+
+      function escapeHtml(str) {
+        return String(str == null ? "" : str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      /**
+       * Zet een verhaal met \n\n om in nette HTML-alinea's (en enkele \n in <br>).
+       */
+      function renderParagraphs(text) {
+        const clean = String(text || "").trim();
+        if (!clean) return "<p><em>Geen verhaal ingevuld.</em></p>";
+        return clean
+          .split(/\n{2,}/)
+          .map((block) => `<p>${escapeHtml(block).replace(/\n/g, "<br />")}</p>`)
+          .join("");
+      }
+
+      /**
+       * Kiest een subtiel passend inline SVG-vignet als fallback-illustratie voor een kaart.
+       */
+      function getFallbackSvg(item) {
+        const cat = String(item.categorie || "").toLowerCase();
+        if (cat.includes("wiskunde") || cat.includes("spel")) {
+          return `
+            <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.6">
+              <rect x="12" y="12" width="56" height="56" rx="4" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2" />
+              <line x1="26" y1="12" x2="26" y2="68" stroke="#D9C7BC" />
+              <line x1="40" y1="12" x2="40" y2="68" stroke="#D9C7BC" />
+              <line x1="54" y1="12" x2="54" y2="68" stroke="#D9C7BC" />
+              <line x1="12" y1="26" x2="68" y2="26" stroke="#D9C7BC" />
+              <line x1="12" y1="40" x2="68" y2="40" stroke="#D9C7BC" />
+              <line x1="12" y1="54" x2="68" y2="54" stroke="#D9C7BC" />
+              <circle cx="40" cy="40" r="3" fill="#B88A44" stroke="none" />
+              <circle cx="26" cy="26" r="5" fill="#8B1E24" />
+              <circle cx="54" cy="54" r="5" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2" />
+            </svg>`;
+        }
+        if (cat.includes("kust") || cat.includes("landschap")) {
+          return `
+            <svg viewBox="0 0 80 80" fill="none" stroke="#8B1E24" stroke-width="1.8">
+              <circle cx="56" cy="24" r="8" fill="#F5ECD9" stroke="#B88A44" />
+              <path d="M 10,54 Q 28,40 46,50 T 72,48 L 72,66 L 10,66 Z" fill="#F5EFE7" />
+              <path d="M 10,58 Q 25,53 40,58 T 72,58" stroke="#B88A44" />
+              <line x1="22" y1="44" x2="22" y2="60" stroke-width="2.5" />
+              <line x1="32" y1="46" x2="32" y2="60" stroke-width="2.5" />
+              <line x1="42" y1="48" x2="42" y2="60" stroke-width="2.5" />
+            </svg>`;
+        }
+        // Klassiek ruitvormig rederijkersvignet als standaard
+        return `
+          <svg viewBox="0 0 80 80" fill="none">
+            <polygon points="40,8 72,40 40,72 8,40" fill="#FFFFFF" stroke="#8B1E24" stroke-width="2.2" />
+            <polygon points="40,14 66,40 40,66 14,40" fill="none" stroke="#B88A44" stroke-width="1.2" />
+            <line x1="40" y1="54" x2="40" y2="26" stroke="#3F5A36" stroke-width="1.8" />
+            <circle cx="40" cy="24" r="3.2" fill="#A3262C" />
+            <circle cx="34" cy="31" r="2.4" fill="#A3262C" />
+            <circle cx="46" cy="31" r="2.4" fill="#A3262C" />
+          </svg>`;
+      }
+
+      /* ======================================================================
+         TAB-NAVIGATIE
+         ====================================================================== */
+      function switchTab(tabName) {
+        state.activeTab = tabName;
+        tabBtns.forEach((btn) => {
+          const active = btn.dataset.tab === tabName;
+          btn.classList.toggle("is-active", active);
+          btn.setAttribute("aria-selected", active ? "true" : "false");
+        });
+        tabPanels.forEach((panel) => {
+          panel.classList.toggle("is-active", panel.id === `tab-${tabName}`);
+        });
+      }
+
+      tabBtns.forEach((btn) => {
+        btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+      });
+
+      /* ======================================================================
+         TAB 1: GALERIJ, ZOEKFUNCTIE & CATEGORIE-FILTERS
+         ====================================================================== */
+      function renderCategoryFilters() {
+        const categories = ["Alle"];
+        const seen = new Set(["Alle"]);
+
+        state.items.forEach((item) => {
+          const cat = (item.categorie || "Ongecategoriseerd").trim();
+          if (cat && !seen.has(cat)) {
+            seen.add(cat);
+            categories.push(cat);
+          }
+        });
+
+        // Reset filter naar 'Alle' als de huidige categorie niet meer bestaat
+        if (!seen.has(state.activeCategory)) {
+          state.activeCategory = "Alle";
+        }
+
+        categoryFiltersEl.innerHTML = "";
+        categories.forEach((cat) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "filter-btn" + (cat === state.activeCategory ? " is-active" : "");
+          btn.textContent = cat;
+          btn.addEventListener("click", () => {
+            state.activeCategory = cat;
+            renderGallery();
+          });
+          categoryFiltersEl.appendChild(btn);
+        });
+      }
+
+      function renderGallery() {
+        renderCategoryFilters();
+
+        const q = state.searchQuery.trim().toLowerCase();
+        const filtered = state.items.filter((item) => {
+          const itemCat = (item.categorie || "Ongecategoriseerd").trim();
+          if (state.activeCategory !== "Alle" && itemCat !== state.activeCategory) {
+            return false;
+          }
+          if (!q) return true;
+          const haystack = [
+            item.id,
+            item.titel,
+            item.datum,
+            item.locatie,
+            item.categorie,
+            item.bestand,
+            item.verhaal
+          ]
+            .join(" ")
+            .toLowerCase();
+          return haystack.includes(q);
+        });
+
+        galleryCounterEl.textContent = `${filtered.length} van ${state.items.length} ${
+          state.items.length === 1 ? "item" : "items"
+        }`;
+
+        if (filtered.length === 0) {
+          galleryGridEl.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1;">
+              <p style="margin: 0 0 0.5rem; font-family: var(--font-serif); font-size: 1.1rem; color: var(--ink);">
+                Geen kronieken gevonden voor uw zoekopdracht.
+              </p>
+              <p style="margin: 0; font-size: 0.88rem;">
+                Pas de zoekterm aan of kies categorie “Alle”.
+              </p>
+            </div>`;
+          return;
+        }
+
+        galleryGridEl.innerHTML = "";
+        const frag = document.createDocumentFragment();
+
+        filtered.forEach((item) => {
+          const card = document.createElement("article");
+          card.className = "item-card";
+          card.tabIndex = 0;
+          card.setAttribute("role", "button");
+          card.setAttribute("aria-label", `Open verhaal: ${item.titel || item.id}`);
+
+          const catLabel = (item.categorie || "Archief").trim();
+          const locLabel = (item.locatie || "").trim() || "Locatie niet opgegeven";
+          const dateLabel = (item.datum || "").trim() || "Zonder datum";
+          const fileLabel = (item.bestand || "").trim() || "(geen bestandspad)";
+          const hasImageExt = /\.(png|jpe?g|webp|gif|svg)$/i.test(fileLabel);
+
+          // Media-gedeelte met nette onerror fallback naar inline SVG
+          const mediaHtml = hasImageExt
+            ? `<img src="${escapeHtml(fileLabel)}" alt="${escapeHtml(item.titel || "")}" loading="lazy"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+               <div class="item-media-fallback" style="display: none;">
+                 ${getFallbackSvg(item)}
+                 <span style="font-size: 0.72rem; color: var(--ink-light); font-family: var(--font-mono);">${escapeHtml(fileLabel)}</span>
+               </div>`
+            : `<div class="item-media-fallback">
+                 ${getFallbackSvg(item)}
+                 <span style="font-size: 0.72rem; color: var(--ink-light); font-family: var(--font-mono);">${escapeHtml(fileLabel)}</span>
+               </div>`;
+
+          card.innerHTML = `
+            <div class="item-media">
+              ${mediaHtml}
+              <span class="item-cat-tag">${escapeHtml(catLabel)}</span>
+            </div>
+            <div class="item-body">
+              <h3 class="item-title">${escapeHtml(item.titel || "(Zonder titel)")}</h3>
+              <div class="item-meta">
+                <span>📅 ${escapeHtml(dateLabel)}</span>
+                <span>📍 ${escapeHtml(locLabel)}</span>
+              </div>
+              <div class="item-file">${escapeHtml(fileLabel)}</div>
+              <p class="item-preview">${escapeHtml((item.verhaal || "").replace(/\s+/g, " "))}</p>
+              <div class="item-footer">
+                <span>Lees volledig verhaal</span>
+                <span aria-hidden="true">→</span>
+              </div>
+            </div>
+          `;
+
+          card.addEventListener("click", () => openReaderModal(item.id));
+          card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              openReaderModal(item.id);
+            }
+          });
+
+          frag.appendChild(card);
+        });
+
+        galleryGridEl.appendChild(frag);
+      }
+
+      gallerySearchEl.addEventListener("input", (e) => {
+        state.searchQuery = e.target.value;
+        renderGallery();
+      });
+
+      /* ======================================================================
+         LEES-MODAL (TAB 1)
+         ====================================================================== */
+      function openReaderModal(itemId) {
+        const item = state.items.find((it) => it.id === itemId);
+        if (!item) return;
+
+        state.activeModalId = itemId;
+        modalCategoryEl.textContent = (item.categorie || "Archief").trim();
+        modalTitleEl.textContent = item.titel || "(Zonder titel)";
+
+        modalMetaEl.innerHTML = `
+          <div>
+            <span class="meta-kv-label">ID</span>
+            <span class="meta-kv-val">${escapeHtml(item.id || "-")}</span>
+          </div>
+          <div>
+            <span class="meta-kv-label">Datum</span>
+            <span class="meta-kv-val">${escapeHtml(item.datum || "-")}</span>
+          </div>
+          <div>
+            <span class="meta-kv-label">Locatie</span>
+            <span class="meta-kv-val">${escapeHtml(item.locatie || "Niet opgegeven")}</span>
+          </div>
+          <div>
+            <span class="meta-kv-label">Bestand</span>
+            <span class="meta-kv-val">${escapeHtml(item.bestand || "-")}</span>
+          </div>
+        `;
+
+        modalStoryEl.innerHTML = renderParagraphs(item.verhaal);
+        readerModalEl.classList.add("is-open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeReaderModal() {
+        readerModalEl.classList.remove("is-open");
+        document.body.style.overflow = "";
+        state.activeModalId = null;
+      }
+
+      btnCloseModal.addEventListener("click", closeReaderModal);
+      readerModalEl.addEventListener("click", (e) => {
+        if (e.target === readerModalEl) closeReaderModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && readerModalEl.classList.contains("is-open")) {
+          closeReaderModal();
+        }
+      });
+
+      btnPrintModal.addEventListener("click", () => {
+        document.body.classList.add("print-modal-only");
+        window.print();
+        setTimeout(() => document.body.classList.remove("print-modal-only"), 300);
+      });
+
+      btnEditFromModal.addEventListener("click", () => {
+        const idx = state.items.findIndex((it) => it.id === state.activeModalId);
+        closeReaderModal();
+        switchTab("werkbank");
+        if (idx >= 0) {
+          selectItemInWorkbench(idx);
+        }
+      });
+
+      /* ======================================================================
+         TAB 3: SINNESPEL LETTERGROOTTE & PRINTEN
+         ====================================================================== */
+      sizeBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const size = btn.dataset.size;
+          sizeBtns.forEach((b) => b.classList.toggle("is-active", b === btn));
+          sinnespelProseEl.className = `book-prose size-${size}`;
+        });
+      });
+
+      btnPrintSinnespel.addEventListener("click", () => {
+        document.body.classList.add("print-sinnespel-only");
+        window.print();
+        setTimeout(() => document.body.classList.remove("print-sinnespel-only"), 300);
+      });
+
+      /* ======================================================================
+         TAB 4: JSON-WERKBANK (FORMULIER, LIVE EDITOR, IMPORT/EXPORT)
+         ====================================================================== */
+      function populateWorkbenchSelect() {
+        wbSelectItemEl.innerHTML = "";
+
+        const newOpt = document.createElement("option");
+        newOpt.value = "-1";
+        newOpt.textContent = "➕ Nieuw item toevoegen…";
+        wbSelectItemEl.appendChild(newOpt);
+
+        state.items.forEach((item, index) => {
+          const opt = document.createElement("option");
+          opt.value = String(index);
+          opt.textContent = `${index + 1}. ${item.titel || item.id} (${item.id})`;
+          wbSelectItemEl.appendChild(opt);
+        });
+
+        wbSelectItemEl.value = String(state.editingIndex);
+      }
+
+      function selectItemInWorkbench(index) {
+        state.editingIndex = index;
+        wbSelectItemEl.value = String(index);
+
+        if (index < 0 || index >= state.items.length) {
+          const today = new Date().toISOString().slice(0, 10);
+          fId.value = `foto-${Date.now()}`;
+          fDatum.value = today;
+          fTitel.value = "";
+          fBestand.value = "fotos/";
+          fLocatie.value = "";
+          fCategorie.value = "";
+          fVerhaal.value = "";
+          btnDeleteSelected.disabled = true;
+          return;
+        }
+
+        const item = state.items[index];
+        fId.value = item.id || "";
+        fDatum.value = item.datum || "";
+        fTitel.value = item.titel || "";
+        fBestand.value = item.bestand || "";
+        fLocatie.value = item.locatie || "";
+        fCategorie.value = item.categorie || "";
+        fVerhaal.value = item.verhaal || "";
+        btnDeleteSelected.disabled = false;
+      }
+
+      function syncJsonEditorFromState() {
+        const formatted = JSON.stringify(state.items, null, 2);
+        jsonEditorEl.value = formatted;
+        setJsonStatus(true, `Geldige JSON • ${state.items.length} ${state.items.length === 1 ? "item" : "items"}`, formatted.length);
+      }
+
+      function setJsonStatus(isValid, text, charCount) {
+        jsonStatusBarEl.classList.toggle("is-valid", isValid);
+        jsonStatusBarEl.classList.toggle("is-invalid", !isValid);
+        jsonStatusTextEl.textContent = text;
+        jsonByteInfoEl.textContent = typeof charCount === "number" ? `${charCount.toLocaleString("nl-NL")} tekens` : "";
+      }
+
+      function refreshAllViews(keepEditorText = false) {
+        persistItems();
+        renderGallery();
+        populateWorkbenchSelect();
+        if (!keepEditorText) {
+          syncJsonEditorFromState();
+        }
+      }
+
+      wbSelectItemEl.addEventListener("change", () => {
+        selectItemInWorkbench(Number(wbSelectItemEl.value));
+      });
+
+      btnNewItem.addEventListener("click", () => {
+        selectItemInWorkbench(-1);
+        fTitel.focus();
+      });
+
+      btnSaveItem.addEventListener("click", () => {
+        const idVal = fId.value.trim() || `foto-${Date.now()}`;
+        const titelVal = fTitel.value.trim() || "Zonder titel";
+
+        const record = {
+          id: idVal,
+          bestand: fBestand.value.trim(),
+          titel: titelVal,
+          datum: fDatum.value.trim(),
+          locatie: fLocatie.value.trim(),
+          categorie: fCategorie.value.trim(),
+          verhaal: fVerhaal.value
+        };
+
+        if (state.editingIndex >= 0 && state.editingIndex < state.items.length) {
+          state.items[state.editingIndex] = record;
+          showToast(`Item “${titelVal}” bijgewerkt.`);
+        } else {
+          state.items.unshift(record);
+          state.editingIndex = 0;
+          showToast(`Nieuw item “${titelVal}” toegevoegd.`);
+        }
+
+        refreshAllViews();
+        selectItemInWorkbench(state.editingIndex);
+      });
+
+      btnDeleteSelected.addEventListener("click", () => {
+        if (state.editingIndex < 0 || state.editingIndex >= state.items.length) return;
+        const target = state.items[state.editingIndex];
+        askConfirmation(`Item “${target.titel || target.id}” definitief verwijderen?`, () => {
+          state.items.splice(state.editingIndex, 1);
+          state.editingIndex = state.items.length > 0 ? 0 : -1;
+          refreshAllViews();
+          selectItemInWorkbench(state.editingIndex);
+          showToast("Item verwijderd uit fotos.json.");
+        });
+      });
+
+      // Inline bevestigingsbalk (zonder browser-confirm)
+      function askConfirmation(message, onConfirm) {
+        state.pendingConfirmAction = onConfirm;
+        confirmTextEl.textContent = message;
+        confirmBannerEl.classList.add("is-visible");
+      }
+
+      function hideConfirmation() {
+        state.pendingConfirmAction = null;
+        confirmBannerEl.classList.remove("is-visible");
+      }
+
+      btnConfirmYes.addEventListener("click", () => {
+        const action = state.pendingConfirmAction;
+        hideConfirmation();
+        if (typeof action === "function") action();
+      });
+
+      btnConfirmNo.addEventListener("click", hideConfirmation);
+
+      btnRemoveExamples.addEventListener("click", () => {
+        const exampleIds = new Set(["voorbeeld-1", "voorbeeld-2", "voorbeeld-3"]);
+        const count = state.items.filter((it) => exampleIds.has(it.id)).length;
+        if (count === 0) {
+          showToast("Er staan geen voorbeeld-items (voorbeeld-1 t/m 3) meer in de lijst.");
+          return;
+        }
+        askConfirmation(
+          `Weet u zeker dat u ${count} voorbeeld-${count === 1 ? "item" : "items"} (voorbeeld-1 t/m 3) wilt verwijderen?`,
+          () => {
+            state.items = state.items.filter((it) => !exampleIds.has(it.id));
+            state.editingIndex = state.items.length > 0 ? 0 : -1;
+            refreshAllViews();
+            selectItemInWorkbench(state.editingIndex);
+            showToast(`${count} voorbeeld-items verwijderd.`);
+          }
+        );
+      });
+
+      btnRestoreDefaults.addEventListener("click", () => {
+        askConfirmation(
+          "Alle huidige wijzigingen vervangen door de oorspronkelijke 6 standaarditems?",
+          () => {
+            state.items = cloneDefaults();
+            state.editingIndex = 0;
+            refreshAllViews();
+            selectItemInWorkbench(0);
+            showToast("Standaarddata (6 items) hersteld.");
+          }
+        );
+      });
+
+      // Live handmatig bewerken in het JSON-tekstveld
+      jsonEditorEl.addEventListener("input", () => {
+        const raw = jsonEditorEl.value;
+        try {
+          const parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) {
+            setJsonStatus(false, "Fout: de JSON-root moet een array ([ ... ]) zijn.", raw.length);
+            return;
+          }
+          state.items = parsed;
+          if (state.editingIndex >= state.items.length) {
+            state.editingIndex = state.items.length > 0 ? 0 : -1;
+          }
+          setJsonStatus(
+            true,
+            `Geldige JSON • ${state.items.length} ${state.items.length === 1 ? "item" : "items"}`,
+            raw.length
+          );
+          refreshAllViews(true);
+          selectItemInWorkbench(state.editingIndex);
+        } catch (err) {
+          setJsonStatus(false, `Ongeldige JSON: ${err.message}`, raw.length);
+        }
+      });
+
+      // Importeren van een lokaal fotos.json bestand (100% client-side)
+      fileImportJson.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(String(reader.result || ""));
+            if (!Array.isArray(parsed)) {
+              setJsonStatus(false, "Importfout: bestand bevat geen JSON-array.");
+              showToast("Import mislukt: verwacht een JSON-array.");
+              return;
+            }
+            state.items = parsed;
+            state.editingIndex = state.items.length > 0 ? 0 : -1;
+            refreshAllViews();
+            selectItemInWorkbench(state.editingIndex);
+            showToast(`Geïmporteerd: ${parsed.length} items uit ${file.name}.`);
+          } catch (err) {
+            setJsonStatus(false, `Importfout: ${err.message}`);
+            showToast("Kon het JSON-bestand niet inlezen.");
+          } finally {
+            fileImportJson.value = "";
+          }
+        };
+        reader.readAsText(file, "UTF-8");
+      });
+
+      // Kopiëren naar klembord (iframe-veilig via document.execCommand('copy'))
+      btnCopyJson.addEventListener("click", () => {
+        try {
+          jsonEditorEl.focus();
+          jsonEditorEl.select();
+          const ok = document.execCommand("copy");
+          if (ok) {
+            showToast("fotos.json gekopieerd naar het klembord.");
+          } else {
+            showToast("Kopiëren niet gelukt; selecteer de tekst handmatig.");
+          }
+        } catch (err) {
+          showToast("Kopiëren niet gelukt in deze browser.");
+        }
+      });
+
+      // Downloaden als fotos.json
+      btnDownloadJson.addEventListener("click", () => {
+        try {
+          const content = JSON.stringify(state.items, null, 2);
+          const blob = new Blob([content], { type: "application/json;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "fotos.json";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 500);
+          showToast("fotos.json gedownload.");
+        } catch (err) {
+          showToast("Downloaden is mislukt.");
+        }
+      });
+
+      /* ======================================================================
+         OPSTARTEN
+         ====================================================================== */
+      window.addEventListener("DOMContentLoaded", () => {
+        state.items = loadItems();
+        state.editingIndex = state.items.length > 0 ? 0 : -1;
+        renderGallery();
+        populateWorkbenchSelect();
+        selectItemInWorkbench(state.editingIndex);
+        syncJsonEditorFromState();
+      });
+    })();
+  </script>
+</body>
+</html>
