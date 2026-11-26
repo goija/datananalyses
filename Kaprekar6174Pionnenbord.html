@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kaprekar 6174 Pionnenbord — Meekrap Editie</title>
+  <style>
+    /* ==========================================================================
+       ZEEUWSE MEEKRAP DESIGN TOKENS
+       ========================================================================== */
+    :root {
+      /* Oppervlakken & randen */
+      --bg-page: #FFFFFF;
+      --bg-linen: #FAF7F5;
+      --bg-linen-deep: #F3ECE7;
+      --border-warm: #E6DDD6;
+      --border-strong: #D3C5BC;
+
+      /* Typografie & inkt */
+      --ink-main: #231917;
+      --ink-muted: #6E5A54;
+      --ink-soft: #9C8A84;
+
+      /* Meekrap & Oker-goud accenten */
+      --meekrap: #A62B2E;
+      --meekrap-dark: #821A20;
+      --meekrap-tint: rgba(166, 43, 46, 0.08);
+      --ochre-gold: #C89328;
+      --ochre-tint: rgba(200, 147, 40, 0.14);
+
+      /* Tonaal Meekrap-kleurenpalet voor stappen naar 6174 */
+      --col-repdigit: #D8D0CA;
+      --col-step-0:   #C89328;
+      --col-step-1:   #E8B4B0;
+      --col-step-2:   #D98882;
+      --col-step-3:   #C45852;
+      --col-step-4:   #A62B2E;
+      --col-step-5:   #821A20;
+      --col-step-6:   #5C1118;
+      --col-step-7:   #380A0F;
+
+      /* Systeem-typografie (volledig offline) */
+      --font-serif: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, "Times New Roman", serif;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-soft: 0 2px 12px rgba(35, 25, 23, 0.045);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background-color: var(--bg-page);
+      color: var(--ink-main);
+      font-family: var(--font-sans);
+      line-height: 1.48;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       HEADER & HOOFDBESTURING
+       ========================================================================== */
+    .app-header {
+      background: var(--bg-page);
+      border-bottom: 1px solid var(--border-warm);
+      padding: 16px 22px;
+    }
+
+    .header-inner {
+      max-width: 1620px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-seal {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--ochre-gold);
+      color: #FFFFFF;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      box-shadow: 0 0 0 2px var(--bg-page), 0 0 0 4.5px var(--meekrap);
+      flex-shrink: 0;
+    }
+
+    .brand h1 {
+      font-family: var(--font-serif);
+      font-size: 1.36rem;
+      font-weight: 600;
+      color: var(--ink-main);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .brand p {
+      font-size: 0.83rem;
+      color: var(--ink-muted);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .segmented {
+      display: inline-flex;
+      background: var(--bg-linen);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--radius-md);
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .seg-btn {
+      border: none;
+      background: transparent;
+      color: var(--ink-muted);
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 7px 13px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .seg-btn:hover {
+      color: var(--ink-main);
+    }
+
+    .seg-btn.active {
+      background: var(--meekrap);
+      color: #FFFFFF;
+      box-shadow: 0 1px 4px rgba(166, 43, 46, 0.25);
+    }
+
+    .btn {
+      border: 1px solid var(--border-strong);
+      background: var(--bg-page);
+      color: var(--ink-main);
+      font-family: var(--font-sans);
+      font-size: 0.81rem;
+      font-weight: 600;
+      padding: 8px 13px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: var(--bg-linen-deep);
+      border-color: var(--meekrap);
+    }
+
+    .btn-primary {
+      background: var(--meekrap);
+      border-color: var(--meekrap);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background: var(--meekrap-dark);
+      border-color: var(--meekrap-dark);
+    }
+
+    .btn-subtle {
+      background: var(--bg-linen);
+      border-color: var(--border-warm);
+      color: var(--ink-main);
+    }
+
+    .btn-subtle.active {
+      background: var(--ochre-tint);
+      border-color: var(--ochre-gold);
+      color: #7A540E;
+    }
+
+    /* ==========================================================================
+       HOOFDINDELING (CANVAS LINKS, ZIJPANEEL RECHTS)
+       ========================================================================== */
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 416px;
+      gap: 20px;
+      max-width: 1620px;
+      margin: 0 auto;
+      padding: 20px 22px 28px;
+      align-items: start;
+    }
+
+    @media (max-width: 1140px) {
+      .workspace {
+        grid-template-columns: 1fr;
+        padding: 14px;
+        gap: 16px;
+      }
+    }
+
+    .panel {
+      background: var(--bg-linen);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .panel-title {
+      font-family: var(--font-serif);
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--ink-main);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-warm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .panel-tag {
+      font-family: var(--font-mono);
+      font-size: 0.71rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--meekrap);
+      background: var(--meekrap-tint);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    /* ==========================================================================
+       LINKERKOLOM: ZOEKBALK, INTERACTIEF CANVAS & AUTOMATISERING
+       ========================================================================== */
+    .board-column {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .board-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .search-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      width: 132px;
+      padding: 7px 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--bg-page);
+      color: var(--ink-main);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    .search-input:focus {
+      outline: 2px solid rgba(166, 43, 46, 0.22);
+      border-color: var(--meekrap);
+    }
+
+    .anchor-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .anchor-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      background: var(--bg-page);
+      border: 1px solid var(--border-warm);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .anchor-toggle input {
+      accent-color: var(--ochre-gold);
+      cursor: pointer;
+    }
+
+    /* HiDPI Canvas Stage */
+    .canvas-stage {
+      position: relative;
+      width: 100%;
+      height: clamp(460px, 68vh, 780px);
+      background: var(--bg-page);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .canvas-stage.is-dragging {
+      cursor: grabbing;
+    }
+
+    #boardCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .canvas-hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hud-pill {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--radius-sm);
+      padding: 5px 10px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      box-shadow: 0 2px 8px rgba(35, 25, 23, 0.06);
+    }
+
+    .hud-pill strong {
+      color: var(--ink-main);
+    }
+
+    .zoom-bar {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--radius-sm);
+      box-shadow: 0 2px 8px rgba(35, 25, 23, 0.06);
+      overflow: hidden;
+    }
+
+    .zoom-btn {
+      border: none;
+      background: transparent;
+      color: var(--ink-main);
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 6px 11px;
+      cursor: pointer;
+      transition: background-color 0.14s ease, color 0.14s ease;
+    }
+
+    .zoom-btn:hover {
+      background: var(--bg-linen-deep);
+      color: var(--meekrap);
+    }
+
+    .zoom-btn + .zoom-btn {
+      border-left: 1px solid var(--border-warm);
+    }
+
+    .zoom-readout {
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      color: var(--ink-muted);
+      padding: 0 8px;
+      border-left: 1px solid var(--border-warm);
+      min-width: 50px;
+      text-align: center;
+    }
+
+    .canvas-footer {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+    }
+
+    .status-toast {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--meekrap);
+      min-height: 1.1em;
+    }
+
+    /* Automatisering-balk onder het canvas */
+    .auto-bar {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    @media (max-width: 860px) {
+      .auto-bar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .auto-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .auto-settings {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .inline-field {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+    }
+
+    .inline-field select {
+      background: var(--bg-page);
+      color: var(--ink-main);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 6px 9px;
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+    }
+
+    .inline-field input[type="range"] {
+      width: 118px;
+      accent-color: var(--meekrap);
+      cursor: pointer;
+    }
+
+    .progress-box {
+      min-width: 190px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      margin-bottom: 5px;
+      gap: 8px;
+    }
+
+    .progress-meta strong {
+      color: var(--ink-main);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background: var(--bg-page);
+      border: 1px solid var(--border-warm);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, var(--col-step-3), var(--col-step-5));
+      transition: width 0.08s linear;
+    }
+
+    /* ==========================================================================
+       ZIJPANEEL RECHTS: INSPECTIEPANEEL & KLIKBARE MULTI-FILTER LEGENDA
+       ========================================================================== */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Live Inspectiepaneel */
+    .inspect-hero {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .inspect-numbers {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .inspect-main-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .inspect-num {
+      font-family: var(--font-mono);
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--ink-main);
+      line-height: 1;
+    }
+
+    .inspect-padded {
+      font-family: var(--font-mono);
+      font-size: 0.86rem;
+      color: var(--ink-soft);
+    }
+
+    .inspect-coord {
+      font-family: var(--font-mono);
+      font-size: 0.77rem;
+      color: var(--ink-muted);
+    }
+
+    .special-badge {
+      font-size: 0.71rem;
+      font-weight: 600;
+      color: #7A540E;
+      background: var(--ochre-tint);
+      border: 1px solid rgba(200, 147, 40, 0.55);
+      padding: 3px 9px;
+      border-radius: 999px;
+      display: none;
+      white-space: nowrap;
+    }
+
+    .special-badge.visible {
+      display: inline-block;
+    }
+
+    .calc-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .calc-card {
+      background: var(--bg-page);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--radius-sm);
+      padding: 11px 13px;
+    }
+
+    .calc-card.primary-card {
+      border-color: var(--meekrap);
+      box-shadow: inset 3px 0 0 var(--meekrap);
+    }
+
+    .calc-card.hidden {
+      display: none;
+    }
+
+    .calc-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 7px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    .step-pill {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--bg-linen-deep);
+      color: var(--ink-main);
+      font-weight: 600;
+    }
+
+    .step-pill.is-const {
+      background: var(--ochre-tint);
+      color: #7A540E;
+    }
+
+    .calc-list {
+      list-style: none;
+      font-family: var(--font-mono);
+      font-size: 0.79rem;
+      color: var(--ink-main);
+      line-height: 1.62;
+    }
+
+    .calc-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .calc-idx {
+      color: var(--ink-soft);
+    }
+
+    .calc-target {
+      color: var(--meekrap);
+      font-weight: 700;
+    }
+
+    /* Klikbare Multi-filter Legenda */
+    .quick-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .btn-chip {
+      border: 1px solid var(--border-strong);
+      background: var(--bg-page);
+      color: var(--ink-main);
+      font-family: var(--font-sans);
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 5px 9px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+
+    .btn-chip:hover {
+      border-color: var(--meekrap);
+      color: var(--meekrap);
+    }
+
+    .btn-chip.active {
+      background: var(--meekrap);
+      border-color: var(--meekrap);
+      color: #FFFFFF;
+    }
+
+    .btn-chip.clear-btn {
+      border-color: var(--meekrap);
+      background: var(--meekrap-tint);
+      color: var(--meekrap);
+      display: none;
+    }
+
+    .btn-chip.clear-btn.visible {
+      display: inline-block;
+    }
+
+    .legend-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 16px 1fr auto;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-warm);
+      background: var(--bg-page);
+      color: var(--ink-main);
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: border-color 0.14s ease, background-color 0.14s ease;
+      text-align: left;
+    }
+
+    .legend-item:hover {
+      border-color: var(--meekrap);
+      background: var(--bg-linen);
+    }
+
+    .legend-item.active {
+      border-color: var(--meekrap);
+      background: var(--meekrap);
+      color: #FFFFFF;
+    }
+
+    .legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-dot.is-repdigit {
+      border: 1.5px dashed #8E817A;
+    }
+
+    .legend-dot.is-const {
+      box-shadow: 0 0 0 1.5px var(--bg-page), 0 0 0 3px var(--meekrap);
+    }
+
+    .legend-count {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--ink-muted);
+      white-space: nowrap;
+    }
+
+    .legend-item.active .legend-count {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .legend-footnote {
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: 1px solid var(--border-warm);
+      font-size: 0.74rem;
+      color: var(--ink-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.45;
+    }
+
+    .gold-ring-sample {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--col-step-1);
+      box-shadow: 0 0 0 1.5px var(--bg-linen), 0 0 0 3px var(--ochre-gold);
+      flex-shrink: 0;
+      margin-top: 2px;
+      margin-left: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER MET TITEL EN HOOFDBESTURING -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-seal">6174</div>
+        <div>
+          <h1>Kaprekar 6174 Pionnenbord — Meekrap Editie</h1>
+          <p>Alle 6174 ronde pionnen (1 t/m 6174) op een interactief HiDPI-canvas in Zeeuwse Meekrap-stijl</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="segmented" role="group" aria-label="Kies raster-indeling">
+          <button id="btnLayoutExact" class="seg-btn active" type="button">98 × 63 (Exact 6174)</button>
+          <button id="btnLayoutSquare" class="seg-btn" type="button">79 × 79 (Vierkant)</button>
+        </div>
+
+        <button id="btnExportCsv" class="btn btn-subtle" type="button">Exporteer CSV</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOOFDWERKRUIMTE -->
+  <main class="workspace">
+
+    <!-- LINKERKOLOM: CANVAS-BORD & AUTOMATISERING -->
+    <div class="board-column">
+
+      <!-- CANVAS PANEEL -->
+      <section class="panel" aria-label="Interactief 6174 pionnenbord">
+        <div class="board-toolbar">
+          <form id="searchForm" class="search-group" autocomplete="off">
+            <input
+              id="searchInput"
+              class="search-input"
+              type="number"
+              min="1"
+              max="6174"
+              placeholder="Zoek 1–6174"
+              aria-label="Zoek een getal van 1 tot en met 6174"
+            />
+            <button class="btn" type="submit">Zoek</button>
+          </form>
+
+          <div class="anchor-controls">
+            <label class="anchor-toggle" title="Toon of verberg oker-gouden dubbele ringen op 6174 en de zes dubbele 1-stap getallen">
+              <input id="chkAnchorRings" type="checkbox" checked />
+              <span>Anker-ringen (6174 &amp; 136..631)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- HIDPI CANVAS -->
+        <div id="canvasStage" class="canvas-stage">
+          <canvas id="boardCanvas" aria-label="Kaprekar 6174 pionnenbord canvas"></canvas>
+
+          <div class="canvas-hud">
+            <div id="hudCoord" class="hud-pill">
+              Pion: <strong>6174</strong> &middot; Kolom <strong>98</strong>, Rij <strong>63</strong>
+            </div>
+
+            <div class="zoom-bar" aria-label="Zoom-besturing">
+              <button id="btnZoomOut" class="zoom-btn" type="button" title="Uitzoomen">−</button>
+              <span id="zoomReadout" class="zoom-readout">100%</span>
+              <button id="btnZoomIn" class="zoom-btn" type="button" title="Inzoomen">+</button>
+              <button id="btnZoomReset" class="zoom-btn" type="button" title="Weergave resetten">Reset weergave</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-footer">
+          <span>Muiswiel of +/− om in te zoomen · Sleep om te verplaatsen · Klik op een pion voor inspectie</span>
+          <span id="statusToast" class="status-toast"></span>
+        </div>
+      </section>
+
+      <!-- AUTOMATISERING PANEEL -->
+      <section class="panel" aria-label="Automatisering">
+        <div class="auto-bar">
+          <div class="auto-buttons">
+            <button id="btnPlayPause" class="btn btn-primary" type="button">Afspelen</button>
+            <button id="btnStep" class="btn" type="button">Stap voor stap</button>
+            <button id="btnShowAll" class="btn" type="button">Alles direct tonen</button>
+            <button id="btnReset" class="btn" type="button">Reset</button>
+          </div>
+
+          <div class="auto-settings">
+            <label class="inline-field">
+              <span>Volgorde</span>
+              <select id="orderSelect">
+                <option value="linear">Lineair (1 → 6174)</option>
+                <option value="spiral">Spiraal vanuit midden</option>
+                <option value="wave">Per stap-golf (0 → 7 stappen)</option>
+              </select>
+            </label>
+
+            <label class="inline-field">
+              <span>Snelheid</span>
+              <input id="speedRange" type="range" min="1" max="100" value="58" />
+              <span id="speedLabel" style="font-family: var(--font-mono); min-width: 74px;">30/frame</span>
+            </label>
+          </div>
+
+          <div class="progress-box">
+            <div class="progress-meta">
+              <span id="progressLabel">6174 / 6174 pionnen geplaatst</span>
+            </div>
+            <div class="progress-track">
+              <div id="progressFill" class="progress-fill"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RECHTERKOLOM: LIVE INSPECTIEPANEEL & KLIKBARE MULTI-FILTER LEGENDA -->
+    <aside class="sidebar">
+
+      <!-- LIVE INSPECTIEPANEEL -->
+      <section class="panel" aria-label="Live inspectiepaneel">
+        <div class="panel-title">
+          <span>Live Inspectie</span>
+          <span id="inspectTag" class="panel-tag">Geselecteerd</span>
+        </div>
+
+        <div class="inspect-hero">
+          <div class="inspect-numbers">
+            <div class="inspect-main-row">
+              <span id="inspectNum" class="inspect-num">6174</span>
+              <span id="inspectPadded" class="inspect-padded">(6174)</span>
+            </div>
+            <span id="inspectCoord" class="inspect-coord">Kolom 98, Rij 63</span>
+          </div>
+          <span id="specialBadge" class="special-badge visible">Constante 6174</span>
+        </div>
+
+        <div class="calc-stack">
+          <!-- 4-cijferige route naar 6174 -->
+          <div class="calc-card primary-card">
+            <div class="calc-head">
+              <span>Kaprekar-route naar 6174</span>
+              <span id="pill6174" class="step-pill is-const">0 stappen</span>
+            </div>
+            <ul id="list6174" class="calc-list"></ul>
+          </div>
+
+          <!-- Compacte 3-cijferige route naar 495 (alleen zichtbaar voor 1..999) -->
+          <div id="card495" class="calc-card hidden">
+            <div class="calc-head">
+              <span>3-cijferige route naar 495</span>
+              <span id="pill495" class="step-pill">1 stap</span>
+            </div>
+            <ul id="list495" class="calc-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- KLIKBARE MULTI-FILTER LEGENDA & STATISTIEKEN -->
+      <section class="panel" aria-label="Legenda en filters">
+        <div class="panel-title">
+          <span>Legenda &amp; Multi-filter</span>
+          <span id="filterCountTag" class="panel-tag">Alle 6174</span>
+        </div>
+
+        <div class="quick-filter-row">
+          <button id="btnQuick6174" class="btn-chip" type="button">6174 uitlichten</button>
+          <button id="btnQuickDouble" class="btn-chip" type="button">Dubbele 1-stap (136..631)</button>
+          <button id="btnClearFilters" class="btn-chip clear-btn" type="button">Alle filters wissen</button>
+        </div>
+
+        <div id="legendList" class="legend-list"></div>
+
+        <div class="legend-footnote">
+          <span class="gold-ring-sample" aria-hidden="true"></span>
+          <span>Klik op één of meer categorieën om ze gelijktijdig uit te lichten. De oker-gouden anker-ringen markeren <strong>6174</strong> en de zes dubbele 1-stap getallen (<strong>136, 163, 316, 361, 613, 631</strong>).</span>
+        </div>
+      </section>
+
+    </aside>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      /* ========================================================================
+         1. CONSTANTEN, PALET & RASTER-INDELINGEN
+         ======================================================================== */
+      const TOTAL_PAWNS = 6174;
+      const DOUBLE_ONE_SET = new Set([136, 163, 316, 361, 613, 631]);
+
+      const LAYOUTS = {
+        exact:  { cols: 98, rows: 63, name: "98 × 63 (Exact 6174)" },
+        square: { cols: 79, rows: 79, name: "79 × 79 (Vierkant)" }
+      };
+
+      // Stappencodes: -1 = repdigits (1111..5555), 0 = constante 6174, 1..7 = stappen
+      const STEP_DEFS = [
+        { code: -1, label: "Repdigits (→ 0)",      bg: "#D8D0CA", fg: "#231917", isRepdigit: true },
+        { code:  0, label: "0 stappen (6174)",     bg: "#C89328", fg: "#FFFFFF", isConst: true },
+        { code:  1, label: "1 stap",               bg: "#E8B4B0", fg: "#231917" },
+        { code:  2, label: "2 stappen",            bg: "#D98882", fg: "#231917" },
+        { code:  3, label: "3 stappen",            bg: "#C45852", fg: "#FFFFFF" },
+        { code:  4, label: "4 stappen",            bg: "#A62B2E", fg: "#FFFFFF" },
+        { code:  5, label: "5 stappen",            bg: "#821A20", fg: "#FFFFFF" },
+        { code:  6, label: "6 stappen",            bg: "#5C1118", fg: "#FFFFFF" },
+        { code:  7, label: "7 stappen",            bg: "#380A0F", fg: "#FFFFFF" }
+      ];
+
+      const STEP_STYLE_MAP = new Map(STEP_DEFS.map(d => [d.code, d]));
+
+      /* ========================================================================
+         2. KAPREKAR-WISKUNDE & VOORBEREKENING VOOR ALLE 6174 GETALLEN
+         ======================================================================== */
+
+      /**
+       * Berekent snel de stappencode voor een 4-cijferig getal (met voorloopnullen).
+       * -1 = repdigit (1111, 2222, 3333, 4444, 5555)
+       *  0 = 6174 zelf
+       * 1..7 = aantal aftrekkingen naar 6174
+       */
+      function computeStepCode6174(num) {
+        if (num === 6174) return 0;
+        if (num % 1111 === 0) return -1;
+
+        let cur = num;
+        let steps = 0;
+        const d = [0, 0, 0, 0];
+
+        while (cur !== 6174 && steps < 10) {
+          d[0] = cur % 10;
+          d[1] = Math.floor(cur / 10) % 10;
+          d[2] = Math.floor(cur / 100) % 10;
+          d[3] = Math.floor(cur / 1000) % 10;
+          d.sort((a, b) => a - b);
+
+          const asc  = d[0] * 1000 + d[1] * 100 + d[2] * 10 + d[3];
+          const desc = d[3] * 1000 + d[2] * 100 + d[1] * 10 + d[0];
+          cur = desc - asc;
+          steps++;
+        }
+        return steps;
+      }
+
+      /**
+       * Berekent de volledige uitgeschreven Kaprekar-reeks (3 of 4 cijfers)
+       * met voorloopnullen voor weergave in het inspectiepaneel en CSV-export.
+       */
+      function computeKaprekarDetails(num, digits) {
+        const target = digits === 3 ? 495 : 6174;
+        const startStr = String(num).padStart(digits, "0");
+
+        // Repdigits controleren (alle cijfers gelijk)
+        if (/^(\d)\1+$/.test(startStr)) {
+          return {
+            code: -1,
+            steps: 0,
+            isRepdigit: true,
+            isConstant: false,
+            history: [
+              { expr: `${startStr} − ${startStr}`, result: "0".repeat(digits), hit: false }
+            ]
+          };
+        }
+
+        // Constante zelf (0 stappen)
+        if (num === target) {
+          const chars = startStr.split("");
+          const desc = [...chars].sort((a, b) => b.localeCompare(a)).join("");
+          const asc  = [...chars].sort((a, b) => a.localeCompare(b)).join("");
+          return {
+            code: 0,
+            steps: 0,
+            isRepdigit: false,
+            isConstant: true,
+            history: [
+              { expr: `${desc} − ${asc}`, result: startStr, hit: true }
+            ]
+          };
+        }
+
+        let current = startStr;
+        const history = [];
+        let steps = 0;
+
+        while (Number(current) !== target && steps < 10) {
+          const chars = current.split("");
+          const desc = [...chars].sort((a, b) => b.localeCompare(a)).join("");
+          const asc  = [...chars].sort((a, b) => a.localeCompare(b)).join("");
+          const diff = Number(desc) - Number(asc);
+          const nextStr = String(diff).padStart(digits, "0");
+          steps++;
+          history.push({
+            expr: `${desc} − ${asc}`,
+            result: nextStr,
+            hit: diff === target
+          });
+          current = nextStr;
+        }
+
+        return { code: steps, steps, isRepdigit: false, isConstant: false, history };
+      }
+
+      // Pre-calculatie in een compacte Int8Array (index 1..6174)
+      const stepCodes = new Int8Array(TOTAL_PAWNS + 1);
+      const totalCountsByCode = new Map(STEP_DEFS.map(d => [d.code, 0]));
+
+      for (let n = 1; n <= TOTAL_PAWNS; n++) {
+        const code = computeStepCode6174(n);
+        stepCodes[n] = code;
+        totalCountsByCode.set(code, totalCountsByCode.get(code) + 1);
+      }
+
+      /* ========================================================================
+         3. ANIMATIEVOLGORDES (LINEAIR, SPIRAAL, STAP-GOLF)
+         ======================================================================== */
+      function buildScanOrder(orderType, layoutKey) {
+        const order = new Int32Array(TOTAL_PAWNS);
+
+        if (orderType === "linear") {
+          for (let i = 0; i < TOTAL_PAWNS; i++) order[i] = i + 1;
+          return order;
+        }
+
+        if (orderType === "wave") {
+          // Per stap-golf: 0 stappen (6174) -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> Repdigits
+          const waveSequence = [0, 1, 2, 3, 4, 5, 6, 7, -1];
+          let idx = 0;
+          for (const targetCode of waveSequence) {
+            for (let n = 1; n <= TOTAL_PAWNS; n++) {
+              if (stepCodes[n] === targetCode) {
+                order[idx++] = n;
+              }
+            }
+          }
+          return order;
+        }
+
+        // Spiraal vanuit het midden van het huidige raster
+        const { cols, rows } = LAYOUTS[layoutKey];
+        let c = Math.floor(cols / 2);
+        let r = Math.floor(rows / 2);
+        let count = 0;
+
+        const pushIfValid = (col, row) => {
+          if (col >= 0 && col < cols && row >= 0 && row < rows) {
+            const num = row * cols + col + 1;
+            if (num >= 1 && num <= TOTAL_PAWNS) {
+              order[count++] = num;
+            }
+          }
+        };
+
+        pushIfValid(c, r);
+        const dc = [1, 0, -1, 0];
+        const dr = [0, 1, 0, -1];
+        let stepLen = 1;
+        let dir = 0;
+        const maxSteps = Math.max(cols, rows) * 2 + 4;
+
+        while (count < TOTAL_PAWNS && stepLen <= maxSteps) {
+          for (let rep = 0; rep < 2; rep++) {
+            for (let s = 0; s < stepLen; s++) {
+              c += dc[dir];
+              r += dr[dir];
+              pushIfValid(c, r);
+              if (count >= TOTAL_PAWNS) break;
+            }
+            dir = (dir + 1) % 4;
+            if (count >= TOTAL_PAWNS) break;
+          }
+          stepLen++;
+        }
+        return order;
+      }
+
+      /* ========================================================================
+         4. APPLICATIESTATUS & CAMERA
+         ======================================================================== */
+      const state = {
+        layoutKey: "exact",            // "exact" (98x63) | "square" (79x79)
+        orderType: "linear",           // "linear" | "spiral" | "wave"
+        order: buildScanOrder("linear", "exact"),
+        placed: new Uint8Array(TOTAL_PAWNS + 1),
+        placedCount: TOTAL_PAWNS,      // Start direct volledig gevuld
+        cursorIdx: TOTAL_PAWNS,
+        activeCursorNum: 0,
+        running: false,
+        frameCarry: 0,
+        selectedNum: 6174,
+        hoverNum: null,
+        showAnchorRings: true,
+        stepFilters: new Set(),        // Multi-filter op stappencodes (-1, 0..7)
+        specialFilter: null,           // null | "6174" | "double"
+        needsDraw: true
+      };
+
+      state.placed.fill(1, 1, TOTAL_PAWNS + 1);
+
+      const MARGIN_LEFT = 2.6;
+      const MARGIN_TOP = 2.1;
+      const MARGIN_RIGHT = 0.8;
+      const MARGIN_BOTTOM = 0.8;
+
+      const camera = {
+        scale: 8,
+        minScale: 2.5,
+        maxScale: 74,
+        offsetX: 0,
+        offsetY: 0,
+        baseFitScale: 8,
+        anim: null
+      };
+
+      const pointer = {
+        isDown: false,
+        moved: false,
+        startX: 0,
+        startY: 0,
+        lastX: 0,
+        lastY: 0,
+        pinchDist: 0
+      };
+
+      /* ========================================================================
+         5. DOM-REFERENTIES
+         ======================================================================== */
+      const canvasStage = document.getElementById("canvasStage");
+      const canvas = document.getElementById("boardCanvas");
+      const ctx = canvas.getContext("2d", { alpha: false });
+
+      const btnLayoutExact = document.getElementById("btnLayoutExact");
+      const btnLayoutSquare = document.getElementById("btnLayoutSquare");
+      const btnExportCsv = document.getElementById("btnExportCsv");
+
+      const searchForm = document.getElementById("searchForm");
+      const searchInput = document.getElementById("searchInput");
+      const chkAnchorRings = document.getElementById("chkAnchorRings");
+
+      const hudCoord = document.getElementById("hudCoord");
+      const btnZoomIn = document.getElementById("btnZoomIn");
+      const btnZoomOut = document.getElementById("btnZoomOut");
+      const btnZoomReset = document.getElementById("btnZoomReset");
+      const zoomReadout = document.getElementById("zoomReadout");
+      const statusToast = document.getElementById("statusToast");
+
+      const btnPlayPause = document.getElementById("btnPlayPause");
+      const btnStep = document.getElementById("btnStep");
+      const btnShowAll = document.getElementById("btnShowAll");
+      const btnReset = document.getElementById("btnReset");
+      const orderSelect = document.getElementById("orderSelect");
+      const speedRange = document.getElementById("speedRange");
+      const speedLabel = document.getElementById("speedLabel");
+      const progressLabel = document.getElementById("progressLabel");
+      const progressFill = document.getElementById("progressFill");
+
+      const inspectTag = document.getElementById("inspectTag");
+      const inspectNum = document.getElementById("inspectNum");
+      const inspectPadded = document.getElementById("inspectPadded");
+      const inspectCoord = document.getElementById("inspectCoord");
+      const specialBadge = document.getElementById("specialBadge");
+      const pill6174 = document.getElementById("pill6174");
+      const list6174 = document.getElementById("list6174");
+      const card495 = document.getElementById("card495");
+      const pill495 = document.getElementById("pill495");
+      const list495 = document.getElementById("list495");
+
+      const filterCountTag = document.getElementById("filterCountTag");
+      const btnQuick6174 = document.getElementById("btnQuick6174");
+      const btnQuickDouble = document.getElementById("btnQuickDouble");
+      const btnClearFilters = document.getElementById("btnClearFilters");
+      const legendList = document.getElementById("legendList");
+
+      /* ========================================================================
+         6. HULPFUNCTIES & CAMERA-BESTURING
+         ======================================================================== */
+      let viewW = 800;
+      let viewH = 600;
+      let toastTimer = null;
+
+      function getLayout() {
+        return LAYOUTS[state.layoutKey];
+      }
+
+      function numToColRow(num) {
+        const { cols } = getLayout();
+        const idx = num - 1;
+        return {
+          col: (idx % cols) + 1,
+          row: Math.floor(idx / cols) + 1
+        };
+      }
+
+      function showToast(msg) {
+        statusToast.textContent = msg;
+        if (toastTimer) clearTimeout(toastTimer);
+        if (msg) {
+          toastTimer = setTimeout(() => { statusToast.textContent = ""; }, 3200);
+        }
+      }
+
+      function hasActiveFilter() {
+        return state.stepFilters.size > 0 || state.specialFilter !== null;
+      }
+
+      function matchesCurrentFilter(num) {
+        if (!hasActiveFilter()) return true;
+        if (state.specialFilter === "6174") return num === 6174;
+        if (state.specialFilter === "double") return DOUBLE_ONE_SET.has(num);
+        return state.stepFilters.has(stepCodes[num]);
+      }
+
+      function resizeCanvas(refit = false) {
+        const rect = canvasStage.getBoundingClientRect();
+        viewW = Math.max(200, Math.floor(rect.width));
+        viewH = Math.max(200, Math.floor(rect.height));
+        const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+
+        canvas.width = Math.floor(viewW * dpr);
+        canvas.height = Math.floor(viewH * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        if (refit) {
+          fitBoardToView(false);
+        } else {
+          state.needsDraw = true;
+        }
+      }
+
+      function fitBoardToView(animate = false) {
+        const { cols, rows } = getLayout();
+        const worldW = cols + MARGIN_LEFT + MARGIN_RIGHT;
+        const worldH = rows + MARGIN_TOP + MARGIN_BOTTOM;
+
+        const topSafe = 44;
+        const availW = Math.max(120, viewW - 18);
+        const availH = Math.max(120, viewH - topSafe - 14);
+
+        const targetScale = Math.min(availW / worldW, availH / worldH);
+        const targetOffsetX = (viewW - worldW * targetScale) / 2 + MARGIN_LEFT * targetScale;
+        const targetOffsetY = topSafe + (availH - worldH * targetScale) / 2 + MARGIN_TOP * targetScale;
+
+        camera.baseFitScale = targetScale;
+        camera.minScale = Math.max(2.0, targetScale * 0.72);
+        camera.maxScale = Math.max(62, targetScale * 14);
+
+        if (animate) {
+          startCameraAnim(targetScale, targetOffsetX, targetOffsetY);
+        } else {
+          camera.anim = null;
+          camera.scale = targetScale;
+          camera.offsetX = targetOffsetX;
+          camera.offsetY = targetOffsetY;
+          updateZoomReadout();
+          state.needsDraw = true;
+        }
+      }
+
+      function startCameraAnim(targetScale, targetOffsetX, targetOffsetY) {
+        camera.anim = {
+          startTime: performance.now(),
+          duration: 360,
+          fromScale: camera.scale,
+          fromX: camera.offsetX,
+          fromY: camera.offsetY,
+          toScale: targetScale,
+          toX: targetOffsetX,
+          toY: targetOffsetY
+        };
+        state.needsDraw = true;
+      }
+
+      function zoomAt(factor, screenX, screenY) {
+        camera.anim = null;
+        const newScale = Math.min(camera.maxScale, Math.max(camera.minScale, camera.scale * factor));
+        const ratio = newScale / camera.scale;
+        camera.offsetX = screenX - (screenX - camera.offsetX) * ratio;
+        camera.offsetY = screenY - (screenY - camera.offsetY) * ratio;
+        camera.scale = newScale;
+        updateZoomReadout();
+        state.needsDraw = true;
+      }
+
+      function focusOnNumber(num) {
+        const { col, row } = numToColRow(num);
+        const targetScale = Math.min(camera.maxScale, Math.max(camera.scale, 36));
+        const targetOffsetX = viewW / 2 - (col - 0.5) * targetScale;
+        const targetOffsetY = viewH / 2 - (row - 0.5) * targetScale;
+        startCameraAnim(targetScale, targetOffsetX, targetOffsetY);
+      }
+
+      function updateZoomReadout() {
+        const pct = Math.round((camera.scale / camera.baseFitScale) * 100);
+        zoomReadout.textContent = `${pct}%`;
+      }
+
+      function screenToNumber(sx, sy) {
+        const { cols, rows } = getLayout();
+        const colIdx = Math.floor((sx - camera.offsetX) / camera.scale);
+        const rowIdx = Math.floor((sy - camera.offsetY) / camera.scale);
+        if (colIdx < 0 || colIdx >= cols || rowIdx < 0 || rowIdx >= rows) return null;
+        const num = rowIdx * cols + colIdx + 1;
+        return num <= TOTAL_PAWNS ? num : null;
+      }
+
+      /* ========================================================================
+         7. HIDPI CANVAS RENDERING (MET VIEWPORT CULLING)
+         ======================================================================== */
+      const MONO_FONT = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace';
+
+      function drawBoard() {
+        const { cols, rows } = getLayout();
+        const s = camera.scale;
+        const ox = camera.offsetX;
+        const oy = camera.offsetY;
+
+        // 1. Helder witte achtergrond & zacht linnen bordkader
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, viewW, viewH);
+
+        const boardW = cols * s;
+        const boardH = rows * s;
+
+        ctx.fillStyle = "#FAF7F5";
+        ctx.fillRect(ox - 2, oy - 2, boardW + 4, boardH + 4);
+        ctx.strokeStyle = "#E6DDD6";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(ox - 2.5, oy - 2.5, boardW + 5, boardH + 5);
+
+        // Zichtbaar bereik bepalen (viewport culling)
+        const cStart = Math.max(0, Math.floor(-ox / s) - 1);
+        const cEnd   = Math.min(cols - 1, Math.ceil((viewW - ox) / s) + 1);
+        const rStart = Math.max(0, Math.floor(-oy / s) - 1);
+        const rEnd   = Math.min(rows - 1, Math.ceil((viewH - oy) / s) + 1);
+
+        // 2. Rij- en kolomcoördinaten langs de randen
+        const labelStep = s >= 20 ? 1 : (s >= 10 ? 5 : 10);
+        const axisFontSize = Math.max(8, Math.min(11, s * 0.42));
+        ctx.font = `600 ${axisFontSize}px ${MONO_FONT}`;
+        ctx.fillStyle = "#9C8A84";
+
+        // Kolomnummers bovenlangs
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        const topLabelY = oy - 5;
+        if (topLabelY > -16 && topLabelY < viewH + 16) {
+          for (let c = cStart; c <= cEnd; c++) {
+            const colNum = c + 1;
+            if (colNum === 1 || colNum === cols || colNum % labelStep === 0) {
+              ctx.fillText(String(colNum), ox + (c + 0.5) * s, topLabelY);
+            }
+          }
+        }
+
+        // Rijnummers linkslangs
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        const leftLabelX = ox - 6;
+        if (leftLabelX > -32 && leftLabelX < viewW + 32) {
+          for (let r = rStart; r <= rEnd; r++) {
+            const rowNum = r + 1;
+            if (rowNum === 1 || rowNum === rows || rowNum % labelStep === 0) {
+              ctx.fillText(String(rowNum), leftLabelX, oy + (r + 0.5) * s);
+            }
+          }
+        }
+
+        // 3. Subtiele rasterlijnen wanneer voldoende ingezoomd
+        if (s >= 14) {
+          ctx.strokeStyle = "rgba(230, 221, 214, 0.75)";
+          ctx.lineWidth = 0.75;
+          ctx.beginPath();
+          for (let c = cStart; c <= cEnd + 1; c++) {
+            const x = ox + c * s;
+            ctx.moveTo(x, Math.max(oy, oy + rStart * s));
+            ctx.lineTo(x, Math.min(oy + boardH, oy + (rEnd + 1) * s));
+          }
+          for (let r = rStart; r <= rEnd + 1; r++) {
+            const y = oy + r * s;
+            ctx.moveTo(Math.max(ox, ox + cStart * s), y);
+            ctx.lineTo(Math.min(ox + boardW, ox + (cEnd + 1) * s), y);
+          }
+          ctx.stroke();
+        }
+
+        // 4. Ronde pionnen tekenen
+        const radius = Math.max(1.5, s * 0.42);
+        const showNumbers = s >= 24;
+        const filtering = hasActiveFilter();
+
+        if (showNumbers) {
+          const numFontSize = Math.max(7.5, Math.min(13, s * 0.27));
+          ctx.font = `700 ${numFontSize}px ${MONO_FONT}`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+        }
+
+        const overlays = [];
+
+        for (let r = rStart; r <= rEnd; r++) {
+          const cy = oy + (r + 0.5) * s;
+          const rowBase = r * cols;
+
+          for (let c = cStart; c <= cEnd; c++) {
+            const num = rowBase + c + 1;
+            const cx = ox + (c + 0.5) * s;
+
+            // 67 lege restvakken in 79x79 vierkant-modus
+            if (num > TOTAL_PAWNS) {
+              ctx.globalAlpha = 1;
+              ctx.beginPath();
+              ctx.arc(cx, cy, Math.max(1.1, s * 0.13), 0, Math.PI * 2);
+              ctx.fillStyle = "#E4D9D2";
+              ctx.fill();
+              continue;
+            }
+
+            const isPlaced = state.placed[num] === 1;
+            const code = stepCodes[num];
+            const isMatch = matchesCurrentFilter(num);
+
+            let fillCol = "#F0EAE5";
+            let textCol = "#9C8A84";
+            let alpha = 1;
+
+            if (isPlaced) {
+              const style = STEP_STYLE_MAP.get(code);
+              fillCol = style.bg;
+              textCol = style.fg;
+              if (filtering && !isMatch) {
+                alpha = 0.13;
+              }
+            } else {
+              alpha = filtering ? 0.1 : 0.68;
+            }
+
+            ctx.globalAlpha = alpha;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.fillStyle = fillCol;
+            ctx.fill();
+
+            // Subtiele stippelrand voor Repdigits (1111..5555)
+            if (isPlaced && code === -1 && s >= 7) {
+              ctx.save();
+              ctx.setLineDash([Math.max(1.5, s * 0.1), Math.max(1.2, s * 0.08)]);
+              ctx.strokeStyle = "#8E8078";
+              ctx.lineWidth = Math.max(0.8, s * 0.055);
+              ctx.stroke();
+              ctx.restore();
+            } else if (!isPlaced && s >= 10) {
+              ctx.strokeStyle = "#E2D7D0";
+              ctx.lineWidth = Math.max(0.6, s * 0.04);
+              ctx.stroke();
+            }
+
+            // Veldnummer in elke ronde pion bij voldoende inzoomen
+            if (showNumbers) {
+              ctx.fillStyle = textCol;
+              ctx.fillText(String(num), cx, cy + 0.5);
+            }
+
+            // Overlays verzamelen voor bovenop (constante 6174, ankers, selectie, hover, cursor)
+            const isConst = num === 6174;
+            const isDoubleOne = DOUBLE_ONE_SET.has(num);
+            const isSelected = num === state.selectedNum;
+            const isHover = num === state.hoverNum;
+            const isCursor = state.running && num === state.activeCursorNum;
+
+            if (
+              (isConst && isPlaced) ||
+              (state.showAnchorRings && (isConst || isDoubleOne)) ||
+              isSelected ||
+              isHover ||
+              isCursor
+            ) {
+              overlays.push({ cx, cy, num, isConst, isDoubleOne, isSelected, isHover, isCursor, alpha, isPlaced });
+            }
+          }
+        }
+
+        ctx.globalAlpha = 1;
+
+        // 5. Speciale ringen, selectie & cursor bovenop tekenen
+        for (const item of overlays) {
+          const { cx, cy, isConst, isDoubleOne, isSelected, isHover, isCursor, alpha, isPlaced } = item;
+
+          // Constante 6174: dubbele meekrap-ring
+          if (isConst && isPlaced) {
+            ctx.save();
+            ctx.globalAlpha = filtering ? Math.max(0.35, alpha) : 1;
+            const rW = radius + Math.max(0.7, s * 0.04);
+            const rM = radius + Math.max(1.8, s * 0.12);
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, rW, 0, Math.PI * 2);
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = Math.max(1.1, s * 0.065);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, rM, 0, Math.PI * 2);
+            ctx.strokeStyle = "#A62B2E";
+            ctx.lineWidth = Math.max(1.5, s * 0.09);
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // Oker-gouden dubbele anker-ring voor de zes dubbele 1-stap getallen (en 6174 buitenring indien ankers aan)
+          if (state.showAnchorRings && isDoubleOne) {
+            ctx.save();
+            ctx.globalAlpha = filtering ? Math.max(0.35, alpha) : 1;
+            const rInner = radius + Math.max(0.6, s * 0.035);
+            const rOuter = radius + Math.max(1.7, s * 0.115);
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, rInner, 0, Math.PI * 2);
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = Math.max(1.0, s * 0.06);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, rOuter, 0, Math.PI * 2);
+            ctx.strokeStyle = "#C89328";
+            ctx.lineWidth = Math.max(1.4, s * 0.085);
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          if (isHover && !isSelected) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius + Math.max(2.1, s * 0.13), 0, Math.PI * 2);
+            ctx.strokeStyle = "#231917";
+            ctx.lineWidth = Math.max(1.2, s * 0.07);
+            ctx.stroke();
+          }
+
+          if (isSelected) {
+            const selR = radius + Math.max(2.8, s * 0.17);
+            ctx.beginPath();
+            ctx.arc(cx, cy, selR, 0, Math.PI * 2);
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = Math.max(2.5, s * 0.14);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, selR, 0, Math.PI * 2);
+            ctx.strokeStyle = "#821A20";
+            ctx.lineWidth = Math.max(1.6, s * 0.09);
+            ctx.stroke();
+          }
+
+          if (isCursor) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius + Math.max(2.3, s * 0.14), 0, Math.PI * 2);
+            ctx.strokeStyle = "#C89328";
+            ctx.lineWidth = Math.max(1.8, s * 0.1);
+            ctx.stroke();
+          }
+        }
+      }
+
+      /* ========================================================================
+         8. LEGENDA, FILTERS & LIVE INSPECTIEPANEEL
+         ======================================================================== */
+      function buildLegend() {
+        legendList.innerHTML = STEP_DEFS.map(d => {
+          const total = totalCountsByCode.get(d.code);
+          const pct = ((total / TOTAL_PAWNS) * 100).toFixed(1).replace(".", ",");
+          const dotClass = d.isRepdigit ? "is-repdigit" : (d.isConst ? "is-const" : "");
+          return `
+            <button type="button" class="legend-item" data-code="${d.code}">
+              <span class="legend-dot ${dotClass}" style="background:${d.bg};"></span>
+              <span>${d.label}</span>
+              <span class="legend-count">${total} (${pct}%)</span>
+            </button>
+          `;
+        }).join("");
+
+        legendList.querySelectorAll(".legend-item").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const code = Number(btn.dataset.code);
+            state.specialFilter = null;
+            if (state.stepFilters.has(code)) {
+              state.stepFilters.delete(code);
+            } else {
+              state.stepFilters.add(code);
+            }
+            updateFilterUI();
+            state.needsDraw = true;
+          });
+        });
+      }
+
+      function updateFilterUI() {
+        legendList.querySelectorAll(".legend-item").forEach(btn => {
+          const code = Number(btn.dataset.code);
+          btn.classList.toggle("active", state.specialFilter === null && state.stepFilters.has(code));
+        });
+
+        btnQuick6174.classList.toggle("active", state.specialFilter === "6174");
+        btnQuickDouble.classList.toggle("active", state.specialFilter === "double");
+        btnClearFilters.classList.toggle("visible", hasActiveFilter());
+
+        if (!hasActiveFilter()) {
+          filterCountTag.textContent = "Alle 6174";
+        } else if (state.specialFilter === "6174") {
+          filterCountTag.textContent = "1 getal";
+        } else if (state.specialFilter === "double") {
+          filterCountTag.textContent = "6 getallen";
+        } else {
+          let sum = 0;
+          for (const code of state.stepFilters) {
+            sum += totalCountsByCode.get(code) || 0;
+          }
+          filterCountTag.textContent = `${sum} uitgelicht`;
+        }
+      }
+
+      function updateProgressUI() {
+        progressLabel.textContent = `${state.placedCount} / ${TOTAL_PAWNS} pionnen geplaatst`;
+        progressFill.style.width = `${(state.placedCount / TOTAL_PAWNS) * 100}%`;
+      }
+
+      function updateHudCoord(num) {
+        const { col, row } = numToColRow(num);
+        hudCoord.innerHTML = `Pion: <strong>${num}</strong> &middot; Kolom <strong>${col}</strong>, Rij <strong>${row}</strong>`;
+      }
+
+      function renderInspection(num, isPreview) {
+        const { col, row } = numToColRow(num);
+        const padded = String(num).padStart(4, "0");
+
+        inspectNum.textContent = String(num);
+        inspectPadded.textContent = `(${padded})`;
+        inspectCoord.textContent = `Kolom ${col}, Rij ${row}`;
+        inspectTag.textContent = isPreview ? "Voorbeeld" : "Geselecteerd";
+
+        // Speciale badge
+        let badge = "";
+        if (num === 6174) badge = "Constante 6174";
+        else if (DOUBLE_ONE_SET.has(num)) badge = "Dubbele 1-stap";
+        else if (num % 1111 === 0) badge = "Repdigit";
+
+        specialBadge.textContent = badge;
+        specialBadge.classList.toggle("visible", badge.length > 0);
+
+        // 4-cijferige route naar 6174
+        const d4 = computeKaprekarDetails(num, 4);
+        pill6174.className = "step-pill" + (d4.isConstant ? " is-const" : "");
+        if (d4.isRepdigit) {
+          pill6174.textContent = "Repdigit (→ 0)";
+        } else if (d4.isConstant) {
+          pill6174.textContent = "0 stappen";
+        } else {
+          pill6174.textContent = `${d4.steps} ${d4.steps === 1 ? "stap" : "stappen"}`;
+        }
+
+        list6174.innerHTML = d4.history.map((h, i) => `
+          <li>
+            <span class="calc-idx">${d4.isConstant ? "∞" : (i + 1) + "."}</span>
+            <span>${h.expr} = <strong class="${h.hit ? "calc-target" : ""}">${h.result}</strong></span>
+          </li>
+        `).join("");
+
+        // Compacte 3-cijferige route naar 495 voor getallen 1..999
+        if (num >= 1 && num <= 999) {
+          card495.classList.remove("hidden");
+          const d3 = computeKaprekarDetails(num, 3);
+          pill495.className = "step-pill" + (d3.isConstant ? " is-const" : "");
+          if (d3.isRepdigit) {
+            pill495.textContent = "Repdigit (→ 0)";
+          } else if (d3.isConstant) {
+            pill495.textContent = "0 stappen (495)";
+          } else {
+            pill495.textContent = `${d3.steps} ${d3.steps === 1 ? "stap" : "stappen"}`;
+          }
+
+          list495.innerHTML = d3.history.map((h, i) => `
+            <li>
+              <span class="calc-idx">${d3.isConstant ? "∞" : (i + 1) + "."}</span>
+              <span>${h.expr} = <strong class="${h.hit ? "calc-target" : ""}">${h.result}</strong></span>
+            </li>
+          `).join("");
+        } else {
+          card495.classList.add("hidden");
+        }
+      }
+
+      /* ========================================================================
+         9. AUTOMATISERING & ANIMATIELUS
+         ======================================================================== */
+      function getPawnsPerFrame() {
+        const v = Number(speedRange.value);
+        if (v <= 15) {
+          return Number((0.15 + (v - 1) * 0.06).toFixed(2));
+        }
+        return Math.round(Math.pow((v - 14) / 86, 2.2) * 260) + 1;
+      }
+
+      function updateSpeedLabel() {
+        const ppf = getPawnsPerFrame();
+        if (ppf < 1) {
+          speedLabel.textContent = `~${Math.round(ppf * 60)}/sec`;
+        } else {
+          speedLabel.textContent = `${ppf}/frame`;
+        }
+      }
+
+      function placeNextBatch(count) {
+        let placedNow = 0;
+        let lastNum = 0;
+
+        while (placedNow < count && state.cursorIdx < TOTAL_PAWNS) {
+          const num = state.order[state.cursorIdx++];
+          if (state.placed[num] === 0) {
+            state.placed[num] = 1;
+            state.placedCount++;
+          }
+          lastNum = num;
+          placedNow++;
+        }
+
+        if (lastNum > 0) {
+          state.activeCursorNum = lastNum;
+          if (state.hoverNum === null) {
+            state.selectedNum = lastNum;
+            updateHudCoord(lastNum);
+            renderInspection(lastNum, false);
+          }
+        }
+
+        updateProgressUI();
+        state.needsDraw = true;
+
+        if (state.cursorIdx >= TOTAL_PAWNS) {
+          state.running = false;
+          state.activeCursorNum = 0;
+          btnPlayPause.textContent = "Afspelen";
+        }
+      }
+
+      function resetBoard() {
+        state.running = false;
+        state.placed.fill(0);
+        state.placedCount = 0;
+        state.cursorIdx = 0;
+        state.activeCursorNum = 0;
+        state.frameCarry = 0;
+        state.order = buildScanOrder(state.orderType, state.layoutKey);
+
+        btnPlayPause.textContent = "Afspelen";
+        updateProgressUI();
+        state.needsDraw = true;
+      }
+
+      function showAllImmediately() {
+        state.running = false;
+        state.placed.fill(1, 1, TOTAL_PAWNS + 1);
+        state.placedCount = TOTAL_PAWNS;
+        state.cursorIdx = TOTAL_PAWNS;
+        state.activeCursorNum = 0;
+
+        btnPlayPause.textContent = "Afspelen";
+        updateProgressUI();
+        state.needsDraw = true;
+      }
+
+      function animationLoop(now) {
+        // Vloeiende camera-animatie (na Zoek of Reset weergave)
+        if (camera.anim) {
+          const a = camera.anim;
+          const t = Math.min(1, (now - a.startTime) / a.duration);
+          const ease = 1 - Math.pow(1 - t, 3);
+          camera.scale = a.fromScale + (a.toScale - a.fromScale) * ease;
+          camera.offsetX = a.fromX + (a.toX - a.fromX) * ease;
+          camera.offsetY = a.fromY + (a.toY - a.fromY) * ease;
+          updateZoomReadout();
+          state.needsDraw = true;
+          if (t >= 1) camera.anim = null;
+        }
+
+        // Automatisering
+        if (state.running) {
+          state.frameCarry += getPawnsPerFrame();
+          const whole = Math.floor(state.frameCarry);
+          if (whole >= 1) {
+            state.frameCarry -= whole;
+            placeNextBatch(whole);
+          }
+        }
+
+        if (state.needsDraw) {
+          drawBoard();
+          state.needsDraw = false;
+        }
+
+        requestAnimationFrame(animationLoop);
+      }
+
+      /* ========================================================================
+         10. CSV-EXPORT (ALLE 6174 VELDEN)
+         ======================================================================== */
+      function exportCsv() {
+        try {
+          const lines = ["getal,kolom,rij,stappen_6174,reeks_6174"];
+          const { cols } = getLayout();
+
+          for (let n = 1; n <= TOTAL_PAWNS; n++) {
+            const idx = n - 1;
+            const col = (idx % cols) + 1;
+            const row = Math.floor(idx / cols) + 1;
+            const d4 = computeKaprekarDetails(n, 4);
+
+            const stepVal = d4.isRepdigit ? "repdigit" : d4.steps;
+            const chain = d4.history
+              .map(h => `${h.expr.replace("−", "-")}=${h.result}`)
+              .join(" | ");
+
+            lines.push(`${String(n).padStart(4, "0")},${col},${row},${stepVal},"${chain}"`);
+          }
+
+          const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `kaprekar-6174-${state.layoutKey}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          showToast(`CSV gedownload (${TOTAL_PAWNS} velden, ${getLayout().name}).`);
+        } catch (err) {
+          showToast("CSV-export kon niet worden voltooid.");
+        }
+      }
+
+      /* ========================================================================
+         11. EVENT LISTENERS (MUIS, TOUCH, ZOEKEN, KNOPPEN)
+         ======================================================================== */
+      canvasStage.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.16 : 1 / 1.16;
+        zoomAt(factor, sx, sy);
+      }, { passive: false });
+
+      canvasStage.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        camera.anim = null;
+        pointer.isDown = true;
+        pointer.moved = false;
+        pointer.startX = pointer.lastX = e.clientX;
+        pointer.startY = pointer.lastY = e.clientY;
+        canvasStage.classList.add("is-dragging");
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+
+        if (pointer.isDown) {
+          const dx = e.clientX - pointer.lastX;
+          const dy = e.clientY - pointer.lastY;
+          pointer.lastX = e.clientX;
+          pointer.lastY = e.clientY;
+
+          if (Math.hypot(e.clientX - pointer.startX, e.clientY - pointer.startY) > 4) {
+            pointer.moved = true;
+          }
+
+          camera.offsetX += dx;
+          camera.offsetY += dy;
+          state.needsDraw = true;
+          return;
+        }
+
+        if (sx >= 0 && sx <= rect.width && sy >= 0 && sy <= rect.height) {
+          const num = screenToNumber(sx, sy);
+          if (num !== state.hoverNum) {
+            state.hoverNum = num;
+            if (num !== null) {
+              updateHudCoord(num);
+              renderInspection(num, true);
+            } else {
+              updateHudCoord(state.selectedNum);
+              renderInspection(state.selectedNum, false);
+            }
+            state.needsDraw = true;
+          }
+        }
+      });
+
+      window.addEventListener("mouseup", (e) => {
+        if (!pointer.isDown) return;
+        pointer.isDown = false;
+        canvasStage.classList.remove("is-dragging");
+
+        if (!pointer.moved) {
+          const rect = canvas.getBoundingClientRect();
+          const num = screenToNumber(e.clientX - rect.left, e.clientY - rect.top);
+          if (num !== null) {
+            state.selectedNum = num;
+            updateHudCoord(num);
+            renderInspection(num, false);
+            state.needsDraw = true;
+          }
+        }
+      });
+
+      canvasStage.addEventListener("mouseleave", () => {
+        if (state.hoverNum !== null) {
+          state.hoverNum = null;
+          updateHudCoord(state.selectedNum);
+          renderInspection(state.selectedNum, false);
+          state.needsDraw = true;
+        }
+      });
+
+      // Touch (pan, tap & pinch-to-zoom)
+      canvasStage.addEventListener("touchstart", (e) => {
+        camera.anim = null;
+        if (e.touches.length === 1) {
+          const t = e.touches[0];
+          pointer.isDown = true;
+          pointer.moved = false;
+          pointer.startX = pointer.lastX = t.clientX;
+          pointer.startY = pointer.lastY = t.clientY;
+        } else if (e.touches.length === 2) {
+          pointer.isDown = false;
+          pointer.pinchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+        }
+      }, { passive: true });
+
+      canvasStage.addEventListener("touchmove", (e) => {
+        e.preventDefault();
+        if (e.touches.length === 1 && pointer.isDown) {
+          const t = e.touches[0];
+          const dx = t.clientX - pointer.lastX;
+          const dy = t.clientY - pointer.lastY;
+          pointer.lastX = t.clientX;
+          pointer.lastY = t.clientY;
+          if (Math.hypot(t.clientX - pointer.startX, t.clientY - pointer.startY) > 6) {
+            pointer.moved = true;
+          }
+          camera.offsetX += dx;
+          camera.offsetY += dy;
+          state.needsDraw = true;
+        } else if (e.touches.length === 2) {
+          const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          if (pointer.pinchDist > 0) {
+            const rect = canvas.getBoundingClientRect();
+            const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+            const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+            zoomAt(dist / pointer.pinchDist, midX, midY);
+          }
+          pointer.pinchDist = dist;
+        }
+      }, { passive: false });
+
+      canvasStage.addEventListener("touchend", (e) => {
+        if (pointer.isDown && !pointer.moved && e.changedTouches.length === 1) {
+          const t = e.changedTouches[0];
+          const rect = canvas.getBoundingClientRect();
+          const num = screenToNumber(t.clientX - rect.left, t.clientY - rect.top);
+          if (num !== null) {
+            state.selectedNum = num;
+            updateHudCoord(num);
+            renderInspection(num, false);
+            state.needsDraw = true;
+          }
+        }
+        pointer.isDown = false;
+        pointer.pinchDist = 0;
+      });
+
+      // Zoom-knoppen
+      btnZoomIn.addEventListener("click", () => zoomAt(1.35, viewW / 2, viewH / 2));
+      btnZoomOut.addEventListener("click", () => zoomAt(1 / 1.35, viewW / 2, viewH / 2));
+      btnZoomReset.addEventListener("click", () => fitBoardToView(true));
+
+      // Rasters wisselen
+      function setLayout(key) {
+        if (state.layoutKey === key) return;
+        state.layoutKey = key;
+        btnLayoutExact.classList.toggle("active", key === "exact");
+        btnLayoutSquare.classList.toggle("active", key === "square");
+        state.order = buildScanOrder(state.orderType, state.layoutKey);
+        updateHudCoord(state.selectedNum);
+        renderInspection(state.selectedNum, false);
+        fitBoardToView(true);
+      }
+
+      btnLayoutExact.addEventListener("click", () => setLayout("exact"));
+      btnLayoutSquare.addEventListener("click", () => setLayout("square"));
+
+      // Anker-ringen schakelaar
+      chkAnchorRings.addEventListener("change", (e) => {
+        state.showAnchorRings = e.target.checked;
+        state.needsDraw = true;
+      });
+
+      // Zoeken
+      searchForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const val = parseInt(searchInput.value, 10);
+        if (!Number.isInteger(val) || val < 1 || val > TOTAL_PAWNS) {
+          showToast("Voer een geheel getal in tussen 1 en 6174.");
+          return;
+        }
+        state.selectedNum = val;
+        if (state.placed[val] === 0) {
+          state.placed[val] = 1;
+          state.placedCount++;
+          updateProgressUI();
+        }
+        updateHudCoord(val);
+        renderInspection(val, false);
+        focusOnNumber(val);
+        showToast(`Gecentreerd op pion ${val}.`);
+      });
+
+      // Snelle filters & wissen
+      btnQuick6174.addEventListener("click", () => {
+        state.stepFilters.clear();
+        state.specialFilter = state.specialFilter === "6174" ? null : "6174";
+        updateFilterUI();
+        if (state.specialFilter === "6174") {
+          state.selectedNum = 6174;
+          updateHudCoord(6174);
+          renderInspection(6174, false);
+          focusOnNumber(6174);
+        }
+        state.needsDraw = true;
+      });
+
+      btnQuickDouble.addEventListener("click", () => {
+        state.stepFilters.clear();
+        state.specialFilter = state.specialFilter === "double" ? null : "double";
+        updateFilterUI();
+        if (state.specialFilter === "double") {
+          state.selectedNum = 361;
+          updateHudCoord(361);
+          renderInspection(361, false);
+          fitBoardToView(true);
+        }
+        state.needsDraw = true;
+      });
+
+      btnClearFilters.addEventListener("click", () => {
+        state.stepFilters.clear();
+        state.specialFilter = null;
+        updateFilterUI();
+        state.needsDraw = true;
+      });
+
+      // Automatisering-knoppen
+      btnPlayPause.addEventListener("click", () => {
+        if (state.running) {
+          state.running = false;
+          btnPlayPause.textContent = "Afspelen";
+        } else {
+          if (state.cursorIdx >= TOTAL_PAWNS) {
+            resetBoard();
+          }
+          state.running = true;
+          btnPlayPause.textContent = "Pauzeren";
+        }
+      });
+
+      btnStep.addEventListener("click", () => {
+        state.running = false;
+        btnPlayPause.textContent = "Afspelen";
+        if (state.cursorIdx >= TOTAL_PAWNS) {
+          resetBoard();
+        }
+        placeNextBatch(1);
+      });
+
+      btnShowAll.addEventListener("click", showAllImmediately);
+      btnReset.addEventListener("click", resetBoard);
+
+      orderSelect.addEventListener("change", (e) => {
+        state.orderType = e.target.value;
+        state.order = buildScanOrder(state.orderType, state.layoutKey);
+        if (state.running || state.cursorIdx < TOTAL_PAWNS) {
+          resetBoard();
+        }
+      });
+
+      speedRange.addEventListener("input", updateSpeedLabel);
+      btnExportCsv.addEventListener("click", exportCsv);
+
+      // Responsief herschalen van het canvas
+      if (typeof ResizeObserver !== "undefined") {
+        const ro = new ResizeObserver(() => resizeCanvas(false));
+        ro.observe(canvasStage);
+      }
+      window.addEventListener("resize", () => resizeCanvas(false));
+
+      /* ========================================================================
+         12. INITIALISATIE
+         ======================================================================== */
+      window.addEventListener("load", () => {
+        buildLegend();
+        updateFilterUI();
+        updateSpeedLabel();
+        updateProgressUI();
+        resizeCanvas(true);
+        updateHudCoord(state.selectedNum);
+        renderInspection(state.selectedNum, false);
+        requestAnimationFrame(animationLoop);
+      });
+    })();
+  </script>
+</body>
+</html>
