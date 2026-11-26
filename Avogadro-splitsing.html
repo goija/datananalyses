@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6.179 Pionnen ÷ 24¹⁷ — Avogadro-Molecuulschaal (Stap 0 t/m 17)</title>
+  <style>
+    :root {
+      --bg: #f6f1e7;
+      --panel: #fcf9f2;
+      --panel-alt: #efe7d6;
+      --border: #d5c7ae;
+      --text: #241918;
+      --muted: #6b5b54;
+      --meekrap: #8b1e24;
+      --meekrap-dark: #631217;
+      --meekrap-soft: #f5e2e3;
+      --ochre: #c8922a;
+      --ochre-light: #f3dfb0;
+      --teal: #235d63;
+      --teal-soft: #e2f0f1;
+      --indigo: #2c3e66;
+      --ink: #1e1615;
+      --shadow: 0 6px 20px rgba(36, 25, 24, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--meekrap-dark), var(--meekrap));
+      color: #fffaf2;
+      padding: 15px 22px;
+      border-bottom: 3px solid var(--ochre);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .badge-main {
+      background: var(--ochre);
+      color: #1f140a;
+      font-weight: 800;
+      font-size: 1.02rem;
+      padding: 8px 12px;
+      border-radius: 10px;
+      letter-spacing: 0.02em;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+      white-space: nowrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.24rem;
+      font-weight: 700;
+    }
+
+    header p {
+      margin: 2px 0 0;
+      font-size: 0.83rem;
+      color: #f3dfd8;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+
+    button {
+      font: inherit;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 6px 11px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.82rem;
+      transition: all 0.15s ease;
+    }
+
+    button:hover {
+      background: var(--panel-alt);
+      border-color: #b8a586;
+    }
+
+    button.primary {
+      background: var(--meekrap);
+      color: #fffaf2;
+      border-color: var(--meekrap-dark);
+    }
+
+    button.primary:hover {
+      background: var(--meekrap-dark);
+    }
+
+    .header-actions button {
+      background: rgba(255, 250, 242, 0.14);
+      color: #fffaf2;
+      border-color: rgba(255, 250, 242, 0.3);
+    }
+
+    .header-actions button:hover {
+      background: rgba(255, 250, 242, 0.24);
+    }
+
+    .header-actions button.accent {
+      background: var(--ochre);
+      color: #1f140a;
+      border-color: var(--ochre);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 410px;
+      gap: 16px;
+      padding: 15px 18px 24px;
+      max-width: 1760px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1160px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .toolbar {
+      padding: 10px 13px;
+      background: var(--panel-alt);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+
+    .toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 500;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 640px;
+      background: #efe8d8;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .canvas-wrap:active {
+      cursor: grabbing;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hover-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(30, 22, 21, 0.96);
+      color: #fffaf2;
+      border: 1px solid var(--ochre);
+      border-radius: 9px;
+      padding: 7px 10px;
+      font-size: 0.78rem;
+      line-height: 1.38;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+      z-index: 15;
+      display: none;
+      white-space: nowrap;
+    }
+
+    .hover-tooltip strong {
+      color: #f6cf76;
+    }
+
+    .canvas-footer {
+      padding: 8px 13px;
+      background: var(--panel-alt);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .step-bar {
+      padding: 10px 13px;
+      border-top: 1px solid var(--border);
+      background: #faf5ea;
+    }
+
+    .step-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .step-pill {
+      padding: 4px 7px;
+      font-size: 0.73rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      font-weight: 600;
+    }
+
+    .step-pill.active {
+      background: var(--meekrap);
+      color: #fffaf2;
+      border-color: var(--meekrap-dark);
+    }
+
+    .step-pill.chem {
+      border-color: var(--teal);
+    }
+
+    .step-pill.chem.active {
+      background: var(--teal);
+      border-color: #163d41;
+    }
+
+    .step-pill.avogadro {
+      border-color: var(--ochre);
+      background: #fdf6e4;
+    }
+
+    .step-pill.avogadro.active {
+      background: var(--ochre);
+      color: #1f140a;
+      border-color: #8f6414;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .side-section {
+      padding: 14px 15px;
+    }
+
+    .side-section h2 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      color: var(--meekrap);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hero-box {
+      background: var(--meekrap-soft);
+      border: 1px solid #dfb6b8;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+
+    .hero-box.chem-mode {
+      background: var(--teal-soft);
+      border-color: #9ec5c7;
+    }
+
+    .hero-box.avogadro-mode {
+      background: linear-gradient(135deg, #fdf3d7, #e4f2f2);
+      border: 1.5px solid var(--ochre);
+    }
+
+    .hero-val {
+      font-size: 1.38rem;
+      font-weight: 800;
+      color: var(--meekrap);
+      line-height: 1.15;
+    }
+
+    .hero-box.chem-mode .hero-val {
+      color: var(--teal);
+    }
+
+    .hero-box.avogadro-mode .hero-val {
+      color: #1d3b42;
+    }
+
+    .hero-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 3px;
+      word-break: break-all;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 8px;
+      margin-bottom: 10px;
+    }
+
+    .stat-card {
+      background: #f4efe4;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 8px;
+    }
+
+    .stat-card.full {
+      grid-column: 1 / -1;
+    }
+
+    .stat-card span {
+      display: block;
+      font-size: 0.69rem;
+      color: var(--muted);
+    }
+
+    .stat-card strong {
+      font-size: 0.81rem;
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .chem-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 9px;
+      font-size: 0.74rem;
+    }
+
+    .atom-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #f4efe4;
+      border: 1px solid var(--border);
+      font-weight: 600;
+    }
+
+    .atom-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .cascade-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 255px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .cascade-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 0.76rem;
+      cursor: pointer;
+    }
+
+    .cascade-row:hover {
+      background: var(--panel-alt);
+    }
+
+    .cascade-row.active {
+      background: var(--ochre-light);
+      border-color: var(--ochre);
+      font-weight: 700;
+    }
+
+    .cascade-row code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.72rem;
+    }
+
+    .mouse-box {
+      background: linear-gradient(180deg, #fbf4e4, #f5ead2);
+      border: 1px solid #d9be89;
+      border-radius: 10px;
+      padding: 9px 11px;
+      font-size: 0.79rem;
+      color: #5c4938;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="badge-main">6.179 ÷ 24¹⁷</div>
+      <div>
+        <h1>6.179 Pionnen — Elke keer ÷ 24 tot Avogadro-Molecuulschaal (Stap 17)</h1>
+        <p>24¹⁷ = 290.797.794.982.682.557.415.424 (≈ 0,483 mol) · Chemische weergave van macro-pionnen tot individuele moleculen met muis</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btnSplitNext" class="accent" type="button">Splits ÷ 24 (Volgende stap)</button>
+      <button id="btnSplitPrev" type="button">← Terug (× 24)</button>
+      <button id="btnAutoCascade" type="button">Auto-splits (0 → 17)</button>
+      <button id="btnExportCsv" type="button">Exporteer CSV (BigInt)</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <button id="btnResetZero" type="button">Stap 0: 6.179 pionnen</button>
+          <button id="btnJumpAvogadro" class="primary" type="button">Stap 17: Avogadro-moleculen (24¹⁷)</button>
+        </div>
+
+        <div class="toolbar-group">
+          <label class="checkbox-label">
+            <input id="chkShowGrid24" type="checkbox" checked />
+            24-partjes &amp; orbitalen
+          </label>
+          <label class="checkbox-label">
+            <input id="chkMouseVisible" type="checkbox" checked />
+            Muis op bord (klik = ÷24)
+          </label>
+        </div>
+
+        <div class="toolbar-group">
+          <button id="btnZoomOut" type="button" title="Uitzoomen">−</button>
+          <span id="zoomLabel">100%</span>
+          <button id="btnZoomIn" type="button" title="Inzoomen">+</button>
+          <button id="btnResetView" type="button">Reset beeld</button>
+        </div>
+      </div>
+
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="boardCanvas"></canvas>
+        <div class="hover-tooltip" id="hoverTooltip"></div>
+      </div>
+
+      <div class="canvas-footer">
+        <span id="statusBanner">Stap 0: <strong>6.179 pionnen</strong> (257 × 24 + 11)</span>
+        <span id="hoverCoords">Hover: —</span>
+      </div>
+
+      <div class="step-bar">
+        <div class="step-pills" id="stepPills"></div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <section class="card side-section">
+        <h2>Splitsingsstap <span id="stepTitleNum">0</span> / 17</h2>
+        <div class="hero-box" id="heroBox">
+          <div class="hero-val" id="heroValue">6.179 pionnen</div>
+          <div class="hero-sub" id="heroSub">6.179 ÷ 24⁰ = 6.179</div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card full">
+            <span>Exacte deler 24ᵏ (BigInt)</span>
+            <strong id="statDivisor">1</strong>
+          </div>
+          <div class="stat-card">
+            <span>Fractie van 1 pion</span>
+            <strong id="statFraction">6.179,0000</strong>
+          </div>
+          <div class="stat-card">
+            <span>Moleculen (bij 1 pion = 24¹⁷)</span>
+            <strong id="statMolecules">1,797 × 10²⁷</strong>
+          </div>
+          <div class="stat-card">
+            <span>Hoeveelheid stof (mol)</span>
+            <strong id="statMoles">2.983,7 mol</strong>
+          </div>
+          <div class="stat-card">
+            <span>Chemisch regime</span>
+            <strong id="statRegime">Macro-pionnen</strong>
+          </div>
+        </div>
+
+        <div class="chem-legend">
+          <span class="atom-badge"><span class="atom-dot" style="background:#8b1e24"></span>Koolstof (C)</span>
+          <span class="atom-badge"><span class="atom-dot" style="background:#c8922a"></span>Zuurstof (O)</span>
+          <span class="atom-badge"><span class="atom-dot" style="background:#235d63"></span>Waterstof (H)</span>
+          <span class="atom-badge"><span class="atom-dot" style="background:#2c3e66"></span>Elektron (e⁻)</span>
+        </div>
+
+        <div class="mouse-box" id="mouseStatus">
+          🐭 Muis staat bij pion <strong>6.179</strong>. Klik op de muis of op <strong>Splits ÷ 24</strong> om af te dalen naar Stap 17 (Avogadro).
+        </div>
+      </section>
+
+      <section class="card side-section">
+        <h2>Volledige Ladder: Stap 0 → Stap 17 (24¹⁷)</h2>
+        <div class="cascade-list" id="cascadeList"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    (() => {
+      const START_PAWNS = 6179n;
+      const BASE = 24n;
+      const MAX_STEP = 17; // 24^17 = 290,797,794,982,682,557,415,424 (~0.483 * N_A)
+      const AVOGADRO = 6.02214076e23;
+
+      const REGIMES = [
+        { k: 0, tag: "Macro", name: "6.179 hele pionnen (257 × 24 + 11)", mode: "macro0" },
+        { k: 1, tag: "24-blok", name: "257 groepen van 24 + rest 11/24", mode: "macro1" },
+        { k: 2, tag: "576-blok", name: "10 supergroepen (24²) + 419/576", mode: "macro2" },
+        { k: 3, tag: "Sub-pion", name: "Korrelfractie (0,4470 pion)", mode: "sub" },
+        { k: 4, tag: "Korrel", name: "Fijne korrels (1 / 24⁴ pion)", mode: "sub" },
+        { k: 5, tag: "Micro", name: "Micro-deeltjes (1 / 24⁵ pion)", mode: "sub" },
+        { k: 6, tag: "Nano", name: "Nano-clusters (1 / 24⁶ pion)", mode: "cluster" },
+        { k: 7, tag: "Polymeer", name: "Supramoleculaire meekrap-ketens", mode: "cluster" },
+        { k: 8, tag: "Polymeer", name: "Korte molecuulketens (÷ 24⁸)", mode: "cluster" },
+        { k: 9, tag: "Macro-mol", name: "Meekrap-pigmentclusters (C₁₄H₈O₄)", mode: "ring" },
+        { k: 10, tag: "Aromaat", name: "Antrachinon-ringstructuren (÷ 24¹⁰)", mode: "ring" },
+        { k: 11, tag: "Aromaat", name: "Benzeen- & chinonringen (÷ 24¹¹)", mode: "ring" },
+        { k: 12, tag: "Molecuul", name: "Kleine organische moleculen (÷ 24¹²)", mode: "ring" },
+        { k: 13, tag: "Molecuul", name: "Tri-atomaire moleculen (H₂O / CO₂)", mode: "molecule" },
+        { k: 14, tag: "Covalent", name: "Covalente elektronenparen (÷ 24¹⁴)", mode: "molecule" },
+        { k: 15, tag: "Orbitaal", name: "Moleculaire orbitalen (÷ 24¹⁵)", mode: "molecule" },
+        { k: 16, tag: "Kwantum", name: "Molecuul-clusters (148.296 mol.)", mode: "molecule" },
+        { k: 17, tag: "Avogadro", name: "Avogadro-schaal 24¹⁷: exact 6.179 moleculen", mode: "avogadro" }
+      ];
+
+      function formatBigIntNL(bi) {
+        return bi.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      }
+
+      function getStepData(k) {
+        const bk = BigInt(k);
+        const denom = BASE ** bk;
+        const denomNum = Number(denom);
+        const pawnFraction = 6179 / denomNum;
+        const molFactor = BASE ** BigInt(MAX_STEP - k);
+        const exactMolecules = START_PAWNS * molFactor;
+        const exactMoleculesNum = Number(exactMolecules);
+        const moles = exactMoleculesNum / AVOGADRO;
+
+        // Bepaal hoeveel van de 24 sub-eenheden op niveau k actief zijn
+        // scaled24 = (6179 * 24) / 24^k = 6179 / 24^(k-1)
+        let activeSub24 = 24;
+        let partialSub24 = 0;
+        if (k >= 3) {
+          const prevDenom = Number(BASE ** BigInt(k - 1));
+          const ratio = 6179 / prevDenom; // < 24 voor k >= 3
+          activeSub24 = Math.floor(ratio);
+          partialSub24 = ratio - activeSub24;
+        }
+
+        return {
+          k,
+          denom,
+          denomNum,
+          pawnFraction,
+          exactMolecules,
+          exactMoleculesNum,
+          moles,
+          activeSub24,
+          partialSub24,
+          regime: REGIMES[k]
+        };
+      }
+
+      function fmtSciNL(num) {
+        if (num >= 1000) return num.toLocaleString("nl-NL", { maximumFractionDigits: 1 });
+        if (num >= 1) return num.toLocaleString("nl-NL", { maximumFractionDigits: 4 });
+        if (num >= 0.0001) return num.toLocaleString("nl-NL", { minimumFractionDigits: 6, maximumFractionDigits: 7 });
+        return num.toExponential(3).replace(".", ",");
+      }
+
+      const state = {
+        step: 0,
+        autoPlaying: false,
+        autoTimer: 0,
+        showGrid24: true,
+        showMouse: true,
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        isDragging: false,
+        dragMoved: false,
+        dragStartX: 0,
+        dragStartY: 0,
+        entities: [],
+        mouse: {
+          x: 0,
+          y: 0,
+          targetX: 0,
+          targetY: 0,
+          angle: 0,
+          wiggle: 0
+        }
+      };
+
+      const canvasWrap = document.getElementById("canvasWrap");
+      const canvas = document.getElementById("boardCanvas");
+      const ctx = canvas.getContext("2d");
+      const hoverTooltip = document.getElementById("hoverTooltip");
+      const statusBanner = document.getElementById("statusBanner");
+      const hoverCoords = document.getElementById("hoverCoords");
+      const zoomLabel = document.getElementById("zoomLabel");
+
+      function buildEntities(k) {
+        const rect = canvasWrap.getBoundingClientRect();
+        const width = Math.max(320, rect.width);
+        const height = Math.max(320, rect.height);
+        const pad = 24;
+        const availW = width - pad * 2;
+        const availH = height - pad * 2;
+        const entities = [];
+        const data = getStepData(k);
+
+        if (k === 0) {
+          // 6.179 pionnen in 258 blokken van 24 (6 × 43)
+          const blockCols = 6;
+          const blockRows = 43;
+          const gapX = 1.5;
+          const gapY = 0.55;
+          const totalW = blockCols * 24 + (blockCols - 1) * gapX;
+          const totalH = blockRows + (blockRows - 1) * gapY;
+          const unit = Math.min(availW / totalW, availH / totalH);
+          const ox = (width - totalW * unit) / 2;
+          const oy = (height - totalH * unit) / 2;
+
+          for (let n = 1; n <= 6179; n++) {
+            const bIdx = Math.floor((n - 1) / 24);
+            const pos24 = ((n - 1) % 24) + 1;
+            const bc = bIdx % blockCols;
+            const br = Math.floor(bIdx / blockCols);
+            entities.push({
+              id: n,
+              x: ox + (bc * (24 + gapX) + (pos24 - 0.5)) * unit,
+              y: oy + (br * (1 + gapY) + 0.5) * unit,
+              r: unit * 0.41,
+              fill: 1,
+              isLast: n === 6179,
+              title: `Pion ${n} / 6.179`,
+              detail: `Blok ${bIdx + 1} · Positie ${pos24}/24`
+            });
+          }
+        } else if (k === 1) {
+          // 257 groepen van 24 + rest 11/24
+          const cols = 18;
+          const rows = 15;
+          const cell = Math.min(availW / cols, availH / rows);
+          const ox = (width - cols * cell) / 2;
+          const oy = (height - rows * cell) / 2;
+
+          for (let g = 1; g <= 258; g++) {
+            const c = (g - 1) % cols;
+            const r = Math.floor((g - 1) / cols);
+            const isRem = g === 258;
+            const cnt = isRem ? 11 : 24;
+            entities.push({
+              id: g,
+              x: ox + (c + 0.5) * cell,
+              y: oy + (r + 0.5) * cell,
+              r: cell * 0.40,
+              fill: cnt / 24,
+              isLast: isRem,
+              title: isRem ? `Restgroep 258: 11/24 (0,4583)` : `Groep ${g} / 257 (24/24 = 1)`,
+              detail: isRem ? `Laatste 11 pionnen (6.169–6.179)` : `24 pionnen samengevoegd`
+            });
+          }
+        } else if (k === 2) {
+          // 10 supergroepen van 576 + rest 419/576
+          const cols = 6;
+          const rows = 2;
+          const cell = Math.min(availW / cols, availH / rows);
+          const ox = (width - cols * cell) / 2;
+          const oy = (height - rows * cell) / 2;
+
+          for (let s = 1; s <= 11; s++) {
+            const c = (s - 1) % cols;
+            const r = Math.floor((s - 1) / cols);
+            const isRem = s === 11;
+            entities.push({
+              id: s,
+              x: ox + (c + 0.5) * cell,
+              y: oy + (r + 0.5) * cell,
+              r: cell * 0.40,
+              fill: isRem ? 419 / 576 : 1,
+              isLast: isRem,
+              title: isRem ? `Restblok 11: 419/576 (0,7274)` : `Supergroep ${s} / 10 (576 pionnen)`,
+              detail: isRem ? `17 × 24 + 11 = 419 pionnen` : `24² = 576 pionnen`
+            });
+          }
+        } else {
+          // Stap 3 t/m 17: 24-splitsing op elke schaal tot Avogadro (24^17)
+          const cols = 6;
+          const rows = 4;
+          const cell = Math.min(availW / cols, availH / rows);
+          const ox = (width - cols * cell) / 2;
+          const oy = (height - rows * cell) / 2;
+
+          const activeIdx = Math.max(1, data.activeSub24 + (data.partialSub24 > 0 ? 1 : 0));
+
+          for (let p = 1; p <= 24; p++) {
+            const c = (p - 1) % cols;
+            const r = Math.floor((p - 1) / cols);
+            let fill = 0;
+            if (p <= data.activeSub24) fill = 1;
+            else if (p === data.activeSub24 + 1) fill = Math.max(0.08, data.partialSub24);
+
+            // Op Stap 17 (Avogadro) zijn de eerste 6 vakken + fractie of 1 actief molecuul zichtbaar
+            const isLast = p === activeIdx;
+            const molShare = k === 17
+              ? (p === 1 ? "6.179 individuele moleculen (1 / 24¹⁷ schaal)" : "Leeg 1/24¹⁷-vak")
+              : `${fmtSciNL(data.exactMoleculesNum / 24)} moleculen per 1/24-vak`;
+
+            entities.push({
+              id: p,
+              x: ox + (c + 0.5) * cell,
+              y: oy + (r + 0.5) * cell,
+              r: cell * 0.40,
+              fill,
+              isLast,
+              title: `Vak ${p}/24 op Stap ${k} (÷ 24^${k})`,
+              detail: molShare
+            });
+          }
+        }
+
+        state.entities = entities;
+        const target = entities.find(e => e.isLast) || entities[0];
+        if (target) {
+          state.mouse.targetX = target.x;
+          state.mouse.targetY = target.y;
+          if (state.mouse.x === 0 && state.mouse.y === 0) {
+            state.mouse.x = target.x;
+            state.mouse.y = target.y;
+          }
+        }
+      }
+
+      function updateUI() {
+        const d = getStepData(state.step);
+        const heroBox = document.getElementById("heroBox");
+        heroBox.classList.remove("chem-mode", "avogadro-mode");
+        if (state.step === 17) heroBox.classList.add("avogadro-mode");
+        else if (state.step >= 6) heroBox.classList.add("chem-mode");
+
+        document.getElementById("stepTitleNum").textContent = state.step;
+        document.getElementById("heroValue").textContent =
+          state.step === 17
+            ? `6.179 moleculen (24¹⁷)`
+            : state.step >= 7
+              ? `${fmtSciNL(d.exactMoleculesNum)} moleculen`
+              : `${fmtSciNL(d.pawnFraction)} pionnen`;
+
+        document.getElementById("heroSub").textContent =
+          `6.179 ÷ 24^${state.step} = ${fmtSciNL(d.pawnFraction)} pionnen`;
+
+        document.getElementById("statDivisor").textContent = formatBigIntNL(d.denom);
+        document.getElementById("statFraction").textContent = fmtSciNL(d.pawnFraction);
+        document.getElementById("statMolecules").textContent =
+          d.exactMolecules <= 1000000n ? formatBigIntNL(d.exactMolecules) : fmtSciNL(d.exactMoleculesNum);
+        document.getElementById("statMoles").textContent =
+          d.moles >= 0.001 ? `${fmtSciNL(d.moles)} mol` : `${d.moles.toExponential(2).replace(".", ",")} mol`;
+        document.getElementById("statRegime").textContent = d.regime.tag;
+
+        statusBanner.innerHTML = state.step === 17
+          ? `⚛️ <strong>Stap 17 (Avogadro-schaal 24¹⁷):</strong> 6.179 ÷ 24¹⁷ = <strong>${fmtSciNL(d.pawnFraction)}</strong> pionnen → exact <strong>6.179 moleculen</strong> over!`
+          : `✂️ <strong>Stap ${state.step} (÷ 24^${state.step}):</strong> ${d.regime.name}`;
+
+        const mouseStatus = document.getElementById("mouseStatus");
+        if (state.step === 0) {
+          mouseStatus.innerHTML = `🐭 Muis staat bij pion <strong>6.179</strong>. Klik op de muis of <strong>Splits ÷ 24</strong> om naar Stap 17 (24¹⁷) te dalen.`;
+        } else if (state.step < 17) {
+          mouseStatus.innerHTML = `🐭 Muis volgt de splitsing <strong>÷ 24^${state.step}</strong> (${d.regime.tag}). Nog <strong>${17 - state.step}</strong> stappen tot de Avogadro-schaal 24¹⁷.`;
+        } else {
+          mouseStatus.innerHTML = `⚛️🐭 Muis heeft <strong>Stap 17 (24¹⁷ ≈ 2,91 × 10²³)</strong> bereikt: van de 6.179 pionnen blijven exact <strong>6.179 individuele moleculen</strong> over!`;
+        }
+
+        document.querySelectorAll(".step-pill").forEach((el, idx) => {
+          el.classList.toggle("active", idx === state.step);
+        });
+        document.querySelectorAll(".cascade-row").forEach((el, idx) => {
+          el.classList.toggle("active", idx === state.step);
+        });
+      }
+
+      function setStep(k) {
+        state.step = Math.max(0, Math.min(MAX_STEP, k));
+        buildEntities(state.step);
+        updateUI();
+      }
+
+      function buildLadderUI() {
+        const pills = document.getElementById("stepPills");
+        const list = document.getElementById("cascadeList");
+        pills.innerHTML = "";
+        list.innerHTML = "";
+
+        for (let k = 0; k <= MAX_STEP; k++) {
+          const d = getStepData(k);
+          const pill = document.createElement("button");
+          pill.type = "button";
+          pill.className = "step-pill" + (k === 17 ? " avogadro" : k >= 6 ? " chem" : "");
+          pill.textContent = k === 0 ? "0: 6179" : k === 17 ? "17: 24¹⁷ ⚛️" : `${k}`;
+          pill.title = `Stap ${k}: 6.179 ÷ 24^${k} (${d.regime.tag})`;
+          pill.addEventListener("click", () => {
+            state.autoPlaying = false;
+            document.getElementById("btnAutoCascade").textContent = "Auto-splits (0 → 17)";
+            setStep(k);
+          });
+          pills.appendChild(pill);
+
+          const row = document.createElement("div");
+          row.className = "cascade-row";
+          const rightVal = d.exactMolecules <= 1000000n
+            ? `${formatBigIntNL(d.exactMolecules)} mol.`
+            : `${fmtSciNL(d.pawnFraction)} p.`;
+          row.innerHTML = `
+            <span>${k === 17 ? "⚛️" : k >= 6 ? "🧪" : "✂️"} <strong>Stap ${k}</strong> (${d.regime.tag})</span>
+            <code>${rightVal}</code>
+          `;
+          row.addEventListener("click", () => {
+            state.autoPlaying = false;
+            document.getElementById("btnAutoCascade").textContent = "Auto-splits (0 → 17)";
+            setStep(k);
+          });
+          list.appendChild(row);
+        }
+      }
+
+      // Chemische weergaven per schaalregime
+      function drawChemicalEntity(ctx, ent, regimeMode, t) {
+        const { x, y, r, fill, isLast } = ent;
+        ctx.save();
+        ctx.translate(x, y);
+
+        // Buitenste 1/24-vakcirkel
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.fillStyle = fill > 0 ? "rgba(35, 93, 99, 0.10)" : "rgba(180, 165, 140, 0.14)";
+        ctx.fill();
+        ctx.lineWidth = isLast ? 2 : 1;
+        ctx.strokeStyle = isLast ? "#c8922a" : "rgba(110, 95, 80, 0.35)";
+        ctx.stroke();
+
+        if (fill <= 0) {
+          ctx.restore();
+          return;
+        }
+
+        const scale = Math.max(0.45, Math.min(1, fill + 0.2));
+
+        if (regimeMode === "cluster") {
+          // Supramoleculaire cluster van bolletjes
+          const count = Math.max(3, Math.round(fill * 9));
+          for (let i = 0; i < count; i++) {
+            const ang = (i / count) * Math.PI * 2 + t * 0.35;
+            const dist = i === 0 ? 0 : r * 0.42 * scale;
+            ctx.beginPath();
+            ctx.arc(Math.cos(ang) * dist, Math.sin(ang) * dist, r * 0.16 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = i % 3 === 0 ? "#8b1e24" : i % 3 === 1 ? "#c8922a" : "#235d63";
+            ctx.fill();
+          }
+        } else if (regimeMode === "ring") {
+          // Aromatische benzeen-/antrachinonring (6-ring met dubbele bindingen en atomen)
+          const rad = r * 0.52 * scale;
+          ctx.rotate(t * 0.25);
+          ctx.beginPath();
+          for (let i = 0; i < 6; i++) {
+            const a = (i / 6) * Math.PI * 2;
+            const px = Math.cos(a) * rad;
+            const py = Math.sin(a) * rad;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = "#1e1615";
+          ctx.lineWidth = Math.max(1.4, r * 0.07);
+          ctx.stroke();
+
+          // Binnenste gedelokaliseerde pi-ring
+          ctx.beginPath();
+          ctx.arc(0, 0, rad * 0.56, 0, Math.PI * 2);
+          ctx.strokeStyle = "#8b1e24";
+          ctx.lineWidth = Math.max(1, r * 0.05);
+          ctx.stroke();
+
+          // Koolstof- en zuurstofatomen op de hoekpunten
+          for (let i = 0; i < 6; i++) {
+            const a = (i / 6) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.arc(Math.cos(a) * rad, Math.sin(a) * rad, r * 0.11 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = i === 0 || i === 3 ? "#c8922a" : "#8b1e24";
+            ctx.fill();
+          }
+        } else if (regimeMode === "molecule") {
+          // Tri-atomair molecuul (H2O / CO2) met covalente bindingen
+          const arm = r * 0.50 * scale;
+          const a1 = -Math.PI / 5 + Math.sin(t * 2) * 0.06;
+          const a2 = Math.PI + Math.PI / 5 - Math.sin(t * 2) * 0.06;
+
+          ctx.strokeStyle = "#1e1615";
+          ctx.lineWidth = Math.max(1.8, r * 0.08);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(Math.cos(a1) * arm, Math.sin(a1) * arm);
+          ctx.moveTo(0, 0);
+          ctx.lineTo(Math.cos(a2) * arm, Math.sin(a2) * arm);
+          ctx.stroke();
+
+          // Centraal atoom (Zuurstof / Koolstof)
+          ctx.beginPath();
+          ctx.arc(0, 0, r * 0.24 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = "#8b1e24";
+          ctx.fill();
+
+          // Waterstof-atomen
+          [a1, a2].forEach(ang => {
+            ctx.beginPath();
+            ctx.arc(Math.cos(ang) * arm, Math.sin(ang) * arm, r * 0.16 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = "#235d63";
+            ctx.fill();
+          });
+        } else if (regimeMode === "avogadro") {
+          // Stap 17 (Avogadro 24^17): Volledig molecuul met elektronenschillen (Bohr/kwantum-orbitalen)
+          const orbRx = r * 0.68 * scale;
+          const orbRy = r * 0.28 * scale;
+
+          for (let o = 0; o < 3; o++) {
+            ctx.save();
+            ctx.rotate((o * Math.PI) / 3 + t * 0.35);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, orbRx, orbRy, 0, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(44, 62, 102, 0.55)";
+            ctx.lineWidth = Math.max(1, r * 0.045);
+            ctx.stroke();
+
+            // Omlopend elektron
+            const eAng = t * 2.6 + o * 2.1;
+            ctx.beginPath();
+            ctx.arc(Math.cos(eAng) * orbRx, Math.sin(eAng) * orbRy, r * 0.085 * scale, 0, Math.PI * 2);
+            ctx.fillStyle = "#2c3e66";
+            ctx.fill();
+            ctx.restore();
+          }
+
+          // Moleculaire kern (protonen + neutronen cluster)
+          ctx.beginPath();
+          ctx.arc(-r * 0.07 * scale, 0, r * 0.16 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = "#8b1e24";
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(r * 0.08 * scale, r * 0.05 * scale, r * 0.14 * scale, 0, Math.PI * 2);
+          ctx.fillStyle = "#c8922a";
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      function drawMouseCharacter(ctx, x, y, angle, baseSize, wiggle) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        const s = baseSize;
+
+        // Staart
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.75, 0);
+        const tailWave = Math.sin(wiggle * 6) * s * 0.35;
+        ctx.bezierCurveTo(-s * 1.35, tailWave, -s * 1.65, -tailWave, -s * 2.05, tailWave * 0.6);
+        ctx.strokeStyle = "#d88c94";
+        ctx.lineWidth = Math.max(1.6, s * 0.14);
+        ctx.lineCap = "round";
+        ctx.stroke();
+
+        // Lijfje
+        ctx.beginPath();
+        ctx.ellipse(-s * 0.05, 0, s * 0.85, s * 0.56, 0, 0, Math.PI * 2);
+        ctx.fillStyle = "#4a4341";
+        ctx.fill();
+        ctx.lineWidth = Math.max(1.2, s * 0.1);
+        ctx.strokeStyle = "#1c1514";
+        ctx.stroke();
+
+        // Oortjes
+        [-1, 1].forEach(side => {
+          ctx.beginPath();
+          ctx.arc(s * 0.32, side * s * 0.48, s * 0.31, 0, Math.PI * 2);
+          ctx.fillStyle = "#5c5350";
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(s * 0.35, side * s * 0.48, s * 0.18, 0, Math.PI * 2);
+          ctx.fillStyle = "#e8a5ad";
+          ctx.fill();
+        });
+
+        // Oogjes
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(s * 0.56, -s * 0.2, s * 0.13, 0, Math.PI * 2);
+        ctx.arc(s * 0.56, s * 0.2, s * 0.13, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#111111";
+        ctx.beginPath();
+        ctx.arc(s * 0.6, -s * 0.2, s * 0.07, 0, Math.PI * 2);
+        ctx.arc(s * 0.6, s * 0.2, s * 0.07, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Neusje
+        ctx.beginPath();
+        ctx.arc(s * 0.88, 0, s * 0.14, 0, Math.PI * 2);
+        ctx.fillStyle = "#e07a86";
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      let lastTs = 0;
+      function render(ts) {
+        const dt = Math.min(0.05, (ts - lastTs) / 1000 || 0.016);
+        lastTs = ts;
+
+        if (state.autoPlaying) {
+          state.autoTimer += dt;
+          if (state.autoTimer >= 0.85) {
+            state.autoTimer = 0;
+            if (state.step < MAX_STEP) {
+              setStep(state.step + 1);
+            } else {
+              state.autoPlaying = false;
+              document.getElementById("btnAutoCascade").textContent = "Auto-splits (0 → 17)";
+            }
+          }
+        }
+
+        const rect = canvasWrap.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const tw = Math.round(rect.width * dpr);
+        const th = Math.round(rect.height * dpr);
+        if (canvas.width !== tw || canvas.height !== th) {
+          canvas.width = tw;
+          canvas.height = th;
+          buildEntities(state.step);
+        }
+
+        state.mouse.wiggle += dt * 3.2;
+        const dx = state.mouse.targetX - state.mouse.x;
+        const dy = state.mouse.targetY - state.mouse.y;
+        if (Math.hypot(dx, dy) > 0.2) {
+          state.mouse.x += dx * Math.min(1, dt * 10);
+          state.mouse.y += dy * Math.min(1, dt * 10);
+          state.mouse.angle = Math.atan2(dy, dx);
+        }
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+
+        ctx.fillStyle = "#efe8d8";
+        ctx.fillRect(0, 0, rect.width, rect.height);
+
+        ctx.translate(state.panX, state.panY);
+        ctx.scale(state.zoom, state.zoom);
+
+        const regimeMode = REGIMES[state.step].mode;
+
+        for (let i = 0; i < state.entities.length; i++) {
+          const ent = state.entities[i];
+          const r = ent.r;
+
+          if (["cluster", "ring", "molecule", "avogadro"].includes(regimeMode)) {
+            drawChemicalEntity(ctx, ent, regimeMode, state.mouse.wiggle);
+            continue;
+          }
+
+          if (ent.fill >= 1) {
+            ctx.beginPath();
+            ctx.arc(ent.x, ent.y, r, 0, Math.PI * 2);
+            ctx.fillStyle = ent.isLast ? "#c8922a" : "#8b1e24";
+            ctx.fill();
+
+            if (state.showGrid24 && r * state.zoom >= 7) {
+              ctx.strokeStyle = "rgba(255, 250, 242, 0.35)";
+              ctx.lineWidth = 0.7 / state.zoom;
+              for (let s = 0; s < 24; s++) {
+                const a = -Math.PI / 2 + (s / 24) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(ent.x, ent.y);
+                ctx.lineTo(ent.x + Math.cos(a) * r, ent.y + Math.sin(a) * r);
+                ctx.stroke();
+              }
+            }
+          } else {
+            ctx.beginPath();
+            ctx.arc(ent.x, ent.y, r, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(180, 165, 140, 0.22)";
+            ctx.fill();
+            ctx.strokeStyle = "#8b1e24";
+            ctx.lineWidth = 1.1 / state.zoom;
+            ctx.stroke();
+
+            if (ent.fill > 0) {
+              const endAng = -Math.PI / 2 + ent.fill * Math.PI * 2;
+              ctx.beginPath();
+              ctx.moveTo(ent.x, ent.y);
+              ctx.arc(ent.x, ent.y, r, -Math.PI / 2, endAng);
+              ctx.closePath();
+              ctx.fillStyle = "#c8922a";
+              ctx.fill();
+            }
+          }
+
+          if (state.showGrid24 && state.step === 0 && ent.id % 24 === 0) {
+            ctx.beginPath();
+            ctx.moveTo(ent.x + r * 1.18, ent.y - r * 1.2);
+            ctx.lineTo(ent.x + r * 1.18, ent.y + r * 1.2);
+            ctx.strokeStyle = "#1e1615";
+            ctx.lineWidth = 1.5 / state.zoom;
+            ctx.stroke();
+          }
+        }
+
+        if (state.showMouse) {
+          const mouseSize = Math.max(9 / state.zoom, state.step >= 2 ? 15 : 9);
+          drawMouseCharacter(ctx, state.mouse.x, state.mouse.y, state.mouse.angle, mouseSize, state.mouse.wiggle);
+        }
+
+        ctx.restore();
+        requestAnimationFrame(render);
+      }
+
+      // Controls
+      document.getElementById("btnSplitNext").addEventListener("click", () => {
+        state.autoPlaying = false;
+        document.getElementById("btnAutoCascade").textContent = "Auto-splits (0 → 17)";
+        setStep(state.step + 1);
+      });
+
+      document.getElementById("btnSplitPrev").addEventListener("click", () => {
+        state.autoPlaying = false;
+        document.getElementById("btnAutoCascade").textContent = "Auto-splits (0 → 17)";
+        setStep(state.step - 1);
+      });
+
+      document.getElementById("btnResetZero").addEventListener("click", () => {
+        state.autoPlaying = false;
+        document.getElementById("btnAutoCascade").textContent = "Auto-splits (0 → 17)";
+        setStep(0);
+      });
+
+      document.getElementById("btnJumpAvogadro").addEventListener("click", () => {
+        state.autoPlaying = false;
+        document.getElementById("btnAutoCascade").textContent = "Auto-splits (0 → 17)";
+        setStep(17);
+      });
+
+      document.getElementById("btnAutoCascade").addEventListener("click", e => {
+        if (state.step >= MAX_STEP) setStep(0);
+        state.autoPlaying = !state.autoPlaying;
+        state.autoTimer = 0;
+        e.target.textContent = state.autoPlaying ? "Pauzeren" : "Auto-splits (0 → 17)";
+      });
+
+      document.getElementById("chkShowGrid24").addEventListener("change", e => {
+        state.showGrid24 = e.target.checked;
+      });
+
+      document.getElementById("chkMouseVisible").addEventListener("change", e => {
+        state.showMouse = e.target.checked;
+      });
+
+      document.getElementById("btnZoomIn").addEventListener("click", () => {
+        state.zoom = Math.min(20, state.zoom * 1.25);
+        zoomLabel.textContent = `${Math.round(state.zoom * 100)}%`;
+      });
+
+      document.getElementById("btnZoomOut").addEventListener("click", () => {
+        state.zoom = Math.max(0.6, state.zoom / 1.25);
+        zoomLabel.textContent = `${Math.round(state.zoom * 100)}%`;
+      });
+
+      document.getElementById("btnResetView").addEventListener("click", () => {
+        state.zoom = 1;
+        state.panX = 0;
+        state.panY = 0;
+        zoomLabel.textContent = "100%";
+      });
+
+      canvasWrap.addEventListener("wheel", e => {
+        e.preventDefault();
+        const rect = canvasWrap.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.18 : 1 / 1.18;
+        const newZoom = Math.min(20, Math.max(0.6, state.zoom * factor));
+        state.panX = mx - ((mx - state.panX) / state.zoom) * newZoom;
+        state.panY = my - ((my - state.panY) / state.zoom) * newZoom;
+        state.zoom = newZoom;
+        zoomLabel.textContent = `${Math.round(state.zoom * 100)}%`;
+      }, { passive: false });
+
+      canvasWrap.addEventListener("mousedown", e => {
+        state.isDragging = true;
+        state.dragMoved = false;
+        state.dragStartX = e.clientX - state.panX;
+        state.dragStartY = e.clientY - state.panY;
+      });
+
+      window.addEventListener("mousemove", e => {
+        const rect = canvasWrap.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+
+        if (state.isDragging) {
+          const nx = e.clientX - state.dragStartX;
+          const ny = e.clientY - state.dragStartY;
+          if (Math.hypot(nx - state.panX, ny - state.panY) > 4) state.dragMoved = true;
+          state.panX = nx;
+          state.panY = ny;
+        }
+
+        if (sx >= 0 && sy >= 0 && sx <= rect.width && sy <= rect.height) {
+          const wx = (sx - state.panX) / state.zoom;
+          const wy = (sy - state.panY) / state.zoom;
+          let found = null;
+          for (let i = 0; i < state.entities.length; i++) {
+            const ent = state.entities[i];
+            if (Math.hypot(wx - ent.x, wy - ent.y) <= ent.r * 1.15) {
+              found = ent;
+              break;
+            }
+          }
+          if (found) {
+            hoverCoords.textContent = `Hover: ${found.title}`;
+            hoverTooltip.style.display = "block";
+            hoverTooltip.style.left = `${Math.min(rect.width - 260, sx + 14)}px`;
+            hoverTooltip.style.top = `${Math.max(8, sy - 46)}px`;
+            hoverTooltip.innerHTML = `<strong>${found.title}</strong><br/>${found.detail}`;
+          } else {
+            hoverCoords.textContent = "Hover: —";
+            hoverTooltip.style.display = "none";
+          }
+        } else {
+          hoverTooltip.style.display = "none";
+        }
+      });
+
+      window.addEventListener("mouseup", e => {
+        if (!state.isDragging) return;
+        const wasDrag = state.dragMoved;
+        state.isDragging = false;
+        if (!wasDrag) {
+          const rect = canvasWrap.getBoundingClientRect();
+          const sx = e.clientX - rect.left;
+          const sy = e.clientY - rect.top;
+          if (sx >= 0 && sy >= 0 && sx <= rect.width && sy <= rect.height) {
+            const wx = (sx - state.panX) / state.zoom;
+            const wy = (sy - state.panY) / state.zoom;
+
+            // Klik op de muis zelf: voer direct de volgende ÷ 24 splitsing uit
+            if (state.showMouse && Math.hypot(wx - state.mouse.x, wy - state.mouse.y) <= 22 / state.zoom) {
+              setStep(state.step < MAX_STEP ? state.step + 1 : 0);
+              return;
+            }
+
+            for (let i = 0; i < state.entities.length; i++) {
+              const ent = state.entities[i];
+              if (Math.hypot(wx - ent.x, wy - ent.y) <= ent.r * 1.15) {
+                state.mouse.targetX = ent.x;
+                state.mouse.targetY = ent.y;
+                break;
+              }
+            }
+          }
+        }
+      });
+
+      document.getElementById("btnExportCsv").addEventListener("click", () => {
+        const rows = [["stap_k", "deler_24_tot_k_exact", "fractie_pionnen", "overgebleven_moleculen_exact", "hoeveelheid_mol", "chemisch_regime"].join(";")];
+        for (let k = 0; k <= MAX_STEP; k++) {
+          const d = getStepData(k);
+          rows.push([
+            k,
+            d.denom.toString(),
+            String(d.pawnFraction).replace(".", ","),
+            d.exactMolecules.toString(),
+            String(d.moles).replace(".", ","),
+            d.regime.name
+          ].join(";"));
+        }
+        const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "6179_gedeeld_door_24_tot_stap17_avogadro.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Start
+      buildLadderUI();
+      setStep(0);
+      requestAnimationFrame(render);
+    })();
+  </script>
+</body>
+</html>
