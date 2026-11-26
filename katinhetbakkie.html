@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kaprekar 6174 ÷ 24 Pionnenbord — Meekrap Editie (met Muis)</title>
+  <style>
+    :root {
+      --bg: #f6f1e7;
+      --panel: #fcf9f2;
+      --panel-alt: #efe7d6;
+      --border: #d5c7ae;
+      --text: #241918;
+      --muted: #6b5b54;
+      --meekrap: #8b1e24;
+      --meekrap-dark: #631217;
+      --meekrap-soft: #f5e2e3;
+      --ochre: #c8922a;
+      --ochre-light: #f3dfb0;
+      --ink: #1e1615;
+      --shadow: 0 6px 20px rgba(36, 25, 24, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--meekrap-dark), var(--meekrap));
+      color: #fffaf2;
+      padding: 16px 22px;
+      border-bottom: 3px solid var(--ochre);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .badge-6174 {
+      background: var(--ochre);
+      color: #1f140a;
+      font-weight: 800;
+      font-size: 1.05rem;
+      padding: 8px 12px;
+      border-radius: 10px;
+      letter-spacing: 0.03em;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+      white-space: nowrap;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    header p {
+      margin: 2px 0 0;
+      font-size: 0.86rem;
+      color: #f3dfd8;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+
+    button, select, input[type="number"] {
+      font: inherit;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 6px 10px;
+      transition: all 0.15s ease;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.83rem;
+    }
+
+    button:hover {
+      background: var(--panel-alt);
+      border-color: #b8a586;
+    }
+
+    button.primary {
+      background: var(--meekrap);
+      color: #fffaf2;
+      border-color: var(--meekrap-dark);
+    }
+
+    button.primary:hover {
+      background: var(--meekrap-dark);
+    }
+
+    .header-actions button {
+      background: rgba(255, 250, 242, 0.14);
+      color: #fffaf2;
+      border-color: rgba(255, 250, 242, 0.3);
+    }
+
+    .header-actions button:hover {
+      background: rgba(255, 250, 242, 0.24);
+    }
+
+    .header-actions button.active {
+      background: var(--ochre);
+      color: #1f140a;
+      border-color: var(--ochre);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 375px;
+      gap: 18px;
+      padding: 16px 20px 26px;
+      max-width: 1720px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1120px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .toolbar {
+      padding: 10px 14px;
+      background: var(--panel-alt);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 9px;
+      font-size: 0.83rem;
+    }
+
+    .toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .search-box input {
+      width: 92px;
+      padding: 5px 8px;
+    }
+
+    .checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 500;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 650px;
+      background: #efe8d8;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .canvas-wrap:active {
+      cursor: grabbing;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hover-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(30, 22, 21, 0.95);
+      color: #fffaf2;
+      border: 1px solid var(--ochre);
+      border-radius: 9px;
+      padding: 7px 10px;
+      font-size: 0.78rem;
+      line-height: 1.38;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+      z-index: 15;
+      display: none;
+      white-space: nowrap;
+    }
+
+    .hover-tooltip strong {
+      color: #f6cf76;
+    }
+
+    .canvas-footer {
+      padding: 8px 14px;
+      background: var(--panel-alt);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.81rem;
+      color: var(--muted);
+    }
+
+    .playback-bar {
+      padding: 11px 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.83rem;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .side-section {
+      padding: 14px 16px;
+    }
+
+    .side-section h2 {
+      margin: 0 0 9px;
+      font-size: 0.98rem;
+      color: var(--meekrap);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mouse-box {
+      background: linear-gradient(180deg, #fbf4e4, #f5ead2);
+      border: 1px solid #d9be89;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .mouse-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.86rem;
+      color: #4d2c12;
+    }
+
+    .mouse-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-size: 0.81rem;
+    }
+
+    .mouse-status {
+      font-size: 0.78rem;
+      color: #5c4938;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #e3d2ae;
+    }
+
+    .inspect-hero {
+      background: var(--meekrap-soft);
+      border: 1px solid #dfb6b8;
+      border-radius: 10px;
+      padding: 11px 12px;
+      margin-bottom: 10px;
+    }
+
+    .inspect-number {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--meekrap);
+      line-height: 1.15;
+    }
+
+    .inspect-meta {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .split24-card {
+      background: #f4efe4;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 11px;
+      font-size: 0.81rem;
+      margin-bottom: 10px;
+    }
+
+    .split24-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px 10px;
+      margin-top: 5px;
+    }
+
+    .split24-stat {
+      background: var(--panel);
+      border: 1px solid #e0d4be;
+      border-radius: 6px;
+      padding: 4px 7px;
+    }
+
+    .split24-stat span {
+      display: block;
+      font-size: 0.71rem;
+      color: var(--muted);
+    }
+
+    .split24-stat strong {
+      font-size: 0.86rem;
+      color: var(--ink);
+    }
+
+    .route-block {
+      margin-top: 9px;
+      padding-top: 9px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .route-title {
+      font-size: 0.81rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .chain-pills {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.76rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .chain-pill {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-weight: 600;
+    }
+
+    .chain-pill.target {
+      background: var(--ochre-light);
+      border-color: var(--ochre);
+      color: #3d2805;
+    }
+
+    .mod24-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      margin-bottom: 9px;
+    }
+
+    .mod-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 2px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 0.73rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mod-chip small {
+      font-size: 0.64rem;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    .mod-chip.selected {
+      background: var(--ink);
+      color: #fffaf2;
+      border-color: var(--ink);
+    }
+
+    .mod-swatch {
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      margin-bottom: 2px;
+    }
+
+    .hint-text {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin: 7px 0 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="badge-6174">6174 ÷ 24</div>
+      <div>
+        <h1>Kaprekar 6174 Pionnenbord — Gesplitst door 24 (met Muis)</h1>
+        <p>6174 = 257 × 24 + 6 · 24 restklassen (n mod 24) &amp; 258 groepen van 24 in Zeeuwse Meekrap-stijl</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btnViewSplit24" class="active" type="button">24 Vakken (n mod 24)</button>
+      <button id="btnViewCols24" type="button">24 Kolommen (257×24 + 6)</button>
+      <button id="btnViewRect98" type="button">98 × 63 (Exact 6174)</button>
+      <button id="btnExportCsv" type="button">Exporteer CSV (÷24)</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <div class="toolbar">
+        <div class="toolbar-group search-box">
+          <label for="searchInput"><strong>Zoek:</strong></label>
+          <input id="searchInput" type="number" min="1" max="6174" placeholder="1..6174" />
+          <button id="btnSearch" type="button">Ga</button>
+        </div>
+
+        <div class="toolbar-group">
+          <label for="colorModeSelect"><strong>Kleur:</strong></label>
+          <select id="colorModeSelect">
+            <option value="mod24">24 Restklassen (n mod 24)</option>
+            <option value="steps">Kaprekar-stappen (0 → 7)</option>
+          </select>
+        </div>
+
+        <div class="toolbar-group">
+          <label class="checkbox-label">
+            <input id="chkDividers24" type="checkbox" checked />
+            24-deling markeren
+          </label>
+          <label class="checkbox-label">
+            <input id="chkAnchors" type="checkbox" checked />
+            Ankers (6174 &amp; 136..631)
+          </label>
+          <label class="checkbox-label">
+            <input id="chkMouseVisible" type="checkbox" checked />
+            Muis op bord
+          </label>
+        </div>
+
+        <div class="toolbar-group">
+          <button id="btnZoomOut" type="button" title="Uitzoomen">−</button>
+          <span id="zoomLabel">100%</span>
+          <button id="btnZoomIn" type="button" title="Inzoomen">+</button>
+          <button id="btnResetView" type="button">Reset beeld</button>
+        </div>
+      </div>
+
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="boardCanvas"></canvas>
+        <div class="hover-tooltip" id="hoverTooltip"></div>
+      </div>
+
+      <div class="canvas-footer">
+        <span id="statusBanner">Pion: <strong>6174</strong> · Vak <strong>Rest 6</strong> · Blok <strong>258</strong> (257 × 24 + 6)</span>
+        <span id="hoverCoords">Hover: —</span>
+      </div>
+
+      <div class="playback-bar">
+        <div class="toolbar-group">
+          <button id="btnPlay" class="primary" type="button">Afspelen</button>
+          <button id="btnStep" type="button">Stap voor stap</button>
+          <button id="btnShowAll" type="button">Alles tonen</button>
+          <button id="btnResetAnim" type="button">Reset</button>
+        </div>
+
+        <div class="toolbar-group">
+          <label for="orderSelect"><strong>Volgorde:</strong></label>
+          <select id="orderSelect">
+            <option value="linear">Lineair (1 → 6174)</option>
+            <option value="byMod24">Per restklasse (Rest 0 → Rest 23)</option>
+            <option value="wave">Per Kaprekar-golf (0 → 7)</option>
+          </select>
+        </div>
+
+        <div class="toolbar-group">
+          <label for="speedRange"><strong>Snelheid:</strong></label>
+          <input id="speedRange" type="range" min="1" max="160" value="36" />
+          <span id="speedLabel">36/frame</span>
+        </div>
+
+        <div>
+          <strong id="placedCounter">6174 / 6174 pionnen</strong>
+        </div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <section class="card side-section">
+        <h2>Kaprekar-Muis <span>🐭</span></h2>
+        <div class="mouse-box">
+          <div class="mouse-box-header">
+            <span>Muis door de 24 vakken</span>
+            <button id="btnMouseWalkRoute" class="primary" type="button">Laat muis route lopen</button>
+          </div>
+          <div class="mouse-controls">
+            <label for="mouseModeSelect"><strong>Muismodus:</strong></label>
+            <select id="mouseModeSelect">
+              <option value="route">Kaprekar-route lopen bij klik</option>
+              <option value="follow">Volg computermuis (cursor)</option>
+              <option value="manual">Vrij lopen (pijltjestoetsen ↑↓←→)</option>
+            </select>
+            <div class="mouse-status" id="mouseStatus">
+              🧀 Muis staat bij de kaas op <strong>6174</strong> in <strong>Vak Rest 6</strong> (Blok 258).
+            </div>
+          </div>
+        </div>
+
+        <h2>Live Inspectie &amp; Deling door 24</h2>
+        <div class="inspect-hero">
+          <div class="inspect-number" id="inspectTitle">6174 <span style="font-size:0.95rem;font-weight:600;">(6174)</span></div>
+          <div class="inspect-meta" id="inspectSub">Constante 6174 · Vak Rest 6 (258e pion in dit vak)</div>
+        </div>
+
+        <div class="split24-card">
+          <strong>Splitsing door 24:</strong> <span id="split24Formula">6174 = 257 × 24 + 6</span>
+          <div class="split24-grid">
+            <div class="split24-stat">
+              <span>Restklasse (n mod 24)</span>
+              <strong id="statMod24">Rest 6</strong>
+            </div>
+            <div class="split24-stat">
+              <span>Blok van 24 (1..258)</span>
+              <strong id="statBlock24">Blok 258 (pos. 6/24)</strong>
+            </div>
+            <div class="split24-stat">
+              <span>Exact quotiënt (n ÷ 24)</span>
+              <strong id="statDecimal24">257,2500</strong>
+            </div>
+            <div class="split24-stat">
+              <span>Grootte van dit vak</span>
+              <strong id="statBucketSize">258 pionnen</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="route-block">
+          <div class="route-title">
+            <span>Kaprekar-route naar 6174 (incl. mod 24)</span>
+            <span id="route4Steps">0 stappen</span>
+          </div>
+          <div class="chain-pills" id="route4Chain"></div>
+        </div>
+      </section>
+
+      <section class="card side-section">
+        <h2>Filter op 24 Restklassen (n mod 24)</h2>
+        <div class="mod24-grid" id="mod24FilterGrid"></div>
+        <div class="toolbar-group">
+          <button id="btnClearFilters" type="button">Alle 24 vakken tonen</button>
+          <button id="btnFilterRem6" type="button">Alleen Rest 1..6 (258)</button>
+        </div>
+        <p class="hint-text">
+          <strong>6174 ÷ 24 = 257 rest 6:</strong> De restklassen <strong>1 t/m 6</strong> bevatten elk <strong>258</strong> pionnen; <strong>7 t/m 23 en 0</strong> bevatten elk <strong>257</strong> pionnen. Klik op één of meer vakken om ze uit te lichten.
+        </p>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    (() => {
+      const TOTAL = 6174;
+      const DIVISOR = 24;
+      const DOUBLE_ONE_STEP = new Set([136, 163, 316, 361, 613, 631]);
+
+      const STEP_COLORS = {
+        0: "#d49b2a",
+        1: "#8b1e24",
+        2: "#b23338",
+        3: "#c95b48",
+        4: "#3c6e71",
+        5: "#2b4c65",
+        6: "#6c4f70",
+        7: "#5d6b47",
+        "-1": "#8c8279"
+      };
+
+      // 24 onderscheidende tinten voor de 24 restklassen (n mod 24)
+      const MOD24_COLORS = Array.from({ length: 24 }, (_, r) => {
+        if (r === 6) return "#c8922a"; // Oker-goud voor Rest 6 (waar 6174 ligt)
+        const hue = (r * 137.508 + 350) % 360;
+        const sat = r % 2 === 0 ? 58 : 66;
+        const light = r % 3 === 0 ? 38 : r % 3 === 1 ? 45 : 33;
+        return `hsl(${hue.toFixed(1)}, ${sat}%, ${light}%)`;
+      });
+
+      function kaprekar4(n) {
+        if (n === 6174) return { steps: 0, chain: [6174], valid: true };
+        const chain = [n];
+        let curr = n;
+        let steps = 0;
+        while (curr !== 6174 && steps < 12) {
+          const s = String(curr).padStart(4, "0").split("");
+          const asc = parseInt([...s].sort().join(""), 10);
+          const desc = parseInt([...s].sort().reverse().join(""), 10);
+          curr = desc - asc;
+          steps++;
+          chain.push(curr);
+          if (curr === 0) return { steps: -1, chain, valid: false };
+        }
+        return { steps, chain, valid: curr === 6174 };
+      }
+
+      // Precompute alle 6174 pionnen incl. deling door 24
+      const items = new Array(TOTAL + 1);
+      const bucketCounts = new Array(24).fill(0);
+      for (let n = 1; n <= TOTAL; n++) {
+        const mod24 = n % DIVISOR;
+        const indexInBucket = bucketCounts[mod24]; // 0-based index binnen het vak
+        bucketCounts[mod24]++;
+
+        const quotient = Math.floor(n / DIVISOR);
+        const block24 = Math.floor((n - 1) / DIVISOR) + 1; // 1..258
+        const posInBlock24 = ((n - 1) % DIVISOR) + 1;     // 1..24
+        const k4 = kaprekar4(n);
+
+        items[n] = {
+          num: n,
+          padded: String(n).padStart(4, "0"),
+          mod24,
+          indexInBucket,
+          quotient,
+          block24,
+          posInBlock24,
+          k4,
+          isAnchor: n === 6174 || DOUBLE_ONE_STEP.has(n),
+          isDoubleOne: DOUBLE_ONE_STEP.has(n)
+        };
+      }
+
+      const state = {
+        viewMode: "split24", // "split24" | "cols24" | "rect98"
+        colorMode: "mod24",  // "mod24" | "steps"
+        selected: 6174,
+        hovered: null,
+        showDividers24: true,
+        showAnchors: true,
+        showMouse: true,
+        mouseMode: "route",
+        zoom: 1,
+        panX: 0,
+        panY: 0,
+        isDragging: false,
+        dragMoved: false,
+        dragStartX: 0,
+        dragStartY: 0,
+        placedCount: TOTAL,
+        playing: false,
+        orderMode: "linear",
+        speed: 36,
+        placementOrder: [],
+        placedSet: new Set(),
+        activeModFilters: new Set(),
+        layoutCache: null,
+        mouse: {
+          num: 6174,
+          x: 0,
+          y: 0,
+          targetX: 0,
+          targetY: 0,
+          angle: -Math.PI / 4,
+          routeQueue: [],
+          trail: [6174],
+          stepTimer: 0,
+          wiggle: 0
+        }
+      };
+
+      const canvasWrap = document.getElementById("canvasWrap");
+      const canvas = document.getElementById("boardCanvas");
+      const ctx = canvas.getContext("2d");
+      const hoverTooltip = document.getElementById("hoverTooltip");
+      const statusBanner = document.getElementById("statusBanner");
+      const hoverCoords = document.getElementById("hoverCoords");
+      const zoomLabel = document.getElementById("zoomLabel");
+      const placedCounter = document.getElementById("placedCounter");
+      const mouseStatus = document.getElementById("mouseStatus");
+
+      // Bereken exacte world-coördinaten van alle 6174 pionnen voor de gekozen 24-indeling
+      function computeLayout() {
+        const rect = canvasWrap.getBoundingClientRect();
+        const width = Math.max(300, rect.width);
+        const height = Math.max(300, rect.height);
+        const pad = 20;
+        const availW = width - pad * 2;
+        const availH = height - pad * 2;
+
+        const positions = new Array(TOTAL + 1);
+        const compartments = [];
+        let pawnRadius = 3;
+        let hitRadius = 5;
+        let boardBounds = { x: pad, y: pad, w: availW, h: availH };
+
+        if (state.viewMode === "split24") {
+          // 6 kolommen × 4 rijen = 24 vakken (Rest 0 t/m Rest 23)
+          const gridCols = 6;
+          const gridRows = 4;
+          const subCols = 18;
+          const subRows = 15; // 18 * 15 = 270 >= 258
+
+          // Virtuele eenheden per vak
+          const headerUnits = 1.85;
+          const gapUnits = 0.85;
+          const compWUnits = subCols;
+          const compHUnits = subRows + headerUnits;
+
+          const totalWUnits = gridCols * compWUnits + (gridCols - 1) * gapUnits;
+          const totalHUnits = gridRows * compHUnits + (gridRows - 1) * gapUnits;
+          const unit = Math.min(availW / totalWUnits, availH / totalHUnits);
+
+          const totalW = totalWUnits * unit;
+          const totalH = totalHUnits * unit;
+          const originX = (width - totalW) / 2;
+          const originY = (height - totalH) / 2;
+          boardBounds = { x: originX - 6, y: originY - 6, w: totalW + 12, h: totalH + 12 };
+
+          pawnRadius = unit * 0.40;
+          hitRadius = unit * 0.54;
+
+          for (let r = 0; r < 24; r++) {
+            const gc = r % gridCols;
+            const gr = Math.floor(r / gridCols);
+            const cx = originX + gc * (compWUnits + gapUnits) * unit;
+            const cy = originY + gr * (compHUnits + gapUnits) * unit;
+            const cw = compWUnits * unit;
+            const ch = compHUnits * unit;
+            const headerH = headerUnits * unit;
+
+            compartments.push({
+              mod: r,
+              count: bucketCounts[r],
+              x: cx,
+              y: cy,
+              w: cw,
+              h: ch,
+              headerH
+            });
+          }
+
+          for (let n = 1; n <= TOTAL; n++) {
+            const item = items[n];
+            const comp = compartments[item.mod24];
+            const sc = item.indexInBucket % subCols;
+            const sr = Math.floor(item.indexInBucket / subCols);
+            positions[n] = {
+              x: comp.x + (sc + 0.5) * unit,
+              y: comp.y + comp.headerH + (sr + 0.5) * unit
+            };
+          }
+        } else if (state.viewMode === "cols24") {
+          // 24 kolommen (1..24) × 258 rijen (257×24 + 6)
+          const cols = 24;
+          const rows = 258;
+          const topHeader = 22;
+          const cellW = availW / cols;
+          const cellH = (availH - topHeader) / rows;
+          const boardW = cellW * cols;
+          const boardH = cellH * rows + topHeader;
+          const originX = (width - boardW) / 2;
+          const originY = (height - boardH) / 2;
+
+          boardBounds = { x: originX - 4, y: originY - 4, w: boardW + 8, h: boardH + 8, cellW, cellH, topHeader, cols, rows };
+          pawnRadius = Math.max(1.05, Math.min(cellW * 0.36, cellH * 0.44));
+          hitRadius = Math.max(cellW * 0.5, cellH * 0.65);
+
+          for (let n = 1; n <= TOTAL; n++) {
+            const item = items[n];
+            const colIdx = item.posInBlock24 - 1; // 0..23
+            const rowIdx = item.block24 - 1;      // 0..257
+            positions[n] = {
+              x: originX + (colIdx + 0.5) * cellW,
+              y: originY + topHeader + (rowIdx + 0.5) * cellH
+            };
+          }
+        } else {
+          // 98 × 63 (Exact 6174)
+          const cols = 98;
+          const rows = 63;
+          const cellSize = Math.min(availW / cols, availH / rows);
+          const boardW = cellSize * cols;
+          const boardH = cellSize * rows;
+          const originX = (width - boardW) / 2;
+          const originY = (height - boardH) / 2;
+
+          boardBounds = { x: originX - 6, y: originY - 6, w: boardW + 12, h: boardH + 12, cellSize, cols, rows };
+          pawnRadius = cellSize * 0.40;
+          hitRadius = cellSize * 0.54;
+
+          for (let n = 1; n <= TOTAL; n++) {
+            const colIdx = (n - 1) % cols;
+            const rowIdx = Math.floor((n - 1) / cols);
+            positions[n] = {
+              x: originX + (colIdx + 0.5) * cellSize,
+              y: originY + (rowIdx + 0.5) * cellSize
+            };
+          }
+        }
+
+        state.layoutCache = { width, height, positions, compartments, pawnRadius, hitRadius, boardBounds };
+        return state.layoutCache;
+      }
+
+      function screenToWorld(sx, sy) {
+        return {
+          x: (sx - state.panX) / state.zoom,
+          y: (sy - state.panY) / state.zoom
+        };
+      }
+
+      function findPawnAtWorld(wx, wy, layout) {
+        let bestN = null;
+        let bestDist = layout.hitRadius;
+        for (let n = 1; n <= TOTAL; n++) {
+          const p = layout.positions[n];
+          const dx = wx - p.x;
+          const dy = wy - p.y;
+          if (Math.abs(dx) > bestDist || Math.abs(dy) > bestDist) continue;
+          const d = Math.hypot(dx, dy);
+          if (d <= bestDist) {
+            bestDist = d;
+            bestN = n;
+          }
+        }
+        return bestN;
+      }
+
+      function rebuildPlacementOrder() {
+        const arr = [];
+        for (let i = 1; i <= TOTAL; i++) arr.push(i);
+
+        if (state.orderMode === "byMod24") {
+          arr.sort((a, b) => items[a].mod24 - items[b].mod24 || a - b);
+        } else if (state.orderMode === "wave") {
+          arr.sort((a, b) => {
+            const sa = items[a].k4.steps < 0 ? 99 : items[a].k4.steps;
+            const sb = items[b].k4.steps < 0 ? 99 : items[b].k4.steps;
+            return sa - sb || a - b;
+          });
+        }
+
+        state.placementOrder = arr;
+        syncPlacedSet();
+      }
+
+      function syncPlacedSet() {
+        state.placedSet.clear();
+        const limit = Math.min(TOTAL, Math.max(0, state.placedCount));
+        for (let i = 0; i < limit; i++) {
+          state.placedSet.add(state.placementOrder[i]);
+        }
+        placedCounter.textContent = `${limit} / ${TOTAL} pionnen`;
+      }
+
+      function isItemHighlighted(item) {
+        if (state.activeModFilters.size === 0) return true;
+        return state.activeModFilters.has(item.mod24);
+      }
+
+      function positionMouseImmediate(n) {
+        const layout = state.layoutCache || computeLayout();
+        const pt = layout.positions[n];
+        state.mouse.num = n;
+        state.mouse.x = pt.x;
+        state.mouse.y = pt.y;
+        state.mouse.targetX = pt.x;
+        state.mouse.targetY = pt.y;
+      }
+
+      function startMouseRouteFrom(n) {
+        const info = items[n];
+        const chain = info.k4.chain.filter(v => v >= 1 && v <= TOTAL);
+        state.mouse.num = n;
+        positionMouseImmediate(n);
+        state.mouse.trail = [n];
+        state.mouse.routeQueue = chain.slice(1);
+        state.mouse.stepTimer = 0;
+
+        if (chain.length <= 1) {
+          updateMouseStatusText(n, info);
+        } else {
+          const vakRoute = chain.map(v => `${v} (R${v % 24})`).join(" → ");
+          mouseStatus.innerHTML = `🐭 Muis rent door vakken: <strong>${vakRoute}</strong>`;
+        }
+      }
+
+      function updateMouseStatusText(n, info) {
+        if (n === 6174) {
+          mouseStatus.innerHTML = `🧀 Muis eet kaas op <strong>6174</strong> in <strong>Vak Rest 6</strong> (Blok 258, pos. 6/24)!`;
+        } else if (info.isDoubleOne) {
+          mouseStatus.innerHTML = `🧀 Muis vond anker-kaas op <strong>${n}</strong> in <strong>Vak Rest ${info.mod24}</strong> (1 stap naar 6174)!`;
+        } else if (!info.k4.valid) {
+          mouseStatus.innerHTML = `❓ Muis loopt vast op repdigit <strong>${n}</strong> (Vak Rest ${info.mod24}) → 0000.`;
+        } else {
+          mouseStatus.innerHTML = `🐭 Muis staat op <strong>${n}</strong> in <strong>Vak Rest ${info.mod24}</strong> (Blok ${info.block24} · ${info.k4.steps} stappen naar 6174).`;
+        }
+      }
+
+      function selectPawn(n, triggerMouse = true) {
+        if (n < 1 || n > TOTAL) return;
+        state.selected = n;
+        const info = items[n];
+        const bucketSize = bucketCounts[info.mod24];
+
+        statusBanner.innerHTML = `Pion: <strong>${n}</strong> · Vak <strong>Rest ${info.mod24}</strong> · Blok <strong>${info.block24}</strong> (${info.quotient} × 24 + ${info.mod24})`;
+
+        const tag = n === 6174
+          ? "Constante 6174"
+          : info.isDoubleOne
+            ? "Dubbele 1-stap anker"
+            : info.k4.valid
+              ? `${info.k4.steps} stappen naar 6174`
+              : "Repdigit (0000)";
+
+        document.getElementById("inspectTitle").innerHTML = `${n} <span style="font-size:0.95rem;font-weight:600;">(${info.padded})</span>`;
+        document.getElementById("inspectSub").textContent = `${tag} · Vak Rest ${info.mod24} (${info.indexInBucket + 1}e van ${bucketSize} pionnen)`;
+
+        document.getElementById("split24Formula").textContent = `${n} = ${info.quotient} × 24 + ${info.mod24}`;
+        document.getElementById("statMod24").textContent = `Rest ${info.mod24} (n ≡ ${info.mod24} mod 24)`;
+        document.getElementById("statBlock24").textContent = `Blok ${info.block24} (pos. ${info.posInBlock24}/24)`;
+        document.getElementById("statDecimal24").textContent = (n / DIVISOR).toFixed(4).replace(".", ",");
+        document.getElementById("statBucketSize").textContent = `${bucketSize} pionnen`;
+
+        document.getElementById("route4Steps").textContent =
+          info.k4.steps === -1 ? "Onbereikbaar (0000)" : info.k4.steps === 1 ? "1 stap" : `${info.k4.steps} stappen`;
+
+        const r4Container = document.getElementById("route4Chain");
+        r4Container.innerHTML = info.k4.chain
+          .map((val, idx) => {
+            const isTarget = val === 6174;
+            const modTag = val > 0 ? `R${val % 24}` : "R0";
+            const arrow = idx < info.k4.chain.length - 1 ? `<span>→</span>` : "";
+            return `<span class="chain-pill ${isTarget ? "target" : ""}">${String(val).padStart(4, "0")} <small style="opacity:0.75;">(${modTag})</small></span>${arrow}`;
+          })
+          .join("");
+
+        if (triggerMouse && state.showMouse) {
+          if (state.mouseMode === "route") {
+            startMouseRouteFrom(n);
+          } else {
+            const layout = state.layoutCache || computeLayout();
+            const pt = layout.positions[n];
+            state.mouse.num = n;
+            state.mouse.targetX = pt.x;
+            state.mouse.targetY = pt.y;
+            state.mouse.routeQueue = [];
+            state.mouse.trail = [n];
+            updateMouseStatusText(n, info);
+          }
+        }
+      }
+
+      function drawCheese(ctx, x, y, size, isMain) {
+        ctx.save();
+        ctx.translate(x, y);
+        const s = isMain ? size : size * 0.72;
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.65, s * 0.45);
+        ctx.lineTo(s * 0.75, s * 0.45);
+        ctx.lineTo(s * 0.55, -s * 0.45);
+        ctx.closePath();
+        ctx.fillStyle = "#f7c844";
+        ctx.fill();
+        ctx.lineWidth = Math.max(1, s * 0.09);
+        ctx.strokeStyle = "#8a5a00";
+        ctx.stroke();
+
+        ctx.fillStyle = "#d99b1e";
+        ctx.beginPath();
+        ctx.arc(s * 0.1, s * 0.15, s * 0.14, 0, Math.PI * 2);
+        ctx.arc(s * 0.38, s * 0.22, s * 0.09, 0, Math.PI * 2);
+        ctx.arc(s * 0.32, -s * 0.08, s * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawMouseCharacter(ctx, x, y, angle, baseSize, wiggle) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+
+        const s = baseSize;
+
+        // Kronkelende staart
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.75, 0);
+        const tailWave = Math.sin(wiggle * 6) * s * 0.35;
+        ctx.bezierCurveTo(
+          -s * 1.35, tailWave,
+          -s * 1.65, -tailWave,
+          -s * 2.05, tailWave * 0.6
+        );
+        ctx.strokeStyle = "#d88c94";
+        ctx.lineWidth = Math.max(1.6, s * 0.14);
+        ctx.lineCap = "round";
+        ctx.stroke();
+
+        // Lijfje
+        ctx.beginPath();
+        ctx.ellipse(-s * 0.05, 0, s * 0.85, s * 0.56, 0, 0, Math.PI * 2);
+        ctx.fillStyle = "#4a4341";
+        ctx.fill();
+        ctx.lineWidth = Math.max(1.2, s * 0.1);
+        ctx.strokeStyle = "#1c1514";
+        ctx.stroke();
+
+        // Oortjes
+        const earOffsetX = s * 0.32;
+        const earOffsetY = s * 0.48;
+        const earR = s * 0.31;
+        [-1, 1].forEach(side => {
+          ctx.beginPath();
+          ctx.arc(earOffsetX, side * earOffsetY, earR, 0, Math.PI * 2);
+          ctx.fillStyle = "#5c5350";
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(earOffsetX + earR * 0.1, side * earOffsetY, earR * 0.58, 0, Math.PI * 2);
+          ctx.fillStyle = "#e8a5ad";
+          ctx.fill();
+        });
+
+        // Oogjes
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(s * 0.56, -s * 0.2, s * 0.13, 0, Math.PI * 2);
+        ctx.arc(s * 0.56, s * 0.2, s * 0.13, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#111111";
+        ctx.beginPath();
+        ctx.arc(s * 0.6, -s * 0.2, s * 0.07, 0, Math.PI * 2);
+        ctx.arc(s * 0.6, s * 0.2, s * 0.07, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Roze neusje
+        ctx.beginPath();
+        ctx.arc(s * 0.88, 0, s * 0.14, 0, Math.PI * 2);
+        ctx.fillStyle = "#e07a86";
+        ctx.fill();
+
+        // Snorharen
+        ctx.strokeStyle = "#fffaf2";
+        ctx.lineWidth = Math.max(0.9, s * 0.06);
+        [-1, 1].forEach(side => {
+          ctx.beginPath();
+          ctx.moveTo(s * 0.78, side * s * 0.08);
+          ctx.lineTo(s * 1.12, side * s * 0.38);
+          ctx.moveTo(s * 0.78, side * s * 0.12);
+          ctx.lineTo(s * 1.05, side * s * 0.52);
+          ctx.stroke();
+        });
+
+        ctx.restore();
+      }
+
+      function buildMod24Filters() {
+        const grid = document.getElementById("mod24FilterGrid");
+        grid.innerHTML = "";
+        for (let r = 0; r < 24; r++) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "mod-chip";
+          if (state.activeModFilters.has(r)) btn.classList.add("selected");
+          const star = r === 6 ? " ★" : "";
+          btn.innerHTML = `<span class="mod-swatch" style="background:${MOD24_COLORS[r]}"></span>R${r}${star}<small>${bucketCounts[r]}</small>`;
+          btn.title = `Restklasse ${r} (n mod 24 = ${r}) · ${bucketCounts[r]} pionnen`;
+          btn.addEventListener("click", () => {
+            if (state.activeModFilters.has(r)) state.activeModFilters.delete(r);
+            else state.activeModFilters.add(r);
+            buildMod24Filters();
+          });
+          grid.appendChild(btn);
+        }
+      }
+
+      let lastTimestamp = 0;
+      function render(timestamp) {
+        const dt = Math.min(0.05, (timestamp - lastTimestamp) / 1000 || 0.016);
+        lastTimestamp = timestamp;
+
+        if (state.playing) {
+          state.placedCount = Math.min(TOTAL, state.placedCount + state.speed);
+          syncPlacedSet();
+          if (state.placedCount >= TOTAL) {
+            state.playing = false;
+            document.getElementById("btnPlay").textContent = "Afspelen";
+          }
+        }
+
+        const layout = computeLayout();
+        const dpr = window.devicePixelRatio || 1;
+        const targetW = Math.round(layout.width * dpr);
+        const targetH = Math.round(layout.height * dpr);
+        if (canvas.width !== targetW || canvas.height !== targetH) {
+          canvas.width = targetW;
+          canvas.height = targetH;
+        }
+
+        // Update muisbeweging
+        if (state.showMouse) {
+          state.mouse.wiggle += dt * 3.5;
+
+          if (state.mouseMode === "route" && state.mouse.routeQueue.length > 0) {
+            state.mouse.stepTimer += dt;
+            if (state.mouse.stepTimer >= 0.6) {
+              state.mouse.stepTimer = 0;
+              const nextNum = state.mouse.routeQueue.shift();
+              state.mouse.num = nextNum;
+              state.mouse.trail.push(nextNum);
+              const pt = layout.positions[nextNum];
+              state.mouse.targetX = pt.x;
+              state.mouse.targetY = pt.y;
+              if (state.mouse.routeQueue.length === 0) {
+                updateMouseStatusText(nextNum, items[nextNum]);
+              }
+            }
+          } else if (state.mouseMode !== "follow") {
+            const pt = layout.positions[state.mouse.num];
+            state.mouse.targetX = pt.x;
+            state.mouse.targetY = pt.y;
+          }
+
+          const dx = state.mouse.targetX - state.mouse.x;
+          const dy = state.mouse.targetY - state.mouse.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist > 0.2) {
+            state.mouse.x += dx * Math.min(1, dt * 10);
+            state.mouse.y += dy * Math.min(1, dt * 10);
+            state.mouse.angle = Math.atan2(dy, dx);
+          }
+        }
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+
+        ctx.fillStyle = "#efe8d8";
+        ctx.fillRect(0, 0, layout.width, layout.height);
+
+        ctx.translate(state.panX, state.panY);
+        ctx.scale(state.zoom, state.zoom);
+
+        // Teken structuur per 24-indeling
+        if (state.viewMode === "split24") {
+          layout.compartments.forEach(comp => {
+            const active = state.activeModFilters.size === 0 || state.activeModFilters.has(comp.mod);
+            ctx.globalAlpha = active ? 1 : 0.28;
+
+            // Vak achtergrond
+            ctx.fillStyle = comp.mod === 6 ? "#fdf7e7" : "#faf5ea";
+            ctx.fillRect(comp.x, comp.y, comp.w, comp.h);
+
+            // Vak rand
+            ctx.lineWidth = (comp.mod === 6 ? 2.2 : 1.1) / state.zoom;
+            ctx.strokeStyle = comp.mod === 6 ? "#c8922a" : "#c7b699";
+            ctx.strokeRect(comp.x, comp.y, comp.w, comp.h);
+
+            // Vak kopbalk
+            ctx.fillStyle = comp.mod === 6 ? "#f3dfb0" : "#ece2cf";
+            ctx.fillRect(comp.x, comp.y, comp.w, comp.headerH);
+
+            ctx.fillStyle = comp.mod === 6 ? "#5b3a05" : "#4a3936";
+            ctx.font = `700 ${Math.max(6.5, comp.headerH * 0.56)}px Inter, system-ui, sans-serif`;
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            const star = comp.mod === 6 ? " ★ 6174" : "";
+            ctx.fillText(`Rest ${comp.mod} (${comp.count})${star}`, comp.x + 4 / state.zoom, comp.y + comp.headerH * 0.52);
+
+            ctx.globalAlpha = 1;
+          });
+        } else if (state.viewMode === "cols24") {
+          const b = layout.boardBounds;
+          ctx.fillStyle = "#faf5ea";
+          ctx.fillRect(b.x, b.y, b.w, b.h);
+          ctx.strokeStyle = "#c7b699";
+          ctx.lineWidth = 1.2 / state.zoom;
+          ctx.strokeRect(b.x, b.y, b.w, b.h);
+
+          // Kolomkoppen 1..24 (mod 24)
+          ctx.font = `700 ${Math.min(10, b.cellW * 0.42)}px ui-monospace, monospace`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          for (let c = 0; c < 24; c++) {
+            const modVal = (c + 1) % 24;
+            const cx = b.x + 4 + (c + 0.5) * b.cellW;
+            ctx.fillStyle = modVal === 6 ? "#8b1e24" : "#5c4938";
+            ctx.fillText(`R${modVal}`, cx, b.y + 4 + b.topHeader * 0.5);
+
+            if (state.showDividers24) {
+              ctx.beginPath();
+              ctx.moveTo(b.x + 4 + c * b.cellW, b.y + 4);
+              ctx.lineTo(b.x + 4 + c * b.cellW, b.y + b.h - 4);
+              ctx.strokeStyle = "rgba(180, 160, 130, 0.35)";
+              ctx.lineWidth = 0.8 / state.zoom;
+              ctx.stroke();
+            }
+          }
+
+          // Markeer de laatste onvolledige restrij (Blok 258: 6169..6174)
+          if (state.showDividers24) {
+            const lastRowY = b.y + 4 + b.topHeader + 257 * b.cellH;
+            ctx.beginPath();
+            ctx.moveTo(b.x + 4, lastRowY);
+            ctx.lineTo(b.x + b.w - 4, lastRowY);
+            ctx.strokeStyle = "#8b1e24";
+            ctx.lineWidth = 1.4 / state.zoom;
+            ctx.stroke();
+          }
+        } else {
+          // 98 × 63 kader
+          const b = layout.boardBounds;
+          ctx.fillStyle = "#faf5ea";
+          ctx.fillRect(b.x, b.y, b.w, b.h);
+          ctx.strokeStyle = "#c7b699";
+          ctx.lineWidth = 1.4 / state.zoom;
+          ctx.strokeRect(b.x, b.y, b.w, b.h);
+        }
+
+        const r = layout.pawnRadius;
+        const effectiveRadius = r * state.zoom;
+
+        // Teken alle 6174 pionnen
+        for (let n = 1; n <= TOTAL; n++) {
+          const item = items[n];
+          const pt = layout.positions[n];
+
+          if (!state.placedSet.has(n)) {
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, r * 0.26, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(180, 165, 140, 0.32)";
+            ctx.fill();
+            continue;
+          }
+
+          const highlighted = isItemHighlighted(item);
+          ctx.globalAlpha = highlighted ? 1 : 0.14;
+
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+          ctx.fillStyle = state.colorMode === "mod24"
+            ? MOD24_COLORS[item.mod24]
+            : (STEP_COLORS[item.k4.steps] || STEP_COLORS[1]);
+          ctx.fill();
+
+          // 24-deling markering (elke 24e pion: n mod 24 == 0)
+          if (state.showDividers24 && state.viewMode === "rect98" && item.mod24 === 0) {
+            ctx.lineWidth = Math.max(1.1 / state.zoom, r * 0.25);
+            ctx.strokeStyle = "#1e1615";
+            ctx.stroke();
+          }
+
+          // Anker-ringen (6174 & 136..631)
+          if (state.showAnchors && item.isAnchor) {
+            ctx.lineWidth = Math.max(1.6 / state.zoom, r * 0.34);
+            ctx.strokeStyle = "#e3a92b";
+            ctx.stroke();
+          }
+
+          // Geselecteerde pion
+          if (n === state.selected) {
+            ctx.lineWidth = Math.max(2.2 / state.zoom, r * 0.45);
+            ctx.strokeStyle = "#140e0d";
+            ctx.stroke();
+          }
+
+          // Getal tonen bij voldoende zoom
+          if (effectiveRadius >= 10.5) {
+            ctx.fillStyle = "#fffaf2";
+            ctx.font = `700 ${Math.max(6.5, r * 0.66)}px ui-monospace, monospace`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(String(n), pt.x, pt.y + 0.4);
+          }
+
+          ctx.globalAlpha = 1;
+        }
+
+        // Teken kruimelspoor, kaas & Muis
+        if (state.showMouse) {
+          if (state.mouse.trail.length > 1) {
+            ctx.save();
+            ctx.beginPath();
+            state.mouse.trail.forEach((stepNum, idx) => {
+              const pt = layout.positions[stepNum];
+              if (idx === 0) ctx.moveTo(pt.x, pt.y);
+              else ctx.lineTo(pt.x, pt.y);
+            });
+            ctx.strokeStyle = "rgba(139, 30, 36, 0.78)";
+            ctx.lineWidth = Math.max(2 / state.zoom, r * 0.45);
+            ctx.setLineDash([4 / state.zoom, 3 / state.zoom]);
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          const cheeseScale = Math.max(r * 1.5, 9 / state.zoom);
+          const pt6174 = layout.positions[6174];
+          drawCheese(ctx, pt6174.x, pt6174.y - r * 0.9, cheeseScale, true);
+
+          if (state.showAnchors) {
+            DOUBLE_ONE_STEP.forEach(anchorNum => {
+              const ptA = layout.positions[anchorNum];
+              drawCheese(ctx, ptA.x, ptA.y - r * 0.75, cheeseScale * 0.85, false);
+            });
+          }
+
+          const mouseSize = Math.max(r * 1.95, 12.5 / state.zoom);
+          drawMouseCharacter(ctx, state.mouse.x, state.mouse.y, state.mouse.angle, mouseSize, state.mouse.wiggle);
+        }
+
+        ctx.restore();
+        requestAnimationFrame(render);
+      }
+
+      // Canvas interactie
+      canvasWrap.addEventListener("wheel", e => {
+        e.preventDefault();
+        const rect = canvasWrap.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.18 : 1 / 1.18;
+        const newZoom = Math.min(20, Math.max(0.6, state.zoom * factor));
+        state.panX = mx - ((mx - state.panX) / state.zoom) * newZoom;
+        state.panY = my - ((my - state.panY) / state.zoom) * newZoom;
+        state.zoom = newZoom;
+        zoomLabel.textContent = `${Math.round(state.zoom * 100)}%`;
+      }, { passive: false });
+
+      canvasWrap.addEventListener("mousedown", e => {
+        state.isDragging = true;
+        state.dragMoved = false;
+        state.dragStartX = e.clientX - state.panX;
+        state.dragStartY = e.clientY - state.panY;
+      });
+
+      window.addEventListener("mousemove", e => {
+        const rect = canvasWrap.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+
+        if (state.isDragging) {
+          const nextPanX = e.clientX - state.dragStartX;
+          const nextPanY = e.clientY - state.dragStartY;
+          if (Math.hypot(nextPanX - state.panX, nextPanY - state.panY) > 4) {
+            state.dragMoved = true;
+          }
+          state.panX = nextPanX;
+          state.panY = nextPanY;
+        }
+
+        if (sx >= 0 && sy >= 0 && sx <= rect.width && sy <= rect.height && state.layoutCache) {
+          const world = screenToWorld(sx, sy);
+          const n = findPawnAtWorld(world.x, world.y, state.layoutCache);
+
+          if (n) {
+            state.hovered = n;
+            const info = items[n];
+            hoverCoords.textContent = `Hover: Pion ${n} · Vak Rest ${info.mod24} · Blok ${info.block24}`;
+            hoverTooltip.style.display = "block";
+            hoverTooltip.style.left = `${Math.min(rect.width - 235, sx + 14)}px`;
+            hoverTooltip.style.top = `${Math.max(8, sy - 48)}px`;
+            const stepText = info.k4.steps === -1 ? "Repdigit" : `${info.k4.steps} st. → 6174`;
+            hoverTooltip.innerHTML = `🐭 Pion <strong>${n}</strong> (${info.padded}) · ${stepText}<br/>÷ 24: <strong>${info.quotient} × 24 + ${info.mod24}</strong> (Vak Rest ${info.mod24})`;
+
+            if (state.showMouse && state.mouseMode === "follow") {
+              const pt = state.layoutCache.positions[n];
+              state.mouse.num = n;
+              state.mouse.targetX = pt.x;
+              state.mouse.targetY = pt.y;
+              updateMouseStatusText(n, info);
+            }
+          } else {
+            state.hovered = null;
+            hoverCoords.textContent = "Hover: —";
+            hoverTooltip.style.display = "none";
+          }
+        } else {
+          hoverTooltip.style.display = "none";
+        }
+      });
+
+      window.addEventListener("mouseup", e => {
+        if (!state.isDragging) return;
+        const wasDrag = state.dragMoved;
+        state.isDragging = false;
+        if (!wasDrag && state.layoutCache) {
+          const rect = canvasWrap.getBoundingClientRect();
+          const sx = e.clientX - rect.left;
+          const sy = e.clientY - rect.top;
+          if (sx >= 0 && sy >= 0 && sx <= rect.width && sy <= rect.height) {
+            const world = screenToWorld(sx, sy);
+            const n = findPawnAtWorld(world.x, world.y, state.layoutCache);
+            if (n) selectPawn(n, true);
+          }
+        }
+      });
+
+      // Vrije muisbesturing met pijltjestoetsen (zoekt geometrisch dichtstbijzijnde buur in de gekozen richting)
+      window.addEventListener("keydown", e => {
+        if (document.activeElement && ["INPUT", "SELECT"].includes(document.activeElement.tagName)) return;
+        if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) return;
+        if (!state.layoutCache) return;
+        e.preventDefault();
+
+        const currPt = state.layoutCache.positions[state.mouse.num];
+        const dir = {
+          ArrowUp: { dx: 0, dy: -1 },
+          ArrowDown: { dx: 0, dy: 1 },
+          ArrowLeft: { dx: -1, dy: 0 },
+          ArrowRight: { dx: 1, dy: 0 }
+        }[e.key];
+
+        let bestN = null;
+        let bestScore = Infinity;
+        for (let n = 1; n <= TOTAL; n++) {
+          if (n === state.mouse.num) continue;
+          const p = state.layoutCache.positions[n];
+          const vx = p.x - currPt.x;
+          const vy = p.y - currPt.y;
+          const dist = Math.hypot(vx, vy);
+          if (dist < 0.5) continue;
+          const dot = (vx * dir.dx + vy * dir.dy) / dist;
+          if (dot > 0.65) {
+            const score = dist / (dot * dot);
+            if (score < bestScore) {
+              bestScore = score;
+              bestN = n;
+            }
+          }
+        }
+
+        if (bestN) {
+          state.mouseMode = "manual";
+          document.getElementById("mouseModeSelect").value = "manual";
+          state.mouse.num = bestN;
+          state.mouse.trail.push(bestN);
+          if (state.mouse.trail.length > 40) state.mouse.trail.shift();
+          selectPawn(bestN, true);
+        }
+      });
+
+      // Knoppen voor 24-splitsing weergave
+      function setViewMode(mode, activeBtnId) {
+        state.viewMode = mode;
+        ["btnViewSplit24", "btnViewCols24", "btnViewRect98"].forEach(id => {
+          document.getElementById(id).classList.toggle("active", id === activeBtnId);
+        });
+        computeLayout();
+        positionMouseImmediate(state.mouse.num);
+      }
+
+      document.getElementById("btnViewSplit24").addEventListener("click", () => setViewMode("split24", "btnViewSplit24"));
+      document.getElementById("btnViewCols24").addEventListener("click", () => setViewMode("cols24", "btnViewCols24"));
+      document.getElementById("btnViewRect98").addEventListener("click", () => setViewMode("rect98", "btnViewRect98"));
+
+      document.getElementById("colorModeSelect").addEventListener("change", e => {
+        state.colorMode = e.target.value;
+      });
+
+      document.getElementById("chkDividers24").addEventListener("change", e => {
+        state.showDividers24 = e.target.checked;
+      });
+
+      document.getElementById("chkAnchors").addEventListener("change", e => {
+        state.showAnchors = e.target.checked;
+      });
+
+      document.getElementById("chkMouseVisible").addEventListener("change", e => {
+        state.showMouse = e.target.checked;
+      });
+
+      document.getElementById("mouseModeSelect").addEventListener("change", e => {
+        state.mouseMode = e.target.value;
+        if (state.mouseMode === "route") startMouseRouteFrom(state.selected);
+      });
+
+      document.getElementById("btnMouseWalkRoute").addEventListener("click", () => {
+        state.showMouse = true;
+        document.getElementById("chkMouseVisible").checked = true;
+        state.mouseMode = "route";
+        document.getElementById("mouseModeSelect").value = "route";
+        startMouseRouteFrom(state.selected);
+      });
+
+      document.getElementById("btnZoomIn").addEventListener("click", () => {
+        state.zoom = Math.min(20, state.zoom * 1.25);
+        zoomLabel.textContent = `${Math.round(state.zoom * 100)}%`;
+      });
+
+      document.getElementById("btnZoomOut").addEventListener("click", () => {
+        state.zoom = Math.max(0.6, state.zoom / 1.25);
+        zoomLabel.textContent = `${Math.round(state.zoom * 100)}%`;
+      });
+
+      document.getElementById("btnResetView").addEventListener("click", () => {
+        state.zoom = 1;
+        state.panX = 0;
+        state.panY = 0;
+        zoomLabel.textContent = "100%";
+      });
+
+      document.getElementById("btnSearch").addEventListener("click", () => {
+        const val = parseInt(document.getElementById("searchInput").value, 10);
+        if (val >= 1 && val <= TOTAL) selectPawn(val, true);
+      });
+
+      document.getElementById("searchInput").addEventListener("keydown", e => {
+        if (e.key === "Enter") document.getElementById("btnSearch").click();
+      });
+
+      document.getElementById("btnPlay").addEventListener("click", e => {
+        if (state.placedCount >= TOTAL) state.placedCount = 0;
+        state.playing = !state.playing;
+        e.target.textContent = state.playing ? "Pauzeren" : "Afspelen";
+      });
+
+      document.getElementById("btnStep").addEventListener("click", () => {
+        state.playing = false;
+        document.getElementById("btnPlay").textContent = "Afspelen";
+        state.placedCount = Math.min(TOTAL, state.placedCount + 1);
+        syncPlacedSet();
+        const latest = state.placementOrder[state.placedCount - 1];
+        if (latest) selectPawn(latest, true);
+      });
+
+      document.getElementById("btnShowAll").addEventListener("click", () => {
+        state.playing = false;
+        document.getElementById("btnPlay").textContent = "Afspelen";
+        state.placedCount = TOTAL;
+        syncPlacedSet();
+      });
+
+      document.getElementById("btnResetAnim").addEventListener("click", () => {
+        state.playing = false;
+        document.getElementById("btnPlay").textContent = "Afspelen";
+        state.placedCount = 0;
+        syncPlacedSet();
+      });
+
+      document.getElementById("orderSelect").addEventListener("change", e => {
+        state.orderMode = e.target.value;
+        rebuildPlacementOrder();
+      });
+
+      document.getElementById("speedRange").addEventListener("input", e => {
+        state.speed = parseInt(e.target.value, 10);
+        document.getElementById("speedLabel").textContent = `${state.speed}/frame`;
+      });
+
+      document.getElementById("btnClearFilters").addEventListener("click", () => {
+        state.activeModFilters.clear();
+        buildMod24Filters();
+      });
+
+      document.getElementById("btnFilterRem6").addEventListener("click", () => {
+        state.activeModFilters = new Set([1, 2, 3, 4, 5, 6]);
+        buildMod24Filters();
+      });
+
+      document.getElementById("btnExportCsv").addEventListener("click", () => {
+        const rows = [
+          ["getal", "viercijferig", "quotient_24", "rest_mod24", "blok_van_24", "positie_in_blok", "stappen_6174", "route_6174"].join(";")
+        ];
+        for (let n = 1; n <= TOTAL; n++) {
+          const item = items[n];
+          rows.push([
+            n,
+            item.padded,
+            item.quotient,
+            item.mod24,
+            item.block24,
+            item.posInBlock24,
+            item.k4.steps,
+            item.k4.chain.join("->")
+          ].join(";"));
+        }
+        const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "kaprekar_6174_gesplitst_door_24.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Start
+      rebuildPlacementOrder();
+      buildMod24Filters();
+      computeLayout();
+      selectPawn(6174, false);
+      positionMouseImmediate(6174);
+      requestAnimationFrame(render);
+    })();
+  </script>
+</body>
+</html>
