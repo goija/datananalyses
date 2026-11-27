@@ -1,0 +1,2515 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Het Grote 19×19 Pionnenschaakbord — Rekenkunde 361, Maanomloop &amp; Windstreken (N/Z/O/W)</title>
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --panel: #F7F7F7;
+      --panel-alt: #FAFAFA;
+      --border: #E2E2E2;
+      --border-strong: #CCCCCC;
+      --text: #1A1A1A;
+      --muted: #5C5C5C;
+      --red: #A31C1C;
+      --red-hover: #821414;
+      --red-soft: #FDF2F2;
+      --red-border: #E8C5C5;
+      --radius: 10px;
+      --radius-sm: 7px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 1420px;
+      margin: 0 auto;
+      padding: 20px 18px 48px;
+    }
+
+    /* Header */
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 18px;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .badge--red {
+      background: var(--red-soft);
+      border-color: var(--red-border);
+      color: var(--red);
+    }
+
+    .header h1 {
+      margin: 0 0 6px;
+      font-size: clamp(22px, 2.6vw, 32px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .header p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 920px;
+    }
+
+    /* Windstreken-balk */
+    .compass-bar {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 18px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .compass-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .compass-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .compass-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
+    }
+
+    @media (max-width: 780px) {
+      .compass-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .compass-btn {
+      appearance: none;
+      background: #FFFFFF;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 9px 11px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.14s ease;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .compass-btn:hover {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .compass-btn.active {
+      background: var(--red);
+      border-color: var(--red);
+      color: #FFFFFF;
+    }
+
+    .compass-btn .cb-main {
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .compass-btn .cb-sub {
+      font-family: var(--mono);
+      font-size: 11px;
+      opacity: 0.85;
+    }
+
+    .compass-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      font-size: 12.5px;
+      color: var(--muted);
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .compass-meta strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .mono {
+      font-family: var(--mono);
+    }
+
+    /* Hoofdraster: Bord links, Bedieningspaneel rechts */
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 1040px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .card--white {
+      background: #FFFFFF;
+    }
+
+    /* Statusteller boven het bord */
+    .board-stats {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+    }
+
+    .stat-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .stat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .stat-pill .val {
+      font-family: var(--mono);
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .dot-white {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 1.5px solid #1A1A1A;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7px;
+      color: var(--red);
+      line-height: 1;
+    }
+
+    .dot-red {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--red);
+      border: 1px solid #6E1111;
+      display: inline-block;
+    }
+
+    /* Overlay-schakelaars */
+    .overlay-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .overlay-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-right: 4px;
+    }
+
+    .toggle-chip {
+      appearance: none;
+      background: #FFFFFF;
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.14s ease;
+    }
+
+    .toggle-chip:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .toggle-chip.active {
+      background: var(--red);
+      border-color: var(--red);
+      color: #FFFFFF;
+    }
+
+    .toggle-chip .led {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #BDBDBD;
+    }
+
+    .toggle-chip.active .led {
+      background: #FFFFFF;
+    }
+
+    /* Bord Canvas Container */
+    .board-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 760px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    #board-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .board-footer-note {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Bedieningspaneel rechts */
+    .controls-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-title {
+      margin: 0 0 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .preset-list, .action-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .preset-btn, .action-btn {
+      appearance: none;
+      width: 100%;
+      background: #FFFFFF;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 9px 11px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      text-align: left;
+      transition: all 0.14s ease;
+    }
+
+    .preset-btn:hover, .action-btn:hover {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .action-btn.active {
+      background: var(--red-soft);
+      border-color: var(--red);
+      color: var(--red);
+      box-shadow: inset 3px 0 0 var(--red);
+    }
+
+    .count-badge {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .help-box {
+      margin-top: 9px;
+      padding: 9px 11px;
+      border-radius: var(--radius-sm);
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .help-box strong {
+      color: var(--text);
+    }
+
+    .help-box--alert {
+      background: var(--red-soft);
+      border-color: var(--red-border);
+      color: var(--red);
+    }
+
+    /* Go-beurt balk */
+    .go-status {
+      display: none;
+      margin-top: 9px;
+      padding: 9px 11px;
+      border-radius: var(--radius-sm);
+      background: #FFFFFF;
+      border: 1px solid var(--red-border);
+      font-size: 12.5px;
+    }
+
+    .go-status.visible {
+      display: block;
+    }
+
+    .go-turn-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    /* Knoppen algemeen */
+    .btn {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 13px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: #FFFFFF;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: var(--red);
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .btn--primary {
+      background: var(--red);
+      border-color: var(--red);
+      color: #FFFFFF;
+    }
+
+    .btn--primary:hover:not(:disabled) {
+      background: var(--red-hover);
+      border-color: var(--red-hover);
+      color: #FFFFFF;
+    }
+
+    .btn--sm {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .mc-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    select.input-select {
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: #FFFFFF;
+      font-size: 12.5px;
+      font-family: var(--mono);
+      color: var(--text);
+    }
+
+    .mc-result {
+      margin-top: 9px;
+      padding: 10px 11px;
+      border-radius: var(--radius-sm);
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      font-size: 12.5px;
+      display: none;
+    }
+
+    .mc-result.visible {
+      display: block;
+    }
+
+    /* Inspecteur (Hover/Klik + 6174) */
+    .inspector-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .insp-cell {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+
+    .insp-k {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .insp-v {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 2px;
+    }
+
+    .kap-chain {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 9px;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--text);
+      max-height: 135px;
+      overflow-y: auto;
+    }
+
+    .kap-step-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+      border-bottom: 1px dashed #ECECEC;
+    }
+
+    .kap-step-line:last-child {
+      border-bottom: none;
+    }
+
+    .kap-6174 {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    /* Sectie Rekenkunde 361 & Omloopdagen 19x19 */
+    .math-section {
+      margin-top: 26px;
+      border-top: 2px solid var(--text);
+      padding-top: 20px;
+    }
+
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+    }
+
+    .section-header p {
+      margin: 4px 0 0;
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tab-btn {
+      appearance: none;
+      padding: 7px 13px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: #FFFFFF;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--red);
+      border-color: var(--red);
+      color: #FFFFFF;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Kerngetallen grid */
+    .facts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 960px) {
+      .facts-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .facts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .fact-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 14px;
+    }
+
+    .fact-card h3 {
+      margin: 0 0 6px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--red);
+    }
+
+    .fact-big {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .fact-desc {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    /* Omloopdagen schuifregelaar & SVG maan */
+    .orbit-explorer {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.7fr);
+      gap: 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      align-items: center;
+    }
+
+    @media (max-width: 820px) {
+      .orbit-explorer {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0 14px;
+    }
+
+    input[type="range"].day-slider {
+      flex: 1;
+      accent-color: var(--red);
+      cursor: pointer;
+    }
+
+    .orbit-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    @media (max-width: 560px) {
+      .orbit-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .moon-svg-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+    }
+
+    /* 19-rijen tabel */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #FFFFFF;
+    }
+
+    table.astro-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    table.astro-table th, table.astro-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    table.astro-table th {
+      background: var(--panel);
+      font-weight: 700;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text);
+    }
+
+    table.astro-table tr:hover td {
+      background: var(--red-soft);
+      cursor: pointer;
+    }
+
+    table.astro-table tr.active-row td {
+      background: var(--red-soft);
+      font-weight: 600;
+    }
+
+    .kap-legend {
+      display: none;
+      margin-top: 8px;
+      padding: 8px 10px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11.5px;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .kap-legend.visible {
+      display: flex;
+    }
+
+    .swatch {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--mono);
+    }
+
+    .swatch-box {
+      width: 11px;
+      height: 11px;
+      border-radius: 2px;
+      border: 1px solid rgba(0, 0, 0, 0.18);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- 1. KOPTEKST & BADGES -->
+    <header class="header">
+      <div class="badges">
+        <span class="badge">19×19 Bord &bull; 361 Pionnen</span>
+        <span class="badge">Go-modus &amp; Monte Carlo</span>
+        <span class="badge badge--red">Zeeuws Meekrab-rood &amp; Krijtwit</span>
+        <span class="badge">N &bull; Z &bull; O &bull; W Maanomloop</span>
+      </div>
+      <h1>Het Grote 19×19 Pionnenschaakbord</h1>
+      <p>
+        Samen spelen op 361 velden rondom middelpunt <strong class="mono">J10 (0, 0)</strong> — met vrije opstellingen, Go-vrijheden, Monte Carlo-zetzoeker, N/Z/O/W maanomloop en rekenkunde van 361.
+      </p>
+    </header>
+
+    <!-- 2. WINDSTREKEN-KEUZE (PUNT OP NOORD, OOST, ZUID, WEST) -->
+    <section class="compass-bar" aria-label="Windstreken en zonrichting">
+      <div class="compass-top">
+        <div class="compass-title">
+          <span>Windstreek &amp; Zon-ankerpunt op het 19×19 bord</span>
+        </div>
+        <div class="mono" style="font-size:12px; color:var(--muted);">
+          19 × 19 = 361 &bull; A t/m S &amp; 1 t/m 19
+        </div>
+      </div>
+
+      <div class="compass-buttons" role="group" aria-label="Kies windstreek">
+        <button type="button" class="compass-btn active" data-dir="N">
+          <span class="cb-main"><span>Punt op Noord</span><span>&#9728; N</span></span>
+          <span class="cb-sub">J19 (0, +9) | Azimut 0°</span>
+        </button>
+        <button type="button" class="compass-btn" data-dir="O">
+          <span class="cb-main"><span>Punt op Oost</span><span>&#9728; O</span></span>
+          <span class="cb-sub">S10 (+9, 0) | Azimut 90°</span>
+        </button>
+        <button type="button" class="compass-btn" data-dir="Z">
+          <span class="cb-main"><span>Punt op Zuid</span><span>&#9728; Z</span></span>
+          <span class="cb-sub">J1 (0, &minus;9) | Azimut 180°</span>
+        </button>
+        <button type="button" class="compass-btn" data-dir="W">
+          <span class="cb-main"><span>Punt op West</span><span>&#9728; W</span></span>
+          <span class="cb-sub">A10 (&minus;9, 0) | Azimut 270°</span>
+        </button>
+      </div>
+
+      <div class="compass-meta" id="compass-meta">
+        <!-- Dynamisch gevuld door JS -->
+      </div>
+    </section>
+
+    <!-- 3 & 4. HOOFDWERKRUIMTE: 19x19 BORD + BEDIENINGSPANEEL -->
+    <main class="workspace">
+      <!-- LINKERKOLOM: 19x19 PIONNENSCHAAKBORD -->
+      <section class="card">
+        <!-- Live tellers -->
+        <div class="board-stats">
+          <div class="stat-group">
+            <span class="stat-pill">Totaal: <span class="val" id="stat-total">0</span></span>
+            <span class="stat-pill"><span class="dot-white">&hearts;</span> Krijtwit: <span class="val" id="stat-white">0</span></span>
+            <span class="stat-pill"><span class="dot-red"></span> Meekrab-rood: <span class="val" id="stat-red">0</span></span>
+            <span class="stat-pill">Leeg: <span class="val" id="stat-empty">361</span></span>
+          </div>
+          <div class="stat-group" id="stat-captures-wrap">
+            <span class="stat-pill">Geslagen (W/R): <span class="val" id="stat-captures">0 / 0</span></span>
+          </div>
+        </div>
+
+        <!-- Overlay-lagen (allemaal STANDAARD UIT) -->
+        <div class="overlay-bar" role="group" aria-label="Bordlagen in- en uitschakelen">
+          <span class="overlay-label">Lagen:</span>
+          <button type="button" class="toggle-chip" id="toggle-orbit" aria-pressed="false">
+            <span class="led"></span>Maanomloop &amp; Schijngestalten
+          </button>
+          <button type="button" class="toggle-chip" id="toggle-days" aria-pressed="false">
+            <span class="led"></span>Omloopdagen 19×19
+          </button>
+          <button type="button" class="toggle-chip" id="toggle-kaprekar" aria-pressed="false">
+            <span class="led"></span>Kaprekar 6174-kaart
+          </button>
+          <button type="button" class="toggle-chip" id="toggle-axes" aria-pressed="false">
+            <span class="led"></span>Cirkel R=9 &amp; N/Z/O/W Assen
+          </button>
+        </div>
+
+        <!-- 19x19 Canvas -->
+        <div class="board-container" id="board-container">
+          <canvas id="board-canvas" aria-label="19 bij 19 Pionnenschaakbord"></canvas>
+        </div>
+
+        <!-- Legenda voor Kaprekar 6174 (alleen zichtbaar wanneer laag aan staat) -->
+        <div class="kap-legend" id="kap-legend"></div>
+
+        <div class="board-footer-note">
+          <span>Klik op een veld om een pion te plaatsen of aan te passen. Het middelpunt is <strong class="mono">J10 (0, 0)</strong>.</span>
+          <span class="mono" id="hover-quick">Veld: J10 (0, 0)</span>
+        </div>
+      </section>
+
+      <!-- RECHTERKOLOM: BEDIENINGSPANEEL & INSPECTEUR -->
+      <aside class="controls-stack">
+        <!-- 1. Opstelling (Preset) -->
+        <div class="card">
+          <h2 class="panel-title">1. Kies een opstelling (Preset)</h2>
+          <div class="preset-list">
+            <button type="button" class="preset-btn" data-preset="full360">
+              <span>Volledig 19×19 (360 + J10 leeg)</span>
+              <span class="count-badge">360 pionnen</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="start76">
+              <span>Startopstelling (2×38 pionnen)</span>
+              <span class="count-badge">76 pionnen</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="circle253">
+              <span>Cirkel R=9 (sin²+cos²)</span>
+              <span class="count-badge">253 pionnen</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="empty">
+              <span>Leeg bord</span>
+              <span class="count-badge">0 pionnen</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Actie bij klikken op een veld -->
+        <div class="card">
+          <h2 class="panel-title">2. Actie bij klikken op een veld</h2>
+          <div class="action-list" role="radiogroup" aria-label="Klikactie op het bord">
+            <button type="button" class="action-btn" data-action="cycle">
+              <span>Wissel (Wit &rarr; Rood &rarr; Leeg)</span>
+            </button>
+            <button type="button" class="action-btn" data-action="move">
+              <span>Verplaats Pion (Klik &amp; Klik)</span>
+            </button>
+            <button type="button" class="action-btn active" data-action="white">
+              <span>Plaats Krijtwit (Hartje)</span>
+              <span class="dot-white">&hearts;</span>
+            </button>
+            <button type="button" class="action-btn" data-action="red">
+              <span>Plaats Zeeuws Meekrab-rood</span>
+              <span class="dot-red"></span>
+            </button>
+            <button type="button" class="action-btn" data-action="go">
+              <span>&#9679; Go-modus (Vrijheden &amp; Slaan)</span>
+            </button>
+          </div>
+
+          <div class="help-box" id="action-help">
+            Klik op een veld om een krijtwitte pion (hartje) te plaatsen.
+          </div>
+
+          <!-- Go-modus statusbalk -->
+          <div class="go-status" id="go-status">
+            <div class="go-turn-row">
+              <span>Aan zet: <strong id="go-turn-label">Krijtwit (&hearts;)</strong></span>
+              <button type="button" class="btn btn--sm" id="btn-go-switch-turn">Wissel beurt</button>
+            </div>
+            <div style="font-size:12px; color:var(--muted);" id="go-liberty-info">
+              Beweeg over of klik op een groep om vrijheden te zien. Zelfmoordzetten worden geblokkeerd.
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Monte Carlo-zetzoeker -->
+        <div class="card">
+          <h2 class="panel-title">
+            <span>Monte Carlo-zetzoeker</span>
+            <span class="count-badge" id="mc-player-badge">Speler: Krijtwit</span>
+          </h2>
+          <div class="mc-row">
+            <button type="button" class="btn btn--primary" id="btn-mc-search">Zoek zet (Monte Carlo)</button>
+            <select id="mc-playouts" class="input-select" aria-label="Aantal Monte Carlo playouts">
+              <option value="100">100 playouts</option>
+              <option value="250" selected>250 playouts</option>
+              <option value="500">500 playouts</option>
+            </select>
+          </div>
+          <div class="mc-result" id="mc-result">
+            <!-- Dynamisch gevuld -->
+          </div>
+        </div>
+
+        <!-- 4. Veld- & Kaprekar 6174-Inspecteur -->
+        <div class="card">
+          <h2 class="panel-title">
+            <span>Veld- &amp; 6174-Inspecteur</span>
+            <span class="count-badge" id="insp-lock-badge">Live hover</span>
+          </h2>
+          <div class="inspector-grid">
+            <div class="insp-cell">
+              <div class="insp-k">Coördinaat</div>
+              <div class="insp-v" id="insp-coord">J10</div>
+            </div>
+            <div class="insp-cell">
+              <div class="insp-k">Cartesisch (x, y)</div>
+              <div class="insp-v" id="insp-xy">(0, 0)</div>
+            </div>
+            <div class="insp-cell">
+              <div class="insp-k">Polair (r, &theta;) t.o.v. <span id="insp-dir-short">N</span></div>
+              <div class="insp-v" id="insp-polar">0,00 | 0°</div>
+            </div>
+            <div class="insp-cell">
+              <div class="insp-k">Omloopdag (0–360)</div>
+              <div class="insp-v" id="insp-day">Dag 180</div>
+            </div>
+          </div>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:6px;">
+            Maanfase op dag: <strong id="insp-phase" style="color:var(--text);">—</strong> &bull;
+            Veldgetal (kol+rij): <strong class="mono" id="insp-code" style="color:var(--red);">1010</strong>
+          </div>
+          <div class="kap-chain" id="insp-kap-chain">
+            <!-- Gevuld via JS -->
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- 5. SECTIE: REKENKUNDE 361 & OMLOOPDAGEN 19x19 -->
+    <section class="math-section" aria-label="Rekenkunde 361 en Omloopdagen 19x19">
+      <div class="section-header">
+        <div>
+          <h2>Rekenkunde 361 &amp; Omloopdagen 19×19</h2>
+          <p>De wiskundige structuur van 19×19 = 361 velden, de cirkel R=9 (253 roosterpunten), de Metonische cyclus en de 361 omloopdagen.</p>
+        </div>
+        <div class="tabs" role="tablist">
+          <button type="button" class="tab-btn active" data-tab="tab-omloop">Omloopdagen 0–360 &amp; Maanfase</button>
+          <button type="button" class="tab-btn" data-tab="tab-kern">Kerngetallen 361</button>
+          <button type="button" class="tab-btn" data-tab="tab-tabel">19-Rijen Rekentabel</button>
+        </div>
+      </div>
+
+      <!-- TAB 1: Interactieve Omloopdagen-schuifregelaar (0..360) -->
+      <div class="tab-panel active" id="tab-omloop">
+        <div class="orbit-explorer">
+          <div>
+            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">
+              <strong style="font-size:14px;">Omloopdag op het 19×19 bord (Dag 0 t/m Dag 360)</strong>
+              <span class="mono" style="font-size:13px; color:var(--red); font-weight:700;" id="orb-day-readout">Dag 180 / 360 (Veld J10)</span>
+            </div>
+
+            <div class="slider-row">
+              <button type="button" class="btn btn--primary btn--sm" id="btn-orbit-play">&#9654; Afspelen</button>
+              <input type="range" id="orbit-day-slider" class="day-slider" min="0" max="360" step="1" value="180" />
+              <button type="button" class="btn btn--sm" id="btn-orbit-j10">J10 (180)</button>
+            </div>
+
+            <div class="orbit-metrics">
+              <div class="insp-cell">
+                <div class="insp-k">Bordveld (Rij, Kol)</div>
+                <div class="insp-v" id="orb-field">J10 (10, 10)</div>
+              </div>
+              <div class="insp-cell">
+                <div class="insp-k">Synodische leeftijd</div>
+                <div class="insp-v" id="orb-syn-age">2,82 d</div>
+              </div>
+              <div class="insp-cell">
+                <div class="insp-k">Verlichting</div>
+                <div class="insp-v" id="orb-illum">8,8%</div>
+              </div>
+              <div class="insp-cell">
+                <div class="insp-k">Siderische omloop</div>
+                <div class="insp-v" id="orb-sid">6,588×</div>
+              </div>
+              <div class="insp-cell">
+                <div class="insp-k">Baanhoek (&phi;)</div>
+                <div class="insp-v" id="orb-angle">34,3°</div>
+              </div>
+              <div class="insp-cell">
+                <div class="insp-k">Cycli in 361 dagen</div>
+                <div class="insp-v">12,2246</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="moon-svg-box">
+            <svg id="moon-phase-svg" width="136" height="136" viewBox="0 0 140 140" aria-label="Schijngestalte van de maan"></svg>
+            <div>
+              <div style="font-weight:700; font-size:14px;" id="orb-phase-name">Wassende Sikkel</div>
+              <div style="font-size:12px; color:var(--muted);" id="orb-orient-note">Verlichte zijde gericht op Noord (J19)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Kerngetallen van 361 -->
+      <div class="tab-panel" id="tab-kern">
+        <div class="facts-grid">
+          <div class="fact-card">
+            <h3>Bordstructuur &amp; Booggraden</h3>
+            <div class="fact-big">19 × 19 = 361 = 360 + 1</div>
+            <p class="fact-desc">360 booggraden (velden) rondom 1 centraal ankerpunt <strong>J10 (0, 0)</strong>. De 19 kolommen (A–S) en 19 rijen (1–19) vormen een exact symmetrisch rooster van &minus;9 t/m +9.</p>
+          </div>
+          <div class="fact-card">
+            <h3>Cirkel R = 9 (Gauss-cirkelprobleem)</h3>
+            <div class="fact-big">x&sup2; + y&sup2; &le; 81 &rArr; 253</div>
+            <p class="fact-desc">Exact <strong>253</strong> roosterpunten liggen binnen of op de cirkel met straal 9. De continue oppervlakte is &pi;&middot;9&sup2; &approx; <strong>254,47</strong> (roosterfout &minus;1,47).</p>
+          </div>
+          <div class="fact-card">
+            <h3>Metonische Cyclus (19 Jaar)</h3>
+            <div class="fact-big">19 jr = 235 syn. maanden</div>
+            <p class="fact-desc">Na 19 zonnejaar (&approx; <strong>6939,69 dagen</strong>) vallen de schijngestalten van de maan weer op vrijwel dezelfde kalenderdagen terug — de klassieke verbinding tussen het getal 19 en de maanomloop.</p>
+          </div>
+          <div class="fact-card">
+            <h3>Vier Maanmaand-Constanten</h3>
+            <div class="fact-big" style="font-size:15px; line-height:1.5;">
+              Synodisch: 29,530588 d<br />
+              Siderisch: 27,321661 d
+            </div>
+            <p class="fact-desc">Draconitisch (knoop): <strong>27,212221 d</strong> &bull; Anomalistisch (perigeum): <strong>27,554550 d</strong>.</p>
+          </div>
+          <div class="fact-card">
+            <h3>361 Velden vs. Maanjaar</h3>
+            <div class="fact-big">361 &minus; 354,367 = +6,633 d</div>
+            <p class="fact-desc">12 synodische maanden = <strong>354,367 dagen</strong> (verschil met 361 velden is 6,633 dagen). 13 siderische maanden = <strong>355,182 dagen</strong>. In 361 dagen passen <strong>12,2246</strong> synodische cycli.</p>
+          </div>
+          <div class="fact-card">
+            <h3>Kaprekar-constante 6174 op 19×19</h3>
+            <div class="fact-big">360 &rarr; 6174 &bull; K11 = 1111</div>
+            <p class="fact-desc">Elk veld vormt een 4-cijferig getal (kolom 01–19 + rij 01–19). Op 360 velden leidt de Kaprekar-routine in hoogstens 7 stappen naar <strong>6174</strong>; alleen <strong>K11 (1111)</strong> geeft 0000.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: 19-Rijen Rekentabel -->
+      <div class="tab-panel" id="tab-tabel">
+        <div class="table-wrap">
+          <table class="astro-table" id="rows-19-table">
+            <thead>
+              <tr>
+                <th>Rij (Bord)</th>
+                <th>Velden</th>
+                <th>Dagbereik (0–360)</th>
+                <th>Verstreken syn. maanden</th>
+                <th>Syn. leeftijd (eind rij)</th>
+                <th>Verlichting</th>
+                <th>Maanfase aan eind van rij</th>
+              </tr>
+            </thead>
+            <tbody id="rows-19-tbody">
+              <!-- Gevuld via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      // =========================================================================
+      // 1. CONSTANTEN & WISKUNDIGE BASIS
+      // =========================================================================
+      const SIZE = 19;
+      const COLS = 'ABCDEFGHIJKLMNOPQRS';
+      const CENTER = 9; // J10 => col index 9, row index 9, (x=0, y=0)
+
+      const SYNODIC = 29.530588;
+      const SIDEREAL = 27.321661;
+
+      const DIRECTIONS = {
+        N: {
+          key: 'N', name: 'Noord', coord: 'J19', xy: '(0, +9)', azimuth: 0,
+          opposite: 'Zuid — J1 (0, -9)',
+          quarters: 'Oost (S10) & West (A10)',
+          canvasAngle: -Math.PI / 2, // Wijst omhoog op canvas
+          gridPos: { c: 9, r: 0 }
+        },
+        O: {
+          key: 'O', name: 'Oost', coord: 'S10', xy: '(+9, 0)', azimuth: 90,
+          opposite: 'West — A10 (-9, 0)',
+          quarters: 'Zuid (J1) & Noord (J19)',
+          canvasAngle: 0, // Wijst naar rechts op canvas
+          gridPos: { c: 18, r: 9 }
+        },
+        Z: {
+          key: 'Z', name: 'Zuid', coord: 'J1', xy: '(0, -9)', azimuth: 180,
+          opposite: 'Noord — J19 (0, +9)',
+          quarters: 'West (A10) & Oost (S10)',
+          canvasAngle: Math.PI / 2, // Wijst omlaag op canvas
+          gridPos: { c: 9, r: 18 }
+        },
+        W: {
+          key: 'W', name: 'West', coord: 'A10', xy: '(-9, 0)', azimuth: 270,
+          opposite: 'Oost — S10 (+9, 0)',
+          quarters: 'Noord (J19) & Zuid (J1)',
+          canvasAngle: Math.PI, // Wijst naar links op canvas
+          gridPos: { c: 0, r: 9 }
+        }
+      };
+
+      // Subtiele krijtwit/meekrab-vriendelijke tinten voor Kaprekar 6174-stappenkaart
+      const KAP_COLORS = {
+        1: '#E6F4EA',
+        2: '#DCEEFB',
+        3: '#E8EAF6',
+        4: '#F3E5F5',
+        5: '#FFF3E0',
+        6: '#FCE4EC',
+        7: '#F9D6D5',
+        '-1': '#A31C1C' // Uitzondering 1111 (K11)
+      };
+
+      // Bereken Kaprekar-routine voor 4-cijferig getal (kolom 01-19 + rij 01-19)
+      function computeKaprekar(codeStr) {
+        const start = String(codeStr).padStart(4, '0').slice(-4);
+        if (/^(\d)\1{3}$/.test(start)) {
+          return { start, steps: [{ desc: start, asc: start, res: '0000' }], count: -1, exception: true };
+        }
+        if (start === '6174') {
+          return { start, steps: [], count: 0, exception: false };
+        }
+        const steps = [];
+        let cur = start;
+        let guard = 0;
+        while (cur !== '6174' && guard < 10) {
+          const d = cur.split('');
+          const desc = [...d].sort((a, b) => b.localeCompare(a)).join('');
+          const asc = [...d].sort((a, b) => a.localeCompare(b)).join('');
+          const res = String(parseInt(desc, 10) - parseInt(asc, 10)).padStart(4, '0');
+          steps.push({ desc, asc, res });
+          cur = res;
+          guard++;
+        }
+        return { start, steps, count: steps.length, exception: false };
+      }
+
+      // Pre-bereken alle 361 velden
+      const KAP_GRID = Array.from({ length: SIZE }, (_, r) =>
+        Array.from({ length: SIZE }, (_, c) => {
+          const colNum = c + 1;
+          const rowNum = SIZE - r;
+          const code = String(colNum).padStart(2, '0') + String(rowNum).padStart(2, '0');
+          return computeKaprekar(code);
+        })
+      );
+
+      // Coördinaat-conversies
+      function cellMeta(r, c) {
+        const colNum = c + 1;
+        const rowNum = SIZE - r;
+        const x = c - CENTER;
+        const y = CENTER - r;
+        const label = COLS[c] + String(rowNum);
+        const code = String(colNum).padStart(2, '0') + String(rowNum).padStart(2, '0');
+        const day = r * SIZE + c; // 0 (A19) t/m 360 (S1), J10 = 180
+        return { r, c, colNum, rowNum, x, y, label, code, day };
+      }
+
+      function dayToCell(day) {
+        const d = Math.max(0, Math.min(360, Math.round(day)));
+        return { r: Math.floor(d / SIZE), c: d % SIZE };
+      }
+
+      function moonMetricsForDay(day) {
+        const age = ((day % SYNODIC) + SYNODIC) % SYNODIC;
+        const phi = (age / SYNODIC) * Math.PI * 2; // 0 = NM, PI = VM
+        const illum = ((1 - Math.cos(phi)) / 2) * 100;
+        const frac = age / SYNODIC;
+        let phaseName = 'Nieuwe Maan';
+        if (frac < 0.03 || frac >= 0.97) phaseName = 'Nieuwe Maan';
+        else if (frac < 0.22) phaseName = 'Wassende Sikkel';
+        else if (frac < 0.28) phaseName = 'Eerste Kwartier';
+        else if (frac < 0.47) phaseName = 'Wassende Maan';
+        else if (frac < 0.53) phaseName = 'Volle Maan';
+        else if (frac < 0.72) phaseName = 'Afnemende Maan';
+        else if (frac < 0.78) phaseName = 'Laatste Kwartier';
+        else phaseName = 'Afnemende Sikkel';
+
+        const sidCycles = day / SIDEREAL;
+        const deg = (phi * 180) / Math.PI;
+        return { age, phi, illum, phaseName, sidCycles, deg };
+      }
+
+      // =========================================================================
+      // 2. APPLICATIESTATUS
+      // =========================================================================
+      const state = {
+        board: Array.from({ length: SIZE }, () => new Uint8Array(SIZE)), // 0=leeg, 1=Krijtwit, 2=Meekrab-rood
+        direction: 'N',        // 'N' | 'O' | 'Z' | 'W'
+        action: 'white',       // 'cycle' | 'move' | 'white' | 'red' | 'go'
+        moveSource: null,      // { r, c } bij 'move'
+        goTurn: 1,             // 1 = Krijtwit, 2 = Meekrab-rood
+        captures: { 1: 0, 2: 0 }, // 1 = door Wit geslagen (rode stenen), 2 = door Rood geslagen (witte stenen)
+        overlays: {
+          orbit: false,        // STANDAARD UIT
+          days: false,         // STANDAARD UIT
+          kaprekar: false,     // STANDAARD UIT
+          axes: false          // STANDAARD UIT
+        },
+        orbitDay: 180,         // 0..360 (J10 = 180)
+        orbitPlaying: false,
+        orbitTimer: null,
+        hoverCell: { r: CENTER, c: CENTER },
+        mcBest: null,          // { r, c, winRate, playouts, player }
+        mcRunning: false,
+        pulsePhase: 0
+      };
+
+      // =========================================================================
+      // 3. DOM-REFERENTIES
+      // =========================================================================
+      const boardCanvas = document.getElementById('board-canvas');
+      const ctx = boardCanvas.getContext('2d');
+      const boardContainer = document.getElementById('board-container');
+
+      const statTotal = document.getElementById('stat-total');
+      const statWhite = document.getElementById('stat-white');
+      const statRed = document.getElementById('stat-red');
+      const statEmpty = document.getElementById('stat-empty');
+      const statCaptures = document.getElementById('stat-captures');
+      const hoverQuick = document.getElementById('hover-quick');
+
+      const compassMeta = document.getElementById('compass-meta');
+      const actionHelp = document.getElementById('action-help');
+      const goStatus = document.getElementById('go-status');
+      const goTurnLabel = document.getElementById('go-turn-label');
+      const goLibertyInfo = document.getElementById('go-liberty-info');
+      const btnGoSwitchTurn = document.getElementById('btn-go-switch-turn');
+
+      const btnMcSearch = document.getElementById('btn-mc-search');
+      const mcPlayoutsSelect = document.getElementById('mc-playouts');
+      const mcPlayerBadge = document.getElementById('mc-player-badge');
+      const mcResult = document.getElementById('mc-result');
+
+      const kapLegend = document.getElementById('kap-legend');
+
+      // Inspecteur
+      const inspCoord = document.getElementById('insp-coord');
+      const inspXY = document.getElementById('insp-xy');
+      const inspPolar = document.getElementById('insp-polar');
+      const inspDirShort = document.getElementById('insp-dir-short');
+      const inspDay = document.getElementById('insp-day');
+      const inspPhase = document.getElementById('insp-phase');
+      const inspCode = document.getElementById('insp-code');
+      const inspKapChain = document.getElementById('insp-kap-chain');
+
+      // Omloopdagen-module
+      const orbitDaySlider = document.getElementById('orbit-day-slider');
+      const btnOrbitPlay = document.getElementById('btn-orbit-play');
+      const btnOrbitJ10 = document.getElementById('btn-orbit-j10');
+      const orbDayReadout = document.getElementById('orb-day-readout');
+      const orbField = document.getElementById('orb-field');
+      const orbSynAge = document.getElementById('orb-syn-age');
+      const orbIllum = document.getElementById('orb-illum');
+      const orbSid = document.getElementById('orb-sid');
+      const orbAngle = document.getElementById('orb-angle');
+      const orbPhaseName = document.getElementById('orb-phase-name');
+      const orbOrientNote = document.getElementById('orb-orient-note');
+      const moonPhaseSvg = document.getElementById('moon-phase-svg');
+      const rows19Tbody = document.getElementById('rows-19-tbody');
+
+      // =========================================================================
+      // 4. GO-LOGICA (BFS GROEPEN, VRIJHEDEN & SLAAN)
+      // =========================================================================
+      const DIRS4 = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+      function getGroupAndLiberties(board, startR, startC) {
+        const color = board[startR][startC];
+        if (color === 0) return { stones: [], liberties: 0, libertySet: new Set() };
+        const visited = new Set();
+        const libertySet = new Set();
+        const stones = [];
+        const queue = [[startR, startC]];
+        visited.add(startR * SIZE + startC);
+
+        while (queue.length > 0) {
+          const [r, c] = queue.shift();
+          stones.push([r, c]);
+          for (const [dr, dc] of DIRS4) {
+            const nr = r + dr;
+            const nc = c + dc;
+            if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) continue;
+            const key = nr * SIZE + nc;
+            const v = board[nr][nc];
+            if (v === 0) {
+              libertySet.add(key);
+            } else if (v === color && !visited.has(key)) {
+              visited.add(key);
+              queue.push([nr, nc]);
+            }
+          }
+        }
+        return { stones, liberties: libertySet.size, libertySet };
+      }
+
+      // Speel een Go-zet op een gegeven bord; muteert bord alleen als zet geldig is
+      function tryGoMove(board, r, c, color) {
+        if (board[r][c] !== 0) return { ok: false, reason: 'Veld is al bezet.' };
+        const opp = color === 1 ? 2 : 1;
+        board[r][c] = color;
+
+        let capturedStones = [];
+        const checkedOpp = new Set();
+
+        for (const [dr, dc] of DIRS4) {
+          const nr = r + dr;
+          const nc = c + dc;
+          if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) continue;
+          const key = nr * SIZE + nc;
+          if (board[nr][nc] === opp && !checkedOpp.has(key)) {
+            const grp = getGroupAndLiberties(board, nr, nc);
+            grp.stones.forEach(([sr, sc]) => checkedOpp.add(sr * SIZE + sc));
+            if (grp.liberties === 0) {
+              capturedStones = capturedStones.concat(grp.stones);
+            }
+          }
+        }
+
+        // Verwijder geslagen stenen
+        for (const [sr, sc] of capturedStones) {
+          board[sr][sc] = 0;
+        }
+
+        // Controleer eigen vrijheden (zelfmoordregel)
+        const ownGrp = getGroupAndLiberties(board, r, c);
+        if (ownGrp.liberties === 0) {
+          // Herstel bord
+          board[r][c] = 0;
+          for (const [sr, sc] of capturedStones) {
+            board[sr][sc] = opp;
+          }
+          return { ok: false, reason: 'Zelfmoordzet niet toegestaan (0 vrijheden en slaat geen groep).' };
+        }
+
+        return { ok: true, captured: capturedStones.length, ownLiberties: ownGrp.liberties };
+      }
+
+      // =========================================================================
+      // 5. MONTE CARLO-ZETZOEKER (LICHTGEWICHT & NON-BLOCKING)
+      // =========================================================================
+      function cloneBoard(b) {
+        return b.map(row => new Uint8Array(row));
+      }
+
+      function getCandidateMoves(board) {
+        const starPoints = [
+          [3, 3], [3, 9], [3, 15],
+          [9, 3], [9, 9], [9, 15],
+          [15, 3], [15, 9], [15, 15]
+        ];
+        let stoneCount = 0;
+        const nearSet = new Set();
+
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            if (board[r][c] !== 0) {
+              stoneCount++;
+              for (let dr = -2; dr <= 2; dr++) {
+                for (let dc = -2; dc <= 2; dc++) {
+                  if (Math.abs(dr) + Math.abs(dc) > 2) continue;
+                  const nr = r + dr;
+                  const nc = c + dc;
+                  if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === 0) {
+                    nearSet.add(nr * SIZE + nc);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        if (stoneCount === 0) {
+          return starPoints;
+        }
+
+        const cands = [];
+        nearSet.forEach(k => cands.push([Math.floor(k / SIZE), k % SIZE]));
+        // Voeg enkele lege sterpunten toe voor strategische spreiding
+        for (const [sr, sc] of starPoints) {
+          if (board[sr][sc] === 0 && !nearSet.has(sr * SIZE + sc)) {
+            cands.push([sr, sc]);
+          }
+        }
+
+        // Beperk tot max 36 kandidaten voor razendsnelle responsiviteit
+        if (cands.length > 36) {
+          // Sorteer op dichtst bij centrum/actie
+          cands.sort((a, b) => {
+            const da = Math.abs(a[0] - CENTER) + Math.abs(a[1] - CENTER);
+            const db = Math.abs(b[0] - CENTER) + Math.abs(b[1] - CENTER);
+            return da - db;
+          });
+          return cands.slice(0, 36);
+        }
+        return cands;
+      }
+
+      function evaluateBoard(board, player, capDiff) {
+        const opp = player === 1 ? 2 : 1;
+        let score = capDiff * 3.2;
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            const v = board[r][c];
+            if (v === 0) continue;
+            // Tel directe lege buren als snelle vrijheids-benadering
+            let libs = 0;
+            for (const [dr, dc] of DIRS4) {
+              const nr = r + dr, nc = c + dc;
+              if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === 0) libs++;
+            }
+            const distCenter = Math.hypot(r - CENTER, c - CENTER);
+            const posBonus = Math.max(0, (10 - distCenter) * 0.08);
+            const val = 1.0 + libs * 0.32 + posBonus;
+            score += (v === player ? val : -val);
+          }
+        }
+        return score;
+      }
+
+      function runMonteCarloSearch() {
+        if (state.mcRunning) return;
+        const player = state.action === 'red' ? 2 : (state.action === 'white' ? 1 : state.goTurn);
+        const totalPlayouts = parseInt(mcPlayoutsSelect.value, 10) || 250;
+        const candidates = getCandidateMoves(state.board);
+
+        if (candidates.length === 0) {
+          mcResult.classList.add('visible');
+          mcResult.innerHTML = 'Geen lege velden beschikbaar voor een zet.';
+          return;
+        }
+
+        // Filter geldige Go-zetten
+        const legal = [];
+        for (const [r, c] of candidates) {
+          const testB = cloneBoard(state.board);
+          const res = tryGoMove(testB, r, c, player);
+          if (res.ok) legal.push({ r, c, wins: 0, visits: 0, initCap: res.captured });
+        }
+
+        if (legal.length === 0) {
+          mcResult.classList.add('visible');
+          mcResult.innerHTML = 'Geen geldige Go-zetten gevonden.';
+          return;
+        }
+
+        state.mcRunning = true;
+        btnMcSearch.disabled = true;
+        btnMcSearch.textContent = 'Simuleert...';
+        mcResult.classList.add('visible');
+        mcResult.innerHTML = `Monte Carlo voert <span class="mono">${totalPlayouts}</span> playouts uit over <span class="mono">${legal.length}</span> kandidaatvelden...`;
+
+        let done = 0;
+        const batchSize = 25;
+
+        function stepBatch() {
+          const target = Math.min(totalPlayouts, done + batchSize);
+          for (let p = done; p < target; p++) {
+            const cand = legal[p % legal.length];
+            const simB = cloneBoard(state.board);
+            const first = tryGoMove(simB, cand.r, cand.c, player);
+            let capDiff = first.captured;
+            let curTurn = player === 1 ? 2 : 1;
+
+            // Korte lokale playout van 12 halve zetten
+            for (let ply = 0; ply < 12; ply++) {
+              // Kies een willekeurige geldige kandidaat uit de buurt
+              let moved = false;
+              for (let tries = 0; tries < 8; tries++) {
+                const pick = legal[Math.floor(Math.random() * legal.length)];
+                if (simB[pick.r][pick.c] === 0) {
+                  const res = tryGoMove(simB, pick.r, pick.c, curTurn);
+                  if (res.ok) {
+                    capDiff += (curTurn === player ? res.captured : -res.captured);
+                    moved = true;
+                    break;
+                  }
+                }
+              }
+              if (!moved) break;
+              curTurn = curTurn === 1 ? 2 : 1;
+            }
+
+            const score = evaluateBoard(simB, player, capDiff);
+            cand.visits++;
+            if (score > 0) cand.wins += 1;
+            else if (score === 0) cand.wins += 0.5;
+          }
+
+          done = target;
+          if (done < totalPlayouts) {
+            setTimeout(stepBatch, 0);
+          } else {
+            // Kies beste kandidaat (winratio + kleine voorkeur voor directe slag)
+            legal.sort((a, b) => {
+              const ra = (a.wins / a.visits) + a.initCap * 0.05;
+              const rb = (b.wins / b.visits) + b.initCap * 0.05;
+              return rb - ra;
+            });
+            const best = legal[0];
+            const winPct = Math.round((best.wins / best.visits) * 100);
+            const meta = cellMeta(best.r, best.c);
+
+            state.mcBest = { r: best.r, c: best.c, winRate: winPct, playouts: totalPlayouts, player };
+            state.mcRunning = false;
+            btnMcSearch.disabled = false;
+            btnMcSearch.textContent = 'Zoek zet (Monte Carlo)';
+
+            const pName = player === 1 ? 'Krijtwit (♥)' : 'Meekrab-rood';
+            mcResult.innerHTML = `
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
+                <div>
+                  Aanbevolen voor <strong>${pName}</strong>:
+                  <strong class="mono" style="color:var(--red); font-size:14px;">${meta.label}</strong>
+                  <span class="mono" style="color:var(--muted);">(${meta.x >= 0 ? '+' + meta.x : meta.x}, ${meta.y >= 0 ? '+' + meta.y : meta.y})</span>
+                </div>
+                <span class="count-badge" style="color:var(--red); border-color:var(--red-border); background:var(--red-soft);">Win: ${winPct}%</span>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <button type="button" class="btn btn--primary btn--sm" id="btn-play-mc">Speel aanbevolen zet</button>
+                <button type="button" class="btn btn--sm" id="btn-clear-mc">Wis markering</button>
+              </div>
+            `;
+
+            document.getElementById('btn-play-mc').addEventListener('click', () => {
+              if (!state.mcBest) return;
+              const { r, c, player: pl } = state.mcBest;
+              if (state.action === 'go') {
+                const res = tryGoMove(state.board, r, c, pl);
+                if (res.ok) {
+                  state.captures[pl] += res.captured;
+                  state.goTurn = pl === 1 ? 2 : 1;
+                }
+              } else {
+                state.board[r][c] = pl;
+              }
+              state.mcBest = null;
+              mcResult.classList.remove('visible');
+              updateAllUI();
+            });
+
+            document.getElementById('btn-clear-mc').addEventListener('click', () => {
+              state.mcBest = null;
+              mcResult.classList.remove('visible');
+              renderBoard();
+            });
+
+            renderBoard();
+          }
+        }
+
+        setTimeout(stepBatch, 0);
+      }
+
+      // =========================================================================
+      // 6. PRESETS (EXACTE TELLINGEN: 360, 76, 253, 0)
+      // =========================================================================
+      function applyPreset(name) {
+        state.board = Array.from({ length: SIZE }, () => new Uint8Array(SIZE));
+        state.captures = { 1: 0, 2: 0 };
+        state.moveSource = null;
+        state.mcBest = null;
+        mcResult.classList.remove('visible');
+
+        if (name === 'full360') {
+          // 180 Krijtwit + 180 Meekrab-rood, J10 (9,9) leeg => exact 360 pionnen
+          for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+              if (r === CENTER && c === CENTER) continue;
+              state.board[r][c] = ((r + c) % 2 === 0) ? 1 : 2;
+            }
+          }
+        } else if (name === 'start76') {
+          // Bovenste 2 rijen (38 Krijtwit), onderste 2 rijen (38 Meekrab-rood) => exact 76 pionnen
+          for (let c = 0; c < SIZE; c++) {
+            state.board[0][c] = 1;
+            state.board[1][c] = 1;
+            state.board[17][c] = 2;
+            state.board[18][c] = 2;
+          }
+        } else if (name === 'circle253') {
+          // Exact 253 roosterpunten waar x^2 + y^2 <= 81
+          for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+              const x = c - CENTER;
+              const y = CENTER - r;
+              const d2 = x * x + y * y;
+              if (d2 <= 81) {
+                // Buitenschil (64 < d^2 <= 81) in Meekrab-rood, kern in Krijtwit
+                state.board[r][c] = d2 > 64 ? 2 : 1;
+              }
+            }
+          }
+        }
+        updateAllUI();
+      }
+
+      // =========================================================================
+      // 7. CANVAS TEKENEN (19x19 BORD + OVERLAYS)
+      // =========================================================================
+      let metrics = { pad: 28, cell: 24, originX: 28, originY: 28, size: 500 };
+
+      function resizeBoard() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const rect = boardContainer.getBoundingClientRect();
+        const size = Math.max(280, Math.floor(Math.min(rect.width, rect.height)));
+        boardCanvas.width = Math.floor(size * dpr);
+        boardCanvas.height = Math.floor(size * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const pad = Math.max(26, Math.round(size * 0.056));
+        const usable = size - pad * 2;
+        const cell = usable / SIZE;
+        const originX = Math.round((size - cell * SIZE) / 2);
+        const originY = Math.round((size - cell * SIZE) / 2);
+        metrics = { pad, cell, originX, originY, size };
+        renderBoard();
+      }
+
+      // Teken een mini- of hoofd-maanbol (bovenaanzicht, verlicht naar sunAngle)
+      function drawMiniMoon(cCtx, cx, cy, r, sunAngle, isMain = false) {
+        cCtx.save();
+        cCtx.translate(cx, cy);
+        cCtx.rotate(sunAngle);
+
+        // Donkere nachtzijde
+        cCtx.fillStyle = '#1F242D';
+        cCtx.beginPath();
+        cCtx.arc(0, 0, r, 0, Math.PI * 2);
+        cCtx.fill();
+
+        // Verlichte zijde (+X na rotatie = richting gekozen windstreek!)
+        cCtx.fillStyle = '#FFFFFF';
+        cCtx.beginPath();
+        cCtx.arc(0, 0, r, -Math.PI / 2, Math.PI / 2, false);
+        cCtx.closePath();
+        cCtx.fill();
+
+        cCtx.strokeStyle = isMain ? '#A31C1C' : '#1A1A1A';
+        cCtx.lineWidth = isMain ? 2 : 1;
+        cCtx.beginPath();
+        cCtx.arc(0, 0, r, 0, Math.PI * 2);
+        cCtx.stroke();
+        cCtx.restore();
+      }
+
+      // Teken een kleine schijngestalte (gezien vanaf Aarde) voor de omloopdagen-laag
+      function drawPhaseDisc(cCtx, cx, cy, r, phi, sunAngle) {
+        cCtx.save();
+        cCtx.translate(cx, cy);
+        cCtx.rotate(sunAngle);
+
+        cCtx.fillStyle = '#2B2B2B';
+        cCtx.beginPath();
+        cCtx.arc(0, 0, r, 0, Math.PI * 2);
+        cCtx.fill();
+
+        const cosP = Math.cos(phi);
+        cCtx.save();
+        cCtx.beginPath();
+        cCtx.arc(0, 0, r, 0, Math.PI * 2);
+        cCtx.clip();
+
+        if (phi > 0.04 && phi < Math.PI * 2 - 0.04) {
+          cCtx.fillStyle = '#FFFFFF';
+          cCtx.beginPath();
+          cCtx.arc(0, 0, r, -Math.PI / 2, Math.PI / 2, false);
+          cCtx.closePath();
+          cCtx.fill();
+
+          cCtx.fillStyle = cosP < 0 ? '#FFFFFF' : '#2B2B2B';
+          cCtx.beginPath();
+          cCtx.ellipse(0, 0, Math.abs(cosP) * r, r, 0, 0, Math.PI * 2);
+          cCtx.fill();
+        }
+        cCtx.restore();
+
+        cCtx.strokeStyle = 'rgba(26,26,26,0.55)';
+        cCtx.lineWidth = 0.7;
+        cCtx.beginPath();
+        cCtx.arc(0, 0, r, 0, Math.PI * 2);
+        cCtx.stroke();
+        cCtx.restore();
+      }
+
+      function renderBoard() {
+        const { cell, originX, originY, size } = metrics;
+        const boardPx = cell * SIZE;
+        const dirInfo = DIRECTIONS[state.direction];
+
+        ctx.clearRect(0, 0, size, size);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, size, size);
+
+        // 1. De 361 velden
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            const x = originX + c * cell;
+            const y = originY + r * cell;
+            const isLight = (r + c) % 2 === 0;
+
+            if (state.overlays.kaprekar) {
+              const kap = KAP_GRID[r][c];
+              ctx.fillStyle = KAP_COLORS[kap.count] || '#F7F7F7';
+            } else {
+              ctx.fillStyle = isLight ? '#FFFFFF' : '#F6F6F6';
+            }
+            ctx.fillRect(x, y, cell, cell);
+
+            // Subtiele markering van middelpunt J10 (0, 0)
+            if (r === CENTER && c === CENTER) {
+              ctx.fillStyle = 'rgba(163, 28, 28, 0.08)';
+              ctx.fillRect(x, y, cell, cell);
+            }
+
+            // Rasterlijn
+            ctx.strokeStyle = '#E2E2E2';
+            ctx.lineWidth = 0.7;
+            ctx.strokeRect(x, y, cell, cell);
+
+            // Laag 3: Kaprekar stapgetal in het vakje
+            if (state.overlays.kaprekar && cell >= 16 && state.board[r][c] === 0) {
+              const kap = KAP_GRID[r][c];
+              ctx.font = `600 ${Math.max(8, Math.floor(cell * 0.34))}px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillStyle = kap.exception ? '#FFFFFF' : 'rgba(26, 26, 26, 0.72)';
+              ctx.fillText(kap.exception ? '×' : String(kap.count), x + cell / 2, y + cell / 2);
+            }
+
+            // Laag 2: Omloopdagen 0..360 + mini-maanfase op elk veld
+            if (state.overlays.days) {
+              const d = r * SIZE + c;
+              const isCurDay = d === state.orbitDay;
+              if (isCurDay) {
+                ctx.fillStyle = 'rgba(163, 28, 28, 0.14)';
+                ctx.fillRect(x, y, cell, cell);
+              }
+              if (cell >= 17) {
+                ctx.font = `600 ${Math.max(7, Math.floor(cell * 0.28))}px ui-monospace, monospace`;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.fillStyle = isCurDay ? '#A31C1C' : '#5C5C5C';
+                ctx.fillText(String(d), x + 2, y + 1.5);
+
+                if (state.board[r][c] === 0 && cell >= 21) {
+                  const mm = moonMetricsForDay(d);
+                  drawPhaseDisc(ctx, x + cell * 0.66, y + cell * 0.66, cell * 0.21, mm.phi, dirInfo.canvasAngle);
+                }
+              }
+            }
+          }
+        }
+
+        // Buitenrand bord
+        ctx.strokeStyle = '#1A1A1A';
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(originX, originY, boardPx, boardPx);
+
+        // Sterpunten (hoshi) voor Go-oriëntatie (D4, J4, P4, D10, J10, P10, D16, J16, P16)
+        const hoshi = [3, 9, 15];
+        for (const hr of hoshi) {
+          for (const hc of hoshi) {
+            const hx = originX + (hc + 0.5) * cell;
+            const hy = originY + (hr + 0.5) * cell;
+            ctx.fillStyle = (hr === 9 && hc === 9) ? '#A31C1C' : '#888888';
+            ctx.beginPath();
+            ctx.arc(hx, hy, (hr === 9 && hc === 9) ? 3.2 : 2.1, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        // 2. Laag 4: Cirkel R=9 & N/Z/O/W Assenkruis
+        const cxJ10 = originX + (CENTER + 0.5) * cell;
+        const cyJ10 = originY + (CENTER + 0.5) * cell;
+        const rad9 = 9 * cell;
+
+        if (state.overlays.axes) {
+          ctx.save();
+          // Assenkruis
+          ctx.strokeStyle = 'rgba(163, 28, 28, 0.45)';
+          ctx.lineWidth = 1.2;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(cxJ10, originY);
+          ctx.lineTo(cxJ10, originY + boardPx);
+          ctx.moveTo(originX, cyJ10);
+          ctx.lineTo(originX + boardPx, cyJ10);
+          ctx.stroke();
+
+          // Cirkel R=9
+          ctx.setLineDash([]);
+          ctx.strokeStyle = '#A31C1C';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.arc(cxJ10, cyJ10, rad9, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 3. Coördinaatlabels (A..S, 1..19) & Gekozen Windstreek/Zon-indicator
+        const fontSize = Math.max(9, Math.min(12, Math.floor(cell * 0.44)));
+        ctx.font = `600 ${fontSize}px ui-monospace, monospace`;
+        ctx.fillStyle = '#4A4A4A';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        for (let i = 0; i < SIZE; i++) {
+          const lx = originX + (i + 0.5) * cell;
+          ctx.fillText(COLS[i], lx, originY - 11);
+          ctx.fillText(COLS[i], lx, originY + boardPx + 12);
+
+          const ly = originY + (i + 0.5) * cell;
+          const rLabel = String(SIZE - i);
+          ctx.fillText(rLabel, originX - 13, ly);
+          ctx.fillText(rLabel, originX + boardPx + 13, ly);
+        }
+
+        // Markeer gekozen windstreek-ankerpunt (N/O/Z/W) op de rand van het bord
+        {
+          const gp = dirInfo.gridPos;
+          const px = originX + (gp.c + 0.5) * cell;
+          const py = originY + (gp.r + 0.5) * cell;
+          ctx.save();
+          ctx.strokeStyle = '#A31C1C';
+          ctx.lineWidth = 2.2;
+          ctx.strokeRect(originX + gp.c * cell + 1, originY + gp.r * cell + 1, cell - 2, cell - 2);
+
+          // Zon- en kompasbadge buiten het ankerveld
+          let bx = px, by = py;
+          if (state.direction === 'N') by = originY - 12;
+          if (state.direction === 'Z') by = originY + boardPx + 12;
+          if (state.direction === 'W') bx = originX - 13;
+          if (state.direction === 'O') bx = originX + boardPx + 13;
+
+          ctx.fillStyle = '#A31C1C';
+          ctx.beginPath();
+          ctx.arc(bx, by, Math.max(9, fontSize * 0.85), 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = `700 ${Math.max(9, fontSize - 1)}px sans-serif`;
+          ctx.fillText(state.direction, bx, by + 0.5);
+          ctx.restore();
+        }
+
+        // 4. Pionnen tekenen (Krijtwit met meekrab-rood hartje & Zeeuws Meekrab-rood)
+        const stoneR = cell * 0.41;
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            const v = state.board[r][c];
+            if (v === 0) continue;
+            const cx = originX + (c + 0.5) * cell;
+            const cy = originY + (r + 0.5) * cell;
+
+            if (v === 1) {
+              // Krijtwit (Hartje)
+              ctx.save();
+              ctx.fillStyle = '#FFFFFF';
+              ctx.strokeStyle = '#1A1A1A';
+              ctx.lineWidth = 1.4;
+              ctx.beginPath();
+              ctx.arc(cx, cy, stoneR, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.stroke();
+
+              // Fijn meekrab-rood hartje
+              ctx.fillStyle = '#A31C1C';
+              ctx.font = `${Math.max(9, Math.round(stoneR * 1.15))}px sans-serif`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText('♥', cx, cy + 0.8);
+              ctx.restore();
+            } else if (v === 2) {
+              // Zeeuws Meekrab-rood
+              ctx.save();
+              ctx.fillStyle = '#A31C1C';
+              ctx.strokeStyle = '#6B1010';
+              ctx.lineWidth = 1.2;
+              ctx.beginPath();
+              ctx.arc(cx, cy, stoneR, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.stroke();
+
+              // Subtiele lichte ring/glans
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.38)';
+              ctx.lineWidth = 1.1;
+              ctx.beginPath();
+              ctx.arc(cx, cy, stoneR * 0.72, -Math.PI * 0.85, -Math.PI * 0.15);
+              ctx.stroke();
+              ctx.restore();
+            }
+          }
+        }
+
+        // 5. Laag 1: Maanomloop & Schijngestalten (8 fasen + bewegende hoofd-maan op R=9)
+        if (state.overlays.orbit) {
+          ctx.save();
+          // Omloopcirkel R=9
+          ctx.strokeStyle = 'rgba(26, 26, 26, 0.45)';
+          ctx.lineWidth = 1.3;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.arc(cxJ10, cyJ10, rad9, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // De 8 hoofdfasen op cirkel R=9 (hoek 0 = bij gekozen zon-ankerpunt)
+          const sunAngle = dirInfo.canvasAngle;
+          for (let i = 0; i < 8; i++) {
+            const a = sunAngle - (i * Math.PI) / 4; // Tegen de klok in rond J10
+            const mx = cxJ10 + Math.cos(a) * rad9;
+            const my = cyJ10 + Math.sin(a) * rad9;
+            drawMiniMoon(ctx, mx, my, Math.max(6, cell * 0.34), sunAngle, false);
+          }
+
+          // Bewegende hoofd-maan voor state.orbitDay
+          const mm = moonMetricsForDay(state.orbitDay);
+          const mainAngle = sunAngle - mm.phi;
+          const mainX = cxJ10 + Math.cos(mainAngle) * rad9;
+          const mainY = cyJ10 + Math.sin(mainAngle) * rad9;
+
+          // Kijklijn vanaf J10 naar hoofd-maan
+          ctx.strokeStyle = 'rgba(163, 28, 28, 0.65)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(cxJ10, cyJ10);
+          ctx.lineTo(mainX, mainY);
+          ctx.stroke();
+
+          drawMiniMoon(ctx, mainX, mainY, Math.max(9, cell * 0.48), sunAngle, true);
+          ctx.restore();
+        }
+
+        // 6. Selectiemarkering voor 'Verplaats Pion (Klik & Klik)'
+        if (state.action === 'move' && state.moveSource) {
+          const { r, c } = state.moveSource;
+          ctx.save();
+          ctx.strokeStyle = '#A31C1C';
+          ctx.lineWidth = 2.4;
+          ctx.strokeRect(originX + c * cell + 1.5, originY + r * cell + 1.5, cell - 3, cell - 3);
+          ctx.restore();
+        }
+
+        // 7. Monte Carlo aanbevolen zet (pulserende ring)
+        if (state.mcBest) {
+          const mx = originX + (state.mcBest.c + 0.5) * cell;
+          const my = originY + (state.mcBest.r + 0.5) * cell;
+          const pulse = 0.5 + 0.5 * Math.sin(state.pulsePhase);
+          ctx.save();
+          ctx.strokeStyle = '#A31C1C';
+          ctx.lineWidth = 2.4;
+          ctx.beginPath();
+          ctx.arc(mx, my, cell * (0.36 + pulse * 0.14), 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.fillStyle = 'rgba(163, 28, 28, 0.16)';
+          ctx.beginPath();
+          ctx.arc(mx, my, cell * 0.34, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 8. Hover-kader
+        if (state.hoverCell) {
+          const { r, c } = state.hoverCell;
+          ctx.save();
+          ctx.strokeStyle = 'rgba(26, 26, 26, 0.45)';
+          ctx.lineWidth = 1.2;
+          ctx.strokeRect(originX + c * cell + 1, originY + r * cell + 1, cell - 2, cell - 2);
+          ctx.restore();
+        }
+      }
+
+      // =========================================================================
+      // 8. UI UPDATES (COMPASS, STATS, INSPECTOR, OMLOOPDAGEN, 19-RIJEN TABEL)
+      // =========================================================================
+      function updateCompassMeta() {
+        const d = DIRECTIONS[state.direction];
+        compassMeta.innerHTML = `
+          <span>Actief Zon-ankerpunt: <strong class="mono">${d.name} ${d.coord} ${d.xy}</strong></span>
+          <span>Hoek t.o.v. J10: <strong class="mono">${d.azimuth}°</strong></span>
+          <span>Volle Maan-punt (180°): <strong class="mono">${d.opposite}</strong></span>
+          <span>Kwartierpunten (&plusmn;90°): <strong class="mono">${d.quarters}</strong></span>
+        `;
+        inspDirShort.textContent = d.key;
+        updateOrbitExplorer();
+      }
+
+      function updateStats() {
+        let white = 0, red = 0;
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            if (state.board[r][c] === 1) white++;
+            else if (state.board[r][c] === 2) red++;
+          }
+        }
+        const total = white + red;
+        statTotal.textContent = String(total);
+        statWhite.textContent = String(white);
+        statRed.textContent = String(red);
+        statEmpty.textContent = String(361 - total);
+        statCaptures.textContent = `${state.captures[1]} / ${state.captures[2]}`;
+
+        goTurnLabel.textContent = state.goTurn === 1 ? 'Krijtwit (♥)' : 'Zeeuws Meekrab-rood';
+        const mcPlayer = state.action === 'red' ? 2 : (state.action === 'white' ? 1 : state.goTurn);
+        mcPlayerBadge.textContent = `Speler: ${mcPlayer === 1 ? 'Krijtwit' : 'Meekrab-rood'}`;
+      }
+
+      function updateInspector(r, c) {
+        const m = cellMeta(r, c);
+        const dir = DIRECTIONS[state.direction];
+        const rad = Math.hypot(m.x, m.y);
+        // Azimut in graden vanaf Noord (0° = Noord, 90° = Oost, 180° = Zuid, 270° = West)
+        let az = (Math.atan2(m.x, m.y) * 180) / Math.PI;
+        if (az < 0) az += 360;
+        // Relatieve hoek t.o.v. gekozen windstreek
+        let relAngle = (az - dir.azimuth + 360) % 360;
+        if (rad === 0) relAngle = 0;
+
+        const mm = moonMetricsForDay(m.day);
+        const kap = KAP_GRID[r][c];
+
+        inspCoord.textContent = m.label;
+        inspXY.textContent = `(${m.x >= 0 ? '+' + m.x : m.x}, ${m.y >= 0 ? '+' + m.y : m.y})`;
+        inspPolar.textContent = `${rad.toFixed(2).replace('.', ',')} | ${Math.round(relAngle)}°`;
+        inspDay.textContent = `Dag ${m.day}`;
+        inspPhase.textContent = `${mm.phaseName} (${Math.round(mm.illum)}%)`;
+        inspCode.textContent = m.code;
+        hoverQuick.textContent = `Veld: ${m.label} (${m.x}, ${m.y}) • Dag ${m.day}`;
+
+        if (kap.exception) {
+          inspKapChain.innerHTML = `<div class="kap-step-line"><span>Uitzondering (K11)</span><span class="kap-6174">1111 &minus; 1111 = 0000</span></div>`;
+        } else if (kap.count === 0) {
+          inspKapChain.innerHTML = `<div class="kap-step-line"><span>Constante</span><span class="kap-6174">6174 (0 stappen)</span></div>`;
+        } else {
+          inspKapChain.innerHTML = kap.steps.map((s, i) => `
+            <div class="kap-step-line">
+              <span style="color:var(--muted);">Stap ${i + 1}</span>
+              <span>${s.desc} &minus; ${s.asc} = <span class="${s.res === '6174' ? 'kap-6174' : ''}">${s.res}</span></span>
+            </div>
+          `).join('');
+        }
+
+        // Toon Go-vrijheden als Go-modus actief is
+        if (state.action === 'go') {
+          if (state.board[r][c] !== 0) {
+            const grp = getGroupAndLiberties(state.board, r, c);
+            const pName = state.board[r][c] === 1 ? 'Krijtwit' : 'Meekrab-rood';
+            goLibertyInfo.innerHTML = `Groep op <strong class="mono">${m.label}</strong> (${pName}): <strong>${grp.stones.length}</strong> stenen, <strong style="color:var(--red);">${grp.liberties}</strong> vrijheden.`;
+          } else {
+            goLibertyInfo.textContent = 'Klik op een leeg veld om een Go-zet te spelen. Ingesloten groepen (0 vrijheden) worden geslagen.';
+          }
+        }
+      }
+
+      // Grote SVG-maanweergave voor Omloopdagen 0–360
+      function renderSvgMoon(phi, sunAngleRad) {
+        const cx = 70, cy = 70, r = 50;
+        const deg = (sunAngleRad * 180) / Math.PI;
+        const cosP = Math.cos(phi);
+        const rx = Math.abs(cosP) * r;
+        const litSweep = (phi > 0.02 && phi < Math.PI * 2 - 0.02);
+
+        let litSvg = '';
+        if (litSweep) {
+          const innerFill = cosP < 0 ? '#FFFFFF' : '#1E242E';
+          litSvg = `
+            <path d="M ${cx} ${cy - r} A ${r} ${r} 0 0 1 ${cx} ${cy + r} Z" fill="#FFFFFF" />
+            <ellipse cx="${cx}" cy="${cy}" rx="${rx.toFixed(2)}" ry="${r}" fill="${innerFill}" />
+          `;
+        }
+
+        // Richtingspijl naar gekozen windstreek
+        const dir = DIRECTIONS[state.direction];
+        const px = cx + Math.cos(sunAngleRad) * 63;
+        const py = cy + Math.sin(sunAngleRad) * 63;
+
+        moonPhaseSvg.innerHTML = `
+          <defs>
+            <clipPath id="moonClip">
+              <circle cx="${cx}" cy="${cy}" r="${r}" />
+            </clipPath>
+          </defs>
+          <circle cx="${cx}" cy="${cy}" r="${r + 9}" fill="none" stroke="#E2E2E2" stroke-dasharray="3 3" />
+          <g transform="rotate(${deg.toFixed(1)} ${cx} ${cy})">
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="#1E242E" />
+            <g clip-path="url(#moonClip)">
+              ${litSvg}
+            </g>
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#1A1A1A" stroke-width="1.6" />
+          </g>
+          <circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="8" fill="#A31C1C" />
+          <text x="${px.toFixed(1)}" y="${(py + 3.5).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">${dir.key}</text>
+        `;
+      }
+
+      function updateOrbitExplorer() {
+        const d = state.orbitDay;
+        const { r, c } = dayToCell(d);
+        const m = cellMeta(r, c);
+        const mm = moonMetricsForDay(d);
+        const dir = DIRECTIONS[state.direction];
+
+        orbitDaySlider.value = String(d);
+        orbDayReadout.textContent = `Dag ${d} / 360 (Veld ${m.label})`;
+        orbField.textContent = `${m.label} (${m.rowNum}, ${m.colNum})`;
+        orbSynAge.textContent = `${mm.age.toFixed(2).replace('.', ',')} d`;
+        orbIllum.textContent = `${mm.illum.toFixed(1).replace('.', ',')}%`;
+        orbSid.textContent = `${mm.sidCycles.toFixed(3).replace('.', ',')}×`;
+        orbAngle.textContent = `${mm.deg.toFixed(1).replace('.', ',')}°`;
+        orbPhaseName.textContent = mm.phaseName;
+        orbOrientNote.textContent = `Verlichte zijde gericht op ${dir.name} (${dir.coord})`;
+
+        renderSvgMoon(mm.phi, dir.canvasAngle);
+
+        // Highlight actieve rij in de 19-rijen tabel
+        const activeRowIdx = Math.floor(d / SIZE);
+        rows19Tbody.querySelectorAll('tr').forEach((tr, idx) => {
+          tr.classList.toggle('active-row', idx === activeRowIdx);
+        });
+      }
+
+      function build19RowsTable() {
+        const rowsHtml = [];
+        for (let r = 0; r < SIZE; r++) {
+          const boardRowNum = SIZE - r;
+          const startDay = r * SIZE;
+          const endDay = startDay + SIZE - 1;
+          const synMonths = endDay / SYNODIC;
+          const mm = moonMetricsForDay(endDay);
+          rowsHtml.push(`
+            <tr data-end-day="${endDay}">
+              <td class="mono"><strong>Rij ${boardRowNum}</strong></td>
+              <td class="mono">A${boardRowNum} &ndash; S${boardRowNum}</td>
+              <td class="mono">Dag ${startDay} &ndash; ${endDay}</td>
+              <td class="mono">${synMonths.toFixed(3).replace('.', ',')}</td>
+              <td class="mono">${mm.age.toFixed(2).replace('.', ',')} d</td>
+              <td class="mono">${mm.illum.toFixed(1).replace('.', ',')}%</td>
+              <td>${mm.phaseName}</td>
+            </tr>
+          `);
+        }
+        rows19Tbody.innerHTML = rowsHtml.join('');
+
+        rows19Tbody.querySelectorAll('tr').forEach(tr => {
+          tr.addEventListener('click', () => {
+            state.orbitDay = parseInt(tr.dataset.endDay, 10);
+            updateOrbitExplorer();
+            renderBoard();
+          });
+        });
+      }
+
+      function buildKaprekarLegend() {
+        const items = [1, 2, 3, 4, 5, 6, 7, -1];
+        kapLegend.innerHTML = `<strong style="color:var(--text);">6174-stappen:</strong>` + items.map(k => `
+          <span class="swatch">
+            <span class="swatch-box" style="background:${KAP_COLORS[k]}"></span>
+            <span>${k === -1 ? '1111 (K11)' : k}</span>
+          </span>
+        `).join('');
+      }
+
+      function updateAllUI() {
+        updateStats();
+        updateCompassMeta();
+        updateInspector(state.hoverCell.r, state.hoverCell.c);
+        renderBoard();
+      }
+
+      // =========================================================================
+      // 9. INTERACTIE & EVENT LISTENERS
+      // =========================================================================
+      // Windstreken
+      document.querySelectorAll('.compass-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.direction = btn.dataset.dir;
+          document.querySelectorAll('.compass-btn').forEach(b => b.classList.toggle('active', b === btn));
+          updateAllUI();
+        });
+      });
+
+      // Overlays (allemaal standaard UIT)
+      const overlayMap = [
+        ['toggle-orbit', 'orbit'],
+        ['toggle-days', 'days'],
+        ['toggle-kaprekar', 'kaprekar'],
+        ['toggle-axes', 'axes']
+      ];
+      overlayMap.forEach(([id, key]) => {
+        const el = document.getElementById(id);
+        el.addEventListener('click', () => {
+          state.overlays[key] = !state.overlays[key];
+          el.classList.toggle('active', state.overlays[key]);
+          el.setAttribute('aria-pressed', String(state.overlays[key]));
+          if (key === 'kaprekar') {
+            kapLegend.classList.toggle('visible', state.overlays.kaprekar);
+          }
+          renderBoard();
+        });
+      });
+
+      // Presets
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+      });
+
+      // Actie bij klikken op een veld
+      const ACTION_HELP_TEXT = {
+        cycle: 'Klik op een veld om te wisselen: Krijtwit (♥) → Zeeuws Meekrab-rood → Leeg.',
+        move: 'Klik eerst op een bezet veld om een pion te selecteren, en daarna op het doelveld om te verplaatsen.',
+        white: 'Klik op een veld om een krijtwitte pion (hartje) te plaatsen.',
+        red: 'Klik op een veld om een Zeeuws meekrab-rode pion te plaatsen.',
+        go: 'Go-modus actief: speel om beurten. Ingesloten groepen zonder vrijheden worden automatisch geslagen.'
+      };
+
+      document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.action = btn.dataset.action;
+          state.moveSource = null;
+          document.querySelectorAll('.action-btn').forEach(b => b.classList.toggle('active', b === btn));
+          actionHelp.textContent = ACTION_HELP_TEXT[state.action];
+          actionHelp.classList.remove('help-box--alert');
+          goStatus.classList.toggle('visible', state.action === 'go');
+          updateStats();
+          renderBoard();
+        });
+      });
+
+      btnGoSwitchTurn.addEventListener('click', () => {
+        state.goTurn = state.goTurn === 1 ? 2 : 1;
+        updateStats();
+      });
+
+      // Monte Carlo
+      btnMcSearch.addEventListener('click', runMonteCarloSearch);
+
+      // Omloopdagen schuifregelaar & Play/Pauze
+      orbitDaySlider.addEventListener('input', (e) => {
+        state.orbitDay = parseInt(e.target.value, 10);
+        updateOrbitExplorer();
+        renderBoard();
+      });
+
+      btnOrbitJ10.addEventListener('click', () => {
+        state.orbitDay = 180;
+        updateOrbitExplorer();
+        renderBoard();
+      });
+
+      btnOrbitPlay.addEventListener('click', () => {
+        state.orbitPlaying = !state.orbitPlaying;
+        btnOrbitPlay.innerHTML = state.orbitPlaying ? '&#10074;&#10074; Pauzeren' : '&#9654; Afspelen';
+        if (state.orbitPlaying) {
+          state.orbitTimer = setInterval(() => {
+            state.orbitDay = (state.orbitDay + 1) % 361;
+            updateOrbitExplorer();
+            renderBoard();
+          }, 180);
+        } else if (state.orbitTimer) {
+          clearInterval(state.orbitTimer);
+          state.orbitTimer = null;
+        }
+      });
+
+      // Tabs voor Rekenkunde 361
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.dataset.tab;
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === targetId));
+        });
+      });
+
+      // Bord muis/klik
+      function pointerToCell(clientX, clientY) {
+        const rect = boardCanvas.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+        const c = Math.floor((x - metrics.originX) / metrics.cell);
+        const r = Math.floor((y - metrics.originY) / metrics.cell);
+        if (r < 0 || r >= SIZE || c < 0 || c >= SIZE) return null;
+        return { r, c };
+      }
+
+      boardCanvas.addEventListener('mousemove', (e) => {
+        const cell = pointerToCell(e.clientX, e.clientY);
+        if (!cell) return;
+        if (state.hoverCell.r !== cell.r || state.hoverCell.c !== cell.c) {
+          state.hoverCell = cell;
+          updateInspector(cell.r, cell.c);
+          renderBoard();
+        }
+      });
+
+      boardCanvas.addEventListener('click', (e) => {
+        const cell = pointerToCell(e.clientX, e.clientY);
+        if (!cell) return;
+        const { r, c } = cell;
+        state.hoverCell = cell;
+        actionHelp.classList.remove('help-box--alert');
+
+        if (state.action === 'white') {
+          state.board[r][c] = 1;
+        } else if (state.action === 'red') {
+          state.board[r][c] = 2;
+        } else if (state.action === 'cycle') {
+          state.board[r][c] = (state.board[r][c] + 1) % 3;
+        } else if (state.action === 'move') {
+          if (!state.moveSource) {
+            if (state.board[r][c] !== 0) {
+              state.moveSource = { r, c };
+              actionHelp.textContent = `Pion op ${cellMeta(r, c).label} geselecteerd. Klik op een doelveld om te verplaatsen.`;
+            } else {
+              actionHelp.textContent = 'Kies eerst een veld waar al een pion staat.';
+            }
+          } else {
+            const { r: sr, c: sc } = state.moveSource;
+            if (sr === r && sc === c) {
+              state.moveSource = null;
+              actionHelp.textContent = ACTION_HELP_TEXT.move;
+            } else {
+              state.board[r][c] = state.board[sr][sc];
+              state.board[sr][sc] = 0;
+              state.moveSource = null;
+              actionHelp.textContent = `Pion verplaatst van ${cellMeta(sr, sc).label} naar ${cellMeta(r, c).label}.`;
+            }
+          }
+        } else if (state.action === 'go') {
+          const res = tryGoMove(state.board, r, c, state.goTurn);
+          if (!res.ok) {
+            actionHelp.textContent = res.reason;
+            actionHelp.classList.add('help-box--alert');
+          } else {
+            state.captures[state.goTurn] += res.captured;
+            const prevName = state.goTurn === 1 ? 'Krijtwit' : 'Meekrab-rood';
+            actionHelp.textContent = res.captured > 0
+              ? `${prevName} speelt ${cellMeta(r, c).label} en slaat ${res.captured} steen/stenen!`
+              : `${prevName} speelt ${cellMeta(r, c).label} (${res.ownLiberties} vrijheden).`;
+            state.goTurn = state.goTurn === 1 ? 2 : 1;
+          }
+        }
+
+        // Als de gebruiker handmatig op het aanbevolen MC-veld klikt, wis de MC-ring
+        if (state.mcBest && state.mcBest.r === r && state.mcBest.c === c) {
+          state.mcBest = null;
+          mcResult.classList.remove('visible');
+        }
+
+        updateAllUI();
+      });
+
+      // Subtiele animatie-lus alleen wanneer Monte Carlo-ring actief is
+      function pulseLoop() {
+        if (state.mcBest) {
+          state.pulsePhase += 0.08;
+          renderBoard();
+        }
+        requestAnimationFrame(pulseLoop);
+      }
+
+      // =========================================================================
+      // 10. INITIALISATIE
+      // =========================================================================
+      window.addEventListener('resize', resizeBoard);
+      window.addEventListener('load', () => {
+        buildKaprekarLegend();
+        build19RowsTable();
+        resizeBoard();
+        updateAllUI();
+        requestAnimationFrame(pulseLoop);
+      });
+    })();
+  </script>
+</body>
+</html>
