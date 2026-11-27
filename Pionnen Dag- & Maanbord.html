@@ -1,0 +1,2470 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pionnen Dag- &amp; Maanbord, Saros-Bord &amp; 4-Weg Waarnemer (N / Z / O / W)</title>
+  <style>
+    /* =========================================================================
+       THEMA-VARIABELEN: KRIJTWIT & MEEKRAB-ROOD vs. KRIJTBORD DONKER
+       ========================================================================= */
+    :root,
+    [data-theme="light"] {
+      --bg: #FFFFFF;
+      --bg-subtle: #F8F7F4;
+      --surface: #F8F7F4;
+      --surface-card: #FFFFFF;
+      --surface-alt: #F1EFEA;
+      --border: #DEDCD6;
+      --border-strong: #C2BEB6;
+      --text: #1E242B;
+      --muted: #5A6068;
+      --red: #A31C1C;
+      --red-hover: #821414;
+      --red-soft: #FDF2F2;
+      --red-border: #E8C5C5;
+      --sun: #D97706;
+      --sun-soft: #FEF6E7;
+      --sun-border: #F3D5A5;
+      --moon-lit: #FDE68A;
+      --moon-dark: #1E2430;
+      --board-light: #FFFFFF;
+      --board-dark: #F4F3EE;
+      --board-grid: #DFDDD6;
+      --board-frame: #1E242B;
+      --pawn-white-fill: #FFFFFF;
+      --pawn-white-stroke: #1E242B;
+      --radius: 10px;
+      --radius-sm: 7px;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    [data-theme="dark"] {
+      --bg: #14171A;
+      --bg-subtle: #1A1E23;
+      --surface: #1C2127;
+      --surface-card: #161A1F;
+      --surface-alt: #242A32;
+      --border: #313842;
+      --border-strong: #495361;
+      --text: #F2F4F7;
+      --muted: #A3ADB8;
+      --red: #D93838;
+      --red-hover: #F04A4A;
+      --red-soft: rgba(217, 56, 56, 0.16);
+      --red-border: rgba(217, 56, 56, 0.45);
+      --sun: #F59E0B;
+      --sun-soft: rgba(245, 158, 11, 0.14);
+      --sun-border: rgba(245, 158, 11, 0.4);
+      --moon-lit: #FDE68A;
+      --moon-dark: #0E1218;
+      --board-light: #1E2329;
+      --board-dark: #171B20;
+      --board-grid: #2D343D;
+      --board-frame: #D5DCE4;
+      --pawn-white-fill: #F5F7FA;
+      --pawn-white-stroke: #14171A;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.46;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.18s ease, color 0.18s ease;
+    }
+
+    .mono {
+      font-family: var(--mono);
+    }
+
+    .page {
+      max-width: 1420px;
+      margin: 0 auto;
+      padding: 16px 16px 52px;
+    }
+
+    /* =========================================================================
+       KOPBALK & NAVIGATIE
+       ========================================================================= */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border-strong);
+      margin-bottom: 14px;
+    }
+
+    .brand h1 {
+      margin: 0 0 4px;
+      font-size: clamp(19px, 2.3vw, 27px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 7px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .badge--red {
+      background: var(--red-soft);
+      border-color: var(--red-border);
+      color: var(--red);
+    }
+
+    .badge--sun {
+      background: var(--sun-soft);
+      border-color: var(--sun-border);
+      color: var(--sun);
+    }
+
+    /* Thema-knop */
+    .theme-btn {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--surface-card);
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.14s ease;
+    }
+
+    .theme-btn:hover {
+      border-color: var(--red);
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    /* Hoofd-tabbladen */
+    .main-nav {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 780px) {
+      .main-nav {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .nav-tab {
+      appearance: none;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.14s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .nav-tab:hover {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .nav-tab.active {
+      background: var(--red);
+      border-color: var(--red);
+      color: #FFFFFF;
+    }
+
+    .nav-tab .nt-title {
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    .nav-tab .nt-sub {
+      font-size: 11.5px;
+      font-family: var(--mono);
+      opacity: 0.85;
+    }
+
+    .view-panel {
+      display: none;
+    }
+
+    .view-panel.active {
+      display: block;
+    }
+
+    /* =========================================================================
+       ALGEMENE COMPONENTEN (KAARTEN, KNOPPEN, CHIPS, SCHUIFREGELAARS)
+       ========================================================================= */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .card--inner {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 12px;
+    }
+
+    .panel-title {
+      margin: 0 0 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .btn {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--surface-card);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+
+    .btn:hover {
+      border-color: var(--red);
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .btn--primary {
+      background: var(--red);
+      border-color: var(--red);
+      color: #FFFFFF;
+    }
+
+    .btn--primary:hover {
+      background: var(--red-hover);
+      border-color: var(--red-hover);
+      color: #FFFFFF;
+    }
+
+    .btn--sm {
+      padding: 5px 9px;
+      font-size: 11.5px;
+    }
+
+    .btn.active-btn {
+      background: var(--red-soft);
+      border-color: var(--red);
+      color: var(--red);
+      box-shadow: inset 3px 0 0 var(--red);
+    }
+
+    .toggle-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .toggle-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-right: 4px;
+    }
+
+    .toggle-chip {
+      appearance: none;
+      background: var(--surface-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.14s ease;
+    }
+
+    .toggle-chip:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .toggle-chip.active {
+      background: var(--red);
+      border-color: var(--red);
+      color: #FFFFFF;
+    }
+
+    .toggle-chip .led {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #9CA3AF;
+    }
+
+    .toggle-chip.active .led {
+      background: #FFFFFF;
+    }
+
+    input[type="range"].astro-range {
+      width: 100%;
+      accent-color: var(--red);
+      cursor: pointer;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .stat-box {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+
+    .stat-k {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .stat-v {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-top: 2px;
+      color: var(--text);
+    }
+
+    /* =========================================================================
+       TABBLAD 1: PIONNEN DAG- & MAANBORD
+       ========================================================================= */
+    .board-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.38fr) minmax(320px, 0.85fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 1040px) {
+      .board-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .raster-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .board-wrap {
+      position: relative;
+      width: 100%;
+      max-height: 760px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #pion-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .sidebar-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    .moon-mini-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .kap-box {
+      margin-top: 8px;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 9px;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      max-height: 125px;
+      overflow-y: auto;
+    }
+
+    .kap-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .kap-line:last-child {
+      border-bottom: none;
+    }
+
+    /* =========================================================================
+       TABBLAD 2: 4-WEG WAARNEMER GEOMETRISCHE CONTROLE
+       ========================================================================= */
+    .observer-bar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 820px) {
+      .observer-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .obs-btn {
+      appearance: none;
+      background: var(--surface-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 9px 11px;
+      text-align: left;
+      cursor: pointer;
+      color: var(--text);
+      transition: all 0.14s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .obs-btn:hover {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .obs-btn.active {
+      background: var(--red);
+      border-color: var(--red);
+      color: #FFFFFF;
+    }
+
+    .obs-btn .ob-t {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .obs-btn .ob-s {
+      font-family: var(--mono);
+      font-size: 11px;
+      opacity: 0.85;
+    }
+
+    .geo-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.85fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 1020px) {
+      .geo-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .svg-stage {
+      background: var(--surface-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+    }
+
+    .svg-stage svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 500px;
+      margin: 0 auto;
+    }
+
+    .ctrl-item {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 11px;
+      margin-bottom: 9px;
+    }
+
+    .ctrl-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .ctrl-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .ctrl-val {
+      font-family: var(--mono);
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-card);
+      margin-top: 12px;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    table.data-table th, table.data-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    table.data-table th {
+      background: var(--surface);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+
+    table.data-table tbody tr:hover td {
+      background: var(--red-soft);
+    }
+
+    table.data-table tbody tr.active-row td {
+      background: var(--red-soft);
+      font-weight: 600;
+    }
+
+    /* =========================================================================
+       TABBLAD 3: SAROS-BORD & METONISCHE CYCLUS
+       ========================================================================= */
+    .saros-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.85fr);
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 22px;
+    }
+
+    @media (max-width: 1040px) {
+      .saros-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .saros-grid-scroll {
+      overflow-x: auto;
+      background: var(--surface-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+    }
+
+    .saros-grid {
+      display: grid;
+      grid-template-columns: 38px repeat(19, minmax(26px, 1fr));
+      gap: 3px;
+      min-width: 580px;
+      align-items: center;
+    }
+
+    .s-head {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .s-row-lbl {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: right;
+      padding-right: 4px;
+    }
+
+    .s-cell {
+      aspect-ratio: 1 / 1;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.1s ease, border-color 0.12s ease;
+      position: relative;
+    }
+
+    .s-cell:hover {
+      border-color: var(--red);
+      transform: scale(1.1);
+      z-index: 3;
+    }
+
+    .s-cell.is-eclipse {
+      background: var(--sun-soft);
+      border-color: var(--sun);
+    }
+
+    .s-cell.is-deep-eclipse {
+      background: var(--red-soft);
+      border-color: var(--red);
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .s-cell.is-selected {
+      background: var(--red);
+      border-color: var(--red);
+      color: #FFFFFF;
+      z-index: 4;
+    }
+
+    .s-cell.is-inactive {
+      opacity: 0.22;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 820px) {
+      .kpi-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .dual-hemi-box {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .hemi-mini {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill-13 {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--red-soft);
+      border: 1px solid var(--red-border);
+      color: var(--red);
+    }
+
+    .pill-12 {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- KOPBALK -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="badges">
+          <span class="badge badge--red">Krijtwit &amp; Zeeuws Meekrab-rood</span>
+          <span class="badge">19×19 &bull; 17×17 &bull; 13×18</span>
+          <span class="badge badge--sun">Saros 223 &bull; Metonisch 19 jr</span>
+          <span class="badge">4-Weg Waarnemer (N/Z/O/W)</span>
+        </div>
+        <h1>Pionnen Dag- &amp; Maanbord, Saros-Bord &amp; 4-Weg Waarnemer (N / Z / O / W)</h1>
+        <p>Rekenkundige borden, exacte <span class="mono">atan2</span>-lichthoekcontrole, Saros-verduisteringscyclus en 19-jarige Metonische maankalender.</p>
+      </div>
+      <button type="button" class="theme-btn" id="btn-theme" aria-label="Wissel kleurthema">
+        <span id="theme-icon">&#9789;</span>
+        <span id="theme-label">Krijtbord Donker</span>
+      </button>
+    </header>
+
+    <!-- 3 HOOFDTABBLADEN -->
+    <nav class="main-nav" role="tablist" aria-label="Hoofdonderdelen">
+      <button type="button" class="nav-tab active" data-view="view-board" role="tab" aria-selected="true">
+        <span class="nt-title">1. Pionnen Dag- &amp; Maanbord</span>
+        <span class="nt-sub">19×19 (361) • 17×17 (289) • 13×18 (234)</span>
+      </button>
+      <button type="button" class="nav-tab" data-view="view-geo" role="tab" aria-selected="false">
+        <span class="nt-title">2. Geometrische Controle (4-Weg)</span>
+        <span class="nt-sub">Waarnemer op Zuid • Noord • West • Oost</span>
+      </button>
+      <button type="button" class="nav-tab" data-view="view-saros" role="tab" aria-selected="false">
+        <span class="nt-title">3. Saros-Bord &amp; Metonische Cyclus</span>
+        <span class="nt-sub">223 Maanden (6585,32 d) • 19 Jaar (235 mnd)</span>
+      </button>
+    </nav>
+
+    <!-- =======================================================================
+         TABBLAD 1: PIONNEN DAG- & MAANBORD
+         ======================================================================= -->
+    <section class="view-panel active" id="view-board">
+      <div class="board-layout">
+        <!-- Linkerkolom: Bord -->
+        <div class="card">
+          <div class="raster-bar">
+            <div class="btn-group" role="group" aria-label="Kies rasterformaat">
+              <button type="button" class="btn btn--sm btn--primary raster-btn" data-raster="19x19">19×19 (361 • J10)</button>
+              <button type="button" class="btn btn--sm raster-btn" data-raster="17x17">17×17 (289 • I9)</button>
+              <button type="button" class="btn btn--sm raster-btn" data-raster="13x18">13×18 (234 • Saros/13d)</button>
+            </div>
+            <div class="mono" style="font-size:12px; color:var(--muted);" id="board-count-readout">
+              Wit: 0 &bull; Rood: 0 &bull; Leeg: 361
+            </div>
+          </div>
+
+          <!-- 5 Schakelbare Overlays (ALLEMAAL STANDAARD UIT) -->
+          <div class="toggle-row" role="group" aria-label="Schakelbare bordlagen">
+            <span class="toggle-label">Overlays (standaard uit):</span>
+            <button type="button" class="toggle-chip" data-overlay="moon" aria-pressed="false"><span class="led"></span>Maanomloop &amp; Schijngestalten</button>
+            <button type="button" class="toggle-chip" data-overlay="mod" aria-pressed="false"><span class="led"></span>13-Dagenkalender &amp; Modulo 21</button>
+            <button type="button" class="toggle-chip" data-overlay="animals" aria-pressed="false"><span class="led"></span>4 Hemelrichtingen &amp; Maanhuis 25</button>
+            <button type="button" class="toggle-chip" data-overlay="metonic" aria-pressed="false"><span class="led"></span>Metonische 19-Jaar Matrix (235 mnd)</button>
+            <button type="button" class="toggle-chip" data-overlay="hex" aria-pressed="false"><span class="led"></span>Assen, Cirkel &amp; Zeshoek-kern (11, 12, 37, 91)</button>
+          </div>
+
+          <div class="board-wrap" id="board-wrap">
+            <canvas id="pion-canvas" aria-label="Interactief Pionnen Dag- en Maanbord"></canvas>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-top:8px; font-size:12px; color:var(--muted);">
+            <span id="board-hint">Klik op een veld om een pion te wisselen (Krijtwit &rarr; Meekrab-rood &rarr; Leeg).</span>
+            <span class="mono" id="board-hover-quick">J10 (0, 0)</span>
+          </div>
+        </div>
+
+        <!-- Rechterkolom: Bediening, Dag-schuifregelaar & Inspecteur -->
+        <aside class="sidebar-stack">
+          <!-- Acties & Presets -->
+          <div class="card">
+            <h2 class="panel-title">Pionnen plaatsen &amp; Opstellingen</h2>
+            <div class="btn-group" style="margin-bottom:10px;">
+              <button type="button" class="btn btn--sm active-btn action-btn" data-action="cycle">Wissel (Wit→Rood→Leeg)</button>
+              <button type="button" class="btn btn--sm action-btn" data-action="white">Plaats Krijtwit</button>
+              <button type="button" class="btn btn--sm action-btn" data-action="red">Plaats Meekrab-rood</button>
+              <button type="button" class="btn btn--sm action-btn" data-action="inspect">Inspecteer veld</button>
+            </div>
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); font-weight:700; margin-bottom:6px;">Presets</div>
+            <div class="btn-group">
+              <button type="button" class="btn btn--sm preset-btn" data-preset="empty">Leeg bord</button>
+              <button type="button" class="btn btn--sm preset-btn" data-preset="full">Volledig (middelpunt leeg)</button>
+              <button type="button" class="btn btn--sm preset-btn" data-preset="circle">Cirkel R=9 (sin²+cos²)</button>
+              <button type="button" class="btn btn--sm preset-btn" data-preset="winds">4 Windstreken (N/Z/O/W)</button>
+            </div>
+          </div>
+
+          <!-- Dag- & Maan-schuifregelaar vanaf ankerdatum 25 juli 2026 -->
+          <div class="card">
+            <h2 class="panel-title">
+              <span>Dag- &amp; Maan-schuifregelaar</span>
+              <span class="mono" style="font-size:11.5px; color:var(--red);" id="b-day-badge">Dag 0 • 25 jul 2026</span>
+            </h2>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button type="button" class="btn btn--sm btn--primary" id="btn-b-play">&#9654;</button>
+              <input type="range" id="slider-b-day" class="astro-range" min="0" max="360" step="1" value="0" />
+              <button type="button" class="btn btn--sm" id="btn-b-anchor">25 jul</button>
+            </div>
+            <div class="moon-mini-row">
+              <svg id="svg-board-moon" width="88" height="88" viewBox="0 0 90 90" aria-label="Actuele maanfase"></svg>
+              <div style="flex:1; font-size:12.5px;">
+                <div style="font-weight:700; font-size:14px;" id="b-phase-name">—</div>
+                <div class="mono" style="color:var(--muted); font-size:12px;" id="b-phase-meta">—</div>
+                <div style="margin-top:4px; font-size:11.5px; color:var(--muted);">
+                  Ankerdatum: <strong class="mono" style="color:var(--text);">25 juli 2026</strong> (Krijtbord-anker)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Veld-inspecteur -->
+          <div class="card">
+            <h2 class="panel-title">
+              <span>Veld-inspecteur</span>
+              <span class="badge mono" id="insp-coord-badge">J10</span>
+            </h2>
+            <div class="stat-grid">
+              <div class="stat-box">
+                <div class="stat-k">Veldindex</div>
+                <div class="stat-v" id="insp-index">181 / 361</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-k">Maanfase-dag</div>
+                <div class="stat-v" id="insp-moonday">—</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-k">Index 13 (Trecena)</div>
+                <div class="stat-v" id="insp-mod13">—</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-k">Modulo 21 &bull; Mod 19</div>
+                <div class="stat-v" id="insp-mod21-19">—</div>
+              </div>
+            </div>
+            <div style="margin-top:8px; font-size:11.5px; color:var(--muted);">
+              Kaprekar <strong class="mono" style="color:var(--red);">6174</strong> voor veldcode <strong class="mono" id="insp-kap-code">1010</strong>:
+            </div>
+            <div class="kap-box" id="insp-kap-steps"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         TABBLAD 2: GEOMETRISCHE CONTROLE — 4-WEG WAARNEMER (Z / N / W / O)
+         ======================================================================= -->
+    <section class="view-panel" id="view-geo">
+      <!-- 4-knoppen perspectiefschakelaar -->
+      <div class="observer-bar" role="group" aria-label="Positie van de waarnemer">
+        <button type="button" class="obs-btn active" data-obs="Z">
+          <span class="ob-t">1. Waarnemer op ZUID</span>
+          <span class="ob-s">Kijkt Noord (Az 0°) • Zon Zuid (Az 180°)</span>
+        </button>
+        <button type="button" class="obs-btn" data-obs="N">
+          <span class="ob-t">2. Waarnemer op NOORD</span>
+          <span class="ob-s">Kijkt Zuid (Az 180°) • Zon Noord (Az 0°)</span>
+        </button>
+        <button type="button" class="obs-btn" data-obs="W">
+          <span class="ob-t">3. Waarnemer op WEST</span>
+          <span class="ob-s">Kijkt Oost (Az 90°) • Zon West (Az 270°)</span>
+        </button>
+        <button type="button" class="obs-btn" data-obs="O">
+          <span class="ob-t">4. Waarnemer op OOST</span>
+          <span class="ob-s">Kijkt West (Az 270°) • Zon Oost (Az 90°)</span>
+        </button>
+      </div>
+
+      <div class="card">
+        <!-- Halfrond & Optionele diagram-overlays (STANDAARD UIT) -->
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
+          <div class="btn-group" role="group" aria-label="Kies halfrond">
+            <button type="button" class="btn btn--sm btn--primary hemi-btn" data-hemi="north">Noordelijk Halfrond (D-sikkel)</button>
+            <button type="button" class="btn btn--sm hemi-btn" data-hemi="south">Zuidelijk Halfrond (C-sikkel, 180°)</button>
+          </div>
+          <div class="toggle-row" style="margin-bottom:0;">
+            <span class="toggle-label">Overlays (standaard uit):</span>
+            <button type="button" class="toggle-chip" id="geo-toggle-vectors" aria-pressed="false"><span class="led"></span>Toon gradenboog &amp; atan2-vectoren</button>
+            <button type="button" class="toggle-chip" id="geo-toggle-animals" aria-pressed="false"><span class="led"></span>Toon 4 Hemeldieren (Feniks/Schildpad/Draak/Pegasus)</button>
+          </div>
+        </div>
+
+        <div class="geo-layout">
+          <!-- Live SVG-meetdiagram -->
+          <div>
+            <div class="svg-stage">
+              <svg id="svg-geo" viewBox="0 0 640 460" role="img" aria-label="Geometrische controle 4-weg waarnemer"></svg>
+            </div>
+
+            <!-- Controle-tabel -->
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Hemellichaam</th>
+                    <th>Werkelijke lichthoek (atan2)</th>
+                    <th>Verlichte zijde (geometrisch)</th>
+                    <th>Azimut t.o.v. waarnemer</th>
+                    <th>Halfrond-weergave</th>
+                  </tr>
+                </thead>
+                <tbody id="geo-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Schuifregelaars -->
+          <div>
+            <div class="ctrl-item">
+              <div class="ctrl-head">
+                <label for="geo-sun-offset">Zon-positie / Azimut-offset</label>
+                <span class="ctrl-val" id="geo-val-sun">0°</span>
+              </div>
+              <input type="range" id="geo-sun-offset" class="astro-range" min="-90" max="90" step="1" value="0" />
+            </div>
+
+            <div class="ctrl-item">
+              <div class="ctrl-head">
+                <label for="geo-left-angle">Maan Links — hoek t.o.v. kijklijn</label>
+                <span class="ctrl-val" id="geo-val-la">60°</span>
+              </div>
+              <input type="range" id="geo-left-angle" class="astro-range" min="15" max="85" step="1" value="60" />
+              <div class="ctrl-head" style="margin-top:6px;">
+                <label for="geo-left-dist">Maan Links — afstand</label>
+                <span class="ctrl-val" id="geo-val-ld">160 px</span>
+              </div>
+              <input type="range" id="geo-left-dist" class="astro-range" min="90" max="205" step="1" value="160" />
+            </div>
+
+            <div class="ctrl-item">
+              <div class="ctrl-head">
+                <label for="geo-right-angle">Maan Rechts — hoek t.o.v. kijklijn</label>
+                <span class="ctrl-val" id="geo-val-ra">60°</span>
+              </div>
+              <input type="range" id="geo-right-angle" class="astro-range" min="15" max="85" step="1" value="60" />
+              <div class="ctrl-head" style="margin-top:6px;">
+                <label for="geo-right-dist">Maan Rechts — afstand</label>
+                <span class="ctrl-val" id="geo-val-rd">160 px</span>
+              </div>
+              <input type="range" id="geo-right-dist" class="astro-range" min="90" max="205" step="1" value="160" />
+            </div>
+
+            <div class="ctrl-item">
+              <div class="ctrl-head">
+                <label for="geo-phase">Maanfase (0° NM &rarr; 180° VM &rarr; 360°)</label>
+                <span class="ctrl-val" id="geo-val-phase">90° (Half / Kwartier)</span>
+              </div>
+              <input type="range" id="geo-phase" class="astro-range" min="0" max="360" step="1" value="90" />
+              <div class="btn-group" style="margin-top:8px;">
+                <button type="button" class="btn btn--sm btn--primary" id="btn-geo-reset">Standaard (-54,8° / -125,2°)</button>
+                <button type="button" class="btn btn--sm" data-gphase="90">Kwartier 90°</button>
+                <button type="button" class="btn btn--sm" data-gphase="135">Wassend 135°</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         TABBLAD 3: SAROS-BORD & METONISCHE CYCLUS (19 JAAR)
+         ======================================================================= -->
+    <section class="view-panel" id="view-saros">
+      <!-- DEEL 1: HET SAROS-BORD (223 SYNODISCHE MAANDEN) -->
+      <div class="card" style="margin-bottom:18px;">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;">
+          <div>
+            <h2 style="margin:0; font-size:18px;">1. Het Saros-Bord — 223 Synodische Maanden (6585,3211 dagen)</h2>
+            <p style="margin:3px 0 0; font-size:13px; color:var(--muted);">
+              223 synodisch (29,530589 d) &approx; 242 draconitisch (27,212221 d — Draak/knopen) &approx; 239 anomalistisch (27,554550 d — perigeum).
+            </p>
+          </div>
+          <div class="btn-group">
+            <button type="button" class="btn btn--sm btn--primary saros-anchor-btn" data-anchor="2026-07-25">25 juli 2026 (Krijtbord-anker)</button>
+            <button type="button" class="btn btn--sm saros-anchor-btn" data-anchor="2026-08-12">12 augustus 2026 (Zonsverduistering Saros 126)</button>
+          </div>
+        </div>
+
+        <div class="kpi-row">
+          <div class="stat-box">
+            <div class="stat-k">223 Synodische maanden</div>
+            <div class="stat-v">6585,3213 d</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-k">242 Draconitische maanden</div>
+            <div class="stat-v">6585,3575 d</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-k">239 Anomalistische maanden</div>
+            <div class="stat-v">6585,5375 d</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-k">Exeligmos (3 × Saros)</div>
+            <div class="stat-v">19755,96 d (54j + 33d)</div>
+          </div>
+        </div>
+
+        <div class="saros-layout">
+          <!-- 19x12 Saros-raster met 223 actieve maanden -->
+          <div>
+            <div class="saros-grid-scroll">
+              <div class="saros-grid" id="saros-grid"></div>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:8px; font-size:11.5px; color:var(--muted);">
+              <span><strong style="color:var(--red);">Meekrab-rood</strong>: Diep knooppunt (&lt; 10° van Draak — verduisteringsvenster!)</span>
+              <span><strong style="color:var(--sun);">Oker</strong>: Nabij maansknoop (&lt; 18°)</span>
+              <span>Klik op een maand (1–223) voor exacte astronomische waarden.</span>
+            </div>
+          </div>
+
+          <!-- Saros Inspecteur + Exeligmos Wereld-verschuiving -->
+          <div class="sidebar-stack">
+            <div class="card--inner">
+              <div class="panel-title" style="margin-bottom:8px;">
+                <span>Saros-Maand Inspecteur</span>
+                <span class="badge badge--red mono" id="saros-m-badge">Maand 1 / 223</span>
+              </div>
+              <div class="stat-grid">
+                <div class="stat-box">
+                  <div class="stat-k">Datum (UTC)</div>
+                  <div class="stat-v" id="saros-date">—</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-k">Cumulatieve dagen</div>
+                  <div class="stat-v" id="saros-days">0,00 d</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-k">Draconitisch (Knopen)</div>
+                  <div class="stat-v" id="saros-drac">—</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-k">Knoopafstand (Draak)</div>
+                  <div class="stat-v" id="saros-node-deg">—</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-k">Anomalistisch (Perigeum)</div>
+                  <div class="stat-v" id="saros-anom">—</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-k">Verduisteringsstatus</div>
+                  <div class="stat-v" id="saros-eclipse-status">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Exeligmos (+120° westwaarts per Saros) -->
+            <div class="card--inner">
+              <div class="panel-title" style="margin-bottom:6px;">
+                <span>Exeligmos — Lengtegraad-verschuiving</span>
+                <span class="mono" style="font-size:11px; color:var(--sun);">+0,321 d (&approx; 8u &rarr; 120° W)</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <svg id="svg-exeligmos" width="116" height="116" viewBox="0 0 120 120" aria-label="Exeligmos 120 graden rotatie"></svg>
+                <div style="font-size:12px; color:var(--muted); flex:1;" id="exeligmos-text">
+                  <!-- Gevuld via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEEL 2: METONISCHE CYCLUS (19 JAAR = 235 SYNODISCHE MAANDEN) -->
+      <div class="card">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;">
+          <div>
+            <h2 style="margin:0; font-size:18px;">2. Metonische Cyclus — 19 Jaar = 235 Synodische Maanden (&approx; 6939,69 dagen)</h2>
+            <p style="margin:3px 0 0; font-size:13px; color:var(--muted);">
+              12 gewone maanjaren (12 mnd) + 7 embolistische schrikkeljaren (13 mnd: jaren 3, 6, 8, 11, 14, 17, 19) &bull; Epacta +11 d/jr &bull; 19×19 = 361 verbinding.
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label for="met-start-year" style="font-size:12.5px; font-weight:700;">Startjaar:</label>
+            <input type="number" id="met-start-year" value="2026" min="1900" max="2200" class="mono" style="width:78px; padding:5px 8px; border-radius:6px; border:1px solid var(--border-strong); background:var(--surface-card); color:var(--text); font-weight:700;" />
+          </div>
+        </div>
+
+        <div class="saros-layout" style="margin-bottom:0;">
+          <!-- 19-jaren tabel -->
+          <div class="table-wrap" style="margin-top:0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Jaar</th>
+                  <th>Kalender</th>
+                  <th>Type</th>
+                  <th>Epacta (+11)</th>
+                  <th>Cum. mnd</th>
+                  <th>Maanleeftijd (25 jul)</th>
+                  <th>Fase</th>
+                </tr>
+              </thead>
+              <tbody id="metonic-table-body"></tbody>
+            </table>
+          </div>
+
+          <!-- Noord vs Zuid schijngestalte voor geselecteerd Metonisch jaar -->
+          <div class="card--inner">
+            <div class="panel-title">
+              <span>Noord- vs. Zuid-waarnemer</span>
+              <span class="badge badge--red mono" id="met-sel-badge">Jaar 1 (2026)</span>
+            </div>
+            <p style="margin:0 0 8px; font-size:12px; color:var(--muted);" id="met-sel-desc"></p>
+            <div class="dual-hemi-box">
+              <div class="hemi-mini">
+                <strong style="font-size:12px;">Noord-waarnemer</strong>
+                <svg id="svg-met-north" width="96" height="96" viewBox="0 0 100 100"></svg>
+                <span style="font-size:11px; color:var(--muted);">Kijkt Zuid • Wassend rechts (D)</span>
+              </div>
+              <div class="hemi-mini">
+                <strong style="font-size:12px;">Zuid-waarnemer</strong>
+                <svg id="svg-met-south" width="96" height="96" viewBox="0 0 100 100"></svg>
+                <span style="font-size:11px; color:var(--muted);">Kijkt Noord • Wassend links (C)</span>
+              </div>
+            </div>
+            <div style="margin-top:10px; padding:8px 10px; border-radius:6px; background:var(--surface); border:1px solid var(--border); font-size:12px; color:var(--muted);">
+              <strong style="color:var(--text);">19×19 = 361 Verbinding:</strong> 19 Metonische jaren × 19 fasesegmenten vormen exact het 361-velden pionnenbord rond middelpunt <span class="mono" style="color:var(--red); font-weight:700;">J10</span>. Na 19 jaar (<span class="mono">6939,69 d</span>) keert de maanfase terug binnen ~2 uur.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      // =========================================================================
+      // 1. ASTRONOMISCHE CONSTANTEN (JEAN MEEUS) & WISKUNDIGE HULPFUNCTIES
+      // =========================================================================
+      const SYNODIC = 29.530588853;     // Synodische maand (dagen)
+      const DRACONIC = 27.212220817;    // Draconitische maand / maansknoop (dagen)
+      const ANOMALISTIC = 27.554549878; // Anomalistische maand / perigeum (dagen)
+      const MS_DAY = 86400000;
+      const REF_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14, 0);
+      const ANCHOR_2026_07_25 = Date.UTC(2026, 6, 25, 12, 0, 0);
+      const COLS = 'ABCDEFGHIJKLMNOPQRS';
+      const MONTHS_NL = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+      const METONIC_LEAP = new Set([3, 6, 8, 11, 14, 17, 19]);
+
+      function fmtDateNL(ms) {
+        const d = new Date(ms);
+        return `${d.getUTCDate()} ${MONTHS_NL[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+      }
+
+      function moonInfoFromMs(ms) {
+        const days = (ms - REF_NEW_MOON) / MS_DAY;
+        const age = ((days % SYNODIC) + SYNODIC) % SYNODIC;
+        const phi = (age / SYNODIC) * Math.PI * 2;
+        const illum = 0.5 * (1 - Math.cos(phi)) * 100;
+        return { age, phi, illum, name: phaseNameNL(age) };
+      }
+
+      function phaseNameNL(age) {
+        const f = (((age % SYNODIC) + SYNODIC) % SYNODIC) / SYNODIC;
+        if (f < 0.03 || f >= 0.97) return 'Nieuwe Maan';
+        if (f < 0.22) return 'Wassende Sikkel';
+        if (f < 0.28) return 'Eerste Kwartier';
+        if (f < 0.47) return 'Wassende Maan';
+        if (f < 0.53) return 'Volle Maan';
+        if (f < 0.72) return 'Afnemende Maan';
+        if (f < 0.78) return 'Laatste Kwartier';
+        return 'Afnemende Sikkel';
+      }
+
+      function computeKaprekar(codeStr) {
+        const start = String(codeStr).padStart(4, '0').slice(-4);
+        if (/^(\d)\1{3}$/.test(start)) {
+          return { start, steps: [{ desc: start, asc: start, res: '0000' }], count: -1, exception: true };
+        }
+        if (start === '6174') return { start, steps: [], count: 0, exception: false };
+        const steps = [];
+        let cur = start;
+        let guard = 0;
+        while (cur !== '6174' && guard < 10) {
+          const d = cur.split('');
+          const desc = [...d].sort((a, b) => b.localeCompare(a)).join('');
+          const asc = [...d].sort((a, b) => a.localeCompare(b)).join('');
+          const res = String(parseInt(desc, 10) - parseInt(asc, 10)).padStart(4, '0');
+          steps.push({ desc, asc, res });
+          cur = res;
+          guard++;
+        }
+        return { start, steps, count: steps.length, exception: false };
+      }
+
+      // Bouw SVG-schijngestalte (phi in radialen, hemi = 'north' | 'south')
+      function svgMoonMarkup(cx, cy, r, phi, hemi = 'north') {
+        const rot = hemi === 'south' ? 180 : 0;
+        const p = ((phi % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+        const cosP = Math.cos(p);
+        const rx = Math.max(0.01, Math.abs(cosP) * r);
+        let lit = '';
+        if (p > 0.025 && p < Math.PI * 2 - 0.025) {
+          if (Math.abs(p - Math.PI) < 0.025) {
+            lit = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#FDE68A" />`;
+          } else if (p <= Math.PI) {
+            const sweep = cosP > 0 ? 0 : 1;
+            lit = `<path d="M ${cx} ${cy - r} A ${r} ${r} 0 0 1 ${cx} ${cy + r} A ${rx.toFixed(2)} ${r} 0 0 ${sweep} ${cx} ${cy - r} Z" fill="#FDE68A" />`;
+          } else {
+            const sweep = cosP < 0 ? 0 : 1;
+            lit = `<path d="M ${cx} ${cy - r} A ${r} ${r} 0 0 0 ${cx} ${cy + r} A ${rx.toFixed(2)} ${r} 0 0 ${sweep} ${cx} ${cy - r} Z" fill="#FDE68A" />`;
+          }
+        }
+        return `
+          <g transform="rotate(${rot} ${cx} ${cy})">
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="#1E2430" />
+            ${lit}
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="currentColor" stroke-width="1.5" />
+          </g>
+        `;
+      }
+
+      function cssVar(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      }
+
+      // =========================================================================
+      // 2. GLOBALE APPLICATIESTATUS
+      // =========================================================================
+      const RASTERS = {
+        '19x19': { cols: 19, rows: 19, cx: 9, cy: 9, centerLbl: 'J10' },
+        '17x17': { cols: 17, rows: 17, cx: 8, cy: 8, centerLbl: 'I9' },
+        '13x18': { cols: 13, rows: 18, cx: 6, cy: 8, centerLbl: 'G10' }
+      };
+
+      const state = {
+        theme: 'light',
+        activeView: 'view-board',
+
+        // Tabblad 1: Pionnen Dag- & Maanbord
+        rasterKey: '19x19',
+        board: [],
+        action: 'cycle',
+        boardDay: 0,
+        boardPlaying: false,
+        boardTimer: null,
+        boardHover: { r: 9, c: 9 },
+        overlays: {
+          moon: false,     // STANDAARD UIT
+          mod: false,      // STANDAARD UIT
+          animals: false,  // STANDAARD UIT
+          metonic: false,  // STANDAARD UIT
+          hex: false       // STANDAARD UIT
+        },
+
+        // Tabblad 2: 4-Weg Waarnemer
+        observer: 'Z',     // 'Z' | 'N' | 'W' | 'O'
+        geoHemi: 'north',  // 'north' | 'south'
+        geoSunOffset: 0,
+        geoLeftAngle: 60,
+        geoLeftDist: 160,
+        geoRightAngle: 60,
+        geoRightDist: 160,
+        geoPhaseDeg: 90,
+        geoVectors: false, // STANDAARD UIT
+        geoAnimals: false, // STANDAARD UIT
+
+        // Tabblad 3: Saros & Metonisch
+        sarosAnchor: '2026-07-25',
+        sarosMonth: 1,     // 1..223
+        metStartYear: 2026,
+        metSelectedYear: 1 // 1..19
+      };
+
+      function initBoardArray() {
+        const cfg = RASTERS[state.rasterKey];
+        state.board = Array.from({ length: cfg.rows }, () => new Uint8Array(cfg.cols));
+        state.boardHover = { r: cfg.cy, c: cfg.cx };
+      }
+
+      // =========================================================================
+      // 3. THEMA-SCHAKELAAR & HOOFDTABBLADEN
+      // =========================================================================
+      const btnTheme = document.getElementById('btn-theme');
+      const themeIcon = document.getElementById('theme-icon');
+      const themeLabel = document.getElementById('theme-label');
+
+      btnTheme.addEventListener('click', () => {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', state.theme);
+        themeIcon.innerHTML = state.theme === 'light' ? '&#9789;' : '&#9728;';
+        themeLabel.textContent = state.theme === 'light' ? 'Krijtbord Donker' : 'Krijtwit & Meekrab';
+        renderBoard();
+        renderGeoDiagram();
+        renderExeligmos();
+      });
+
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          state.activeView = tab.dataset.view;
+          document.querySelectorAll('.nav-tab').forEach(t => {
+            const on = t === tab;
+            t.classList.toggle('active', on);
+            t.setAttribute('aria-selected', String(on));
+          });
+          document.querySelectorAll('.view-panel').forEach(p => {
+            p.classList.toggle('active', p.id === state.activeView);
+          });
+          if (state.activeView === 'view-board') resizeBoardCanvas();
+          if (state.activeView === 'view-geo') renderGeoDiagram();
+          if (state.activeView === 'view-saros') {
+            renderSarosInspector();
+            renderExeligmos();
+          }
+        });
+      });
+
+      // =========================================================================
+      // 4. TABBLAD 1: PIONNEN DAG- & MAANBORD
+      // =========================================================================
+      const pionCanvas = document.getElementById('pion-canvas');
+      const bCtx = pionCanvas.getContext('2d');
+      const boardWrap = document.getElementById('board-wrap');
+      const boardCountReadout = document.getElementById('board-count-readout');
+      const boardHoverQuick = document.getElementById('board-hover-quick');
+      const boardHint = document.getElementById('board-hint');
+
+      const sliderBDay = document.getElementById('slider-b-day');
+      const btnBPlay = document.getElementById('btn-b-play');
+      const btnBAnchor = document.getElementById('btn-b-anchor');
+      const bDayBadge = document.getElementById('b-day-badge');
+      const svgBoardMoon = document.getElementById('svg-board-moon');
+      const bPhaseName = document.getElementById('b-phase-name');
+      const bPhaseMeta = document.getElementById('b-phase-meta');
+
+      const inspCoordBadge = document.getElementById('insp-coord-badge');
+      const inspIndex = document.getElementById('insp-index');
+      const inspMoonday = document.getElementById('insp-moonday');
+      const inspMod13 = document.getElementById('insp-mod13');
+      const inspMod2119 = document.getElementById('insp-mod21-19');
+      const inspKapCode = document.getElementById('insp-kap-code');
+      const inspKapSteps = document.getElementById('insp-kap-steps');
+
+      let bMetrics = { w: 500, h: 500, ox: 28, oy: 28, cell: 24 };
+
+      function resizeBoardCanvas() {
+        const cfg = RASTERS[state.rasterKey];
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const maxW = Math.max(280, Math.floor(boardWrap.clientWidth || 560));
+        const pad = Math.max(26, Math.round(maxW * 0.052));
+        const cell = Math.floor((maxW - pad * 2) / Math.max(cfg.cols, cfg.rows));
+        const w = cell * cfg.cols + pad * 2;
+        const h = cell * cfg.rows + pad * 2;
+
+        pionCanvas.width = Math.floor(w * dpr);
+        pionCanvas.height = Math.floor(h * dpr);
+        pionCanvas.style.width = w + 'px';
+        pionCanvas.style.height = h + 'px';
+        bCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        bMetrics = { w, h, ox: pad, oy: pad, cell };
+        renderBoard();
+      }
+
+      function drawSmallPhase(ctx, cx, cy, r, phi) {
+        ctx.save();
+        ctx.fillStyle = '#1E2430';
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
+
+        const cosP = Math.cos(phi);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.clip();
+        if (phi > 0.04 && phi < Math.PI * 2 - 0.04) {
+          ctx.fillStyle = '#FDE68A';
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = cosP < 0 ? '#FDE68A' : '#1E2430';
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, Math.abs(cosP) * r, r, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+        ctx.strokeStyle = 'rgba(30,36,43,0.45)';
+        ctx.lineWidth = 0.7;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function renderBoard() {
+        const cfg = RASTERS[state.rasterKey];
+        const { w, h, ox, oy, cell } = bMetrics;
+        const bw = cell * cfg.cols;
+        const bh = cell * cfg.rows;
+        const red = cssVar('--red');
+        const sun = cssVar('--sun');
+        const textCol = cssVar('--text');
+        const mutedCol = cssVar('--muted');
+
+        bCtx.clearRect(0, 0, w, h);
+        bCtx.fillStyle = cssVar('--surface-card');
+        bCtx.fillRect(0, 0, w, h);
+
+        let whiteCount = 0;
+        let redCount = 0;
+
+        // 1. Velden
+        for (let r = 0; r < cfg.rows; r++) {
+          for (let c = 0; c < cfg.cols; c++) {
+            const x = ox + c * cell;
+            const y = oy + r * cell;
+            const idx = r * cfg.cols + c + 1; // 1..N
+            const isLight = (r + c) % 2 === 0;
+            const isCenter = (r === cfg.cy && c === cfg.cx);
+
+            bCtx.fillStyle = isLight ? cssVar('--board-light') : cssVar('--board-dark');
+            bCtx.fillRect(x, y, cell, cell);
+
+            // Overlay 4: Metonische 19-Jaar Matrix (235 synodische maanden)
+            if (state.overlays.metonic && idx <= 235) {
+              bCtx.fillStyle = state.theme === 'dark' ? 'rgba(245, 158, 11, 0.14)' : 'rgba(217, 119, 6, 0.13)';
+              bCtx.fillRect(x, y, cell, cell);
+            }
+
+            // Overlay 5: Gecentreerde hexagonale getallen (1, 7, 19, 37, 61, 91) + 11, 12
+            if (state.overlays.hex) {
+              const hexNums = new Set([1, 7, 11, 12, 19, 37, 61, 91]);
+              if (hexNums.has(idx)) {
+                bCtx.fillStyle = state.theme === 'dark' ? 'rgba(217, 56, 56, 0.25)' : 'rgba(163, 28, 28, 0.16)';
+                bCtx.fillRect(x, y, cell, cell);
+              }
+            }
+
+            if (isCenter) {
+              bCtx.fillStyle = state.theme === 'dark' ? 'rgba(217, 56, 56, 0.2)' : 'rgba(163, 28, 28, 0.09)';
+              bCtx.fillRect(x, y, cell, cell);
+            }
+
+            bCtx.strokeStyle = cssVar('--board-grid');
+            bCtx.lineWidth = 0.7;
+            bCtx.strokeRect(x, y, cell, cell);
+
+            // Overlay 2: 13-Dagenkalender (Index 13) & Modulo 21
+            if (state.overlays.mod && cell >= 16) {
+              const m13 = ((idx - 1) % 13) + 1;
+              const m21 = idx % 21;
+              bCtx.font = `700 ${Math.max(7, Math.floor(cell * 0.27))}px ui-monospace, monospace`;
+              bCtx.textAlign = 'left';
+              bCtx.textBaseline = 'top';
+              bCtx.fillStyle = m13 === 13 ? red : textCol;
+              bCtx.fillText(String(m13), x + 2, y + 1.5);
+
+              bCtx.font = `500 ${Math.max(6, Math.floor(cell * 0.24))}px ui-monospace, monospace`;
+              bCtx.textAlign = 'right';
+              bCtx.textBaseline = 'bottom';
+              bCtx.fillStyle = m21 === 0 ? sun : mutedCol;
+              bCtx.fillText('·' + m21, x + cell - 1.5, y + cell - 1);
+            }
+
+            // Overlay 1: Maanfasen op velden (wanneer geen pion staat)
+            if (state.overlays.moon && state.board[r][c] === 0 && cell >= 18) {
+              const ms = ANCHOR_2026_07_25 + (idx - 1) * MS_DAY;
+              const mi = moonInfoFromMs(ms);
+              drawSmallPhase(bCtx, x + cell * 0.5, y + cell * 0.5, cell * 0.26, mi.phi);
+            }
+
+            // Overlay 3: Maanhuis 25 markeren (veld 25)
+            if (state.overlays.animals && idx === 25) {
+              bCtx.save();
+              bCtx.strokeStyle = sun;
+              bCtx.lineWidth = 2;
+              bCtx.strokeRect(x + 1, y + 1, cell - 2, cell - 2);
+              bCtx.fillStyle = sun;
+              bCtx.font = `700 ${Math.max(8, Math.floor(cell * 0.34))}px ui-monospace, monospace`;
+              bCtx.textAlign = 'center';
+              bCtx.textBaseline = 'middle';
+              bCtx.fillText('MH25', x + cell / 2, y + cell / 2);
+              bCtx.restore();
+            }
+
+            if (state.board[r][c] === 1) whiteCount++;
+            else if (state.board[r][c] === 2) redCount++;
+          }
+        }
+
+        // Buitenrand
+        bCtx.strokeStyle = cssVar('--board-frame');
+        bCtx.lineWidth = 1.4;
+        bCtx.strokeRect(ox, oy, bw, bh);
+
+        // Coördinaatlabels
+        const lblSize = Math.max(8, Math.min(11, Math.floor(cell * 0.42)));
+        bCtx.font = `600 ${lblSize}px ui-monospace, monospace`;
+        bCtx.fillStyle = mutedCol;
+        bCtx.textAlign = 'center';
+        bCtx.textBaseline = 'middle';
+
+        for (let c = 0; c < cfg.cols; c++) {
+          const lx = ox + (c + 0.5) * cell;
+          bCtx.fillText(COLS[c], lx, oy - 11);
+          bCtx.fillText(COLS[c], lx, oy + bh + 12);
+        }
+        for (let r = 0; r < cfg.rows; r++) {
+          const ly = oy + (r + 0.5) * cell;
+          const rNum = String(cfg.rows - r);
+          bCtx.fillText(rNum, ox - 12, ly);
+          bCtx.fillText(rNum, ox + bw + 12, ly);
+        }
+
+        const cxPx = ox + (cfg.cx + 0.5) * cell;
+        const cyPx = oy + (cfg.cy + 0.5) * cell;
+        const maxR = Math.min(cfg.cx, cfg.cy) * cell;
+
+        // Overlay 5: Assen, Cirkel & Zeshoek-kern
+        if (state.overlays.hex) {
+          bCtx.save();
+          bCtx.strokeStyle = red;
+          bCtx.lineWidth = 1.3;
+          bCtx.setLineDash([4, 4]);
+          bCtx.beginPath();
+          bCtx.moveTo(cxPx, oy);
+          bCtx.lineTo(cxPx, oy + bh);
+          bCtx.moveTo(ox, cyPx);
+          bCtx.lineTo(ox + bw, cyPx);
+          bCtx.stroke();
+
+          bCtx.setLineDash([]);
+          bCtx.beginPath();
+          bCtx.arc(cxPx, cyPx, maxR, 0, Math.PI * 2);
+          bCtx.stroke();
+
+          // Zeshoek rond middelpunt (straal 3 en 5 velden)
+          [3, 5].forEach((hr, i) => {
+            bCtx.strokeStyle = i === 0 ? sun : red;
+            bCtx.lineWidth = 1.6;
+            bCtx.beginPath();
+            for (let k = 0; k < 6; k++) {
+              const ang = (k * Math.PI) / 3 - Math.PI / 2;
+              const hx = cxPx + Math.cos(ang) * hr * cell;
+              const hy = cyPx + Math.sin(ang) * hr * cell;
+              if (k === 0) bCtx.moveTo(hx, hy);
+              else bCtx.lineTo(hx, hy);
+            }
+            bCtx.closePath();
+            bCtx.stroke();
+          });
+          bCtx.restore();
+        }
+
+        // Overlay 1: Maanomloop-cirkel + bewegende maan voor boardDay
+        if (state.overlays.moon) {
+          const ms = ANCHOR_2026_07_25 + state.boardDay * MS_DAY;
+          const mi = moonInfoFromMs(ms);
+          const orbitR = maxR * 0.88;
+          const mx = cxPx + Math.cos(mi.phi - Math.PI / 2) * orbitR;
+          const my = cyPx + Math.sin(mi.phi - Math.PI / 2) * orbitR;
+
+          bCtx.save();
+          bCtx.strokeStyle = sun;
+          bCtx.lineWidth = 1.5;
+          bCtx.setLineDash([5, 4]);
+          bCtx.beginPath();
+          bCtx.arc(cxPx, cyPx, orbitR, 0, Math.PI * 2);
+          bCtx.stroke();
+          bCtx.setLineDash([]);
+
+          bCtx.strokeStyle = red;
+          bCtx.lineWidth = 1.4;
+          bCtx.beginPath();
+          bCtx.moveTo(cxPx, cyPx);
+          bCtx.lineTo(mx, my);
+          bCtx.stroke();
+
+          drawSmallPhase(bCtx, mx, my, Math.max(8, cell * 0.45), mi.phi);
+          bCtx.restore();
+        }
+
+        // Overlay 3: 4 Hemelrichtingen (Feniks Zuid, Schildpad Noord, Draak Oost, Pegasus West)
+        if (state.overlays.animals) {
+          bCtx.save();
+          const drawTag = (tx, ty, txt, bgCol) => {
+            bCtx.font = '700 10.5px Inter, sans-serif';
+            const tw = bCtx.measureText(txt).width + 12;
+            bCtx.fillStyle = bgCol;
+            bCtx.beginPath();
+            bCtx.roundRect(tx - tw / 2, ty - 9, tw, 18, 5);
+            bCtx.fill();
+            bCtx.fillStyle = '#FFFFFF';
+            bCtx.textAlign = 'center';
+            bCtx.textBaseline = 'middle';
+            bCtx.fillText(txt, tx, ty + 0.5);
+          };
+          drawTag(cxPx, oy + 14, 'SCHILDPAD • NOORD', '#1E242B');
+          drawTag(cxPx, oy + bh - 14, 'FENIKS • ZUID', red);
+          drawTag(ox + bw - 68, cyPx, 'DRAAK • OOST (7-9u / 23-24u)', '#B45309');
+          drawTag(ox + 64, cyPx, 'PEGASUS • WEST (23:00)', '#374151');
+          bCtx.restore();
+        }
+
+        // Pionnen tekenen
+        const pr = cell * 0.4;
+        for (let r = 0; r < cfg.rows; r++) {
+          for (let c = 0; c < cfg.cols; c++) {
+            const v = state.board[r][c];
+            if (v === 0) continue;
+            const px = ox + (c + 0.5) * cell;
+            const py = oy + (r + 0.5) * cell;
+            bCtx.save();
+            if (v === 1) {
+              bCtx.fillStyle = cssVar('--pawn-white-fill');
+              bCtx.strokeStyle = cssVar('--pawn-white-stroke');
+              bCtx.lineWidth = 1.4;
+              bCtx.beginPath();
+              bCtx.arc(px, py, pr, 0, Math.PI * 2);
+              bCtx.fill();
+              bCtx.stroke();
+              bCtx.fillStyle = red;
+              bCtx.font = `${Math.max(8, Math.round(pr * 1.15))}px sans-serif`;
+              bCtx.textAlign = 'center';
+              bCtx.textBaseline = 'middle';
+              bCtx.fillText('♥', px, py + 0.7);
+            } else {
+              bCtx.fillStyle = red;
+              bCtx.strokeStyle = '#6B1010';
+              bCtx.lineWidth = 1.2;
+              bCtx.beginPath();
+              bCtx.arc(px, py, pr, 0, Math.PI * 2);
+              bCtx.fill();
+              bCtx.stroke();
+            }
+            bCtx.restore();
+          }
+        }
+
+        // Hover-kader
+        if (state.boardHover) {
+          const { r, c } = state.boardHover;
+          if (r >= 0 && r < cfg.rows && c >= 0 && c < cfg.cols) {
+            bCtx.strokeStyle = red;
+            bCtx.lineWidth = 1.8;
+            bCtx.strokeRect(ox + c * cell + 1, oy + r * cell + 1, cell - 2, cell - 2);
+          }
+        }
+
+        const totalCells = cfg.cols * cfg.rows;
+        boardCountReadout.textContent = `Wit: ${whiteCount} • Rood: ${redCount} • Leeg: ${totalCells - whiteCount - redCount}`;
+      }
+
+      function updateBoardDayPanel() {
+        const ms = ANCHOR_2026_07_25 + state.boardDay * MS_DAY;
+        const mi = moonInfoFromMs(ms);
+        sliderBDay.value = String(state.boardDay);
+        bDayBadge.textContent = `Dag ${state.boardDay} • ${fmtDateNL(ms)}`;
+        bPhaseName.textContent = mi.name;
+        bPhaseMeta.textContent = `Leeftijd ${mi.age.toFixed(2).replace('.', ',')} d • Verlichting ${mi.illum.toFixed(1).replace('.', ',')}%`;
+        svgBoardMoon.innerHTML = svgMoonMarkup(45, 45, 36, mi.phi, 'north');
+      }
+
+      function updateBoardInspector(r, c) {
+        const cfg = RASTERS[state.rasterKey];
+        const colNum = c + 1;
+        const rowNum = cfg.rows - r;
+        const lbl = COLS[c] + String(rowNum);
+        const idx = r * cfg.cols + c + 1;
+        const total = cfg.cols * cfg.rows;
+        const x = c - cfg.cx;
+        const y = cfg.cy - r;
+
+        const ms = ANCHOR_2026_07_25 + (idx - 1) * MS_DAY;
+        const mi = moonInfoFromMs(ms);
+        const m13 = ((idx - 1) % 13) + 1;
+        const m21 = idx % 21;
+        const m19 = ((idx - 1) % 19) + 1;
+
+        const code = String(colNum).padStart(2, '0') + String(rowNum).padStart(2, '0');
+        const kap = computeKaprekar(code);
+
+        inspCoordBadge.textContent = lbl;
+        boardHoverQuick.textContent = `${lbl} (${x >= 0 ? '+' + x : x}, ${y >= 0 ? '+' + y : y}) • #${idx}`;
+        inspIndex.textContent = `${idx} / ${total}`;
+        inspMoonday.textContent = `${mi.age.toFixed(1).replace('.', ',')} d (${Math.round(mi.illum)}%)`;
+        inspMod13.textContent = `Dag ${m13} / 13`;
+        inspMod2119.textContent = `Mod21: ${m21} • Mod19: ${m19}`;
+        inspKapCode.textContent = code;
+
+        if (kap.exception) {
+          inspKapSteps.innerHTML = `<div class="kap-line"><span>Uitzondering</span><span style="color:var(--red); font-weight:700;">${code} − ${code} = 0000</span></div>`;
+        } else if (kap.count === 0) {
+          inspKapSteps.innerHTML = `<div class="kap-line"><span>Constante</span><span style="color:var(--red); font-weight:700;">6174 (0 stappen)</span></div>`;
+        } else {
+          inspKapSteps.innerHTML = kap.steps.map((s, i) => `
+            <div class="kap-line">
+              <span style="color:var(--muted);">Stap ${i + 1}</span>
+              <span>${s.desc} − ${s.asc} = <strong style="color:${s.res === '6174' ? 'var(--red)' : 'inherit'}">${s.res}</strong></span>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Event listeners Tabblad 1
+      document.querySelectorAll('.raster-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.rasterKey = btn.dataset.raster;
+          document.querySelectorAll('.raster-btn').forEach(b => b.classList.toggle('btn--primary', b === btn));
+          initBoardArray();
+          resizeBoardCanvas();
+          updateBoardInspector(state.boardHover.r, state.boardHover.c);
+        });
+      });
+
+      document.querySelectorAll('[data-overlay]').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const key = chip.dataset.overlay;
+          state.overlays[key] = !state.overlays[key];
+          chip.classList.toggle('active', state.overlays[key]);
+          chip.setAttribute('aria-pressed', String(state.overlays[key]));
+          renderBoard();
+        });
+      });
+
+      document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.action = btn.dataset.action;
+          document.querySelectorAll('.action-btn').forEach(b => b.classList.toggle('active-btn', b === btn));
+          const hints = {
+            cycle: 'Klik op een veld om een pion te wisselen (Krijtwit → Meekrab-rood → Leeg).',
+            white: 'Klik op een veld om een krijtwitte pion te plaatsen.',
+            red: 'Klik op een veld om een Zeeuws meekrab-rode pion te plaatsen.',
+            inspect: 'Inspectiemodus: klikken wijzigt geen pionnen, maar zet het veld vast in de inspecteur.'
+          };
+          boardHint.textContent = hints[state.action];
+        });
+      });
+
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const cfg = RASTERS[state.rasterKey];
+          const p = btn.dataset.preset;
+          initBoardArray();
+          if (p === 'full') {
+            for (let r = 0; r < cfg.rows; r++) {
+              for (let c = 0; c < cfg.cols; c++) {
+                if (r === cfg.cy && c === cfg.cx) continue;
+                state.board[r][c] = (r + c) % 2 === 0 ? 1 : 2;
+              }
+            }
+          } else if (p === 'circle') {
+            const rad = Math.min(cfg.cx, cfg.cy);
+            const r2 = rad * rad;
+            const inner2 = (rad - 1) * (rad - 1);
+            for (let r = 0; r < cfg.rows; r++) {
+              for (let c = 0; c < cfg.cols; c++) {
+                const dx = c - cfg.cx;
+                const dy = cfg.cy - r;
+                const d2 = dx * dx + dy * dy;
+                if (d2 <= r2) state.board[r][c] = d2 > inner2 ? 2 : 1;
+              }
+            }
+          } else if (p === 'winds') {
+            state.board[0][cfg.cx] = 2;              // Noord
+            state.board[cfg.rows - 1][cfg.cx] = 2;   // Zuid
+            state.board[cfg.cy][cfg.cols - 1] = 1;   // Oost
+            state.board[cfg.cy][0] = 1;              // West
+            state.board[cfg.cy][cfg.cx] = 2;         // Middelpunt
+          }
+          renderBoard();
+        });
+      });
+
+      sliderBDay.addEventListener('input', (e) => {
+        state.boardDay = parseInt(e.target.value, 10);
+        updateBoardDayPanel();
+        if (state.overlays.moon) renderBoard();
+      });
+
+      btnBAnchor.addEventListener('click', () => {
+        state.boardDay = 0;
+        updateBoardDayPanel();
+        if (state.overlays.moon) renderBoard();
+      });
+
+      btnBPlay.addEventListener('click', () => {
+        state.boardPlaying = !state.boardPlaying;
+        btnBPlay.innerHTML = state.boardPlaying ? '&#10074;&#10074;' : '&#9654;';
+        if (state.boardPlaying) {
+          state.boardTimer = setInterval(() => {
+            state.boardDay = (state.boardDay + 1) % 361;
+            updateBoardDayPanel();
+            if (state.overlays.moon) renderBoard();
+          }, 180);
+        } else {
+          clearInterval(state.boardTimer);
+        }
+      });
+
+      function boardEventToCell(e) {
+        const cfg = RASTERS[state.rasterKey];
+        const rect = pionCanvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) * (bMetrics.w / rect.width);
+        const y = (e.clientY - rect.top) * (bMetrics.h / rect.height);
+        const c = Math.floor((x - bMetrics.ox) / bMetrics.cell);
+        const r = Math.floor((y - bMetrics.oy) / bMetrics.cell);
+        if (r < 0 || r >= cfg.rows || c < 0 || c >= cfg.cols) return null;
+        return { r, c };
+      }
+
+      pionCanvas.addEventListener('mousemove', (e) => {
+        const cell = boardEventToCell(e);
+        if (!cell) return;
+        if (state.boardHover.r !== cell.r || state.boardHover.c !== cell.c) {
+          state.boardHover = cell;
+          updateBoardInspector(cell.r, cell.c);
+          renderBoard();
+        }
+      });
+
+      pionCanvas.addEventListener('click', (e) => {
+        const cell = boardEventToCell(e);
+        if (!cell) return;
+        const { r, c } = cell;
+        state.boardHover = cell;
+        if (state.action === 'cycle') state.board[r][c] = (state.board[r][c] + 1) % 3;
+        else if (state.action === 'white') state.board[r][c] = 1;
+        else if (state.action === 'red') state.board[r][c] = 2;
+        updateBoardInspector(r, c);
+        renderBoard();
+      });
+
+      // =========================================================================
+      // 5. TABBLAD 2: GEOMETRISCHE CONTROLE — 4-WEG WAARNEMER (Z / N / W / O)
+      // =========================================================================
+      const OBS_CONFIG = {
+        Z: {
+          obsName: 'ZUID (Waarnemer / Hoekpunt)',
+          horizonName: 'NOORD (Horizon — Azimut 0°)',
+          horizonAz: 0,
+          sunBaseAz: 180,
+          sunName: 'ZON (Lichtbron — Azimut 180°)',
+          leftDir: 'NW',
+          rightDir: 'NO'
+        },
+        N: {
+          obsName: 'NOORD (Waarnemer / Hoekpunt)',
+          horizonName: 'ZUID (Horizon — Azimut 180°)',
+          horizonAz: 180,
+          sunBaseAz: 0,
+          sunName: 'ZON (Lichtbron — Azimut 0°)',
+          leftDir: 'ZO',
+          rightDir: 'ZW'
+        },
+        W: {
+          obsName: 'WEST (Waarnemer / Hoekpunt)',
+          horizonName: 'OOST (Horizon — Azimut 90°)',
+          horizonAz: 90,
+          sunBaseAz: 270,
+          sunName: 'ZON (Lichtbron — Azimut 270°)',
+          leftDir: 'NO',
+          rightDir: 'ZO'
+        },
+        O: {
+          obsName: 'OOST (Waarnemer / Hoekpunt)',
+          horizonName: 'WEST (Horizon — Azimut 270°)',
+          horizonAz: 270,
+          sunBaseAz: 90,
+          sunName: 'ZON (Lichtbron — Azimut 90°)',
+          leftDir: 'ZW',
+          rightDir: 'NW'
+        }
+      };
+
+      const svgGeo = document.getElementById('svg-geo');
+      const geoTableBody = document.getElementById('geo-table-body');
+      const geoSunOffset = document.getElementById('geo-sun-offset');
+      const geoLeftAngle = document.getElementById('geo-left-angle');
+      const geoLeftDist = document.getElementById('geo-left-dist');
+      const geoRightAngle = document.getElementById('geo-right-angle');
+      const geoRightDist = document.getElementById('geo-right-dist');
+      const geoPhase = document.getElementById('geo-phase');
+
+      function quadrantDesc(mathDeg) {
+        // Wiskundige hoek in [-180, 180] (0=rechts, 90=boven, -90=onder)
+        if (mathDeg > -22.5 && mathDeg <= 22.5) return 'rechts';
+        if (mathDeg > 22.5 && mathDeg <= 67.5) return 'rechtsboven';
+        if (mathDeg > 67.5 && mathDeg <= 112.5) return 'boven';
+        if (mathDeg > 112.5 && mathDeg <= 157.5) return 'linksboven';
+        if (mathDeg > 157.5 || mathDeg <= -157.5) return 'links';
+        if (mathDeg > -157.5 && mathDeg <= -112.5) return 'linksonder';
+        if (mathDeg > -112.5 && mathDeg <= -67.5) return 'onder';
+        return 'rechtsonder';
+      }
+
+      function renderGeoMoon(cx, cy, r, rotDeg, phaseDeg, hemi) {
+        // Teken de schijngestalte gericht op de lichtbron (rotDeg in SVG-coördinaten)
+        const p = (((phaseDeg % 360) + 360) % 360) * (Math.PI / 180);
+        const cosP = Math.cos(p);
+        const rx = Math.max(0.01, Math.abs(cosP) * r);
+        // Halfrond-spiegeling: op Zuidelijk Halfrond 180° extra als visuele indicator bij fase
+        const finalRot = rotDeg + (hemi === 'south' ? 0 : 0);
+
+        let lit = '';
+        if (p > 0.03 && p < Math.PI * 2 - 0.03) {
+          if (Math.abs(p - Math.PI) < 0.03) {
+            lit = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#FDE68A" />`;
+          } else {
+            // Rechterhelft (+X in lokale cirkel) wijst altijd exact naar de Zon!
+            const innerSweep = cosP > 0 ? 0 : 1;
+            lit = `<path d="M ${cx} ${cy - r} A ${r} ${r} 0 0 1 ${cx} ${cy + r} A ${rx.toFixed(2)} ${r} 0 0 ${innerSweep} ${cx} ${cy - r} Z" fill="#FDE68A" />`;
+          }
+        }
+        return `
+          <g transform="rotate(${finalRot.toFixed(2)} ${cx} ${cy})">
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="#1E2430" />
+            ${lit}
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${cssVar('--text')}" stroke-width="1.8" />
+          </g>
+        `;
+      }
+
+      function renderGeoDiagram() {
+        const cfg = OBS_CONFIG[state.observer];
+        const ox = 320, oy = 278;
+        const horizonY = 56;
+        const sunRadius = 116.4; // Zorgt bij 60° en 160px exact voor -54,8° en -125,2°!
+        const sunOffRad = (state.geoSunOffset * Math.PI) / 180;
+        const sx = ox + Math.sin(sunOffRad) * sunRadius;
+        const sy = oy + Math.cos(sunOffRad) * sunRadius;
+
+        const laRad = (state.geoLeftAngle * Math.PI) / 180;
+        const raRad = (state.geoRightAngle * Math.PI) / 180;
+
+        const mxL = ox - Math.sin(laRad) * state.geoLeftDist;
+        const myL = oy - Math.cos(laRad) * state.geoLeftDist;
+        const mxR = ox + Math.sin(raRad) * state.geoRightDist;
+        const myR = oy - Math.cos(raRad) * state.geoRightDist;
+
+        // Zichtlijnen voorbij de manen verlengen
+        const exL = ox - Math.sin(laRad) * (state.geoLeftDist + 58);
+        const eyL = oy - Math.cos(laRad) * (state.geoLeftDist + 58);
+        const exR = ox + Math.sin(raRad) * (state.geoRightDist + 58);
+        const eyR = oy - Math.cos(raRad) * (state.geoRightDist + 58);
+
+        // Exacte Math.atan2 (wiskundig: +X rechts, +Y omhoog)
+        const mathAngleL = Math.atan2(-(sy - myL), sx - mxL) * (180 / Math.PI);
+        const mathAngleR = Math.atan2(-(sy - myR), sx - mxR) * (180 / Math.PI);
+
+        // SVG-rotatie zodat +X van de maanschijf exact naar (sx, sy) wijst
+        const svgRotL = Math.atan2(sy - myL, sx - mxL) * (180 / Math.PI);
+        const svgRotR = Math.atan2(sy - myR, sx - mxR) * (180 / Math.PI);
+
+        const azL = (cfg.horizonAz - state.geoLeftAngle + 360) % 360;
+        const azR = (cfg.horizonAz + state.geoRightAngle + 360) % 360;
+        const sunAz = (cfg.sunBaseAz - state.geoSunOffset + 360) % 360;
+
+        const textCol = cssVar('--text');
+        const mutedCol = cssVar('--muted');
+        const redCol = cssVar('--red');
+        const sunCol = cssVar('--sun');
+        const borderCol = cssVar('--border-strong');
+
+        // Optionele overlay 1: Gradenboog & atan2-vectoren
+        let vectorsSvg = '';
+        if (state.geoVectors) {
+          vectorsSvg = `
+            <g opacity="0.82">
+              <circle cx="${ox}" cy="${oy}" r="95" fill="none" stroke="${borderCol}" stroke-dasharray="3 4" />
+              <circle cx="${ox}" cy="${oy}" r="160" fill="none" stroke="${borderCol}" stroke-dasharray="2 5" />
+              <line x1="${mxL - 36}" y1="${myL}" x2="${mxL + 36}" y2="${myL}" stroke="${mutedCol}" stroke-width="0.9" stroke-dasharray="2 2" />
+              <line x1="${mxR - 36}" y1="${myR}" x2="${mxR + 36}" y2="${myR}" stroke="${mutedCol}" stroke-width="0.9" stroke-dasharray="2 2" />
+              <line x1="${mxL}" y1="${myL}" x2="${(mxL + Math.cos(svgRotL * Math.PI / 180) * 44).toFixed(1)}" y2="${(myL + Math.sin(svgRotL * Math.PI / 180) * 44).toFixed(1)}" stroke="${redCol}" stroke-width="2.2" />
+              <line x1="${mxR}" y1="${myR}" x2="${(mxR + Math.cos(svgRotR * Math.PI / 180) * 44).toFixed(1)}" y2="${(myR + Math.sin(svgRotR * Math.PI / 180) * 44).toFixed(1)}" stroke="${redCol}" stroke-width="2.2" />
+              <text x="${ox - 46}" y="${oy - 58}" font-size="11" font-family="ui-monospace, monospace" fill="${redCol}" font-weight="700">${state.geoLeftAngle}°</text>
+              <text x="${ox + 26}" y="${oy - 58}" font-size="11" font-family="ui-monospace, monospace" fill="${redCol}" font-weight="700">${state.geoRightAngle}°</text>
+            </g>
+          `;
+        }
+
+        // Optionele overlay 2: 4 Hemeldieren
+        let animalsSvg = '';
+        if (state.geoAnimals) {
+          const mapDirToAnimal = { 0: 'SCHILDPAD (N)', 90: 'DRAAK (O)', 180: 'FENIKS (Z)', 270: 'PEGASUS (W)' };
+          const topA = mapDirToAnimal[cfg.horizonAz];
+          const botA = mapDirToAnimal[(cfg.horizonAz + 180) % 360];
+          const leftA = mapDirToAnimal[(cfg.horizonAz + 270) % 360];
+          const rightA = mapDirToAnimal[(cfg.horizonAz + 90) % 360];
+          animalsSvg = `
+            <g font-family="Inter, sans-serif" font-size="10.5" font-weight="700">
+              <text x="320" y="22" text-anchor="middle" fill="${redCol}">${topA}</text>
+              <text x="320" y="450" text-anchor="middle" fill="${redCol}">${botA}</text>
+              <text x="58" y="245" text-anchor="middle" fill="${sunCol}">${leftA}</text>
+              <text x="582" y="245" text-anchor="middle" fill="${sunCol}">${rightA}</text>
+            </g>
+          `;
+        }
+
+        const qL = quadrantDesc(mathAngleL);
+        const qR = quadrantDesc(mathAngleR);
+
+        svgGeo.innerHTML = `
+          <!-- Horizonlijn -->
+          <text x="320" y="44" text-anchor="middle" font-size="13" font-weight="700" fill="${textCol}">${cfg.horizonName}</text>
+          <line x1="76" y1="${horizonY}" x2="564" y2="${horizonY}" stroke="${textCol}" stroke-width="2" />
+
+          <!-- Centrale meridiaan / kijklijn -->
+          <line x1="${ox}" y1="${horizonY}" x2="${ox}" y2="412" stroke="${borderCol}" stroke-width="1.5" stroke-dasharray="6 5" />
+
+          ${vectorsSvg}
+          ${animalsSvg}
+
+          <!-- Gestippelde zichtlijnen waarnemer -> manen -->
+          <line x1="${ox}" y1="${oy}" x2="${exL.toFixed(1)}" y2="${eyL.toFixed(1)}" stroke="${mutedCol}" stroke-width="1.3" stroke-dasharray="5 4" />
+          <line x1="${ox}" y1="${oy}" x2="${exR.toFixed(1)}" y2="${eyR.toFixed(1)}" stroke="${mutedCol}" stroke-width="1.3" stroke-dasharray="5 4" />
+
+          <!-- Oranje gestippelde lichtstralen vanaf de Zon -->
+          <line x1="${sx.toFixed(1)}" y1="${sy.toFixed(1)}" x2="${mxL.toFixed(1)}" y2="${myL.toFixed(1)}" stroke="${sunCol}" stroke-width="1.8" stroke-dasharray="4 3" />
+          <line x1="${sx.toFixed(1)}" y1="${sy.toFixed(1)}" x2="${mxR.toFixed(1)}" y2="${myR.toFixed(1)}" stroke="${sunCol}" stroke-width="1.8" stroke-dasharray="4 3" />
+
+          <!-- Maan Links & Maan Rechts -->
+          ${renderGeoMoon(mxL, myL, 21, svgRotL, state.geoPhaseDeg, state.geoHemi)}
+          ${renderGeoMoon(mxR, myR, 21, svgRotR, state.geoPhaseDeg, state.geoHemi)}
+
+          <!-- Labels Maan Links -->
+          <text x="${mxL.toFixed(1)}" y="${(myL - 30).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="700" fill="${textCol}">
+            Maan Links (${cfg.leftDir} / Az ~${Math.round(azL)}°)
+          </text>
+          <text x="${mxL.toFixed(1)}" y="${(myL + 37).toFixed(1)}" text-anchor="middle" font-size="11" font-family="ui-monospace, monospace" fill="${redCol}" font-weight="600">
+            Lichthoek: ${mathAngleL.toFixed(1).replace('.', ',')}° (${qL})
+          </text>
+
+          <!-- Labels Maan Rechts -->
+          <text x="${mxR.toFixed(1)}" y="${(myR - 30).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="700" fill="${textCol}">
+            Maan Rechts (${cfg.rightDir} / Az ~${Math.round(azR)}°)
+          </text>
+          <text x="${mxR.toFixed(1)}" y="${(myR + 37).toFixed(1)}" text-anchor="middle" font-size="11" font-family="ui-monospace, monospace" fill="${redCol}" font-weight="600">
+            Lichthoek: ${mathAngleR.toFixed(1).replace('.', ',')}° (${qR})
+          </text>
+
+          <!-- Waarnemer / Hoekpunt in Zeeuws meekrab-rood -->
+          <circle cx="${ox}" cy="${oy}" r="6.5" fill="${redCol}" stroke="#FFFFFF" stroke-width="1.6" />
+          <text x="${ox + 12}" y="${oy + 14}" font-size="12" font-weight="700" fill="${redCol}">${cfg.obsName}</text>
+
+          <!-- Zon (Lichtbron) -->
+          <circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="19" fill="${sunCol}" stroke="#FFFFFF" stroke-width="1.5" />
+          <text x="${sx.toFixed(1)}" y="${(sy + 35).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="700" fill="${sunCol}">
+            ZON (Lichtbron — Azimut ${Math.round(sunAz)}°)
+          </text>
+        `;
+
+        // Controle-tabel vullen
+        const hemiTxt = state.geoHemi === 'north'
+          ? 'Noordelijk Halfrond (D-oriëntatie)'
+          : 'Zuidelijk Halfrond (C-oriëntatie, 180°)';
+
+        geoTableBody.innerHTML = `
+          <tr>
+            <td><strong>Maan Links (${cfg.leftDir})</strong></td>
+            <td class="mono" style="color:var(--red); font-weight:700;">${mathAngleL.toFixed(1).replace('.', ',')}°</td>
+            <td>${qL} (naar Zon)</td>
+            <td class="mono">Az ${Math.round(azL)}°</td>
+            <td>${hemiTxt}</td>
+          </tr>
+          <tr>
+            <td><strong>Maan Rechts (${cfg.rightDir})</strong></td>
+            <td class="mono" style="color:var(--red); font-weight:700;">${mathAngleR.toFixed(1).replace('.', ',')}°</td>
+            <td>${qR} (naar Zon)</td>
+            <td class="mono">Az ${Math.round(azR)}°</td>
+            <td>${hemiTxt}</td>
+          </tr>
+        `;
+      }
+
+      // Event listeners Tabblad 2
+      document.querySelectorAll('.obs-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.observer = btn.dataset.obs;
+          document.querySelectorAll('.obs-btn').forEach(b => b.classList.toggle('active', b === btn));
+          renderGeoDiagram();
+        });
+      });
+
+      document.querySelectorAll('.hemi-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.geoHemi = btn.dataset.hemi;
+          document.querySelectorAll('.hemi-btn').forEach(b => b.classList.toggle('btn--primary', b === btn));
+          renderGeoDiagram();
+        });
+      });
+
+      document.getElementById('geo-toggle-vectors').addEventListener('click', (e) => {
+        state.geoVectors = !state.geoVectors;
+        e.currentTarget.classList.toggle('active', state.geoVectors);
+        e.currentTarget.setAttribute('aria-pressed', String(state.geoVectors));
+        renderGeoDiagram();
+      });
+
+      document.getElementById('geo-toggle-animals').addEventListener('click', (e) => {
+        state.geoAnimals = !state.geoAnimals;
+        e.currentTarget.classList.toggle('active', state.geoAnimals);
+        e.currentTarget.setAttribute('aria-pressed', String(state.geoAnimals));
+        renderGeoDiagram();
+      });
+
+      function bindGeoSliders() {
+        const updateLabels = () => {
+          document.getElementById('geo-val-sun').textContent = `${state.geoSunOffset > 0 ? '+' : ''}${state.geoSunOffset}°`;
+          document.getElementById('geo-val-la').textContent = `${state.geoLeftAngle}°`;
+          document.getElementById('geo-val-ld').textContent = `${state.geoLeftDist} px`;
+          document.getElementById('geo-val-ra').textContent = `${state.geoRightAngle}°`;
+          document.getElementById('geo-val-rd').textContent = `${state.geoRightDist} px`;
+          document.getElementById('geo-val-phase').textContent = `${state.geoPhaseDeg}°`;
+          renderGeoDiagram();
+        };
+
+        geoSunOffset.addEventListener('input', e => { state.geoSunOffset = +e.target.value; updateLabels(); });
+        geoLeftAngle.addEventListener('input', e => { state.geoLeftAngle = +e.target.value; updateLabels(); });
+        geoLeftDist.addEventListener('input', e => { state.geoLeftDist = +e.target.value; updateLabels(); });
+        geoRightAngle.addEventListener('input', e => { state.geoRightAngle = +e.target.value; updateLabels(); });
+        geoRightDist.addEventListener('input', e => { state.geoRightDist = +e.target.value; updateLabels(); });
+        geoPhase.addEventListener('input', e => { state.geoPhaseDeg = +e.target.value; updateLabels(); });
+
+        document.getElementById('btn-geo-reset').addEventListener('click', () => {
+          state.geoSunOffset = 0;
+          state.geoLeftAngle = 60;
+          state.geoLeftDist = 160;
+          state.geoRightAngle = 60;
+          state.geoRightDist = 160;
+          state.geoPhaseDeg = 90;
+          geoSunOffset.value = 0;
+          geoLeftAngle.value = 60;
+          geoLeftDist.value = 160;
+          geoRightAngle.value = 60;
+          geoRightDist.value = 160;
+          geoPhase.value = 90;
+          updateLabels();
+        });
+
+        document.querySelectorAll('[data-gphase]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.geoPhaseDeg = +btn.dataset.gphase;
+            geoPhase.value = state.geoPhaseDeg;
+            updateLabels();
+          });
+        });
+      }
+
+      // =========================================================================
+      // 6. TABBLAD 3: SAROS-BORD (223 MAANDEN) & METONISCHE CYCLUS (19 JAAR)
+      // =========================================================================
+      const sarosGrid = document.getElementById('saros-grid');
+      const sarosMBadge = document.getElementById('saros-m-badge');
+      const sarosDate = document.getElementById('saros-date');
+      const sarosDays = document.getElementById('saros-days');
+      const sarosDrac = document.getElementById('saros-drac');
+      const sarosNodeDeg = document.getElementById('saros-node-deg');
+      const sarosAnom = document.getElementById('saros-anom');
+      const sarosEclipseStatus = document.getElementById('saros-eclipse-status');
+      const svgExeligmos = document.getElementById('svg-exeligmos');
+      const exeligmosText = document.getElementById('exeligmos-text');
+
+      const metStartYearInput = document.getElementById('met-start-year');
+      const metonicTableBody = document.getElementById('metonic-table-body');
+      const metSelBadge = document.getElementById('met-sel-badge');
+      const metSelDesc = document.getElementById('met-sel-desc');
+      const svgMetNorth = document.getElementById('svg-met-north');
+      const svgMetSouth = document.getElementById('svg-met-south');
+
+      function sarosAnchorMs() {
+        return state.sarosAnchor === '2026-08-12'
+          ? Date.UTC(2026, 7, 12, 17, 47, 0) // Totale zonsverduistering 12 aug 2026 (Saros 126)
+          : ANCHOR_2026_07_25;
+      }
+
+      // Bereken knooppuntsafstand in graden (0° = exact op klimmende of dalende knoop)
+      function sarosMonthMetrics(m) {
+        const idx = m - 1; // 0..222
+        const days = idx * SYNODIC;
+        const dracTotal = days / DRACONIC;
+        const dracFrac = dracTotal % 1;
+        // Afstand tot dichtstbijzijnde knoop (0 of 0.5 van draconitische maand)
+        const distHalf = Math.min(dracFrac, Math.abs(dracFrac - 0.5), 1 - dracFrac);
+        const nodeDeg = distHalf * 360;
+
+        const anomTotal = days / ANOMALISTIC;
+        const anomFrac = anomTotal % 1;
+        const anomDeg = anomFrac * 360;
+
+        const ms = sarosAnchorMs() + days * MS_DAY;
+        return { m, days, dracTotal, nodeDeg, anomTotal, anomDeg, ms };
+      }
+
+      function buildSarosGrid() {
+        let html = `<div class="s-head"></div>`;
+        for (let c = 1; c <= 19; c++) html += `<div class="s-head">${c}</div>`;
+
+        for (let r = 0; r < 12; r++) {
+          html += `<div class="s-row-lbl">R${r + 1}</div>`;
+          for (let c = 0; c < 19; c++) {
+            const m = r * 19 + c + 1;
+            if (m > 223) {
+              html += `<div class="s-cell is-inactive">·</div>`;
+            } else {
+              const info = sarosMonthMetrics(m);
+              const cls = [
+                's-cell',
+                info.nodeDeg <= 10 ? 'is-deep-eclipse' : (info.nodeDeg <= 18 ? 'is-eclipse' : ''),
+                m === state.sarosMonth ? 'is-selected' : ''
+              ].filter(Boolean).join(' ');
+              html += `<button type="button" class="${cls}" data-sm="${m}" title="Maand ${m} • Knoop ${info.nodeDeg.toFixed(1)}°">${m}</button>`;
+            }
+          }
+        }
+        sarosGrid.innerHTML = html;
+
+        sarosGrid.querySelectorAll('[data-sm]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.sarosMonth = parseInt(btn.dataset.sm, 10);
+            sarosGrid.querySelectorAll('[data-sm]').forEach(b => b.classList.toggle('is-selected', +b.dataset.sm === state.sarosMonth));
+            renderSarosInspector();
+          });
+        });
+      }
+
+      function renderSarosInspector() {
+        const info = sarosMonthMetrics(state.sarosMonth);
+        sarosMBadge.textContent = `Maand ${info.m} / 223`;
+        sarosDate.textContent = fmtDateNL(info.ms);
+        sarosDays.textContent = `${info.days.toFixed(2).replace('.', ',')} d`;
+        sarosDrac.textContent = `${info.dracTotal.toFixed(3).replace('.', ',')}×`;
+        sarosNodeDeg.textContent = `${info.nodeDeg.toFixed(1).replace('.', ',')}°`;
+        sarosAnom.textContent = `${info.anomTotal.toFixed(3).replace('.', ',')}× (${Math.round(info.anomDeg)}°)`;
+
+        if (info.nodeDeg <= 10) {
+          sarosEclipseStatus.textContent = 'Hoog (Verduisteringsvenster)';
+          sarosEclipseStatus.style.color = 'var(--red)';
+        } else if (info.nodeDeg <= 18) {
+          sarosEclipseStatus.textContent = 'Nabij maansknoop (Draak)';
+          sarosEclipseStatus.style.color = 'var(--sun)';
+        } else {
+          sarosEclipseStatus.textContent = 'Buiten knooppunt';
+          sarosEclipseStatus.style.color = 'var(--muted)';
+        }
+      }
+
+      function renderExeligmos() {
+        const red = cssVar('--red');
+        const sun = cssVar('--sun');
+        const text = cssVar('--text');
+        const border = cssVar('--border-strong');
+
+        const pts = [
+          { deg: -90, lbl: 'S0 (0°)', col: red },
+          { deg: 150, lbl: 'S1 (+120°W)', col: sun },
+          { deg: 30, lbl: 'S2 (+240°W)', col: sun }
+        ];
+
+        const cx = 60, cy = 60, r = 42;
+        const marks = pts.map(p => {
+          const rad = (p.deg * Math.PI) / 180;
+          const x = cx + Math.cos(rad) * r;
+          const y = cy + Math.sin(rad) * r;
+          return `
+            <line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${p.col}" stroke-width="1.6" stroke-dasharray="3 2" />
+            <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" fill="${p.col}" />
+          `;
+        }).join('');
+
+        svgExeligmos.innerHTML = `
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${border}" stroke-width="1.4" />
+          <circle cx="${cx}" cy="${cy}" r="18" fill="none" stroke="${border}" stroke-dasharray="2 3" />
+          ${marks}
+          <circle cx="${cx}" cy="${cy}" r="3.5" fill="${text}" />
+        `;
+
+        const baseMs = sarosAnchorMs();
+        const s1 = fmtDateNL(baseMs + 6585.3211 * MS_DAY);
+        const s2 = fmtDateNL(baseMs + 2 * 6585.3211 * MS_DAY);
+        const s3 = fmtDateNL(baseMs + 3 * 6585.3211 * MS_DAY);
+        exeligmosText.innerHTML = `
+          <div><strong style="color:var(--text);">Saros 0:</strong> ${fmtDateNL(baseMs)} (0°)</div>
+          <div><strong style="color:var(--sun);">Saros +1:</strong> ${s1} (+120° W)</div>
+          <div><strong style="color:var(--sun);">Saros +2:</strong> ${s2} (+240° W)</div>
+          <div><strong style="color:var(--red);">Exeligmos (3×):</strong> ${s3} (terug op zelfde lengtegraad)</div>
+        `;
+      }
+
+      document.querySelectorAll('.saros-anchor-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.sarosAnchor = btn.dataset.anchor;
+          document.querySelectorAll('.saros-anchor-btn').forEach(b => b.classList.toggle('btn--primary', b === btn));
+          buildSarosGrid();
+          renderSarosInspector();
+          renderExeligmos();
+        });
+      });
+
+      // Metonische 19-Jaren Tabel
+      function renderMetonicSection() {
+        let cumMonths = 0;
+        let rowsHtml = '';
+
+        for (let y = 1; y <= 19; y++) {
+          const calYear = state.metStartYear + (y - 1);
+          const isLeap = METONIC_LEAP.has(y);
+          const mCount = isLeap ? 13 : 12;
+          cumMonths += mCount;
+          const epacta = ((y - 1) * 11) % 30;
+          const ms = Date.UTC(calYear, 6, 25, 12, 0, 0); // 25 juli van dat jaar
+          const mi = moonInfoFromMs(ms);
+
+          rowsHtml += `
+            <tr data-my="${y}" class="${y === state.metSelectedYear ? 'active-row' : ''}" style="cursor:pointer;">
+              <td class="mono"><strong>Jaar ${y}</strong></td>
+              <td class="mono">${calYear}</td>
+              <td><span class="${isLeap ? 'pill-13' : 'pill-12'}">${mCount} mnd${isLeap ? ' (schr.)' : ''}</span></td>
+              <td class="mono">${epacta} d</td>
+              <td class="mono">${cumMonths} / 235</td>
+              <td class="mono">${mi.age.toFixed(2).replace('.', ',')} d</td>
+              <td>${mi.name}</td>
+            </tr>
+          `;
+        }
+        metonicTableBody.innerHTML = rowsHtml;
+
+        metonicTableBody.querySelectorAll('tr').forEach(tr => {
+          tr.addEventListener('click', () => {
+            state.metSelectedYear = parseInt(tr.dataset.my, 10);
+            renderMetonicSection();
+          });
+        });
+
+        // Update Noord vs Zuid schijngestalte paneel
+        const selCalYear = state.metStartYear + (state.metSelectedYear - 1);
+        const selMs = Date.UTC(selCalYear, 6, 25, 12, 0, 0);
+        const selMi = moonInfoFromMs(selMs);
+        const isLeap = METONIC_LEAP.has(state.metSelectedYear);
+
+        metSelBadge.textContent = `Jaar ${state.metSelectedYear} (${selCalYear})`;
+        metSelDesc.innerHTML = `Op <strong class="mono">25 juli ${selCalYear}</strong> (${isLeap ? 'embolistisch 13-maandenjaar' : 'gewoon 12-maandenjaar'}): <strong>${selMi.name}</strong>, leeftijd <strong class="mono">${selMi.age.toFixed(2).replace('.', ',')} d</strong>, verlichting <strong class="mono">${selMi.illum.toFixed(1).replace('.', ',')}%</strong>.`;
+
+        svgMetNorth.innerHTML = svgMoonMarkup(50, 50, 38, selMi.phi, 'north');
+        svgMetSouth.innerHTML = svgMoonMarkup(50, 50, 38, selMi.phi, 'south');
+      }
+
+      metStartYearInput.addEventListener('change', (e) => {
+        const v = parseInt(e.target.value, 10);
+        if (v >= 1900 && v <= 2200) {
+          state.metStartYear = v;
+          renderMetonicSection();
+        }
+      });
+
+      // =========================================================================
+      // 7. INITIALISATIE
+      // =========================================================================
+      window.addEventListener('resize', () => {
+        if (state.activeView === 'view-board') resizeBoardCanvas();
+      });
+
+      window.addEventListener('load', () => {
+        initBoardArray();
+        resizeBoardCanvas();
+        updateBoardDayPanel();
+        updateBoardInspector(state.boardHover.r, state.boardHover.c);
+
+        bindGeoSliders();
+        renderGeoDiagram();
+
+        buildSarosGrid();
+        renderSarosInspector();
+        renderExeligmos();
+        renderMetonicSection();
+      });
+    })();
+  </script>
+</body>
+</html>
