@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Contact &amp; Beveiligde Correspondentie</title>
+  <style>
+    :root {
+      --meekrab: #A31C1C;
+      --meekrab-dark: #7A1414;
+      --meekrab-tint: #FDF6F6;
+      --meekrab-border: #E5BDBD;
+      --bg-page: #FFFFFF;
+      --bg-subtle: #F8F9FA;
+      --text-main: #1A1A1A;
+      --text-muted: #555555;
+      --border-light: #DCDCDC;
+      --focus-ring: rgba(163, 28, 28, 0.22);
+      --success: #1B5E20;
+      --success-bg: #EEF7EE;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-subtle);
+      margin: 0;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1060px;
+      margin: 0 auto;
+      background-color: var(--bg-page);
+      border: 1px solid var(--border-light);
+      border-top: 6px solid var(--meekrab);
+      padding: 2.5rem;
+    }
+
+    header.page-header {
+      border-bottom: 2px solid var(--meekrab);
+      padding-bottom: 1.25rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    header.page-header h1 {
+      margin: 0;
+      font-size: 1.65rem;
+      color: var(--meekrab);
+      letter-spacing: -0.01em;
+    }
+
+    header.page-header p {
+      margin: 0.35rem 0 0 0;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .privacy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background-color: var(--meekrab-tint);
+      border: 1px solid var(--meekrab-border);
+      color: var(--meekrab-dark);
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 3px;
+    }
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 2.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 820px) {
+      .container {
+        padding: 1.5rem;
+      }
+      .layout-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      color: var(--meekrab);
+      margin: 0 0 1rem 0;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--meekrab-border);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 1.15rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: var(--text-main);
+    }
+
+    label .req {
+      color: var(--meekrab);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-light);
+      border-radius: 3px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--meekrab);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 145px;
+    }
+
+    .char-counter {
+      text-align: right;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Handtekeningveld */
+    .signature-box {
+      border: 1px solid var(--meekrab-border);
+      background-color: var(--meekrab-tint);
+      padding: 1rem;
+      border-radius: 3px;
+      margin-top: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .signature-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .signature-header label {
+      margin: 0;
+      color: var(--meekrab-dark);
+    }
+
+    .sig-tools {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .color-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 0 0 1px #999;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .color-btn.active {
+      box-shadow: 0 0 0 2px var(--meekrab);
+      transform: scale(1.1);
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      background-color: #FFFFFF;
+      border: 1px dashed var(--meekrab-border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    canvas#signaturePad {
+      display: block;
+      width: 100%;
+      height: 170px;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .sig-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      color: #B0B0B0;
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+
+    .sig-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.65rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .sig-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Knoppen */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.65rem 1.15rem;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      border-radius: 3px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .btn-primary {
+      background-color: var(--meekrab);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--meekrab-dark);
+    }
+
+    .btn-secondary {
+      background-color: #FFFFFF;
+      color: var(--meekrab);
+      border-color: var(--meekrab);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--meekrab-tint);
+    }
+
+    .btn-small {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.8rem;
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    /* Checkbox */
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .checkbox-group input {
+      margin-top: 0.25rem;
+      accent-color: var(--meekrab);
+    }
+
+    /* Zijbalk */
+    .info-card {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+      border-left: 4px solid var(--meekrab);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
+    }
+
+    .info-card h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1rem;
+      color: var(--meekrab-dark);
+    }
+
+    .info-card p {
+      margin: 0 0 0.75rem 0;
+    }
+
+    .info-card p:last-child {
+      margin-bottom: 0;
+    }
+
+    .status-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.5rem 0 0 0;
+    }
+
+    .status-list li {
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .status-list li:last-child {
+      border-bottom: none;
+    }
+
+    .status-key {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .status-val {
+      font-weight: 600;
+      color: var(--meekrab-dark);
+      text-align: right;
+    }
+
+    .hash-box {
+      margin-top: 1.25rem;
+      padding: 0.85rem 1rem;
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-light);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      word-break: break-all;
+      display: none;
+    }
+
+    .hash-box strong {
+      display: block;
+      font-family: inherit;
+      color: var(--meekrab);
+      margin-bottom: 0.25rem;
+    }
+
+    .feedback-banner {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .feedback-banner.success {
+      display: block;
+      background-color: var(--success-bg);
+      color: var(--success);
+      border: 1px solid #B7DFB9;
+    }
+
+    .feedback-banner.error {
+      display: block;
+      background-color: var(--meekrab-tint);
+      color: var(--meekrab-dark);
+      border: 1px solid var(--meekrab-border);
+    }
+
+    footer.page-footer {
+      margin-top: 2.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-light);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    /* Printweergave als formeel ondertekend document */
+    @media print {
+      body {
+        background: #FFFFFF;
+        padding: 0;
+      }
+      .container {
+        border: none;
+        border-top: 4px solid var(--meekrab);
+        padding: 0;
+        max-width: 100%;
+      }
+      .layout-grid {
+        grid-template-columns: 1fr;
+      }
+      aside,
+      .form-actions,
+      .sig-tools,
+      .sig-actions,
+      .char-counter,
+      .privacy-badge,
+      .feedback-banner {
+        display: none !important;
+      }
+      input, select, textarea {
+        border: none;
+        border-bottom: 1px solid #CCC;
+        padding-left: 0;
+      }
+      .hash-box {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header class="page-header">
+      <div>
+        <h1>Contact &amp; Beveiligde Correspondentie</h1>
+        <p>Directe, privacyvriendelijke berichtgeving zonder externe trackers of clouddiensten.</p>
+      </div>
+      <div class="privacy-badge" title="Geen publieke adresgegevens in broncode">
+        &#128274; Afgeschermde gegevens &bull; 100% lokaal
+      </div>
+    </header>
+
+    <div class="layout-grid">
+      <!-- Linkerkolom: Contactformulier + Handtekening -->
+      <main>
+        <h2>Bericht opstellen en ondertekenen</h2>
+
+        <form id="contactForm" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="senderName">Uw naam / organisatie <span class="req">*</span></label>
+              <input type="text" id="senderName" name="senderName" required autocomplete="name" placeholder="Bijv. J. Jansen">
+            </div>
+
+            <div class="form-group">
+              <label for="senderEmail">Uw e-mailadres <span class="req">*</span></label>
+              <input type="email" id="senderEmail" name="senderEmail" required autocomplete="email" placeholder="naam@voorbeeld.nl">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="category">Onderwerpcategorie <span class="req">*</span></label>
+              <select id="category" name="category" required>
+                <option value="Algemene correspondentie">Algemene correspondentie</option>
+                <option value="Bestuurlijk / Woo-dossier">Bestuurlijk / Woo-dossier</option>
+                <option value="Historisch &amp; archiefonderzoek">Historisch &amp; archiefonderzoek</option>
+                <option value="Techniek &amp; software">Techniek &amp; software</option>
+                <option value="Vertrouwelijk verzoek">Vertrouwelijk verzoek</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="reference">Zaaknummer / kenmerk (optioneel)</label>
+              <input type="text" id="reference" name="reference" placeholder="Bijv. Zaak 1456324">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="subject">Onderwerp <span class="req">*</span></label>
+            <input type="text" id="subject" name="subject" required placeholder="Korte omschrijving van uw bericht">
+          </div>
+
+          <div class="form-group">
+            <label for="message">Bericht <span class="req">*</span></label>
+            <textarea id="message" name="message" required maxlength="5000" placeholder="Typ hier uw bericht..."></textarea>
+            <div class="char-counter"><span id="charCount">0</span> / 5000 tekens</div>
+          </div>
+
+          <!-- Interactieve handtekening -->
+          <div class="signature-box">
+            <div class="signature-header">
+              <label for="signaturePad">Digitale handtekening <span class="req">*</span></label>
+              <div class="sig-tools" aria-label="Penkleur kiezen">
+                <span>Inkt:</span>
+                <button type="button" class="color-btn active" data-color="#1A1A1A" style="background:#1A1A1A;" title="Zwart"></button>
+                <button type="button" class="color-btn" data-color="#A31C1C" style="background:#A31C1C;" title="Meekrab rood"></button>
+                <button type="button" class="color-btn" data-color="#103766" style="background:#103766;" title="Donkerblauw"></button>
+              </div>
+            </div>
+
+            <div class="canvas-wrapper">
+              <canvas id="signaturePad" aria-label="Teken hier uw handtekening"></canvas>
+              <div class="sig-placeholder" id="sigPlaceholder">Teken hier uw handtekening met muis, pen of vinger</div>
+            </div>
+
+            <div class="sig-footer">
+              <span id="sigTimestamp">Dagtekening: wordt automatisch vastgelegd</span>
+              <div class="sig-actions">
+                <button type="button" class="btn btn-secondary btn-small" id="clearSigBtn">Wissen</button>
+                <button type="button" class="btn btn-secondary btn-small" id="downloadSigBtn">Bewaar PNG</button>
+              </div>
+            </div>
+          </div>
+
+          <label class="checkbox-group">
+            <input type="checkbox" id="privacyConsent" required>
+            <span>Ik verklaar dit bericht naar waarheid te hebben ingevuld en ga ermee akkoord dat de correspondentie uitsluitend wordt gebruikt voor directe afhandeling.</span>
+          </label>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Verzend via e-mailclient</button>
+            <button type="button" class="btn btn-secondary" id="printDocBtn">Print / Opslaan als PDF</button>
+            <button type="button" class="btn btn-secondary" id="downloadTxtBtn">Exporteer als tekstbestand</button>
+          </div>
+
+          <div id="feedbackBanner" class="feedback-banner" role="status" aria-live="polite"></div>
+
+          <div id="hashBox" class="hash-box">
+            <strong>SHA-256 integriteitscode (bericht + handtekening + tijdstempel):</strong>
+            <span id="hashValue">—</span>
+          </div>
+        </form>
+      </main>
+
+      <!-- Rechterkolom: Privacy & Afgeschermde Gegevens -->
+      <aside>
+        <h2>Privacy &amp; Gegevensbescherming</h2>
+
+        <div class="info-card">
+          <h3>Geheimhouding contactgegevens</h3>
+          <p>
+            Uit overwegingen van privacy, dataminimalisatie en bescherming tegen geautomatiseerde spam- en dataverzamelaars worden het <strong>e-mailadres</strong> en de <strong>fysieke adresgegevens</strong> niet openbaar op deze pagina weergegeven.
+          </p>
+          <ul class="status-list">
+            <li>
+              <span class="status-key">E-mailadres</span>
+              <span class="status-val">Afgeschermd (anti-bot)</span>
+            </li>
+            <li>
+              <span class="status-key">Woon- / postadres</span>
+              <span class="status-val">Strikt geheim</span>
+            </li>
+            <li>
+              <span class="status-key">Externe servers</span>
+              <span class="status-val">Geen (0% cloud)</span>
+            </li>
+            <li>
+              <span class="status-key">Verwerking</span>
+              <span class="status-val">Lokaal in uw browser</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="info-card">
+          <h3>Hoe werkt verzending?</h3>
+          <p>
+            Wanneer u op <em>Verzend via e-mailclient</em> klikt, wordt het afgeschermde ontvangeradres pas op dat moment lokaal samengesteld en geopend in uw eigen e-mailprogramma. Er worden geen gegevens opgeslagen op derdenservers.
+          </p>
+          <p>
+            Wilt u de getekende handtekening meesturen? Sla deze op via <strong>Bewaar PNG</strong> of exporteer het gehele formulier via <strong>Print / Opslaan als PDF</strong> en voeg het bestand toe als bijlage aan uw e-mail.
+          </p>
+        </div>
+
+        <div class="info-card">
+          <h3>Snelle beveiligde e-mail</h3>
+          <p>Liever direct een leeg bericht openen zonder het formulier in te vullen?</p>
+          <button type="button" class="btn btn-secondary btn-small" id="directMailBtn">
+            Open beveiligde e-mailverbinding
+          </button>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="page-footer">
+      <span>Geen cookies &bull; Geen analytische scripts &bull; Volledig autonome HTML5-pagina</span>
+      <span id="footerDate"></span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // Afgeschermd e-mailadres: wordt nooit als platte tekst in HTML of DOM geplaatst
+      // en pas op het moment van gebruikersactie gedecodeerd.
+      const _p = [106, 114, 108, 109, 100, 67, 115, 117, 114, 119, 114, 113, 112, 100, 108, 111, 49, 102, 114, 112];
+      function resolveRecipient() {
+        return _p.map(function (c) {
+          return String.fromCharCode(c - 3);
+        }).join('');
+      }
+
+      // Datumweergave
+      function formatDateNL(date) {
+        return date.toLocaleString('nl-NL', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+
+      const now = new Date();
+      document.getElementById('footerDate').textContent = 'Sessie: ' + formatDateNL(now);
+      const sigTimestampEl = document.getElementById('sigTimestamp');
+      sigTimestampEl.textContent = 'Dagtekening: ' + formatDateNL(now);
+
+      // Tekenteller
+      const messageEl = document.getElementById('message');
+      const charCountEl = document.getElementById('charCount');
+      messageEl.addEventListener('input', function () {
+        charCountEl.textContent = messageEl.value.length;
+      });
+
+      // Handtekening Canvas (HiDPI + muis/touch via Pointer Events)
+      const canvas = document.getElementById('signaturePad');
+      const ctx = canvas.getContext('2d');
+      const placeholder = document.getElementById('sigPlaceholder');
+      let isDrawing = false;
+      let hasSignature = false;
+      let strokeColor = '#1A1A1A';
+      let lastX = 0;
+      let lastY = 0;
+
+      function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        const rect = canvas.getBoundingClientRect();
+        // Behoud bestaande tekening bij resize
+        const temp = hasSignature ? canvas.toDataURL() : null;
+        canvas.width = Math.floor(rect.width * ratio);
+        canvas.height = Math.floor(rect.height * ratio);
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = strokeColor;
+
+        if (temp) {
+          const img = new Image();
+          img.onload = function () {
+            ctx.drawImage(img, 0, 0, rect.width, rect.height);
+          };
+          img.src = temp;
+        }
+      }
+
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      function getCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        };
+      }
+
+      canvas.addEventListener('pointerdown', function (e) {
+        e.preventDefault();
+        canvas.setPointerCapture(e.pointerId);
+        isDrawing = true;
+        const pos = getCoords(e);
+        lastX = pos.x;
+        lastY = pos.y;
+        ctx.strokeStyle = strokeColor;
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(lastX + 0.1, lastY + 0.1);
+        ctx.stroke();
+
+        if (!hasSignature) {
+          hasSignature = true;
+          placeholder.style.display = 'none';
+          sigTimestampEl.textContent = 'Ondertekend op: ' + formatDateNL(new Date());
+        }
+      });
+
+      canvas.addEventListener('pointermove', function (e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const pos = getCoords(e);
+        ctx.strokeStyle = strokeColor;
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        lastX = pos.x;
+        lastY = pos.y;
+      });
+
+      function stopDrawing(e) {
+        if (!isDrawing) return;
+        isDrawing = false;
+        if (e.pointerId !== undefined) {
+          try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+        }
+      }
+
+      canvas.addEventListener('pointerup', stopDrawing);
+      canvas.addEventListener('pointercancel', stopDrawing);
+
+      // Penkleur wisselen
+      document.querySelectorAll('.color-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.color-btn').forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          strokeColor = btn.getAttribute('data-color');
+        });
+      });
+
+      // Handtekening wissen
+      document.getElementById('clearSigBtn').addEventListener('click', function () {
+        const rect = canvas.getBoundingClientRect();
+        ctx.clearRect(0, 0, rect.width, rect.height);
+        hasSignature = false;
+        placeholder.style.display = 'flex';
+        sigTimestampEl.textContent = 'Dagtekening: ' + formatDateNL(new Date());
+      });
+
+      // Handtekening downloaden als PNG (met witte achtergrond)
+      document.getElementById('downloadSigBtn').addEventListener('click', function () {
+        if (!hasSignature) {
+          showFeedback('Teken eerst een handtekening voordat u deze opslaat.', 'error');
+          return;
+        }
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = canvas.width;
+        exportCanvas.height = canvas.height;
+        const eCtx = exportCanvas.getContext('2d');
+        eCtx.fillStyle = '#FFFFFF';
+        eCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+        eCtx.drawImage(canvas, 0, 0);
+
+        const link = document.createElement('a');
+        link.download = 'handtekening_' + new Date().toISOString().slice(0, 10) + '.png';
+        link.href = exportCanvas.toDataURL('image/png');
+        link.click();
+      });
+
+      // SHA-256 integriteitshash (Web Crypto API)
+      async function computeHash(payload) {
+        if (window.crypto && window.crypto.subtle) {
+          try {
+            const encoded = new TextEncoder().encode(payload);
+            const buf = await window.crypto.subtle.digest('SHA-256', encoded);
+            return Array.from(new Uint8Array(buf))
+              .map(function (b) { return b.toString(16).padStart(2, '0'); })
+              .join('');
+          } catch (_) {
+            return 'Niet beschikbaar in huidige browsercontext';
+          }
+        }
+        return 'Niet beschikbaar in huidige browsercontext';
+      }
+
+      const feedbackEl = document.getElementById('feedbackBanner');
+      function showFeedback(text, type) {
+        feedbackEl.textContent = text;
+        feedbackEl.className = 'feedback-banner ' + type;
+      }
+
+      function validateForm() {
+        const name = document.getElementById('senderName').value.trim();
+        const email = document.getElementById('senderEmail').value.trim();
+        const subject = document.getElementById('subject').value.trim();
+        const msg = messageEl.value.trim();
+        const consent = document.getElementById('privacyConsent').checked;
+
+        if (!name || !email || !subject || !msg) {
+          showFeedback('Vul alle verplichte velden (*) volledig in.', 'error');
+          return false;
+        }
+        if (!hasSignature) {
+          showFeedback('Plaats eerst uw digitale handtekening in het handtekeningveld.', 'error');
+          return false;
+        }
+        if (!consent) {
+          showFeedback('Vink de bevestiging onderaan het formulier aan om verder te gaan.', 'error');
+          return false;
+        }
+        return true;
+      }
+
+      async function buildSignedPayload() {
+        const timestamp = new Date().toISOString();
+        const data = {
+          name: document.getElementById('senderName').value.trim(),
+          email: document.getElementById('senderEmail').value.trim(),
+          category: document.getElementById('category').value,
+          reference: document.getElementById('reference').value.trim() || 'Geen',
+          subject: document.getElementById('subject').value.trim(),
+          message: messageEl.value.trim(),
+          timestamp: timestamp
+        };
+
+        const sigData = hasSignature ? canvas.toDataURL('image/png') : '';
+        const hash = await computeHash(JSON.stringify(data) + '|' + sigData);
+
+        document.getElementById('hashValue').textContent = hash;
+        document.getElementById('hashBox').style.display = 'block';
+
+        const bodyText = [
+          'Afzender: ' + data.name,
+          'E-mailadres afzender: ' + data.email,
+          'Categorie: ' + data.category,
+          'Zaaknummer / kenmerk: ' + data.reference,
+          'Dagtekening (UTC): ' + data.timestamp,
+          '----------------------------------------',
+          '',
+          data.message,
+          '',
+          '----------------------------------------',
+          'Digitaal ondertekend via contactformulier.',
+          'SHA-256 integriteitscode: ' + hash,
+          '(Tip: voeg eventueel de gedownloade handtekening PNG of PDF toe als bijlage.)'
+        ].join('\n');
+
+        return { data: data, bodyText: bodyText, hash: hash };
+      }
+
+      // Formulier verzenden via lokale mailto-trigger
+      document.getElementById('contactForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        if (!validateForm()) return;
+
+        const payload = await buildSignedPayload();
+        const fullSubject = '[' + payload.data.category + '] ' + payload.data.subject;
+        const recipient = resolveRecipient();
+
+        const mailtoUrl = 'mailto:' + recipient +
+          '?subject=' + encodeURIComponent(fullSubject) +
+          '&body=' + encodeURIComponent(payload.bodyText);
+
+        showFeedback('Uw e-mailclient wordt geopend met het ondertekende bericht en de SHA-256 verificatiecode.', 'success');
+        window.location.href = mailtoUrl;
+      });
+
+      // Print / PDF
+      document.getElementById('printDocBtn').addEventListener('click', async function () {
+        if (!validateForm()) return;
+        await buildSignedPayload();
+        window.print();
+      });
+
+      // Exporteer als tekstbestand
+      document.getElementById('downloadTxtBtn').addEventListener('click', async function () {
+        if (!validateForm()) return;
+        const payload = await buildSignedPayload();
+        const blob = new Blob([payload.bodyText], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'correspondentie_' + new Date().toISOString().slice(0, 10) + '.txt';
+        link.click();
+        URL.revokeObjectURL(link.href);
+        showFeedback('Het bericht is lokaal opgeslagen als tekstbestand.', 'success');
+      });
+
+      // Directe anti-bot e-mailknop in zijbalk
+      document.getElementById('directMailBtn').addEventListener('click', function () {
+        const recipient = resolveRecipient();
+        window.location.href = 'mailto:' + recipient + '?subject=' + encodeURIComponent('Beveiligde correspondentie');
+      });
+    })();
+  </script>
+</body>
+</html>
