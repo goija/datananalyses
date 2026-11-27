@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSINT Dossier &amp; Tele-API — Onder toezicht van de Veerbeheerder</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f8f8f8;
+      --surface-alt: #f0f0f0;
+      --text: #1a1a1a;
+      --muted: #555555;
+      --border: #dcdcdc;
+      --accent: #A31C1C;
+      --accent-soft: #fdf2f2;
+      --ok: #1b6e35;
+      --ok-bg: #edf7f0;
+      --warn: #8a5300;
+      --warn-bg: #fff6e5;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --serif: Georgia, "Times New Roman", serif;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f0f0f;
+      --surface: #181818;
+      --surface-alt: #222222;
+      --text: #f0f0f0;
+      --muted: #a3a3a3;
+      --border: #2e2e2e;
+      --accent: #d93838;
+      --accent-soft: #2a1414;
+      --ok: #4cc372;
+      --ok-bg: #13281b;
+      --warn: #f0ad4e;
+      --warn-bg: #2b2110;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem 3.5rem;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .container { max-width: 1080px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    h1 { font-size: 1.7rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 0.92rem; margin-top: 0.25rem; }
+
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+    button {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.48rem 0.9rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button.primary:hover:not(:disabled) { opacity: 0.9; color: #fff; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .panel h2 {
+      font-size: 1.1rem;
+      color: var(--accent);
+      border-left: 4px solid var(--accent);
+      padding-left: 0.6rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Veerbeheerder (Ethiek-bewaker) */
+    .steward-box {
+      border: 1px solid var(--accent);
+      background: var(--accent-soft);
+      border-radius: 6px;
+      padding: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .steward-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .steward-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .status-pill {
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 3px;
+    }
+
+    .status-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn); }
+    .status-ok { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok); }
+
+    .ethics-list {
+      list-style: none;
+      display: grid;
+      gap: 0.55rem;
+      margin-top: 0.75rem;
+    }
+
+    .ethics-list label {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.55rem 0.75rem;
+      border-radius: 4px;
+    }
+
+    .ethics-list input[type="checkbox"] {
+      margin-top: 0.25rem;
+      accent-color: var(--accent);
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Tabellen & Code */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: var(--surface-alt); font-weight: 700; }
+
+    code {
+      font-family: var(--mono);
+      background: var(--surface-alt);
+      padding: 0.12rem 0.35rem;
+      border-radius: 3px;
+      font-size: 0.85em;
+      word-break: break-all;
+    }
+
+    /* Tele-API Console */
+    .api-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .api-controls input, .api-controls select {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.48rem 0.7rem;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+    }
+
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.9rem;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      overflow-x: auto;
+      max-height: 320px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* Handtekening met de Veer */
+    .signature-card {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .sig-left {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .quill-svg {
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+      color: var(--accent);
+    }
+
+    .sig-script {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.55rem;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .sig-meta {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .sig-seal {
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      max-width: 440px;
+      word-break: break-all;
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>OSINT Netwerkdossier &amp; Tele-API</h1>
+        <p class="subtitle">RIPE NCC-topologie, RFC 1918-scheiding &amp; ethisch toezicht door de Veerbeheerder</p>
+      </div>
+      <div class="btn-row">
+        <button id="themeToggle">Donkere modus</button>
+      </div>
+    </header>
+
+    <!-- DE VEERBEHEERDER (ETHIEK-BEWAKER) -->
+    <section class="steward-box" aria-label="Veerbeheerder Ethiek-bewaker">
+      <div class="steward-header">
+        <div class="steward-title">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent)">
+            <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+            <line x1="16" y1="8" x2="2" y2="22"></line>
+            <line x1="17.5" y1="15" x2="9" y2="15"></line>
+          </svg>
+          <span>De Veerbeheerder &mdash; Ethische Poortwachter</span>
+        </div>
+        <span id="stewardStatus" class="status-pill status-warn">WACHT OP ETHISCHE TOETSING (0/4)</span>
+      </div>
+      <p style="font-size:0.88rem; color:var(--muted);">
+        De Veerbeheerder waakt over de integriteit van dit OSINT-dossier. Bevestig alle vier de ethische grondbeginselen om de live RIPE Tele-API vrij te geven en het dossier met de veer te bekrachtigen.
+      </p>
+      <ul class="ethics-list">
+        <li><label><input type="checkbox" class="ethic-check"> <span><strong>1. Uitsluitend passieve bronnen:</strong> Er wordt alleen gebruikgemaakt van publieke RIPE NCC-, DNS- en eigen ontvangen e-mailheaders; geen actieve scans of inbreuk.</span></label></li>
+        <li><label><input type="checkbox" class="ethic-check"> <span><strong>2. Dataminimalisatie &amp; Privacy:</strong> Geen persoonsgegevens, geen cookies en geen onnodige opslag van client-IP-adressen.</span></label></li>
+        <li><label><input type="checkbox" class="ethic-check"> <span><strong>3. Bronverificatie:</strong> Elke bewering is herleidbaar tot primaire technische bronnen (RIPEstat, RDAP, RFC 1918).</span></label></li>
+        <li><label><input type="checkbox" class="ethic-check"> <span><strong>4. Proportionaliteit:</strong> De analyse dient uitsluitend transparantie, beveiligingsinzicht en architecturale documentatie.</span></label></li>
+      </ul>
+    </section>
+
+    <!-- RIPE & TOPOLOGIE -->
+    <section class="panel">
+      <h2>1. Vastgestelde Netwerktopologie &amp; RIPE-entiteit</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>IP / Entiteit</th>
+              <th>Classificatie</th>
+              <th>Identificatie / RIPE-object</th>
+              <th>Rol / Tenant</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>217.19.226.228</code></td>
+              <td>Publiek IPv4 (Routeerbaar)</td>
+              <td><code>out.basenet.nl</code> &bull; <code>@postfix-out-int.mail</code></td>
+              <td>Gedeelde uitgaande MTA-relay</td>
+            </tr>
+            <tr>
+              <td><code>ORG-BIPB1-RIPE</code></td>
+              <td>RIPE Organisatie / <code>AS216092</code></td>
+              <td>Basenet Internet Projects BV (<code>195.95.150.0/24</code>)</td>
+              <td>Geregistreerde netwerkentiteit (NL)</td>
+            </tr>
+            <tr>
+              <td><code>10.244.3.181</code></td>
+              <td>Privaat IPv4 (RFC 1918)</td>
+              <td><code>tomcat-live-64f7774688-dtj5k</code> (<code>::ffff:af4:3b5</code>)</td>
+              <td>De Bakker Advocaten (Pod)</td>
+            </tr>
+            <tr>
+              <td><code>10.244.22.250</code></td>
+              <td>Privaat IPv4 (RFC 1918)</td>
+              <td><code>tomcat-live-85855d5c5b-ks9hc</code> (<code>10.244.0.0/16</code>)</td>
+              <td>Bos Van der Burg Advocaten (Pod)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TELE-API (RIPESTAT LIVE TELEMETRIE) -->
+    <section class="panel">
+      <h2>2. Tele-API &mdash; Publieke RIPEstat Data-opvraging (Opt-in)</h2>
+      <p style="font-size:0.88rem; color:var(--muted); margin-bottom:0.85rem;">
+        Voert uitsluitend na vrijgave door de Veerbeheerder een directe, passieve GET-aanvraag uit naar de publieke RIPEstat Data API (<code>stat.ripe.net</code>).
+      </p>
+      <div class="api-controls">
+        <input type="text" id="apiResource" value="217.19.226.228" aria-label="IP of ASN">
+        <select id="apiEndpoint" aria-label="RIPEstat endpoint">
+          <option value="network-info">network-info (Prefix &amp; ASN)</option>
+          <option value="reverse-dns-ip">reverse-dns-ip (PTR-records)</option>
+          <option value="abuse-contact-finder">abuse-contact-finder (Abuse-contact)</option>
+          <option value="announced-prefixes">announced-prefixes (voor AS216092)</option>
+        </select>
+        <button id="runApiBtn" class="primary" disabled>Vraag RIPE Tele-API op</button>
+      </div>
+      <pre id="apiOutput">// Vergrendeld door de Veerbeheerder. Bevestig eerst de ethische checklist hierboven.</pre>
+    </section>
+
+    <!-- HANDTEKENING MET DE VEER -->
+    <section class="signature-card" aria-label="Digitale handtekening met veer">
+      <div class="sig-left">
+        <!-- SVG Veer (Quill) -->
+        <svg class="quill-svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M54 10C40 12 26 24 18 42L12 54L24 48C42 40 52 24 54 10Z" fill="var(--accent-soft)"/>
+          <path d="M12 54L46 18"/>
+          <path d="M28 38L36 36"/>
+          <path d="M34 30L43 28"/>
+          <path d="M10 56H54" stroke-dasharray="3 3" opacity="0.6"/>
+        </svg>
+        <div>
+          <div class="sig-script">R. Goijarts</div>
+          <div class="sig-meta">
+            <strong>Handtekening met de Veer</strong> &bull; Architect-developer-dataanalyse<br>
+            Toezicht: Veerbeheerder (OSINT-ethiek &amp; bronintegriteit)
+          </div>
+        </div>
+      </div>
+      <div class="sig-seal" id="sigSeal">
+        <strong>ZEGELSTATUS:</strong> IN AFWACHTING VAN VEERBEHEERDER<br>
+        <strong>SHA-256 DOSSIER:</strong> <span id="dossierHash">wordt berekend...</span>
+      </div>
+    </section>
+
+    <footer>
+      <span>Architect-developer-dataanalyse: R. Goijarts</span>
+      <span>Ontwerp en ontwikkeling: Bedrijven en overheid hebben geen toestemming tot gebruik van deze code.</span>
+    </footer>
+  </div>
+
+  <script>
+    const checks = Array.from(document.querySelectorAll('.ethic-check'));
+    const stewardStatus = document.getElementById('stewardStatus');
+    const runApiBtn = document.getElementById('runApiBtn');
+    const apiOutput = document.getElementById('apiOutput');
+    const sigSeal = document.getElementById('sigSeal');
+    const dossierHashEl = document.getElementById('dossierHash');
+
+    // Thema-schakelaar
+    document.getElementById('themeToggle').addEventListener('click', (e) => {
+      const root = document.documentElement;
+      const isDark = root.getAttribute('data-theme') === 'dark';
+      root.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      e.target.textContent = isDark ? 'Donkere modus' : 'Lichte modus';
+    });
+
+    // SHA-256 van de kern-dossierdata
+    async function computeDossierHash() {
+      const payload = JSON.stringify({
+        author: "R. Goijarts",
+        ripe_org: "ORG-BIPB1-RIPE",
+        asn: "AS216092",
+        public_relay: "217.19.226.228",
+        private_pods: ["10.244.3.181", "10.244.22.250"]
+      });
+      const buf = new TextEncoder().encode(payload);
+      const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+      return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    let currentHash = '';
+    computeDossierHash().then(h => {
+      currentHash = h;
+      dossierHashEl.textContent = h;
+    });
+
+    // Veerbeheerder logica
+    function updateSteward() {
+      const count = checks.filter(c => c.checked).length;
+      const allOk = count === checks.length;
+
+      if (allOk) {
+        stewardStatus.textContent = 'GEKEURD MET DE VEER (4/4)';
+        stewardStatus.className = 'status-pill status-ok';
+        runApiBtn.disabled = false;
+        if (apiOutput.textContent.startsWith('// Vergrendeld')) {
+          apiOutput.textContent = '// Vrijgegeven door de Veerbeheerder. Klik op "Vraag RIPE Tele-API op" voor een passieve query.';
+        }
+        sigSeal.innerHTML = `<strong>ZEGELSTATUS:</strong> <span style="color:var(--ok)">BEKRACHTIGD DOOR VEERBEHEERDER</span><br><strong>TIJDSTIP:</strong> ${new Date().toISOString()}<br><strong>SHA-256 DOSSIER:</strong> ${currentHash}`;
+      } else {
+        stewardStatus.textContent = `WACHT OP ETHISCHE TOETSING (${count}/4)`;
+        stewardStatus.className = 'status-pill status-warn';
+        runApiBtn.disabled = true;
+        sigSeal.innerHTML = `<strong>ZEGELSTATUS:</strong> IN AFWACHTING VAN VEERBEHEERDER<br><strong>SHA-256 DOSSIER:</strong> ${currentHash}`;
+      }
+    }
+
+    checks.forEach(c => c.addEventListener('change', updateSteward));
+
+    // Tele-API aanroep (RIPEstat Data API)
+    runApiBtn.addEventListener('click', async () => {
+      const resource = document.getElementById('apiResource').value.trim();
+      const endpoint = document.getElementById('apiEndpoint').value;
+      if (!resource) return;
+
+      // Blokkeer RFC 1918 privé-adressen in externe API-calls
+      if (/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(resource)) {
+        apiOutput.textContent = '// VEERBEHEERDER BLOKKADE: RFC 1918-adressen (zoals 10.244.x.x) zijn privaat en worden niet naar externe API\'s verzonden.';
+        return;
+      }
+
+      const url = `https://stat.ripe.net/data/${encodeURIComponent(endpoint)}/data.json?resource=${encodeURIComponent(resource)}`;
+      apiOutput.textContent = `// Ophalen: ${url} ...`;
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        apiOutput.textContent = JSON.stringify({
+          endpoint,
+          resource,
+          query_time: data.time,
+          data: data.data
+        }, null, 2);
+      } catch (err) {
+        apiOutput.textContent = `// Fout bij ophalen van RIPEstat API: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
