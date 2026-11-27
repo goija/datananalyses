@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="meekrap-light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toetsingskader Boedelbeschrijving (ex art. 674 Rv) — Meekrap Projector Hub</title>
+
+  <!-- Google Fonts met betrouwbare systeem-fallbacks -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN voor responsieve layout-utilities -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* =========================================================================
+       1. DESIGN TOKENS & MEEKRAP THEMA'S
+       ========================================================================= */
+    :root {
+      --bg-app: #EFECE6;
+      --bg-slide: #FAF8F5;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F3EFE9;
+      --grid-line: rgba(163, 28, 28, 0.055);
+      --border-color: #E2DBD2;
+      --border-strong: #CBBFB3;
+
+      --meekrap: #A31C1C;
+      --meekrap-deep: #6B1111;
+      --meekrap-soft: rgba(163, 28, 28, 0.08);
+      --ochre: #B8731E;
+      --ochre-soft: rgba(184, 115, 30, 0.12);
+      --success: #1D6F42;
+      --success-soft: rgba(29, 111, 66, 0.10);
+
+      --text-main: #1E2226;
+      --text-muted: #555B61;
+      --text-inverse: #FAF8F5;
+
+      --font-serif: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      --overscan-pct: 0%;
+      --stage-ratio: 16 / 9;
+    }
+
+    /* Thema 2: Projector Zaal (Hoog Contrast Donker) */
+    [data-theme="projector-dark"] {
+      --bg-app: #0A0707;
+      --bg-slide: #161011;
+      --bg-card: #211819;
+      --bg-subtle: #2A1F21;
+      --grid-line: rgba(229, 168, 82, 0.06);
+      --border-color: #3D2D30;
+      --border-strong: #5E454A;
+
+      --meekrap: #E03E3E;
+      --meekrap-deep: #A31C1C;
+      --meekrap-soft: rgba(224, 62, 62, 0.16);
+      --ochre: #E5A852;
+      --ochre-soft: rgba(229, 168, 82, 0.16);
+      --success: #34D399;
+      --success-soft: rgba(52, 211, 153, 0.14);
+
+      --text-main: #F8F4EE;
+      --text-muted: #C6B9B7;
+      --text-inverse: #FFFFFF;
+    }
+
+    /* Thema 3: Zwart-Wit Print (Maximaal Contrast) */
+    [data-theme="bw-print"] {
+      --bg-app: #E5E5E5;
+      --bg-slide: #FFFFFF;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F4F4F4;
+      --grid-line: rgba(0, 0, 0, 0.05);
+      --border-color: #BFBFBF;
+      --border-strong: #000000;
+
+      --meekrap: #000000;
+      --meekrap-deep: #111111;
+      --meekrap-soft: #EFEFEF;
+      --ochre: #222222;
+      --ochre-soft: #EAEAEA;
+      --success: #000000;
+      --success-soft: #F0F0F0;
+
+      --text-main: #000000;
+      --text-muted: #333333;
+      --text-inverse: #FFFFFF;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: var(--font-sans);
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-serif-title { font-family: var(--font-serif); }
+    .font-mono-tech { font-family: var(--font-mono); }
+
+    /* =========================================================================
+       2. SLIDE STAGE & ARCHITECTURAL BLUEPRINT RASTER
+       ========================================================================= */
+    .stage-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 20px 88px 20px;
+      overflow: hidden;
+    }
+
+    body.projector-only .stage-wrapper {
+      padding: 0;
+      background: #000000;
+    }
+
+    .slide-frame {
+      position: relative;
+      aspect-ratio: var(--stage-ratio);
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: 100%;
+      background-color: var(--bg-slide);
+      background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      background-size: 32px 32px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 0 24px 60px rgba(30, 12, 12, 0.16), 0 4px 14px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: aspect-ratio 0.25s ease, background-color 0.25s ease;
+    }
+
+    body.projector-only .slide-frame {
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+    }
+
+    /* Zorgt dat breedte altijd past op smalle schermen */
+    @media (max-aspect-ratio: 16/9) {
+      .slide-frame {
+        width: 100%;
+        height: auto;
+      }
+    }
+
+    /* Overscan / Safe-Zone binnenmarge */
+    .slide-safe-area {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      padding: var(--overscan-pct);
+      display: flex;
+      flex-direction: column;
+      transition: padding 0.2s ease;
+    }
+
+    .slide-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(18px, 3.2vw, 44px) clamp(20px, 4vw, 56px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
+    }
+
+    /* Zichtbare safe-zone kalibratielijn */
+    .safe-zone-guide .slide-inner::after {
+      content: "SAFE-ZONE KADER";
+      position: absolute;
+      inset: 4px;
+      border: 2px dashed var(--meekrap);
+      pointer-events: none;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--meekrap);
+      padding: 4px 8px;
+      opacity: 0.75;
+    }
+
+    /* =========================================================================
+       3. LASERPOINTER, BLACKOUT / WHITEOUT & TESTBEELD
+       ========================================================================= */
+    #laserDot {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 9999px;
+      background: radial-gradient(circle, #FF3B3B 0%, #A31C1C 55%, rgba(163, 28, 28, 0) 100%);
+      box-shadow: 0 0 16px 6px rgba(224, 28, 28, 0.75);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 60;
+      display: none;
+    }
+
+    .screen-override {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      cursor: pointer;
+    }
+    .screen-override.active { display: flex; }
+
+    /* =========================================================================
+       4. SUBTIELE ANIMATIES & INTERACTIEVE ELEMENTEN
+       ========================================================================= */
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide { animation: fadeSlideIn 0.28s ease-out; }
+
+    .meekrap-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .meekrap-btn:hover {
+      border-color: var(--meekrap);
+      color: var(--meekrap);
+      background: var(--bg-subtle);
+    }
+    .meekrap-btn.active, .meekrap-btn.primary {
+      background: var(--meekrap);
+      border-color: var(--meekrap);
+      color: #FFFFFF;
+    }
+    .meekrap-btn.primary:hover {
+      background: var(--meekrap-deep);
+      border-color: var(--meekrap-deep);
+      color: #FFFFFF;
+    }
+
+    /* =========================================================================
+       5. PRINT / PDF EXPORT LAYOUT (ALLE 8 SLIDES NETJES OP LANDSCAPE)
+       ========================================================================= */
+    #printDeck { display: none; }
+
+    @media print {
+      @page { size: landscape; margin: 8mm; }
+      html, body {
+        height: auto !important;
+        overflow: visible !important;
+        background: #FFFFFF !important;
+        color: #000000 !important;
+      }
+      #mainApp, #modalLayer, #toastContainer, .screen-override, #testPatternOverlay {
+        display: none !important;
+      }
+      #printDeck {
+        display: block !important;
+      }
+      .print-slide-page {
+        page-break-after: always;
+        break-after: page;
+        border: 1px solid #BFBFBF;
+        padding: 28px 36px;
+        margin-bottom: 16px;
+        min-height: 185mm;
+        background: #FFFFFF !important;
+        color: #1E2226 !important;
+        position: relative;
+      }
+      .print-slide-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================================
+       HOOFDAPPLICATIE (SLIDESHOW + DOCK)
+       ========================================================================= -->
+  <div id="mainApp" class="w-full h-full flex flex-col relative">
+
+    <!-- Bovenste subtiele statusbalk (verborgen in pure projector-mode) -->
+    <header id="topBar" class="w-full px-4 py-2 flex items-center justify-between border-b shrink-0 z-20"
+            style="background: var(--bg-card); border-color: var(--border-color);">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="inline-flex items-center justify-center w-7 h-7 rounded-md font-serif-title font-bold text-sm shrink-0"
+              style="background: var(--meekrap); color: #FFFFFF;">M</span>
+        <div class="truncate">
+          <div class="text-xs font-mono-tech uppercase tracking-wider font-semibold truncate" style="color: var(--meekrap);">
+            Dossier Quaak · Art. 674 Rv
+          </div>
+          <div id="topSlideTitle" class="text-xs truncate" style="color: var(--text-muted);">
+            Toetsingskader Boedelbeschrijving
+          </div>
+        </div>
+      </div>
+
+      <!-- Snelle indicatoren voor actief projectorprofiel & thema -->
+      <div class="flex items-center gap-2 shrink-0">
+        <span id="activeInterfaceBadge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono-tech border"
+              style="background: var(--bg-subtle); border-color: var(--border-color); color: var(--text-main);">
+          <span class="w-2 h-2 rounded-full" style="background: var(--success);"></span>
+          HDMI 2.1 · 16:9
+        </span>
+
+        <!-- Thema wisselaar -->
+        <select id="themeSelect" aria-label="Weergavemodus kiezen"
+                class="text-xs font-medium rounded-lg px-2.5 py-1.5 border cursor-pointer focus:outline-none"
+                style="background: var(--bg-subtle); border-color: var(--border-color); color: var(--text-main);">
+          <option value="meekrap-light">Meekrap Archief (Licht)</option>
+          <option value="projector-dark">Projector Zaal (Donker)</option>
+          <option value="bw-print">Zwart-Wit Print</option>
+        </select>
+
+        <button id="btnOpenProjector" class="meekrap-btn primary text-xs" title="Open gesynchroniseerd 2e scherm / beamer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          <span class="hidden md:inline">Open Beamer / 2e Scherm</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Centrale Slide Stage -->
+    <main class="stage-wrapper flex-1 min-h-0">
+      <div id="slideFrame" class="slide-frame">
+        <div id="laserDot"></div>
+        <div id="slideSafeArea" class="slide-safe-area">
+          <div id="slideCanvas" class="slide-inner">
+            <!-- Dynamisch gerenderde slide-inhoud vanuit JSON -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Onderste Voortgangsbalk & Floating Control Dock -->
+    <footer id="controlDock" class="fixed bottom-0 left-0 right-0 z-30 border-t px-3 py-2"
+            style="background: var(--bg-card); border-color: var(--border-color);">
+      <!-- Voortgangslijn -->
+      <div class="w-full h-1 rounded-full overflow-hidden mb-2" style="background: var(--bg-subtle);">
+        <div id="progressBar" class="h-full transition-all duration-300" style="width: 12.5%; background: var(--meekrap);"></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+        <!-- Navigatie -->
+        <div class="flex items-center gap-1.5">
+          <button id="btnPrev" class="meekrap-btn" title="Vorige slide (Pijl links)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+            <span class="hidden sm:inline">Vorige</span>
+          </button>
+          <span id="slideCounter" class="px-2.5 py-1 rounded-md text-xs font-mono-tech font-semibold"
+                style="background: var(--bg-subtle); color: var(--text-main);">1 / 8</span>
+          <button id="btnNext" class="meekrap-btn" title="Volgende slide (Pijl rechts / Spatie)">
+            <span class="hidden sm:inline">Volgende</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        <!-- Hub & Presentatie Tools -->
+        <div class="flex items-center gap-1.5 overflow-x-auto py-0.5">
+          <button id="btnGrid" class="meekrap-btn" title="Slide-overzicht (O)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span class="hidden lg:inline">Overzicht</span>
+          </button>
+
+          <button id="btnConnections" class="meekrap-btn" title="Projectoren & Aansluitingen Hub (C)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+            <span>Aansluitingen</span>
+          </button>
+
+          <button id="btnPresenter" class="meekrap-btn" title="Presenter Console (P)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 4v16"/></svg>
+            <span class="hidden md:inline">Presenter</span>
+          </button>
+
+          <button id="btnTestPattern" class="meekrap-btn" title="Projector Kalibratie-testbeeld (T)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+            <span class="hidden lg:inline">Testbeeld</span>
+          </button>
+
+          <button id="btnLaser" class="meekrap-btn" title="Virtuele Laserpointer (L)">
+            <span class="w-2.5 h-2.5 rounded-full" style="background: #E03E3E;"></span>
+            <span class="hidden xl:inline">Laser</span>
+          </button>
+
+          <button id="btnBlackout" class="meekrap-btn" title="Blackout (B) / Whiteout (W)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M1 1l22 22"/></svg>
+            <span class="hidden xl:inline">Zwart (B)</span>
+          </button>
+
+          <button id="btnJson" class="meekrap-btn" title="Live JSON Engine & Export (J)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <span>JSON</span>
+          </button>
+
+          <button id="btnPrint" class="meekrap-btn" title="Print / Opslaan als PDF">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span class="hidden xl:inline">Print</span>
+          </button>
+
+          <button id="btnFullscreen" class="meekrap-btn" title="Volledig Scherm (F)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          </button>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- =========================================================================
+       MODALS & OVERLAYS (AANSLUITINGEN, PRESENTER, GRID, JSON, TESTBEELD)
+       ========================================================================= -->
+  <div id="modalLayer">
+
+    <!-- 1. AANSLUITINGEN & PROJECTOREN HUB MODAL -->
+    <div id="connectionsModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(15, 10, 10, 0.72); backdrop-filter: blur(4px);">
+      <div class="w-full max-w-5xl max-h-[90vh] rounded-xl border shadow-2xl flex flex-col overflow-hidden"
+           style="background: var(--bg-card); border-color: var(--border-color); color: var(--text-main);">
+        <div class="px-6 py-4 border-b flex items-center justify-between" style="background: var(--bg-subtle); border-color: var(--border-color);">
+          <div>
+            <h2 class="font-serif-title text-lg font-bold" style="color: var(--meekrap);">Projectoren, Schermen &amp; Aansluitingen Hub</h2>
+            <p class="text-xs" style="color: var(--text-muted);">Live hardware-detectie, signaalmatrix voor alle projectorstandaarden en beeldverhouding/overscan kalibratie.</p>
+          </div>
+          <button onclick="closeAllModals()" class="meekrap-btn">Sluiten (Esc)</button>
+        </div>
+
+        <div class="p-6 overflow-y-auto space-y-6">
+          <!-- Live Hardware & Schermdetectie -->
+          <section class="rounded-xl border p-4" style="background: var(--bg-subtle); border-color: var(--border-color);">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <h3 class="text-xs font-mono-tech uppercase tracking-wider font-bold" style="color: var(--meekrap);">
+                Live Hardware- &amp; Browser-Schermdetectie
+              </h3>
+              <div class="flex gap-2">
+                <button id="btnProbeScreens" class="meekrap-btn text-xs">Detecteer Meerdere Schermen</button>
+                <button onclick="refreshHardwareInfo()" class="meekrap-btn text-xs">Ververs</button>
+              </div>
+            </div>
+            <div id="hardwareStatsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
+              <!-- Gevuld via JS -->
+            </div>
+          </section>
+
+          <!-- Beeldverhouding & Overscan Kalibratie -->
+          <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="rounded-xl border p-4" style="border-color: var(--border-color);">
+              <h3 class="text-xs font-mono-tech uppercase tracking-wider font-bold mb-3" style="color: var(--meekrap);">
+                Beeldverhouding (Aspect Ratio)
+              </h3>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="aspectRatioButtons">
+                <button data-ratio="16/9" class="ratio-btn meekrap-btn justify-center">16:9<br><span class="text-[10px] opacity-75">HDMI/USB-C</span></button>
+                <button data-ratio="16/10" class="ratio-btn meekrap-btn justify-center">16:10<br><span class="text-[10px] opacity-75">WUXGA</span></button>
+                <button data-ratio="4/3" class="ratio-btn meekrap-btn justify-center">4:3<br><span class="text-[10px] opacity-75">VGA/XGA</span></button>
+                <button data-ratio="21/9" class="ratio-btn meekrap-btn justify-center">21:9<br><span class="text-[10px] opacity-75">Ultrawide</span></button>
+              </div>
+            </div>
+
+            <div class="rounded-xl border p-4" style="border-color: var(--border-color);">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xs font-mono-tech uppercase tracking-wider font-bold" style="color: var(--meekrap);">
+                  Overscan / Safe-Zone Marge
+                </h3>
+                <span id="overscanValueLabel" class="font-mono-tech text-xs font-bold">0%</span>
+              </div>
+              <input id="overscanSlider" type="range" min="0" max="10" step="1" value="0" class="w-full accent-[#A31C1C] cursor-pointer" />
+              <div class="flex items-center justify-between mt-3">
+                <label class="inline-flex items-center gap-2 text-xs cursor-pointer">
+                  <input id="toggleSafeGuide" type="checkbox" class="accent-[#A31C1C]" />
+                  <span>Toon Safe-Zone kader op slide</span>
+                </label>
+                <button onclick="closeAllModals(); toggleTestPattern(true);" class="meekrap-btn text-xs">Start Testbeeld</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Interactieve Aansluitingen Matrix -->
+          <section>
+            <h3 class="text-xs font-mono-tech uppercase tracking-wider font-bold mb-3" style="color: var(--meekrap);">
+              Alle Projector-Aansluitingen &amp; Signaalstandaarden (Klik om profiel te activeren)
+            </h3>
+            <div id="connectorCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <!-- Dynamisch gevuld uit PROJECTOR_INTERFACES -->
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. PRESENTER CONSOLE MODAL -->
+    <div id="presenterModal" class="fixed inset-0 z-50 hidden flex-col p-4" style="background: #120B0C; color: #FAF8F5;">
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b" style="border-color: #3A2729;">
+        <div class="flex items-center gap-3">
+          <span class="px-2.5 py-1 rounded text-xs font-mono-tech font-bold" style="background: #A31C1C; color: #FFF;">PRESENTER CONSOLE</span>
+          <span id="presenterSlideInfo" class="text-sm font-mono-tech text-stone-300">Slide 1 / 8</span>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="text-right">
+            <div class="text-[10px] font-mono-tech uppercase text-stone-400">Huidige Tijd</div>
+            <div id="presenterClock" class="font-mono-tech text-base font-bold">00:00:00</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] font-mono-tech uppercase text-stone-400">Presentatietimer</div>
+            <div id="presenterTimer" class="font-mono-tech text-base font-bold" style="color: #E5A852;">00:00</div>
+          </div>
+          <div class="flex gap-1.5">
+            <button id="btnTimerToggle" class="meekrap-btn text-xs" style="background:#2A1D1F; color:#FFF; border-color:#4E3639;">Start</button>
+            <button id="btnTimerReset" class="meekrap-btn text-xs" style="background:#2A1D1F; color:#FFF; border-color:#4E3639;">Reset</button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="openProjectorWindow()" class="meekrap-btn primary text-xs">Open 2e Scherm</button>
+          <button onclick="toggleBlackout()" class="meekrap-btn text-xs" style="background:#2A1D1F; color:#FFF; border-color:#4E3639;">Blackout (B)</button>
+          <button onclick="toggleWhiteout()" class="meekrap-btn text-xs" style="background:#2A1D1F; color:#FFF; border-color:#4E3639;">Whiteout (W)</button>
+          <button onclick="closeAllModals()" class="meekrap-btn text-xs" style="background:#2A1D1F; color:#FFF; border-color:#4E3639;">Sluiten (Esc)</button>
+        </div>
+      </div>
+
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 pt-4 min-h-0 overflow-y-auto">
+        <!-- Huidige Slide Preview -->
+        <div class="lg:col-span-7 flex flex-col gap-3">
+          <div class="text-xs font-mono-tech uppercase text-stone-400">Huidige Slide (Live op Beamer)</div>
+          <div id="presenterCurrentPreview" class="rounded-xl border p-5 flex-1 overflow-y-auto"
+               style="background: #FAF8F5; color: #1E2226; border-color: #4E3639;"></div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="prevSlide()" class="meekrap-btn" style="background:#2A1D1F; color:#FFF; border-color:#4E3639;">&larr; Vorige Slide</button>
+            <button onclick="nextSlide()" class="meekrap-btn primary">Volgende Slide &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Volgende Slide + Sprekersnotities -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <div class="rounded-xl border p-4" style="background: #1D1315; border-color: #3A2729;">
+            <div class="text-xs font-mono-tech uppercase mb-2" style="color: #E5A852;">Volgende Slide</div>
+            <div id="presenterNextPreview" class="text-sm text-stone-200"></div>
+          </div>
+
+          <div class="rounded-xl border p-4 flex-1 overflow-y-auto" style="background: #1D1315; border-color: #3A2729;">
+            <div class="text-xs font-mono-tech uppercase mb-2" style="color: #E03E3E;">Sprekersnotities &amp; Juridische Aandachtspunten</div>
+            <div id="presenterNotes" class="text-sm leading-relaxed text-stone-200 whitespace-pre-line"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. SLIDE-OVERZICHT (GRID VIEW) MODAL -->
+    <div id="gridModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(15, 10, 10, 0.78); backdrop-filter: blur(4px);">
+      <div class="w-full max-w-6xl max-h-[88vh] rounded-xl border shadow-2xl flex flex-col overflow-hidden"
+           style="background: var(--bg-card); border-color: var(--border-color); color: var(--text-main);">
+        <div class="px-6 py-4 border-b flex items-center justify-between" style="background: var(--bg-subtle); border-color: var(--border-color);">
+          <h2 class="font-serif-title text-lg font-bold" style="color: var(--meekrap);">Slide-Overzicht (Alle 8 Slides)</h2>
+          <button onclick="closeAllModals()" class="meekrap-btn">Sluiten (Esc)</button>
+        </div>
+        <div id="slideGridContainer" class="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Gevuld via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. LIVE JSON ENGINE & EXPORT MODAL -->
+    <div id="jsonModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(15, 10, 10, 0.72); backdrop-filter: blur(4px);">
+      <div class="w-full max-w-4xl max-h-[90vh] rounded-xl border shadow-2xl flex flex-col overflow-hidden"
+           style="background: var(--bg-card); border-color: var(--border-color); color: var(--text-main);">
+        <div class="px-6 py-4 border-b flex flex-wrap items-center justify-between gap-2" style="background: var(--bg-subtle); border-color: var(--border-color);">
+          <div>
+            <h2 class="font-serif-title text-lg font-bold" style="color: var(--meekrap);">Live JSON Engine &amp; Dossier-Export</h2>
+            <p class="text-xs" style="color: var(--text-muted);">Bewerk, kopieer, download of upload een eigen JSON-presentatiebestand.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="btnCopyJson" class="meekrap-btn text-xs">Kopieer JSON</button>
+            <button id="btnDownloadJson" class="meekrap-btn text-xs">Download .json</button>
+            <label class="meekrap-btn text-xs cursor-pointer">
+              Upload .json
+              <input id="jsonFileInput" type="file" accept=".json,application/json" class="hidden" />
+            </label>
+            <button id="btnApplyJson" class="meekrap-btn primary text-xs">Toepassen op Slides</button>
+            <button onclick="closeAllModals()" class="meekrap-btn text-xs">Sluiten</button>
+          </div>
+        </div>
+        <div class="p-4 flex-1 flex flex-col min-h-0">
+          <textarea id="jsonEditor" spellcheck="false"
+                    class="w-full flex-1 min-h-[420px] p-4 rounded-lg border font-mono-tech text-xs leading-relaxed focus:outline-none"
+                    style="background: #1A1415; color: #F4ECE6; border-color: var(--border-strong);"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       PROJECTOR KALIBRATIE-TESTBEELD OVERLAY
+       ========================================================================= -->
+  <div id="testPatternOverlay" class="fixed inset-0 z-50 hidden flex-col items-center justify-center bg-black text-white p-4">
+    <div class="relative w-full h-full max-w-[1600px] border-2 border-white/80 flex items-center justify-center overflow-hidden"
+         style="background-image: linear-gradient(to right, rgba(255,255,255,0.16) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.16) 1px, transparent 1px); background-size: 40px 40px;">
+
+      <!-- 5% en 10% Safe-Area Kaders -->
+      <div class="absolute inset-[5%] border-2 border-dashed border-amber-400/80 pointer-events-none">
+        <span class="bg-black/80 text-amber-300 font-mono-tech text-[11px] px-2 py-0.5">5% SAFE AREA (ACTION)</span>
+      </div>
+      <div class="absolute inset-[10%] border border-dashed border-red-500/80 pointer-events-none">
+        <span class="bg-black/80 text-red-400 font-mono-tech text-[11px] px-2 py-0.5">10% SAFE AREA (TITLE)</span>
+      </div>
+
+      <!-- Centrale Aspect-Ratio Cirkel & Kruisdraad -->
+      <svg class="w-[min(70vh,70vw)] h-[min(70vh,70vw)] pointer-events-none" viewBox="0 0 400 400">
+        <circle cx="200" cy="200" r="185" fill="none" stroke="#FFFFFF" stroke-width="2.5" />
+        <circle cx="200" cy="200" r="120" fill="none" stroke="#A31C1C" stroke-width="2" stroke-dasharray="6 4" />
+        <line x1="0" y1="200" x2="400" y2="200" stroke="#FFFFFF" stroke-width="1.5" />
+        <line x1="200" y1="0" x2="200" y2="400" stroke="#FFFFFF" stroke-width="1.5" />
+        <!-- Focus lijnen in de hoeken van de cirkel -->
+        <g stroke="#FFFFFF" stroke-width="1">
+          <line x1="175" y1="50" x2="225" y2="50"/><line x1="175" y1="54" x2="225" y2="54"/><line x1="175" y1="58" x2="225" y2="58"/>
+          <line x1="175" y1="342" x2="225" y2="342"/><line x1="175" y1="346" x2="225" y2="346"/><line x1="175" y1="350" x2="225" y2="350"/>
+        </g>
+      </svg>
+
+      <!-- Middenkaart met Live Resolutie, Grijswaarden & Meekrap Kleurreferentie -->
+      <div class="absolute bg-black/90 border border-white/40 rounded-xl p-5 text-center max-w-lg w-[90%] shadow-2xl">
+        <div class="font-mono-tech text-xs uppercase tracking-widest text-amber-400 mb-1">PROJECTOR KALIBRATIE-TESTBEELD</div>
+        <div id="testPatternSpecs" class="font-mono-tech text-lg font-bold mb-3">1920 × 1080 · 16:9</div>
+
+        <!-- Grijswaardenbalk -->
+        <div class="grid grid-cols-8 h-7 rounded overflow-hidden border border-white/30 mb-3">
+          <div style="background:#000000"></div><div style="background:#242424"></div>
+          <div style="background:#494949"></div><div style="background:#6D6D6D"></div>
+          <div style="background:#929292"></div><div style="background:#B6B6B6"></div>
+          <div style="background:#DBDBDB"></div><div style="background:#FFFFFF"></div>
+        </div>
+
+        <!-- Meekrap Kleurreferentie -->
+        <div class="grid grid-cols-5 h-7 rounded overflow-hidden border border-white/30 mb-4 text-[10px] font-mono-tech font-bold">
+          <div class="flex items-center justify-center" style="background:#6B1111">#6B1111</div>
+          <div class="flex items-center justify-center" style="background:#A31C1C">#A31C1C</div>
+          <div class="flex items-center justify-center text-black" style="background:#E5A852">#E5A852</div>
+          <div class="flex items-center justify-center text-black" style="background:#FAF8F5">#FAF8F5</div>
+          <div class="flex items-center justify-center" style="background:#1E2226">#1E2226</div>
+        </div>
+
+        <p class="text-xs text-stone-300 mb-4">Controleer of de cirkel exact rond is (aspect ratio), de tekst scherp is en het 5%-kader volledig op het doek valt.</p>
+        <button onclick="toggleTestPattern(false)" class="meekrap-btn primary">Sluit Testbeeld (T / Esc)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blackout & Whiteout Overlays -->
+  <div id="blackoutOverlay" class="screen-override bg-black text-stone-600" onclick="toggleBlackout(false)">
+    <span class="font-mono-tech text-xs opacity-40">BLACKOUT ACTIEF — DRUK OP B OF KLIK OM TE HERVATTEN</span>
+  </div>
+  <div id="whiteoutOverlay" class="screen-override bg-white text-stone-400" onclick="toggleWhiteout(false)">
+    <span class="font-mono-tech text-xs opacity-50">WHITEOUT ACTIEF — DRUK OP W OF KLIK OM TE HERVATTEN</span>
+  </div>
+
+  <!-- Toast Notificatie Container (Vervangt alert/confirm) -->
+  <div id="toastContainer" class="fixed top-14 right-4 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Verborgen Print Container (wordt alleen zichtbaar bij Print / PDF) -->
+  <div id="printDeck"></div>
+
+  <!-- =========================================================================
+       JAVASCRIPT APPLICATIE-ENGINE (DATA-GEDREVEN JSON + PROJECTOR SYNC)
+       ========================================================================= -->
+  <script>
+    /* -------------------------------------------------------------------------
+       1. PROJECTOR AANSLUITINGEN & SIGNAAL-MATRIX DATA
+       ------------------------------------------------------------------------- */
+    const PROJECTOR_INTERFACES = [
+      {
+        id: "hdmi",
+        name: "HDMI 2.1 / 2.0 / 1.4",
+        category: "Digitaal (Standaard)",
+        maxRes: "4K @ 120Hz / 8K @ 60Hz (2.1)",
+        audio: "Ja (geïntegreerd)",
+        ratio: "16/9",
+        cableMax: "Max. 5m passief (tot 30m met actieve optische HDMI)",
+        notes: "Meest gebruikte aansluiting in moderne vergader- en zittingszalen. Controleer HDCP-handshake bij schakelkasten."
+      },
+      {
+        id: "dp",
+        name: "DisplayPort 2.1 / 1.4",
+        category: "Digitaal (Zakelijk)",
+        maxRes: "4K @ 120Hz / 8K @ 60Hz",
+        audio: "Ja (multi-channel)",
+        ratio: "16/10",
+        cableMax: "Max. 3m (HBR3) of optisch tot 50m",
+        notes: "Ondersteunt MST daisy-chaining voor meerdere schermen. Ideaal voor WUXGA-projectoren (1920×1200)."
+      },
+      {
+        id: "usbc",
+        name: "USB-C (DP Alt Mode / TB 3 & 4)",
+        category: "Digitaal (1-Kabel)",
+        maxRes: "4K @ 60Hz–120Hz + Power Delivery",
+        audio: "Ja + Data + Stroom",
+        ratio: "16/9",
+        cableMax: "Max. 2m (gecertificeerde video/TB-kabel)",
+        notes: "Let op: standaard USB-C oplaadkabels geven géén videosignaal door. Gebruik een DP Alt Mode of Thunderbolt-kabel."
+      },
+      {
+        id: "vga",
+        name: "VGA (D-Sub 15-pin Analoog)",
+        category: "Analoog (Legacy Zaal)",
+        maxRes: "1024×768 (XGA) / 1600×1200",
+        audio: "Nee (aparte 3.5mm jack nodig)",
+        ratio: "4/3",
+        cableMax: "Tot 15m met afgeschermde coax-VGA",
+        notes: "Komt nog voor bij oudere rechtbank- of zaalbeamers. Schakel naar 4:3 en stel 5% overscan in. Vereist actieve HDMI/USB-C naar VGA adapter."
+      },
+      {
+        id: "dvi",
+        name: "DVI-D / DVI-I",
+        category: "Digitaal / Hybride",
+        maxRes: "1920×1200 (Single) / 2560×1600 (Dual)",
+        audio: "Nee (video-only)",
+        ratio: "16/10",
+        cableMax: "Max. 5m passief",
+        notes: "Pin-compatibel met HDMI-video via passieve adapter. Gebruik bij oudere professionele installatieprojectoren."
+      },
+      {
+        id: "sdi",
+        name: "3G-SDI / 12G-SDI (BNC Coax)",
+        category: "Broadcast / Auditorium",
+        maxRes: "1080p60 (3G) / 4K60 (12G)",
+        audio: "Ja (embedded 16-ch)",
+        ratio: "16/9",
+        cableMax: "Tot 100m over RG6 BNC-coax",
+        notes: "Professionele vergrendelbare BNC-verbinding zonder signaalverlies over lange afstanden in grote auditoria."
+      },
+      {
+        id: "wireless",
+        name: "Draadloos (Miracast / AirPlay 2 / Cast / ClickShare / WebRTC)",
+        category: "Draadloos / LAN",
+        maxRes: "1080p60 / 4K30 (afh. van Wi-Fi)",
+        audio: "Ja",
+        ratio: "16/9",
+        cableMax: "Wi-Fi 5/6 of LAN-segment",
+        notes: "Barco ClickShare biedt directe USB-C/dongle koppeling. Let bij vertrouwelijke dossiers op versleuteling (WPA3/PIN) en vermijd openbare gastnetwerken."
+      }
+    ];
+
+    /* -------------------------------------------------------------------------
+       2. STANDAARD PRESENTATIEDATA (VOLLEDIGE 8 SLIDES UIT DOSSIER QUAAK)
+       ------------------------------------------------------------------------- */
+    const DEFAULT_PRESENTATION = {
+      meta: {
+        title: "Toetsingskader Boedelbeschrijving (ex art. 674 Rv)",
+        subtitle: "Het verifiëren van activa en passiva aan de hand van originele onderleggers.",
+        footer: "Opgesteld voor: Mr. Van Leeuwen | Inzake: Dossier Quaak / Diagnostiek Wederpartij",
+        badge: "INTERNAL PLAYBOOK / CONFIDENTIAL",
+        theme: "meekrap-light",
+        projectorProfile: {
+          interfaceId: "hdmi",
+          aspectRatio: "16/9",
+          overscanPct: 0
+        }
+      },
+      slides: [
+        {
+          id: 1,
+          type: "title",
+          title: "Toetsingskader Boedelbeschrijving (ex art. 674 Rv)",
+          subtitle: "Het verifiëren van activa en passiva aan de hand van originele onderleggers.",
+          footer: "Opgesteld voor: Mr. Van Leeuwen | Inzake: Dossier Quaak / Diagnostiek Wederpartij",
+          badge: "INTERNAL PLAYBOOK / CONFIDENTIAL",
+          notes: "Welkom bij de bespreking van het Toetsingskader Boedelbeschrijving ex art. 674 Rv voor Dossier Quaak.\nBenadruk direct het uitgangspunt: wij toetsen niet op meningen of samenvattingen, maar uitsluitend op verifieerbare, originele onderleggers."
+        },
+        {
+          id: 2,
+          type: "pillars",
+          title: "Het Fundament van een Rechtsgeldige Boedelbeschrijving",
+          pillars: [
+            {
+              icon: "calendar",
+              heading: "Peildatum",
+              text: "De sterfdatum vormt de harde grens. Gebeurtenissen of kosten ná deze datum horen thuis in een apart traject."
+            },
+            {
+              icon: "scale",
+              heading: "Volledigheid",
+              text: "Een 100% sluitend overzicht van alle bezittingen (activa) en schulden (passiva). Niets mag worden verzwegen."
+            },
+            {
+              icon: "shield",
+              heading: "Verifieerbaarheid",
+              text: "Elke individuele post moet aantoonbaar steunen op originele onderleggers."
+            }
+          ],
+          callout: "Een bedrag op een boedelbeschrijving is slechts een bewering. De onderlegger is het bewijs. Zonder onderleggers is de boedelbeschrijving niet controleerbaar en juridisch onbruikbaar.",
+          notes: "Licht de drie pijlers toe: Peildatum (harde grens), Volledigheid (100% sluitend) en Verifieerbaarheid.\nDe kernboodschap onderaan is de rode draad voor het gehele dossier Quaak."
+        },
+        {
+          id: 3,
+          type: "matrix",
+          title: "Verificatiematrix 1: Activa (Bezittingen)",
+          columns: ["Vermogenscategorie", "Vereiste Originele Onderleggers"],
+          rows: [
+            ["Onroerend goed", "Kadastrale uittreksels, eigendomsakte, meest recente WOZ-beschikking én een onafhankelijk taxatierapport."],
+            ["Bank- en spaarrekeningen", "Officiële saldoverklaringen (peildatum) + afschriften minimaal 12 maanden vóór overlijden."],
+            ["Beleggingen / Crypto", "Portefeuilleoverzicht met de exacte koerswaarde op de sterfdatum."],
+            ["Inboedel / Voertuigen", "Waarderingslijst goederen (of taxatierapport bij kunst/sieraden) + kentekenbewijs/dagwaarde."],
+            ["Vorderingen / Uitkeringen", "Leningsovereenkomsten, polisbladen levensverzekeringen, openstaande belastingteruggaven."],
+            ["Contant geld", "Exacte opgave aangetroffen contanten + direct bewijs van storting op de ervenrekening."]
+          ],
+          notes: "Wijs specifiek op rij 2 (Bank- en spaarrekeningen): een losse saldoverklaring op de sterfdatum is volstrekt onvoldoende. Afschriften van minimaal 12 maanden vóór overlijden zijn cruciaal om onttrekkingen kort voor overlijden te signaleren."
+        },
+        {
+          id: 4,
+          type: "matrix",
+          title: "Verificatiematrix 2: Passiva (Schulden)",
+          columns: ["Schuldcategorie", "Vereiste Originele Onderleggers"],
+          rows: [
+            ["Hypotheek en leningen", "Restschuldverklaring per sterfdatum + rente-opgave."],
+            ["Uitvaartkosten", "Alle facturen en betalingsbewijzen van uitvaartondernemer/crematorium + uitkering uitvaartpolis."],
+            ["Belastingschulden", "Laatste aangifte (F-biljet), voorlopige/definitieve aanslagen IB, gemeentelijke belastingen."],
+            ["Lopende rekeningen / Zorg", "Eindafrekeningen (energie/water), openstaande facturen per sterfdatum, eigen bijdrage CAK."],
+            ["Executeurskosten", "Gespecificeerde urenstaten en facturen van notaris, executeur of adviseurs."]
+          ],
+          warning: "CRUCIAAL ONDERSCHEID: Doorlopende lasten en beheerskosten ná de sterfdatum (bijv. vaste lasten woning tot verkoop) horen NIET bij de schulden op de peildatum, maar in de latere rekening en verantwoording.",
+          notes: "Benadruk de waarschuwingsbalk: in de praktijk worden lopende kosten na overlijden (zoals energie of onderhoud) vaak ten onrechte op de boedelbeschrijving gezet om het saldo kunstmatig te drukken."
+        },
+        {
+          id: 5,
+          type: "flow",
+          title: "De Vier Controlevragen voor Sluitende Toetsing",
+          steps: [
+            { num: "1", heading: "Aansluiting Erfbelasting", text: "Sluiten de cijfers op de beschrijving één-op-één aan op de (concept-)aangifte bij de Belastingdienst?" },
+            { num: "2", heading: "Bankmutaties vóór Overlijden", text: "Zijn er grote contante opnames, schenkingen of volmacht-overboekingen zichtbaar in de periode (1–5 jaar) vóór de sterfdatum? (Een saldoverklaring alleen is onvoldoende)." },
+            { num: "3", heading: "Schenkingen & Giften", text: "Zijn schenkingen tijdens leven (binnen 180 dagen, of 5+ jaar voor de legitieme portie) correct verantwoord met bankafschriften?" },
+            { num: "4", heading: "Kosten ná Overlijden", text: "Zijn doorlopende afwikkelingskosten strikt gescheiden van de passiva op de sterfdatum?" }
+          ],
+          outcomes: {
+            fail: "Nader Onderzoek Vereist (Inzagerecht)",
+            pass: "Toetsing Sluitend"
+          },
+          notes: "Deze vier vragen vormen de beslisboom. Zodra op één van de vier vragen geen sluitend antwoord met bewijsstukken volgt, schakelen we direct door naar het rode spoor: Nader Onderzoek & Inzagerecht."
+        },
+        {
+          id: 6,
+          type: "case",
+          title: "Praktijktoepassing Toetsingskader: Casus Quaak",
+          leftHeading: "De Bewering — Wederpartij",
+          leftClaims: [
+            { label: "Claim 1", text: "“Onttrekking €20.000,- (10 dagen vóór overlijden) voor uitvaart en lopende kosten.”" },
+            { label: "Claim 2", text: "“Aftrekpost €14.506,- aan specifieke zorgkosten in concept-aangifte IB 2024 (Admin. Ponse).”" }
+          ],
+          leftExtras: [
+            "Mantelzorg B.E. Elenbaas — € 800,00 (28 dagen à €25 + nazorg €100)",
+            "Delta Energie November — € 70,00"
+          ],
+          rightHeading: "De Forensische Realiteit — Het Kader",
+          rightFindings: [
+            { label: "Toetsing 1 (Faalt)", text: "Geen bankafschriften overgelegd. Onttrekkingsbewijs en originele uitvaartfacturen ontbreken structureel na herhaalde sommatie." },
+            { label: "Toetsing 2 (Faalt)", text: "Geen onderleggers voor zorgkosten. Geen CIZ-indicatie, geen mantelzorgcontract, ongeoorloofde onderhandse vergoedingen aan derden." }
+          ],
+          conclusion: "CONCLUSIE: De ingediende boedelbeschrijving sneuvelt volledig in het toetsingskader wegens het ontbreken van verifieerbare onderleggers en vormt een acuut fiscaal risico.",
+          notes: "Hier passen we het kader concreet toe op Casus Quaak.\nLet op het tijdstip van de €20.000,- onttrekking (10 dagen vóór overlijden) én de ononderbouwde aftrekpost van €14.506,- in de concept-aangifte IB 2024 (Admin. Ponse)."
+        },
+        {
+          id: 7,
+          type: "escalation",
+          title: "Juridische Vervolgstappen bij Verzuim",
+          steps: [
+            {
+              level: "Stap 1",
+              heading: "Inzagerecht (Art. 1019a / 843a Rv)",
+              text: "Formele sommatie tot het overleggen van de ontbrekende originele onderleggers (waaronder de achtergehouden bankafschriften)."
+            },
+            {
+              level: "Stap 2",
+              heading: "Fiscale Blokkade",
+              text: "Directe blokkade van de goedkeuring van de onjuiste aangifte IB 2024 en Erfbelasting om boetes (bijv. art. 67d AWR) wegens het opvoeren van fantoomkosten te voorkomen."
+            },
+            {
+              level: "Stap 3",
+              heading: "Sanctie Opzettelijke Verzwijging (Art. 3:194 lid 2 BW)",
+              text: "Afdwingen van rekening en verantwoording via de rechter. Bij blijvende opzettelijke verzwijging of verduistering van boedelgelden (de €20.000,-) verbeurt de wederpartij haar aandeel in dat specifieke goed."
+            }
+          ],
+          notes: "De escalatieladder is helder en proportioneel:\n1. Sommatie o.g.v. inzagerecht.\n2. Fiscale blokkade om eigen fiscale aansprakelijkheid en vergrijpboetes (art. 67d AWR) te voorkomen.\n3. Zwaarste civiele sanctie: art. 3:194 lid 2 BW (verbeurte van het aandeel in de €20.000,-)."
+        },
+        {
+          id: 8,
+          type: "checklist",
+          title: "TEAR-SHEET: Quick-Scan Intake Boedelbeschrijving",
+          banner: "GEEN ONDERLEGGER = GEEN AKKOORD. Retourneer de post naar de wederpartij ter onderbouwing.",
+          groups: [
+            {
+              heading: "1. Activa (Direct op te vragen)",
+              items: [
+                { id: "a1", text: "Saldi én bankafschriften (min. 12 mnd vóór peildatum) van alle rekeningen.", checked: false },
+                { id: "a2", text: "Kadastraal uittreksel, WOZ & objectieve taxatie onroerend goed.", checked: false },
+                { id: "a3", text: "Specificatie inboedel / voertuigen inclusief waardering.", checked: false }
+              ]
+            },
+            {
+              heading: "2. Passiva (Direct op te vragen)",
+              items: [
+                { id: "p1", text: "Originele eindafrekeningen (zorg, energie, belastingen) per sterfdatum.", checked: false },
+                { id: "p2", text: "Originele, gespecificeerde facturen uitvaartkosten.", checked: false }
+              ]
+            },
+            {
+              heading: "3. Forensische Controles",
+              items: [
+                { id: "f1", text: "Komen de cijfers exact overeen met de concept-aangifte Erfbelasting?", checked: false },
+                { id: "f2", text: "Zijn beheerskosten ná overlijden correct afgesplitst van de boedelbalans?", checked: false },
+                { id: "f3", text: "Zijn grote mutaties/schenkingen kort vóór overlijden afdoende verantwoord?", checked: false }
+              ]
+            }
+          ],
+          notes: "Deze interactieve tear-sheet kan live tijdens de zitting of intake worden afgevinkt. De voortgangsbalk en status passen zich realtime aan en synchroniseren direct met het 2e scherm."
+        }
+      ]
+    };
+
+    /* -------------------------------------------------------------------------
+       3. APPLICATIE-STATE & BROADCASTCHANNEL SYNC
+       ------------------------------------------------------------------------- */
+    let presentationData = JSON.parse(JSON.stringify(DEFAULT_PRESENTATION));
+    let currentSlideIdx = 0;
+    let isLaserActive = false;
+    let isBlackout = false;
+    let isWhiteout = false;
+    let isProjectorOnly = false;
+    let timerSeconds = 0;
+    let timerInterval = null;
+    let syncChannel = null;
+
+    // Detecteer of dit venster geopend is als puur projectorvenster (?mode=projector)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("mode") === "projector" || window.__MEEKRAP_PROJECTOR_MODE__) {
+        isProjectorOnly = true;
+        document.body.classList.add("projector-only");
+      }
+    } catch (e) {}
+
+    // Initialiseer BroadcastChannel voor Dual-Screen sync
+    try {
+      if ("BroadcastChannel" in window) {
+        syncChannel = new BroadcastChannel("meekrap_projector_sync_v1");
+        syncChannel.onmessage = (event) => handleSyncMessage(event.data);
+      }
+    } catch (e) {
+      console.warn("BroadcastChannel niet beschikbaar, fallback naar lokale modus.");
+    }
+
+    function broadcastState(type, payload = {}) {
+      if (!syncChannel) return;
+      try {
+        syncChannel.postMessage({ type, payload, ts: Date.now() });
+      } catch (e) {}
+    }
+
+    function handleSyncMessage(msg) {
+      if (!msg || !msg.type) return;
+      switch (msg.type) {
+        case "SLIDE_CHANGE":
+          if (typeof msg.payload.index === "number") {
+            currentSlideIdx = msg.payload.index;
+            renderCurrentSlide(false);
+          }
+          break;
+        case "THEME_CHANGE":
+          applyTheme(msg.payload.theme, false);
+          break;
+        case "PROJECTOR_PROFILE":
+          applyProjectorProfile(msg.payload, false);
+          break;
+        case "BLACKOUT":
+          toggleBlackout(msg.payload.active, false);
+          break;
+        case "WHITEOUT":
+          toggleWhiteout(msg.payload.active, false);
+          break;
+        case "TEST_PATTERN":
+          toggleTestPattern(msg.payload.active, false);
+          break;
+        case "LASER_MOVE":
+          updateLaserPosition(msg.payload.xPct, msg.payload.yPct, msg.payload.visible);
+          break;
+        case "DATA_SYNC":
+          if (msg.payload.data) {
+            presentationData = msg.payload.data;
+            renderCurrentSlide(false);
+          }
+          break;
+        case "REQUEST_STATE":
+          if (!isProjectorOnly) {
+            broadcastState("DATA_SYNC", { data: presentationData });
+            broadcastState("SLIDE_CHANGE", { index: currentSlideIdx });
+            broadcastState("THEME_CHANGE", { theme: presentationData.meta.theme });
+            broadcastState("PROJECTOR_PROFILE", presentationData.meta.projectorProfile);
+          }
+          break;
+      }
+    }
+
+    /* -------------------------------------------------------------------------
+       4. TOAST NOTIFICATIES (NOOIT alert() OF confirm())
+       ------------------------------------------------------------------------- */
+    function showToast(message, variant = "info") {
+      const container = document.getElementById("toastContainer");
+      const el = document.createElement("div");
+      const bg = variant === "error" ? "#A31C1C" : variant === "success" ? "#1D6F42" : "#1E2226";
+      el.className = "pointer-events-auto px-4 py-2.5 rounded-lg shadow-lg text-xs font-medium text-white flex items-center gap-2 transition-all duration-200";
+      el.style.background = bg;
+      el.textContent = message;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(-6px)";
+        setTimeout(() => el.remove(), 220);
+      }, 3000);
+    }
+
+    /* -------------------------------------------------------------------------
+       5. SLIDE RENDERING ENGINE (GENERATIE VAN ALLE 8 SLIDE-TYPES)
+       ------------------------------------------------------------------------- */
+    function getPillarIcon(name) {
+      if (name === "calendar") return `<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 15l6 6M15 15l-6 6"/></svg>`;
+      if (name === "scale") return `<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 3v18M5 7h14M3 14l2-7 2 7a2 2 0 0 1-4 0zm14 0l2-7 2 7a2 2 0 0 1-4 0zM8 21h8"/></svg>`;
+      return `<svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>`;
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function buildSlideMarkup(slide, idx, interactive = true) {
+      const total = presentationData.slides.length;
+      const headerHtml = slide.type === "title" ? "" : `
+        <div class="flex items-center justify-between gap-4 pb-3 mb-4 border-b shrink-0" style="border-color: var(--border-color);">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-1.5 h-7 rounded-full shrink-0" style="background: var(--meekrap);"></span>
+            <h2 class="font-serif-title text-xl sm:text-2xl lg:text-3xl font-bold leading-tight truncate" style="color: var(--text-main);">
+              ${escapeHtml(slide.title)}
+            </h2>
+          </div>
+          <span class="font-mono-tech text-xs font-semibold px-2.5 py-1 rounded shrink-0"
+                style="background: var(--meekrap-soft); color: var(--meekrap);">
+            SLIDE ${String(idx + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}
+          </span>
+        </div>
+      `;
+
+      let bodyHtml = "";
+
+      if (slide.type === "title") {
+        bodyHtml = `
+          <div class="h-full flex flex-col justify-between relative">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex items-center gap-2">
+                <span class="w-10 h-1 rounded-full" style="background: var(--meekrap);"></span>
+                <span class="w-3 h-1 rounded-full" style="background: var(--ochre);"></span>
+                <span class="font-mono-tech text-xs uppercase tracking-widest font-semibold ml-2" style="color: var(--meekrap);">
+                  MEEKRAP ARCHIEF · JURIDISCH KADER
+                </span>
+              </div>
+              <div class="px-3 py-1.5 rounded-full border-2 font-mono-tech text-[11px] font-bold tracking-wider uppercase text-center"
+                   style="border-color: var(--meekrap); color: var(--meekrap); background: var(--meekrap-soft);">
+                ${escapeHtml(slide.badge)}
+              </div>
+            </div>
+
+            <div class="my-auto py-4 flex items-center gap-6">
+              <div class="w-2 self-stretch rounded-full shrink-0" style="background: linear-gradient(180deg, var(--meekrap) 0%, var(--ochre) 100%);"></div>
+              <div>
+                <h1 class="font-serif-title text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4" style="color: var(--text-main);">
+                  ${escapeHtml(slide.title)}
+                </h1>
+                <p class="text-base sm:text-xl lg:text-2xl max-w-3xl leading-relaxed" style="color: var(--text-muted);">
+                  ${escapeHtml(slide.subtitle)}
+                </p>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm"
+                 style="border-color: var(--border-strong); color: var(--text-muted);">
+              <span class="font-semibold" style="color: var(--text-main);">${escapeHtml(slide.footer)}</span>
+              <span class="font-mono-tech text-xs">ART. 674 RV · VERIFICATIEPROTOCOL</span>
+            </div>
+          </div>
+        `;
+      } else if (slide.type === "pillars") {
+        bodyHtml = `
+          <div class="flex-1 flex flex-col justify-between gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-auto">
+              ${slide.pillars.map((p, i) => `
+                <div class="rounded-xl border p-5 flex flex-col gap-3 shadow-sm"
+                     style="background: var(--bg-card); border-color: var(--border-color); border-top: 4px solid var(--meekrap);">
+                  <div class="flex items-center justify-between">
+                    <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background: var(--meekrap-soft); color: var(--meekrap);">
+                      ${getPillarIcon(p.icon)}
+                    </div>
+                    <span class="font-mono-tech text-xs font-bold opacity-60">PIJLER 0${i + 1}</span>
+                  </div>
+                  <h3 class="font-serif-title text-lg font-bold" style="color: var(--text-main);">${escapeHtml(p.heading)}</h3>
+                  <p class="text-sm leading-relaxed" style="color: var(--text-muted);">${escapeHtml(p.text)}</p>
+                </div>
+              `).join("")}
+            </div>
+
+            <div class="rounded-xl p-4 sm:p-5 border-l-4 shadow-sm"
+                 style="background: var(--meekrap); color: #FFFFFF; border-left-color: var(--ochre);">
+              <p class="font-serif-title text-sm sm:text-base font-bold text-center leading-relaxed">
+                ${escapeHtml(slide.callout)}
+              </p>
+            </div>
+          </div>
+        `;
+      } else if (slide.type === "matrix") {
+        bodyHtml = `
+          <div class="flex-1 flex flex-col justify-between gap-4">
+            <div class="overflow-x-auto rounded-xl border my-auto" style="border-color: var(--border-color); background: var(--bg-card);">
+              <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                <thead>
+                  <tr style="background: var(--meekrap); color: #FFFFFF;">
+                    <th class="py-3 px-4 font-serif-title font-bold w-1/3">${escapeHtml(slide.columns[0])}</th>
+                    <th class="py-3 px-4 font-serif-title font-bold">${escapeHtml(slide.columns[1])}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${slide.rows.map((r, rIdx) => `
+                    <tr style="background: ${rIdx % 2 === 1 ? "var(--bg-subtle)" : "var(--bg-card)"}; border-top: 1px solid var(--border-color);">
+                      <td class="py-3 px-4 font-bold align-top" style="color: var(--meekrap);">${escapeHtml(r[0])}</td>
+                      <td class="py-3 px-4 leading-snug" style="color: var(--text-main);">${escapeHtml(r[1])}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+            ${slide.warning ? `
+              <div class="rounded-xl p-3.5 sm:p-4 border flex items-start gap-3"
+                   style="background: var(--ochre-soft); border-color: var(--ochre); color: var(--text-main);">
+                <span class="font-mono-tech text-xs font-bold px-2 py-0.5 rounded shrink-0" style="background: var(--ochre); color: #FFFFFF;">LET OP</span>
+                <p class="text-xs sm:text-sm font-semibold leading-snug">${escapeHtml(slide.warning)}</p>
+              </div>
+            ` : ""}
+          </div>
+        `;
+      } else if (slide.type === "flow") {
+        bodyHtml = `
+          <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+            <div class="lg:col-span-8 space-y-3">
+              ${slide.steps.map(s => `
+                <div class="rounded-xl border p-3.5 sm:p-4 flex items-start gap-4"
+                     style="background: var(--bg-card); border-color: var(--border-color);">
+                  <div class="w-9 h-9 rounded-lg flex items-center justify-center font-mono-tech font-bold text-sm shrink-0"
+                       style="background: var(--meekrap); color: #FFFFFF;">${escapeHtml(s.num)}</div>
+                  <div>
+                    <h3 class="font-serif-title text-sm sm:text-base font-bold mb-0.5" style="color: var(--text-main);">${escapeHtml(s.heading)}</h3>
+                    <p class="text-xs sm:text-sm leading-snug" style="color: var(--text-muted);">${escapeHtml(s.text)}</p>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+
+            <div class="lg:col-span-4 flex flex-col gap-4">
+              <div class="rounded-xl border-2 p-5 text-center"
+                   style="background: var(--meekrap-soft); border-color: var(--meekrap);">
+                <div class="font-mono-tech text-xs font-bold uppercase mb-1" style="color: var(--meekrap);">BIJ AFWIJKING / ONTBREKEN</div>
+                <div class="font-serif-title text-base sm:text-lg font-bold" style="color: var(--meekrap);">${escapeHtml(slide.outcomes.fail)}</div>
+              </div>
+
+              <div class="text-center font-mono-tech text-xs uppercase tracking-widest opacity-60">OF</div>
+
+              <div class="rounded-xl border-2 p-5 text-center"
+                   style="background: var(--success-soft); border-color: var(--success);">
+                <div class="font-mono-tech text-xs font-bold uppercase mb-1" style="color: var(--success);">ALLE 4 VRAGEN POSITIEF</div>
+                <div class="font-serif-title text-base sm:text-lg font-bold" style="color: var(--success);">${escapeHtml(slide.outcomes.pass)}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (slide.type === "case") {
+        bodyHtml = `
+          <div class="flex-1 flex flex-col justify-between gap-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 my-auto">
+              <!-- Links: Bewering Wederpartij -->
+              <div class="rounded-xl border p-4 sm:p-5 flex flex-col gap-3"
+                   style="background: var(--bg-card); border-color: var(--border-color);">
+                <div class="font-mono-tech text-xs font-bold uppercase tracking-wider pb-2 border-b"
+                     style="color: var(--text-muted); border-color: var(--border-color);">
+                  ${escapeHtml(slide.leftHeading)}
+                </div>
+                ${slide.leftClaims.map(c => `
+                  <div class="p-3 rounded-lg border-l-4" style="background: var(--bg-subtle); border-left-color: var(--ochre);">
+                    <div class="font-mono-tech text-xs font-bold mb-0.5" style="color: var(--ochre);">${escapeHtml(c.label)}</div>
+                    <p class="text-xs sm:text-sm font-medium" style="color: var(--text-main);">${escapeHtml(c.text)}</p>
+                  </div>
+                `).join("")}
+                <div class="pt-2 border-t text-xs space-y-1 font-mono-tech" style="border-color: var(--border-color); color: var(--text-muted);">
+                  ${slide.leftExtras.map(ex => `<div>• ${escapeHtml(ex)}</div>`).join("")}
+                </div>
+              </div>
+
+              <!-- Rechts: Forensische Realiteit -->
+              <div class="rounded-xl border-2 p-4 sm:p-5 flex flex-col gap-3"
+                   style="background: var(--meekrap-soft); border-color: var(--meekrap);">
+                <div class="font-mono-tech text-xs font-bold uppercase tracking-wider pb-2 border-b"
+                     style="color: var(--meekrap); border-color: var(--border-strong);">
+                  ${escapeHtml(slide.rightHeading)}
+                </div>
+                ${slide.rightFindings.map(f => `
+                  <div class="p-3 rounded-lg border" style="background: var(--bg-card); border-color: var(--meekrap);">
+                    <div class="font-mono-tech text-xs font-bold mb-1" style="color: var(--meekrap);">✕ ${escapeHtml(f.label)}</div>
+                    <p class="text-xs sm:text-sm leading-snug" style="color: var(--text-main);">${escapeHtml(f.text)}</p>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+
+            <div class="rounded-xl p-3.5 sm:p-4 text-center shadow-sm" style="background: var(--meekrap-deep); color: #FFFFFF;">
+              <p class="text-xs sm:text-sm font-bold leading-snug">${escapeHtml(slide.conclusion)}</p>
+            </div>
+          </div>
+        `;
+      } else if (slide.type === "escalation") {
+        bodyHtml = `
+          <div class="flex-1 flex flex-col justify-center">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+              ${slide.steps.map((st, sIdx) => {
+                const isFinal = sIdx === slide.steps.length - 1;
+                return `
+                  <div class="rounded-xl border-2 p-5 flex flex-col justify-between gap-3 relative"
+                       style="background: ${isFinal ? "var(--meekrap)" : "var(--bg-card)"};
+                              border-color: ${isFinal ? "var(--meekrap-deep)" : "var(--border-strong)"};
+                              color: ${isFinal ? "#FFFFFF" : "var(--text-main)"};">
+                    <div>
+                      <div class="flex items-center justify-between mb-3">
+                        <span class="font-mono-tech text-xs font-bold uppercase px-2.5 py-1 rounded"
+                              style="background: ${isFinal ? "rgba(255,255,255,0.18)" : "var(--meekrap-soft)"};
+                                     color: ${isFinal ? "#FFFFFF" : "var(--meekrap)"};">
+                          ${escapeHtml(st.level)}
+                        </span>
+                        <span class="font-serif-title text-2xl font-bold opacity-30">0${sIdx + 1}</span>
+                      </div>
+                      <h3 class="font-serif-title text-base sm:text-lg font-bold mb-2">${escapeHtml(st.heading)}</h3>
+                      <p class="text-xs sm:text-sm leading-relaxed" style="opacity: ${isFinal ? "0.95" : "0.85"};">${escapeHtml(st.text)}</p>
+                    </div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
+        `;
+      } else if (slide.type === "checklist") {
+        const allItems = slide.groups.flatMap(g => g.items);
+        const doneCount = allItems.filter(i => i.checked).length;
+        const pct = allItems.length ? Math.round((doneCount / allItems.length) * 100) : 0;
+        const statusText = pct === 100 ? "TOETSING VOLLEDIG — GEREED VOOR BEOORDELING" : "ONVOLLEDIG — GEEN ONDERLEGGER = GEEN AKKOORD";
+
+        bodyHtml = `
+          <div class="flex-1 flex flex-col justify-between gap-3">
+            <!-- Live Voortgangsbalk -->
+            <div class="rounded-xl border p-3 flex flex-wrap items-center justify-between gap-3"
+                 style="background: var(--bg-card); border-color: var(--border-color);">
+              <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+                <span class="font-mono-tech text-xs font-bold" style="color: var(--meekrap);">${doneCount}/${allItems.length} (${pct}%)</span>
+                <div class="flex-1 h-2.5 rounded-full overflow-hidden" style="background: var(--bg-subtle);">
+                  <div class="h-full transition-all duration-300"
+                       style="width: ${pct}%; background: ${pct === 100 ? "var(--success)" : "var(--meekrap)"};"></div>
+                </div>
+              </div>
+              <span class="font-mono-tech text-[11px] font-bold px-2.5 py-1 rounded"
+                    style="background: ${pct === 100 ? "var(--success-soft)" : "var(--meekrap-soft)"};
+                           color: ${pct === 100 ? "var(--success)" : "var(--meekrap)"};">
+                ${statusText}
+              </span>
+            </div>
+
+            <!-- 3 Categorieën -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-auto">
+              ${slide.groups.map((g, gIdx) => `
+                <div class="rounded-xl border p-4 flex flex-col gap-2.5"
+                     style="background: var(--bg-card); border-color: var(--border-color);">
+                  <h3 class="font-serif-title text-sm font-bold pb-2 border-b"
+                      style="color: var(--meekrap); border-color: var(--border-color);">
+                    ${escapeHtml(g.heading)}
+                  </h3>
+                  ${g.items.map((item, iIdx) => `
+                    <label class="flex items-start gap-2.5 text-xs sm:text-sm cursor-pointer select-none leading-snug">
+                      <input type="checkbox" ${item.checked ? "checked" : ""}
+                             ${interactive ? `onchange="toggleChecklistItem(${gIdx}, ${iIdx})"` : "disabled"}
+                             class="mt-0.5 w-4 h-4 accent-[#A31C1C] shrink-0 cursor-pointer" />
+                      <span style="${item.checked ? "text-decoration: line-through; opacity: 0.65;" : ""}">${escapeHtml(item.text)}</span>
+                    </label>
+                  `).join("")}
+                </div>
+              `).join("")}
+            </div>
+
+            <div class="rounded-lg px-4 py-2.5 text-center font-mono-tech text-xs font-bold"
+                 style="background: var(--meekrap); color: #FFFFFF;">
+              ${escapeHtml(slide.banner)}
+            </div>
+          </div>
+        `;
+      }
+
+      return `${headerHtml}${bodyHtml}`;
+    }
+
+    function renderCurrentSlide(shouldBroadcast = true) {
+      const slides = presentationData.slides;
+      if (!slides || !slides.length) return;
+      if (currentSlideIdx < 0) currentSlideIdx = 0;
+      if (currentSlideIdx >= slides.length) currentSlideIdx = slides.length - 1;
+
+      const slide = slides[currentSlideIdx];
+      const canvas = document.getElementById("slideCanvas");
+      canvas.innerHTML = `<div class="h-full flex flex-col animate-slide">${buildSlideMarkup(slide, currentSlideIdx, true)}</div>`;
+
+      // Update UI tellers en voortgangsbalk
+      document.getElementById("slideCounter").textContent = `${currentSlideIdx + 1} / ${slides.length}`;
+      document.getElementById("topSlideTitle").textContent = slide.title;
+      document.getElementById("progressBar").style.width = `${((currentSlideIdx + 1) / slides.length) * 100}%`;
+
+      updatePresenterConsole();
+
+      if (shouldBroadcast) {
+        broadcastState("SLIDE_CHANGE", { index: currentSlideIdx });
+      }
+    }
+
+    function toggleChecklistItem(groupIdx, itemIdx) {
+      const slide = presentationData.slides[currentSlideIdx];
+      if (!slide || slide.type !== "checklist") return;
+      const item = slide.groups[groupIdx].items[itemIdx];
+      item.checked = !item.checked;
+      renderCurrentSlide(false);
+      broadcastState("DATA_SYNC", { data: presentationData });
+    }
+
+    function nextSlide() {
+      if (currentSlideIdx < presentationData.slides.length - 1) {
+        currentSlideIdx++;
+        renderCurrentSlide(true);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlideIdx > 0) {
+        currentSlideIdx--;
+        renderCurrentSlide(true);
+      }
+    }
+
+    function goToSlide(idx) {
+      currentSlideIdx = idx;
+      renderCurrentSlide(true);
+      closeAllModals();
+    }
+
+    /* -------------------------------------------------------------------------
+       6. THEMA, ASPECT RATIO, OVERSCAN & PROJECTOR PROFIEL
+       ------------------------------------------------------------------------- */
+    function applyTheme(theme, shouldBroadcast = true) {
+      document.documentElement.setAttribute("data-theme", theme);
+      presentationData.meta.theme = theme;
+      const sel = document.getElementById("themeSelect");
+      if (sel) sel.value = theme;
+      if (shouldBroadcast) broadcastState("THEME_CHANGE", { theme });
+    }
+
+    function applyProjectorProfile(profile, shouldBroadcast = true) {
+      const p = { ...presentationData.meta.projectorProfile, ...profile };
+      presentationData.meta.projectorProfile = p;
+
+      // Aspect ratio CSS variabele
+      document.documentElement.style.setProperty("--stage-ratio", p.aspectRatio.replace("/", " / "));
+      document.documentElement.style.setProperty("--overscan-pct", `${p.overscanPct}%`);
+
+      // Update controls
+      const slider = document.getElementById("overscanSlider");
+      const label = document.getElementById("overscanValueLabel");
+      if (slider) slider.value = p.overscanPct;
+      if (label) label.textContent = `${p.overscanPct}%`;
+
+      document.querySelectorAll(".ratio-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.ratio === p.aspectRatio);
+      });
+
+      const iface = PROJECTOR_INTERFACES.find(x => x.id === p.interfaceId) || PROJECTOR_INTERFACES[0];
+      const badge = document.getElementById("activeInterfaceBadge");
+      if (badge) {
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full" style="background: var(--success);"></span> ${iface.name.split(" ")[0]} · ${p.aspectRatio.replace("/", ":")}${p.overscanPct > 0 ? ` · ${p.overscanPct}% OS` : ""}`;
+      }
+
+      renderConnectorCards();
+      if (shouldBroadcast) broadcastState("PROJECTOR_PROFILE", p);
+    }
+
+    function renderConnectorCards() {
+      const grid = document.getElementById("connectorCardsGrid");
+      if (!grid) return;
+      const activeId = presentationData.meta.projectorProfile.interfaceId;
+      grid.innerHTML = PROJECTOR_INTERFACES.map(iface => {
+        const isActive = iface.id === activeId;
+        return `
+          <div onclick="selectConnector('${iface.id}')"
+               class="rounded-xl border p-4 cursor-pointer transition-all hover:shadow-md flex flex-col justify-between gap-2"
+               style="background: ${isActive ? "var(--meekrap-soft)" : "var(--bg-card)"};
+                      border-color: ${isActive ? "var(--meekrap)" : "var(--border-color)"};">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="font-bold text-sm" style="color: ${isActive ? "var(--meekrap)" : "var(--text-main)"};">${escapeHtml(iface.name)}</span>
+                ${isActive ? `<span class="font-mono-tech text-[10px] font-bold px-2 py-0.5 rounded" style="background:var(--meekrap);color:#FFF;">ACTIEF</span>` : ""}
+              </div>
+              <div class="font-mono-tech text-[11px] mb-2" style="color: var(--ochre);">${escapeHtml(iface.category)} · Aanbevolen: ${iface.ratio.replace("/", ":")}</div>
+              <div class="text-xs space-y-1" style="color: var(--text-muted);">
+                <div><strong style="color:var(--text-main)">Resolutie:</strong> ${escapeHtml(iface.maxRes)}</div>
+                <div><strong style="color:var(--text-main)">Audio:</strong> ${escapeHtml(iface.audio)}</div>
+                <div><strong style="color:var(--text-main)">Bereik:</strong> ${escapeHtml(iface.cableMax)}</div>
+              </div>
+            </div>
+            <p class="text-[11px] pt-2 border-t leading-snug" style="border-color: var(--border-color); color: var(--text-muted);">
+              ${escapeHtml(iface.notes)}
+            </p>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function selectConnector(id) {
+      const iface = PROJECTOR_INTERFACES.find(x => x.id === id);
+      if (!iface) return;
+      const suggestedOverscan = id === "vga" ? 4 : 0;
+      applyProjectorProfile({
+        interfaceId: id,
+        aspectRatio: iface.ratio,
+        overscanPct: suggestedOverscan
+      }, true);
+      showToast(`Projectieprofiel ingesteld op ${iface.name} (${iface.ratio.replace("/", ":")})`, "success");
+    }
+
+    /* -------------------------------------------------------------------------
+       7. HARDWARE / SCHERMDETECTIE & DUAL-SCREEN BEAMER OUTPUT
+       ------------------------------------------------------------------------- */
+    function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+    function refreshHardwareInfo() {
+      const sw = window.screen.width || 1920;
+      const sh = window.screen.height || 1080;
+      const d = gcd(sw, sh);
+      const ratioStr = `${Math.round(sw / d)}:${Math.round(sh / d)}`;
+      const dpr = window.devicePixelRatio ? window.devicePixelRatio.toFixed(2) : "1.00";
+      const fsStatus = document.fullscreenEnabled ? "Ondersteund" : "Beperkt";
+      const multiApi = ("getScreenDetails" in window) ? "Window Mgmt API" : ("presentation" in navigator) ? "Presentation API" : "Popup + Sync";
+
+      const stats = [
+        { label: "Schermresolutie", value: `${sw} × ${sh} px` },
+        { label: "Beschikbaar", value: `${window.screen.availWidth} × ${window.screen.availHeight}` },
+        { label: "Aspect Ratio", value: ratioStr },
+        { label: "Pixel Ratio / Kleur", value: `${dpr}x · ${window.screen.colorDepth}-bit` },
+        { label: "Fullscreen API", value: fsStatus },
+        { label: "Multi-Screen", value: multiApi }
+      ];
+
+      const grid = document.getElementById("hardwareStatsGrid");
+      if (grid) {
+        grid.innerHTML = stats.map(s => `
+          <div class="rounded-lg border p-2.5" style="background: var(--bg-card); border-color: var(--border-color);">
+            <div class="text-[10px] font-mono-tech uppercase" style="color: var(--text-muted);">${s.label}</div>
+            <div class="font-mono-tech font-bold text-xs mt-0.5" style="color: var(--text-main);">${s.value}</div>
+          </div>
+        `).join("");
+      }
+
+      const tpSpecs = document.getElementById("testPatternSpecs");
+      if (tpSpecs) {
+        tpSpecs.textContent = `${sw} × ${sh} · ${ratioStr} · DPR ${dpr}x · Profiel ${presentationData.meta.projectorProfile.aspectRatio.replace("/", ":")}`;
+      }
+    }
+
+    function openProjectorWindow() {
+      try {
+        const isHttp = window.location.protocol === "http:" || window.location.protocol === "https:";
+        let win = null;
+        if (isHttp) {
+          const url = new URL(window.location.href);
+          url.searchParams.set("mode", "projector");
+          win = window.open(url.toString(), "MeekrapBeamerOutput", "width=1280,height=720,menubar=no,toolbar=no,location=no");
+        } else {
+          // Fallback voor lokaal bestand / sandboxed iframe preview
+          win = window.open("", "MeekrapBeamerOutput", "width=1280,height=720");
+          if (win) {
+            const docHtml = "<!DOCTYPE html>" + document.documentElement.outerHTML.replace(
+              "<head>",
+              "<head><script>window.__MEEKRAP_PROJECTOR_MODE__ = true;<\/script>"
+            );
+            win.document.open();
+            win.document.write(docHtml);
+            win.document.close();
+          }
+        }
+        if (!win) {
+          showToast("Pop-up geblokkeerd door browser. Sta pop-ups toe om het 2e scherm te openen.", "error");
+        } else {
+          showToast("Beamer-venster geopend! Sleep naar het 2e scherm en druk op F voor volledig scherm.", "success");
+        }
+      } catch (e) {
+        showToast("Kon 2e scherm niet openen in deze sandbox-omgeving.", "error");
+      }
+    }
+
+    /* -------------------------------------------------------------------------
+       8. PRESENTER CONSOLE, TIMER, LASER, BLACKOUT & TESTBEELD
+       ------------------------------------------------------------------------- */
+    function updatePresenterConsole() {
+      const slides = presentationData.slides;
+      const curr = slides[currentSlideIdx];
+      const next = slides[currentSlideIdx + 1];
+
+      const info = document.getElementById("presenterSlideInfo");
+      const currEl = document.getElementById("presenterCurrentPreview");
+      const nextEl = document.getElementById("presenterNextPreview");
+      const notesEl = document.getElementById("presenterNotes");
+
+      if (info) info.textContent = `Slide ${currentSlideIdx + 1} / ${slides.length} — ${curr.title}`;
+      if (currEl) currEl.innerHTML = buildSlideMarkup(curr, currentSlideIdx, false);
+      if (nextEl) {
+        nextEl.innerHTML = next
+          ? `<div class="font-serif-title font-bold text-base mb-1">${escapeHtml(next.title)}</div><div class="text-xs text-stone-400">Slide ${currentSlideIdx + 2} · Type: ${escapeHtml(next.type)}</div>`
+          : `<div class="text-xs italic text-stone-400">Einde van de presentatie bereikt.</div>`;
+      }
+      if (notesEl) notesEl.textContent = curr.notes || "Geen sprekersnotities voor deze slide.";
+    }
+
+    function updateClock() {
+      const el = document.getElementById("presenterClock");
+      if (el) el.textContent = new Date().toLocaleTimeString("nl-NL");
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function formatTimer(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, "0");
+      const s = String(sec % 60).padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById("btnTimerToggle");
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btn.textContent = "Hervat";
+      } else {
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          document.getElementById("presenterTimer").textContent = formatTimer(timerSeconds);
+        }, 1000);
+        btn.textContent = "Pauze";
+      }
+    }
+
+    function resetTimer() {
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      timerSeconds = 0;
+      document.getElementById("presenterTimer").textContent = "00:00";
+      document.getElementById("btnTimerToggle").textContent = "Start";
+    }
+
+    function toggleLaser() {
+      isLaserActive = !isLaserActive;
+      document.getElementById("btnLaser").classList.toggle("active", isLaserActive);
+      if (!isLaserActive) {
+        updateLaserPosition(0, 0, false);
+        broadcastState("LASER_MOVE", { xPct: 0, yPct: 0, visible: false });
+      } else {
+        showToast("Virtuele laserpointer geactiveerd — beweeg over de slide.", "info");
+      }
+    }
+
+    function updateLaserPosition(xPct, yPct, visible) {
+      const dot = document.getElementById("laserDot");
+      if (!dot) return;
+      if (!visible) {
+        dot.style.display = "none";
+      } else {
+        dot.style.display = "block";
+        dot.style.left = `${xPct}%`;
+        dot.style.top = `${yPct}%`;
+      }
+    }
+
+    function toggleBlackout(forceState, shouldBroadcast = true) {
+      isBlackout = typeof forceState === "boolean" ? forceState : !isBlackout;
+      if (isBlackout) isWhiteout = false;
+      document.getElementById("blackoutOverlay").classList.toggle("active", isBlackout);
+      document.getElementById("whiteoutOverlay").classList.remove("active");
+      if (shouldBroadcast) broadcastState("BLACKOUT", { active: isBlackout });
+    }
+
+    function toggleWhiteout(forceState, shouldBroadcast = true) {
+      isWhiteout = typeof forceState === "boolean" ? forceState : !isWhiteout;
+      if (isWhiteout) isBlackout = false;
+      document.getElementById("whiteoutOverlay").classList.toggle("active", isWhiteout);
+      document.getElementById("blackoutOverlay").classList.remove("active");
+      if (shouldBroadcast) broadcastState("WHITEOUT", { active: isWhiteout });
+    }
+
+    function toggleTestPattern(forceState, shouldBroadcast = true) {
+      const el = document.getElementById("testPatternOverlay");
+      const active = typeof forceState === "boolean" ? forceState : el.classList.contains("hidden");
+      el.classList.toggle("hidden", !active);
+      el.classList.toggle("flex", active);
+      if (active) refreshHardwareInfo();
+      if (shouldBroadcast) broadcastState("TEST_PATTERN", { active });
+    }
+
+    /* -------------------------------------------------------------------------
+       9. MODALS, SLIDE GRID, JSON ENGINE & PRINT
+       ------------------------------------------------------------------------- */
+    function closeAllModals() {
+      ["connectionsModal", "presenterModal", "gridModal", "jsonModal"].forEach(id => {
+        const m = document.getElementById(id);
+        m.classList.add("hidden");
+        m.classList.remove("flex");
+      });
+    }
+
+    function openModal(id) {
+      closeAllModals();
+      const m = document.getElementById(id);
+      m.classList.remove("hidden");
+      m.classList.add("flex");
+      if (id === "connectionsModal") {
+        refreshHardwareInfo();
+        renderConnectorCards();
+      } else if (id === "gridModal") {
+        renderSlideGrid();
+      } else if (id === "jsonModal") {
+        document.getElementById("jsonEditor").value = JSON.stringify(presentationData, null, 2);
+      } else if (id === "presenterModal") {
+        updatePresenterConsole();
+      }
+    }
+
+    function renderSlideGrid() {
+      const container = document.getElementById("slideGridContainer");
+      container.innerHTML = presentationData.slides.map((s, idx) => `
+        <div onclick="goToSlide(${idx})"
+             class="rounded-xl border-2 p-4 cursor-pointer transition-all hover:shadow-md flex flex-col justify-between gap-3"
+             style="background: ${idx === currentSlideIdx ? "var(--meekrap-soft)" : "var(--bg-card)"};
+                    border-color: ${idx === currentSlideIdx ? "var(--meekrap)" : "var(--border-color)"};">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono-tech text-xs font-bold" style="color: var(--meekrap);">SLIDE 0${idx + 1}</span>
+              <span class="font-mono-tech text-[10px] uppercase px-2 py-0.5 rounded" style="background: var(--bg-subtle); color: var(--text-muted);">${escapeHtml(s.type)}</span>
+            </div>
+            <h3 class="font-serif-title text-sm font-bold leading-snug" style="color: var(--text-main);">${escapeHtml(s.title)}</h3>
+          </div>
+          <p class="text-[11px] line-clamp-2" style="color: var(--text-muted);">${escapeHtml(s.notes || "")}</p>
+        </div>
+      `).join("");
+    }
+
+    function copyJsonToClipboard() {
+      const ta = document.getElementById("jsonEditor");
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast("Volledige JSON gekopieerd naar klembord!", "success");
+      } catch (e) {
+        showToast("Kopiëren mislukt; selecteer de tekst handmatig.", "error");
+      }
+    }
+
+    function downloadJsonFile() {
+      const blob = new Blob([JSON.stringify(presentationData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Toetsingskader_Boedelbeschrijving_Meekrap.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("JSON-bestand gedownload.", "success");
+    }
+
+    function applyJsonFromEditor() {
+      try {
+        const parsed = JSON.parse(document.getElementById("jsonEditor").value);
+        if (!parsed.slides || !Array.isArray(parsed.slides) || !parsed.slides.length) {
+          throw new Error("JSON moet een geldige 'slides'-array bevatten.");
+        }
+        presentationData = parsed;
+        currentSlideIdx = 0;
+        if (parsed.meta && parsed.meta.theme) applyTheme(parsed.meta.theme, true);
+        if (parsed.meta && parsed.meta.projectorProfile) applyProjectorProfile(parsed.meta.projectorProfile, true);
+        renderCurrentSlide(true);
+        broadcastState("DATA_SYNC", { data: presentationData });
+        closeAllModals();
+        showToast("JSON succesvol ingeladen in de presentatie!", "success");
+      } catch (err) {
+        showToast("Ongeldige JSON: " + err.message, "error");
+      }
+    }
+
+    function prepareAndPrint() {
+      const deck = document.getElementById("printDeck");
+      deck.innerHTML = presentationData.slides.map((s, idx) => `
+        <div class="print-slide-page">
+          ${buildSlideMarkup(s, idx, false)}
+        </div>
+      `).join("");
+      window.print();
+    }
+
+    function toggleFullscreen() {
+      try {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
+      } catch (e) {
+        showToast("Volledig scherm wordt geblokkeerd in dit venster.", "error");
+      }
+    }
+
+    /* -------------------------------------------------------------------------
+       10. EVENT LISTENERS, SNELTOETSEN & TOUCH SWIPE
+       ------------------------------------------------------------------------- */
+    document.getElementById("btnPrev").addEventListener("click", prevSlide);
+    document.getElementById("btnNext").addEventListener("click", nextSlide);
+    document.getElementById("btnGrid").addEventListener("click", () => openModal("gridModal"));
+    document.getElementById("btnConnections").addEventListener("click", () => openModal("connectionsModal"));
+    document.getElementById("btnPresenter").addEventListener("click", () => openModal("presenterModal"));
+    document.getElementById("btnJson").addEventListener("click", () => openModal("jsonModal"));
+    document.getElementById("btnTestPattern").addEventListener("click", () => toggleTestPattern());
+    document.getElementById("btnLaser").addEventListener("click", toggleLaser);
+    document.getElementById("btnBlackout").addEventListener("click", () => toggleBlackout());
+    document.getElementById("btnPrint").addEventListener("click", prepareAndPrint);
+    document.getElementById("btnFullscreen").addEventListener("click", toggleFullscreen);
+    document.getElementById("btnOpenProjector").addEventListener("click", openProjectorWindow);
+
+    document.getElementById("themeSelect").addEventListener("change", (e) => applyTheme(e.target.value, true));
+    document.getElementById("btnTimerToggle").addEventListener("click", toggleTimer);
+    document.getElementById("btnTimerReset").addEventListener("click", resetTimer);
+    document.getElementById("btnCopyJson").addEventListener("click", copyJsonToClipboard);
+    document.getElementById("btnDownloadJson").addEventListener("click", downloadJsonFile);
+    document.getElementById("btnApplyJson").addEventListener("click", applyJsonFromEditor);
+
+    // JSON uploaden
+    document.getElementById("jsonFileInput").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById("jsonEditor").value = ev.target.result;
+        applyJsonFromEditor();
+      };
+      reader.readAsText(file);
+    });
+
+    // Aspect ratio & overscan listeners
+    document.querySelectorAll(".ratio-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        applyProjectorProfile({ aspectRatio: btn.dataset.ratio }, true);
+        showToast(`Beeldverhouding gewijzigd naar ${btn.dataset.ratio.replace("/", ":")}`, "info");
+      });
+    });
+
+    document.getElementById("overscanSlider").addEventListener("input", (e) => {
+      applyProjectorProfile({ overscanPct: Number(e.target.value) }, true);
+    });
+
+    document.getElementById("toggleSafeGuide").addEventListener("change", (e) => {
+      document.getElementById("slideFrame").classList.toggle("safe-zone-guide", e.target.checked);
+    });
+
+    // Multi-screen Window Management API probe
+    document.getElementById("btnProbeScreens").addEventListener("click", async () => {
+      if ("getScreenDetails" in window) {
+        try {
+          const details = await window.getScreenDetails();
+          showToast(`${details.screens.length} aangesloten scherm(en) gedetecteerd!`, "success");
+        } catch (err) {
+          showToast("Toestemming voor schermdetectie geweigerd of niet ondersteund.", "error");
+        }
+      } else {
+        showToast("Multi-Screen API niet beschikbaar in deze browser; gebruik 'Open Beamer / 2e Scherm'.", "info");
+      }
+    });
+
+    // Laserpointer muisbeweging op slideFrame
+    const slideFrame = document.getElementById("slideFrame");
+    slideFrame.addEventListener("mousemove", (e) => {
+      if (!isLaserActive) return;
+      const rect = slideFrame.getBoundingClientRect();
+      const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+      const yPct = ((e.clientY - rect.top) / rect.height) * 100;
+      updateLaserPosition(xPct, yPct, true);
+      broadcastState("LASER_MOVE", { xPct, yPct, visible: true });
+    });
+    slideFrame.addEventListener("mouseleave", () => {
+      if (!isLaserActive) return;
+      updateLaserPosition(0, 0, false);
+      broadcastState("LASER_MOVE", { xPct: 0, yPct: 0, visible: false });
+    });
+
+    // Touch swipe ondersteuning voor tablets / mobiel
+    let touchStartX = 0;
+    slideFrame.addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+    slideFrame.addEventListener("touchend", (e) => {
+      const diff = touchStartX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) nextSlide(); else prevSlide();
+      }
+    }, { passive: true });
+
+    // Sneltoetsen
+    document.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT" || e.target.tagName === "SELECT") {
+        if (e.key === "Escape") closeAllModals();
+        return;
+      }
+      const key = e.key.toLowerCase();
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); nextSlide(); }
+      else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); prevSlide(); }
+      else if (key === "f") toggleFullscreen();
+      else if (key === "b") toggleBlackout();
+      else if (key === "w") toggleWhiteout();
+      else if (key === "l") toggleLaser();
+      else if (key === "t") toggleTestPattern();
+      else if (key === "c") openModal("connectionsModal");
+      else if (key === "p") openModal("presenterModal");
+      else if (key === "j") openModal("jsonModal");
+      else if (key === "o") openModal("gridModal");
+      else if (e.key === "Escape") {
+        closeAllModals();
+        toggleTestPattern(false);
+        if (isBlackout) toggleBlackout(false);
+        if (isWhiteout) toggleWhiteout(false);
+      }
+    });
+
+    // Initialiseer weergave bij laden
+    window.addEventListener("DOMContentLoaded", () => {
+      if (isProjectorOnly) {
+        document.getElementById("topBar").style.display = "none";
+        document.getElementById("controlDock").style.display = "none";
+        broadcastState("REQUEST_STATE");
+      }
+      applyTheme(presentationData.meta.theme, false);
+      applyProjectorProfile(presentationData.meta.projectorProfile, false);
+      renderCurrentSlide(false);
+      refreshHardwareInfo();
+    });
+  </script>
+</body>
+</html>
