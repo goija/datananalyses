@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HAR Analyser &amp; Privacy-Auditor — Zero-Tracking</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f8f8f8;
+      --surface-alt: #f1f1f1;
+      --text: #1a1a1a;
+      --muted: #555555;
+      --border: #dcdcdc;
+      --accent: #A31C1C;
+      --accent-soft: #fdf2f2;
+      --ok: #1b6e35;
+      --ok-bg: #edf7f0;
+      --warn: #9a5b00;
+      --warn-bg: #fff6e5;
+      --danger: #a31c1c;
+      --danger-bg: #fdecec;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    [data-theme="dark"] {
+      --bg: #101010;
+      --surface: #1a1a1a;
+      --surface-alt: #242424;
+      --text: #f0f0f0;
+      --muted: #a3a3a3;
+      --border: #2f2f2f;
+      --accent: #d93838;
+      --accent-soft: #2a1414;
+      --ok: #4cc372;
+      --ok-bg: #13281b;
+      --warn: #f0ad4e;
+      --warn-bg: #2b2110;
+      --danger: #f06565;
+      --danger-bg: #2d1414;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1.5rem 1rem 3rem;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 { font-size: 1.6rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+    .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    button, .btn {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.85rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    button:hover { border-color: var(--accent); color: var(--accent); }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button.primary:hover { opacity: 0.9; color: #fff; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .dropzone {
+      border: 2px dashed var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      margin-bottom: 1.5rem;
+    }
+
+    .dropzone.dragover { border-color: var(--accent); background: var(--accent-soft); }
+    .dropzone p { color: var(--muted); font-size: 0.92rem; margin-top: 0.35rem; }
+    .dropzone strong { color: var(--accent); }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.9rem 1rem;
+    }
+
+    .kpi-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 700; }
+    .kpi-val { font-family: var(--mono); font-size: 1.25rem; font-weight: 700; margin-top: 0.2rem; }
+    .kpi-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      font-family: var(--mono);
+    }
+
+    .badge-ok { background: var(--ok-bg); color: var(--ok); }
+    .badge-warn { background: var(--warn-bg); color: var(--warn); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .panel h2 {
+      font-size: 1.05rem;
+      color: var(--accent);
+      border-left: 4px solid var(--accent);
+      padding-left: 0.55rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+
+    input[type="text"], select {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.45rem 0.7rem;
+      font-size: 0.85rem;
+    }
+
+    input[type="text"] { flex: 1; min-width: 200px; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    th, td { text-align: left; padding: 0.6rem 0.65rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    th { background: var(--surface-alt); font-weight: 700; white-space: nowrap; }
+    tbody tr { cursor: pointer; }
+    tbody tr:hover { background: var(--accent-soft); }
+    tbody tr.selected { background: var(--accent-soft); outline: 1px solid var(--accent); }
+
+    .url-cell { max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); font-size: 0.8rem; }
+
+    .waterfall-bar {
+      display: flex;
+      height: 12px;
+      min-width: 110px;
+      background: var(--surface-alt);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .wf-dns { background: #4a90d9; }
+    .wf-connect { background: #e69f00; }
+    .wf-ssl { background: #9b59b6; }
+    .wf-wait { background: #A31C1C; }
+    .wf-receive { background: #2e8b57; }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+    .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+    .inspector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1rem;
+    }
+
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.75rem;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      overflow-x: auto;
+      max-height: 300px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .hash-box {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.8rem;
+      border-radius: 4px;
+      margin-top: 0.75rem;
+      word-break: break-all;
+    }
+
+    .hidden { display: none; }
+
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>HAR Analyser &amp; Privacy-Auditor</h1>
+        <p class="subtitle">100% lokaal in het geheugen &bull; Geen cookies &bull; Geen IP-binding &bull; Geen externe netwerkverzoeken</p>
+      </div>
+      <div class="header-actions">
+        <button id="exportCleanBtn" class="primary" disabled>Exporteer geanonimiseerde HAR (zonder IP/cookies)</button>
+        <button id="clearBtn" disabled>Wissen</button>
+        <button id="themeToggle">Donkere modus</button>
+      </div>
+    </header>
+
+    <div id="dropzone" class="dropzone" tabindex="0">
+      <strong>Sleep een .har-bestand hierheen</strong> of klik om lokaal te openen
+      <p>Verwerking gebeurt uitsluitend via de FileReader API in je browser. Er wordt niets opgeslagen of verzonden.</p>
+      <input type="file" id="fileInput" accept=".har,.json" class="hidden">
+    </div>
+
+    <div id="workspace" class="hidden">
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <div class="panel">
+        <h2>Privacy- &amp; IP-bindingsaudit</h2>
+        <div id="auditSummary"></div>
+        <div id="hashDisplay" class="hash-box hidden"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Netwerkverzoeken &amp; Timing-waterfall</h2>
+        <div class="legend">
+          <span><i class="dot wf-dns"></i>DNS</span>
+          <span><i class="dot wf-connect"></i>TCP Connect</span>
+          <span><i class="dot wf-ssl"></i>TLS/SSL</span>
+          <span><i class="dot wf-wait"></i>TTFB (Wait)</span>
+          <span><i class="dot wf-receive"></i>Receive</span>
+        </div>
+        <div class="controls">
+          <input type="text" id="searchInput" placeholder="Filter op URL, methode, status of header...">
+          <select id="privacyFilter">
+            <option value="all">Alle verzoeken</option>
+            <option value="flagged">Alleen met privacy-/IP-signalen</option>
+            <option value="clean">Alleen volledig schoon</option>
+          </select>
+          <label style="font-size:0.84rem; display:flex; align-items:center; gap:0.35rem;">
+            <input type="checkbox" id="maskIpToggle" checked> Maskeer server-IP's in weergave
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Methode</th>
+                <th>Status</th>
+                <th>URL</th>
+                <th>Protocol</th>
+                <th>Grootte</th>
+                <th>Tijd (ms)</th>
+                <th>Waterfall</th>
+                <th>Privacy</th>
+              </tr>
+            </thead>
+            <tbody id="entriesBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="inspectorPanel" class="panel hidden">
+        <h2 id="inspectorTitle">Verzoek-inspector</h2>
+        <div class="inspector-grid">
+          <div>
+            <strong>Request Headers</strong>
+            <pre id="reqHeadersOut"></pre>
+          </div>
+          <div>
+            <strong>Response Headers</strong>
+            <pre id="resHeadersOut"></pre>
+          </div>
+          <div>
+            <strong>Timings &amp; Verbinding</strong>
+            <pre id="timingsOut"></pre>
+          </div>
+          <div>
+            <strong>Privacy-bevindingen</strong>
+            <pre id="privacyDetailOut"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span>Architect-developer-dataanalyse: R. Goijarts</span>
+      <span>Ontwerp en ontwikkeling: Bedrijven en overheid hebben geen toestemming tot gebruik van deze code.</span>
+    </footer>
+  </div>
+
+  <script>
+    let currentHar = null;
+    let currentFileName = 'archive.har';
+    let parsedEntries = [];
+    let selectedIndex = -1;
+
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const workspace = document.getElementById('workspace');
+    const kpiGrid = document.getElementById('kpiGrid');
+    const auditSummary = document.getElementById('auditSummary');
+    const hashDisplay = document.getElementById('hashDisplay');
+    const entriesBody = document.getElementById('entriesBody');
+    const searchInput = document.getElementById('searchInput');
+    const privacyFilter = document.getElementById('privacyFilter');
+    const maskIpToggle = document.getElementById('maskIpToggle');
+    const inspectorPanel = document.getElementById('inspectorPanel');
+    const exportCleanBtn = document.getElementById('exportCleanBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    document.getElementById('themeToggle').addEventListener('click', (e) => {
+      const root = document.documentElement;
+      const isDark = root.getAttribute('data-theme') === 'dark';
+      root.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      e.target.textContent = isDark ? 'Donkere modus' : 'Lichte modus';
+    });
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) loadFile(e.target.files[0]);
+    });
+
+    clearBtn.addEventListener('click', () => {
+      currentHar = null;
+      parsedEntries = [];
+      selectedIndex = -1;
+      workspace.classList.add('hidden');
+      inspectorPanel.classList.add('hidden');
+      hashDisplay.classList.add('hidden');
+      exportCleanBtn.disabled = true;
+      clearBtn.disabled = true;
+      fileInput.value = '';
+    });
+
+    function loadFile(file) {
+      currentFileName = file.name;
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        try {
+          const text = ev.target.result;
+          const json = JSON.parse(text);
+          if (!json.log || !Array.isArray(json.log.entries)) {
+            alert('Ongeldig HAR-bestand: log.entries ontbreekt.');
+            return;
+          }
+          currentHar = json;
+          const sha = await sha256Hex(text);
+          analyzeHar(json, sha);
+        } catch (err) {
+          alert('Fout bij het lezen van JSON/HAR: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function sha256Hex(str) {
+      const buf = new TextEncoder().encode(str);
+      const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+      return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function auditEntry(entry) {
+      const flags = [];
+      const reqHeaders = entry.request?.headers || [];
+      const resHeaders = entry.response?.headers || [];
+      const reqCookies = entry.request?.cookies || [];
+      const resCookies = entry.response?.cookies || [];
+
+      if (reqCookies.length > 0 || reqHeaders.some(h => h.name.toLowerCase() === 'cookie')) {
+        flags.push('Request Cookie');
+      }
+      if (resCookies.length > 0 || resHeaders.some(h => h.name.toLowerCase() === 'set-cookie')) {
+        flags.push('Set-Cookie');
+      }
+      if (entry.serverIPAddress) {
+        flags.push('Server-IP aanwezig');
+      }
+      if (reqHeaders.some(h => ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'].includes(h.name.toLowerCase()))) {
+        flags.push('Client-IP Header');
+      }
+      if (reqHeaders.some(h => h.name.toLowerCase() === 'authorization')) {
+        flags.push('Authorization Header');
+      }
+      if (resHeaders.some(h => h.name.toLowerCase() === 'etag')) {
+        flags.push('ETag (cache-id)');
+      }
+      return flags;
+    }
+
+    function analyzeHar(har, sha256) {
+      const entries = har.log.entries;
+      parsedEntries = entries.map((e, i) => ({
+        index: i + 1,
+        raw: e,
+        flags: auditEntry(e),
+        time: Math.max(0, Math.round(e.time || 0)),
+        size: e.response?.content?.size || e.response?.bodySize || 0
+      }));
+
+      const totalSize = parsedEntries.reduce((s, e) => s + Math.max(0, e.size), 0);
+      const totalTime = parsedEntries.reduce((s, e) => s + e.time, 0);
+      const cookieCount = entries.reduce((s, e) => s + (e.request?.cookies?.length || 0) + (e.response?.cookies?.length || 0), 0);
+      const uniqueHosts = new Set(entries.map(e => {
+        try { return new URL(e.request.url).hostname; } catch { return 'onbekend'; }
+      }));
+      const ipExposedCount = entries.filter(e => Boolean(e.serverIPAddress)).length;
+
+      kpiGrid.innerHTML = `
+        <div class="kpi"><div class="kpi-label">Verzoeken</div><div class="kpi-val">${entries.length}</div><div class="kpi-sub">${uniqueHosts.size} unieke host(s)</div></div>
+        <div class="kpi"><div class="kpi-label">Totale grootte</div><div class="kpi-val">${formatBytes(totalSize)}</div><div class="kpi-sub">Content / body</div></div>
+        <div class="kpi"><div class="kpi-label">Som laadtijd</div><div class="kpi-val">${totalTime} ms</div><div class="kpi-sub">Browser: ${har.log.browser?.name || 'onbekend'}</div></div>
+        <div class="kpi"><div class="kpi-label">Cookies</div><div class="kpi-val">${cookieCount}</div><div class="kpi-sub">${cookieCount === 0 ? 'Geen cookie-tracking' : 'Cookies gedetecteerd'}</div></div>
+        <div class="kpi"><div class="kpi-label">IP-velden in HAR</div><div class="kpi-val">${ipExposedCount}</div><div class="kpi-sub">${maskIpToggle.checked ? 'Gemaskeerd in UI' : 'Zichtbaar in UI'}</div></div>
+      `;
+
+      auditSummary.innerHTML = `
+        <p style="font-size:0.88rem;">
+          <strong>Bestand:</strong> <code>${escapeHtml(currentFileName)}</code> &bull;
+          <strong>Cookie-status:</strong> <span class="badge ${cookieCount === 0 ? 'badge-ok' : 'badge-danger'}">${cookieCount === 0 ? 'SCHOON (0 cookies)' : cookieCount + ' COOKIES'}</span> &bull;
+          <strong>IP-binding:</strong> <span class="badge ${ipExposedCount === 0 ? 'badge-ok' : 'badge-warn'}">${ipExposedCount === 0 ? 'GEEN IP-VELDEN' : ipExposedCount + ' SERVER-IP VELDEN'}</span>
+        </p>
+      `;
+
+      hashDisplay.textContent = `SHA-256 (origineel bestand): ${sha256}`;
+      hashDisplay.classList.remove('hidden');
+
+      workspace.classList.remove('hidden');
+      exportCleanBtn.disabled = false;
+      clearBtn.disabled = false;
+      renderTable();
+    }
+
+    function renderTable() {
+      const q = searchInput.value.trim().toLowerCase();
+      const pf = privacyFilter.value;
+      const maxTime = Math.max(1, ...parsedEntries.map(e => e.time));
+
+      const filtered = parsedEntries.filter(item => {
+        const e = item.raw;
+        const textMatch = !q ||
+          (e.request?.url || '').toLowerCase().includes(q) ||
+          (e.request?.method || '').toLowerCase().includes(q) ||
+          String(e.response?.status || '').includes(q);
+        const privMatch =
+          pf === 'all' ||
+          (pf === 'flagged' && item.flags.length > 0) ||
+          (pf === 'clean' && item.flags.length === 0);
+        return textMatch && privMatch;
+      });
+
+      entriesBody.innerHTML = filtered.map(item => {
+        const e = item.raw;
+        const t = e.timings || {};
+        const scale = (v) => Math.max(0, ((Math.max(0, v || 0) / maxTime) * 100)).toFixed(1) + '%';
+        const hasCookie = item.flags.some(f => f.includes('Cookie'));
+        const badgeClass = hasCookie ? 'badge-danger' : (item.flags.length ? 'badge-warn' : 'badge-ok');
+        const badgeText = item.flags.length ? item.flags.length + ' signaal' : 'Schoon';
+
+        return `
+          <tr data-idx="${item.index - 1}" class="${selectedIndex === item.index - 1 ? 'selected' : ''}">
+            <td>${item.index}</td>
+            <td><code>${escapeHtml(e.request?.method || '-')}</code></td>
+            <td><span class="badge ${(e.response?.status || 0) < 400 ? 'badge-ok' : 'badge-danger'}">${e.response?.status || '-'}</span></td>
+            <td class="url-cell" title="${escapeHtml(e.request?.url || '')}">${escapeHtml(e.request?.url || '')}</td>
+            <td>${escapeHtml(e.response?.httpVersion || e.request?.httpVersion || '-')}</td>
+            <td>${formatBytes(item.size)}</td>
+            <td>${item.time}</td>
+            <td>
+              <div class="waterfall-bar" title="DNS: ${t.dns||0}ms | Connect: ${t.connect||0}ms | SSL: ${t.ssl||0}ms | Wait: ${t.wait||0}ms | Receive: ${t.receive||0}ms">
+                <div class="wf-dns" style="width:${scale(t.dns)}"></div>
+                <div class="wf-connect" style="width:${scale(t.connect)}"></div>
+                <div class="wf-ssl" style="width:${scale(t.ssl)}"></div>
+                <div class="wf-wait" style="width:${scale(t.wait)}"></div>
+                <div class="wf-receive" style="width:${scale(t.receive)}"></div>
+              </div>
+            </td>
+            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+          </tr>
+        `;
+      }).join('');
+
+      entriesBody.querySelectorAll('tr').forEach(tr => {
+        tr.addEventListener('click', () => {
+          selectedIndex = Number(tr.dataset.idx);
+          renderTable();
+          showInspector(parsedEntries[selectedIndex]);
+        });
+      });
+    }
+
+    function showInspector(item) {
+      if (!item) return;
+      const e = item.raw;
+      const maskIp = maskIpToggle.checked;
+
+      document.getElementById('inspectorTitle').textContent = `Verzoek #${item.index} — ${e.request?.method} ${e.request?.url}`;
+      document.getElementById('reqHeadersOut').textContent = (e.request?.headers || [])
+        .map(h => `${h.name}: ${h.value}`).join('\n') || '(geen)';
+      document.getElementById('resHeadersOut').textContent = (e.response?.headers || [])
+        .map(h => `${h.name}: ${h.value}`).join('\n') || '(geen)';
+
+      const connInfo = {
+        startedDateTime: e.startedDateTime,
+        securityState: e._securityState || 'onbekend',
+        serverIPAddress: maskIp ? '[GEMASKEERD]' : (e.serverIPAddress || 'niet aanwezig'),
+        connectionPort: e.connection || 'onbekend',
+        timings_ms: e.timings || {}
+      };
+      document.getElementById('timingsOut').textContent = JSON.stringify(connInfo, null, 2);
+      document.getElementById('privacyDetailOut').textContent = item.flags.length
+        ? item.flags.map(f => `- ${f}`).join('\n')
+        : 'Geen cookies, geen client-IP-headers en geen tracking-signalen aangetroffen.';
+
+      inspectorPanel.classList.remove('hidden');
+    }
+
+    exportCleanBtn.addEventListener('click', async () => {
+      if (!currentHar) return;
+      const clone = JSON.parse(JSON.stringify(currentHar));
+      const stripHeaders = ['cookie', 'set-cookie', 'authorization', 'referer', 'user-agent', 'x-forwarded-for', 'x-real-ip'];
+
+      clone.log.entries = clone.log.entries.map(e => {
+        delete e.serverIPAddress;
+        if (e.request) {
+          e.request.cookies = [];
+          e.request.headers = (e.request.headers || []).filter(h => !stripHeaders.includes(h.name.toLowerCase()));
+        }
+        if (e.response) {
+          e.response.cookies = [];
+          e.response.headers = (e.response.headers || []).filter(h => !stripHeaders.includes(h.name.toLowerCase()));
+        }
+        return e;
+      });
+
+      const outStr = JSON.stringify(clone, null, 2);
+      const cleanSha = await sha256Hex(outStr);
+      hashDisplay.textContent += `\nSHA-256 (geanonimiseerde export): ${cleanSha}`;
+
+      const blob = new Blob([outStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = currentFileName.replace(/\.har$/i, '') + '_sanitized_no_ip_no_cookies.har';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    searchInput.addEventListener('input', renderTable);
+    privacyFilter.addEventListener('change', renderTable);
+    maskIpToggle.addEventListener('change', () => {
+      if (selectedIndex >= 0) showInspector(parsedEntries[selectedIndex]);
+    });
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes <= 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return (bytes / Math.pow(k, i)).toFixed(i ? 1 : 0) + ' ' + sizes[i];
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+  </script>
+</body>
+</html>
