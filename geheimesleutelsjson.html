@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Technische Analyse — BaseNet CRM Infrastructuur &amp; E-mailroutering</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f8f8f8;
+      --text: #1a1a1a;
+      --muted: #555555;
+      --border: #e0e0e0;
+      --accent: #A31C1C;
+      --accent-soft: #fdf2f2;
+      --code-bg: #f1f1f1;
+    }
+
+    [data-theme="dark"] {
+      --bg: #111111;
+      --surface: #1b1b1b;
+      --text: #f0f0f0;
+      --muted: #a8a8a8;
+      --border: #2e2e2e;
+      --accent: #d93838;
+      --accent-soft: #2a1515;
+      --code-bg: #242424;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: 0.35rem;
+    }
+
+    .theme-toggle {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.85rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      margin: 2rem 0 1rem;
+      color: var(--accent);
+      border-left: 4px solid var(--accent);
+      padding-left: 0.65rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    .ip-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.15rem;
+    }
+
+    .card-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .card-ip {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0.35rem 0;
+    }
+
+    .card-meta {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+    }
+
+    .flow-step {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.65rem;
+      border-radius: 4px;
+    }
+
+    .flow-arrow {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1rem 0 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.85rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--surface);
+      font-weight: 700;
+      border-top: 1px solid var(--border);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: var(--code-bg);
+      padding: 0.15rem 0.35rem;
+      border-radius: 3px;
+      font-size: 0.86em;
+      word-break: break-all;
+    }
+
+    ul.conclusions {
+      list-style: none;
+      display: grid;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    ul.conclusions li {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      padding: 1rem 1.15rem;
+      border-radius: 4px;
+    }
+
+    ul.conclusions strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>BaseNet CRM — Infrastructuur &amp; IP-analyse</h1>
+        <p class="subtitle">Multi-tenant SaaS-topologie, Kubernetes-pods en e-mailroutering in uitgaande headers</p>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Wissel kleurthema">Donkere modus</button>
+    </header>
+
+    <p>
+      Deze metadata beschrijft de onderliggende <strong>multi-tenant SaaS-infrastructuur</strong> en e-mailroutering van
+      <strong>BaseNet CRM</strong>, zoals die wordt gebruikt door verschillende Nederlandse advocatenkantoren (waaronder
+      De Bakker Advocaten en Bos Van der Burg Advocaten).
+    </p>
+
+    <h2>Geïdentificeerde IP-adressen</h2>
+    <div class="ip-grid">
+      <div class="card">
+        <div class="card-label">Intern Pod-IP (RFC 1918)</div>
+        <div class="card-ip">10.244.3.181</div>
+        <div class="card-meta">
+          IPv6-mapped: <code>::ffff:af4:3b5</code><br>
+          Pod: <code>tomcat-live-64f7774688-dtj5k</code><br>
+          Tenant: De Bakker Advocaten
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Intern Pod-IP (RFC 1918)</div>
+        <div class="card-ip">10.244.22.250</div>
+        <div class="card-meta">
+          Subnet: <code>10.244.0.0/16</code> (Flannel CNI)<br>
+          Pod: <code>tomcat-live-85855d5c5b-ks9hc</code><br>
+          Tenant: Bos Van der Burg Advocaten
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Extern Relay-IP (MTA)</div>
+        <div class="card-ip">217.19.226.228</div>
+        <div class="card-meta">
+          Host: <code>out.basenet.nl</code><br>
+          Suffix: <code>@postfix-out-int.mail</code><br>
+          Functie: Gedeelde uitgaande mailrelay
+        </div>
+      </div>
+    </div>
+
+    <h2>E-mailroutering (Keten)</h2>
+    <div class="flow">
+      <span class="flow-step">Tomcat Pod (10.244.x.x)</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-step">Interne Postfix (@postfix-out-int.mail)</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-step">out.basenet.nl (217.19.226.228)</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-step">DKIM (s=basenet0001) &rarr; Ontvanger</span>
+    </div>
+
+    <h2>Technische analyse van de gegevens</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Waarde / Detail</th>
+            <th>Betekenis</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Interne IP's</strong></td>
+            <td><code>10.244.3.181</code><br><code>10.244.22.250</code></td>
+            <td>Private IPv4-adressen (RFC 1918) binnen het <code>10.244.0.0/16</code>-subnet. Dit is de standaard pod-CIDR voor Kubernetes-clusters (vaak met Flannel CNI).</td>
+          </tr>
+          <tr>
+            <td><strong>Kubernetes Pods</strong></td>
+            <td><code>tomcat-live-64f7774688-dtj5k</code><br><code>tomcat-live-85855d5c5b-ks9hc</code></td>
+            <td>Java/Tomcat-applicatiecontainers. De verschillende ReplicaSet-hashes (<code>64f7774688</code> vs. <code>85855d5c5b</code>) wijzen op verschillende deployments of versies binnen hetzelfde cluster.</td>
+          </tr>
+          <tr>
+            <td><strong>X-Mailer Header</strong></td>
+            <td><code>BaseNet (-1.0e23b13c02e453486feb751dcdef8d57a4c2e56f)</code></td>
+            <td>Bevat een Git commit-hash van de gebruikte BaseNet-build. Dit is een vorm van <em>information disclosure</em> waarmee de exacte softwareversie te identificeren is.</td>
+          </tr>
+          <tr>
+            <td><strong>MTA &amp; Relay</strong></td>
+            <td><code>@postfix-out-int.mail</code><br><code>217.19.226.228</code> (<code>out.basenet.nl</code>)</td>
+            <td>E-mails gaan vanuit de Tomcat-pods naar een interne Postfix-mailserver en verlaten het netwerk via een gedeelde uitgaande mailrelay.</td>
+          </tr>
+          <tr>
+            <td><strong>DKIM</strong></td>
+            <td><code>s=basenet0001</code> (2048-bit RSA)</td>
+            <td>Cryptografische ondertekening namens <code>bosvanderburg.nl</code>. BaseNet is via DNS geautoriseerd om namens het domein van de klant te mailen.</td>
+          </tr>
+          <tr>
+            <td><strong>Servlet URL</strong></td>
+            <td><code>https://crm.basenet.nl/servlets/objects/rela.archivedemail/print</code></td>
+            <td>Applicatie-endpoint binnen de Tomcat-omgeving voor het renderen en afdrukken van gearchiveerde e-mails.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Belangrijkste conclusies</h2>
+    <ul class="conclusions">
+      <li>
+        <strong>Gedeelde infrastructuur (Multi-tenancy)</strong>
+        Hoewel de twee advocatenkantoren eigen domeinen en DKIM-sleutels gebruiken, draaien hun CRM-omgevingen op dezelfde Kubernetes-infrastructuur en delen ze dezelfde uitgaande mailrelay (<code>out.basenet.nl</code>).
+      </li>
+      <li>
+        <strong>Interne topologie zichtbaar in headers</strong>
+        Het opnemen van interne Kubernetes pod-namen, private IP-adressen (<code>10.244.x.x</code>) en een Git commit-hash in uitgaande e-mailheaders geeft inzicht in de interne architectuur (Tomcat + Kubernetes + Postfix). In beveiligingsaudits wordt vaak aangeraden dit soort interne headers op de uitgaande MTA (Postfix) te strippen via <code>header_checks</code>.
+      </li>
+      <li>
+        <strong>Forensische herleidbaarheid</strong>
+        De combinatie van de Message-ID-suffix (<code>@postfix-out-int.mail</code>), het externe relay-IP (<code>217.19.226.228</code>) en de specifieke pod-naam maakt het mogelijk om exact vast te stellen dat een bericht rechtstreeks vanuit de BaseNet CRM-applicatie is verzonden en niet via een losse mailclient zoals Outlook.
+      </li>
+    </ul>
+
+    <footer>
+      <span>Architect-developer-dataanalyse: R. Goijarts</span>
+      <span>Ontwerp en ontwikkeling: Bedrijven en overheid hebben geen toestemming tot gebruik van deze code.</span>
+    </footer>
+  </div>
+
+  <script>
+    const btn = document.getElementById('themeToggle');
+    const root = document.documentElement;
+    btn.addEventListener('click', () => {
+      const isDark = root.getAttribute('data-theme') === 'dark';
+      root.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      btn.textContent = isDark ? 'Donkere modus' : 'Lichte modus';
+    });
+  </script>
+</body>
+</html>
