@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekenkundige Functies (μ, Λ, φ) voor n = 6179</title>
+  <style>
+    :root {
+      --meekrap: #A31C1C;
+      --meekrap-donker: #7A1414;
+      --inkt: #111111;
+      --subtekst: #444444;
+      --achtergrond: #FFFFFF;
+      --paneel: #FAFAFA;
+      --lijn: #D4D4D4;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 2.5rem 1.5rem;
+      background-color: var(--achtergrond);
+      color: var(--inkt);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 19px;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 3px solid var(--meekrap);
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      margin: 0 0 0.4rem 0;
+      color: var(--meekrap);
+      font-size: 1.9rem;
+      line-height: 1.25;
+    }
+
+    .ondertitel {
+      margin: 0;
+      color: var(--subtekst);
+      font-size: 1.05rem;
+      font-style: italic;
+    }
+
+    h2 {
+      margin-top: 2.2rem;
+      margin-bottom: 0.75rem;
+      font-size: 1.35rem;
+      color: var(--meekrap);
+      border-bottom: 1px solid var(--lijn);
+      padding-bottom: 0.25rem;
+    }
+
+    h3 {
+      margin-top: 1.6rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.15rem;
+      color: var(--inkt);
+    }
+
+    p {
+      margin: 0.6rem 0 1rem 0;
+    }
+
+    /* Wiskundige opmaak (100% offline, geen externe bibliotheken) */
+    .formule {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.35em;
+      margin: 1.1rem 0;
+      padding: 0.9rem 1.2rem;
+      background: var(--paneel);
+      border-left: 4px solid var(--meekrap);
+      font-size: 1.08rem;
+      overflow-x: auto;
+    }
+
+    .math-var {
+      font-style: italic;
+    }
+
+    .breuk {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      margin: 0 0.2em;
+      line-height: 1.2;
+    }
+
+    .breuk .teller {
+      border-bottom: 1.5px solid var(--inkt);
+      padding: 0 0.25em 0.1em 0.25em;
+    }
+
+    .breuk .noemer {
+      padding: 0.1em 0.25em 0 0.25em;
+    }
+
+    .som {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      margin: 0 0.25em;
+      line-height: 1.05;
+    }
+
+    .som .boven,
+    .som .onder {
+      font-size: 0.72em;
+    }
+
+    .som .teken {
+      font-size: 1.6em;
+      line-height: 0.95;
+    }
+
+    .gevallen {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45em;
+    }
+
+    .accolade {
+      font-size: 3.1em;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--inkt);
+      user-select: none;
+    }
+
+    .gevallen-lijst {
+      display: grid;
+      grid-template-columns: auto auto;
+      column-gap: 1.2rem;
+      row-gap: 0.3rem;
+      text-align: left;
+    }
+
+    .waarde-accent {
+      color: var(--meekrap);
+      font-weight: bold;
+    }
+
+    /* Tabel */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+
+    th, td {
+      padding: 0.75rem 0.9rem;
+      text-align: left;
+      border-bottom: 1px solid var(--lijn);
+    }
+
+    thead th {
+      background-color: var(--meekrap);
+      color: #FFFFFF;
+      font-weight: bold;
+      border-bottom: 2px solid var(--meekrap-donker);
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: var(--paneel);
+    }
+
+    /* Interactieve controlebalk */
+    .controle-paneel {
+      margin-top: 2.2rem;
+      padding: 1.2rem 1.3rem;
+      background-color: var(--paneel);
+      border: 2px solid var(--meekrap);
+    }
+
+    .controle-rij {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.6rem;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="number"] {
+      width: 140px;
+      padding: 0.45rem 0.6rem;
+      font-size: 19px;
+      font-family: inherit;
+      border: 2px solid var(--inkt);
+      background: #FFFFFF;
+      color: var(--inkt);
+    }
+
+    button {
+      padding: 0.5rem 1.1rem;
+      font-size: 19px;
+      font-family: inherit;
+      font-weight: bold;
+      background-color: var(--meekrap);
+      color: #FFFFFF;
+      border: 2px solid var(--meekrap);
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus {
+      background-color: var(--meekrap-donker);
+      border-color: var(--meekrap-donker);
+    }
+
+    button.secundair {
+      background-color: #FFFFFF;
+      color: var(--meekrap);
+    }
+
+    button.secundair:hover,
+    button.secundair:focus {
+      background-color: #F4E6E6;
+    }
+
+    #uitkomst {
+      margin-top: 1rem;
+      padding-top: 0.8rem;
+      border-top: 1px solid var(--lijn);
+    }
+
+    .fout {
+      color: var(--meekrap);
+      font-weight: bold;
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        font-size: 12pt;
+      }
+      .controle-paneel {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Rekenkundige Functies (&mu;, &Lambda;, &varphi;) voor <span class="math-var">n</span> = 6179</h1>
+      <p class="ondertitel">Analytische Getaltheorie &mdash; Koppeling met &zeta;(<span class="math-var">s</span>)</p>
+    </header>
+
+    <section aria-labelledby="sec-factorisatie">
+      <h2 id="sec-factorisatie">1. Priemfactorisatie</h2>
+      <p>Het getal <span class="math-var">n</span> = 6179 is een kwadraatvrij semipriemgetal:</p>
+      <div class="formule">
+        <span>6179 = 37 &times; 167</span>
+      </div>
+      <p>met exact twee verschillende priemfactoren (<span class="math-var">p</span><sub>1</sub> = 37, <span class="math-var">p</span><sub>2</sub> = 167).</p>
+    </section>
+
+    <section aria-labelledby="sec-definities">
+      <h2 id="sec-definities">2. Definities en uitwerking voor <span class="math-var">n</span> = 6179</h2>
+
+      <h3>M&ouml;biusfunctie &mu;(<span class="math-var">n</span>)</h3>
+      <div class="formule">
+        <div class="gevallen">
+          <span>&mu;(<span class="math-var">n</span>) =</span>
+          <span class="accolade" aria-hidden="true">{</span>
+          <div class="gevallen-lijst">
+            <span>1</span>
+            <span>als <span class="math-var">n</span> = 1,</span>
+            <span>(&minus;1)<sup><span class="math-var">k</span></sup></span>
+            <span>als <span class="math-var">n</span> het product is van <span class="math-var">k</span> verschillende priemgetallen,</span>
+            <span>0</span>
+            <span>als <span class="math-var">n</span> deelbaar is door een kwadraat <span class="math-var">p</span><sup>2</sup> &gt; 1.</span>
+          </div>
+        </div>
+      </div>
+      <p>Koppeling met de Riemann-z&egrave;tafunctie voor Re(<span class="math-var">s</span>) &gt; 1:</p>
+      <div class="formule">
+        <span class="breuk">
+          <span class="teller">1</span>
+          <span class="noemer">&zeta;(<span class="math-var">s</span>)</span>
+        </span>
+        <span>=</span>
+        <span class="som">
+          <span class="boven">&infin;</span>
+          <span class="teken">&sum;</span>
+          <span class="onder"><span class="math-var">n</span> = 1</span>
+        </span>
+        <span class="breuk">
+          <span class="teller">&mu;(<span class="math-var">n</span>)</span>
+          <span class="noemer"><span class="math-var">n</span><sup><span class="math-var">s</span></sup></span>
+        </span>
+      </div>
+      <p>Voor <span class="math-var">n</span> = 6179 = 37 &times; 167 geldt <span class="math-var">k</span> = 2, dus:</p>
+      <div class="formule">
+        <span>&mu;(6179) = (&minus;1)<sup>2</sup> = <span class="waarde-accent">+1</span></span>
+      </div>
+
+      <h3>Von Mangoldt-functie &Lambda;(<span class="math-var">n</span>)</h3>
+      <div class="formule">
+        <div class="gevallen">
+          <span>&Lambda;(<span class="math-var">n</span>) =</span>
+          <span class="accolade" aria-hidden="true">{</span>
+          <div class="gevallen-lijst">
+            <span>ln <span class="math-var">p</span></span>
+            <span>als <span class="math-var">n</span> = <span class="math-var">p</span><sup><span class="math-var">k</span></sup> voor een priemgetal <span class="math-var">p</span> en <span class="math-var">k</span> &ge; 1,</span>
+            <span>0</span>
+            <span>anders.</span>
+          </div>
+        </div>
+      </div>
+      <p>Koppeling met de logaritmische afgeleide van &zeta;(<span class="math-var">s</span>) voor Re(<span class="math-var">s</span>) &gt; 1:</p>
+      <div class="formule">
+        <span>&minus;</span>
+        <span class="breuk">
+          <span class="teller">&zeta;&prime;(<span class="math-var">s</span>)</span>
+          <span class="noemer">&zeta;(<span class="math-var">s</span>)</span>
+        </span>
+        <span>=</span>
+        <span class="som">
+          <span class="boven">&infin;</span>
+          <span class="teken">&sum;</span>
+          <span class="onder"><span class="math-var">n</span> = 1</span>
+        </span>
+        <span class="breuk">
+          <span class="teller">&Lambda;(<span class="math-var">n</span>)</span>
+          <span class="noemer"><span class="math-var">n</span><sup><span class="math-var">s</span></sup></span>
+        </span>
+      </div>
+      <p>Omdat 6179 = 37 &times; 167 geen priemgetal of priemmacht is, geldt:</p>
+      <div class="formule">
+        <span>&Lambda;(6179) = <span class="waarde-accent">0</span></span>
+      </div>
+
+      <h3>Euler-totientfunctie &varphi;(<span class="math-var">n</span>)</h3>
+      <div class="formule">
+        <span>&varphi;(<span class="math-var">n</span>) = <span class="math-var">n</span></span>
+        <span class="som">
+          <span class="boven">&nbsp;</span>
+          <span class="teken">&prod;</span>
+          <span class="onder"><span class="math-var">p</span> | <span class="math-var">n</span></span>
+        </span>
+        <span>( 1 &minus;</span>
+        <span class="breuk">
+          <span class="teller">1</span>
+          <span class="noemer"><span class="math-var">p</span></span>
+        </span>
+        <span>)</span>
+      </div>
+      <p>Koppeling met &zeta;(<span class="math-var">s</span>) voor Re(<span class="math-var">s</span>) &gt; 2:</p>
+      <div class="formule">
+        <span class="breuk">
+          <span class="teller">&zeta;(<span class="math-var">s</span> &minus; 1)</span>
+          <span class="noemer">&zeta;(<span class="math-var">s</span>)</span>
+        </span>
+        <span>=</span>
+        <span class="som">
+          <span class="boven">&infin;</span>
+          <span class="teken">&sum;</span>
+          <span class="onder"><span class="math-var">n</span> = 1</span>
+        </span>
+        <span class="breuk">
+          <span class="teller">&varphi;(<span class="math-var">n</span>)</span>
+          <span class="noemer"><span class="math-var">n</span><sup><span class="math-var">s</span></sup></span>
+        </span>
+      </div>
+      <p>Voor <span class="math-var">n</span> = 6179 = 37 &times; 167 geldt:</p>
+      <div class="formule">
+        <span>&varphi;(6179) = (37 &minus; 1)(167 &minus; 1) = 36 &times; 166 = <span class="waarde-accent">5976</span></span>
+      </div>
+    </section>
+
+    <section aria-labelledby="sec-samenvatting">
+      <h2 id="sec-samenvatting">3. Samenvatting</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Functie</th>
+            <th>Dirichletreeks via &zeta;(<span class="math-var">s</span>)</th>
+            <th>Waarde voor <span class="math-var">n</span> = 6179</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>M&ouml;bius &mu;(<span class="math-var">n</span>)</td>
+            <td>1 / &zeta;(<span class="math-var">s</span>)</td>
+            <td class="waarde-accent">+1</td>
+          </tr>
+          <tr>
+            <td>Von Mangoldt &Lambda;(<span class="math-var">n</span>)</td>
+            <td>&minus;&zeta;&prime;(<span class="math-var">s</span>) / &zeta;(<span class="math-var">s</span>)</td>
+            <td class="waarde-accent">0</td>
+          </tr>
+          <tr>
+            <td>Euler-totient &varphi;(<span class="math-var">n</span>)</td>
+            <td>&zeta;(<span class="math-var">s</span> &minus; 1) / &zeta;(<span class="math-var">s</span>)</td>
+            <td class="waarde-accent">5976</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="controle-paneel" aria-labelledby="sec-controle">
+      <h2 id="sec-controle" style="margin-top: 0;">4. Zelf narekenen (willekeurige <span class="math-var">n</span>)</h2>
+      <div class="controle-rij">
+        <label for="invoer-n">Getal <span class="math-var">n</span>:</label>
+        <input id="invoer-n" type="number" min="1" max="1000000000" step="1" value="6179">
+        <button id="knop-bereken" type="button">Bereken</button>
+        <button id="knop-reset" type="button" class="secundair">Reset 6179</button>
+      </div>
+      <div id="uitkomst" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    function factoriseer(n) {
+      const factoren = new Map();
+      let rest = n;
+      for (let d = 2; d * d <= rest; d++) {
+        while (rest % d === 0) {
+          factoren.set(d, (factoren.get(d) || 0) + 1);
+          rest = Math.floor(rest / d);
+        }
+      }
+      if (rest > 1) {
+        factoren.set(rest, (factoren.get(rest) || 0) + 1);
+      }
+      return factoren;
+    }
+
+    function berekenFuncties(n) {
+      const factoren = factoriseer(n);
+
+      // Möbius mu(n)
+      let mu = 1;
+      if (n > 1) {
+        for (const exp of factoren.values()) {
+          if (exp > 1) {
+            mu = 0;
+            break;
+          }
+          mu = -mu;
+        }
+      }
+
+      // Von Mangoldt Lambda(n)
+      let lambdaTekst = "0";
+      if (factoren.size === 1) {
+        const [p] = factoren.keys();
+        lambdaTekst = `ln(${p}) &approx; ${Math.log(p).toFixed(6)}`;
+      }
+
+      // Euler-totient phi(n)
+      let phi = n;
+      for (const p of factoren.keys()) {
+        phi = (phi / p) * (p - 1);
+      }
+
+      // Leesbare priemfactorisatie
+      let facTekst = "1";
+      if (factoren.size > 0) {
+        facTekst = Array.from(factoren.entries())
+          .map(([p, e]) => (e > 1 ? `${p}<sup>${e}</sup>` : `${p}`))
+          .join(" &times; ");
+      }
+
+      return { facTekst, mu, lambdaTekst, phi };
+    }
+
+    function toonUitkomst() {
+      const invoer = document.getElementById("invoer-n");
+      const uitkomst = document.getElementById("uitkomst");
+      const n = Number(invoer.value);
+
+      if (!Number.isInteger(n) || n < 1 || n > 1000000000) {
+        uitkomst.innerHTML = '<p class="fout">Voer een geheel getal tussen 1 en 1.000.000.000 in.</p>';
+        return;
+      }
+
+      const { facTekst, mu, lambdaTekst, phi } = berekenFuncties(n);
+      const muTekst = mu > 0 ? "+1" : String(mu);
+
+      uitkomst.innerHTML = `
+        <p><strong>Priemfactorisatie:</strong> ${n} = ${facTekst}</p>
+        <p>
+          <strong>&mu;(${n})</strong> = <span class="waarde-accent">${muTekst}</span> &nbsp;|&nbsp;
+          <strong>&Lambda;(${n})</strong> = <span class="waarde-accent">${lambdaTekst}</span> &nbsp;|&nbsp;
+          <strong>&varphi;(${n})</strong> = <span class="waarde-accent">${phi}</span>
+        </p>
+      `;
+    }
+
+    document.getElementById("knop-bereken").addEventListener("click", toonUitkomst);
+    document.getElementById("knop-reset").addEventListener("click", () => {
+      document.getElementById("invoer-n").value = "6179";
+      toonUitkomst();
+    });
+    document.getElementById("invoer-n").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") toonUitkomst();
+    });
+
+    toonUitkomst();
+  </script>
+</body>
+</html>
