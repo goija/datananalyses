@@ -1,0 +1,2396 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saros-resonantie (18 jaar), Riemann-interferentie &amp; Mersenne-detector</title>
+  <style>
+    /* ==========================================================================
+       ONTWERPTOKENS — HOOG CONTRAST, WETENSCHAPPELIJKE HELDERHEID (19PX)
+       ========================================================================== */
+    :root {
+      --wit: #FFFFFF;
+      --zwart: #111111;
+      --meekrap: #A31C1C;
+      --meekrap-donker: #7A1414;
+      --meekrap-licht: #FAF0F0;
+      --kader-grijs: #D4D4D4;
+      --paneel-grijs: #FAFAFA;
+      --subtekst: #444444;
+      --radius: 10px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 19px;
+    }
+
+    body {
+      margin: 0;
+      padding: 2rem 1.25rem 3rem;
+      background-color: var(--wit);
+      color: var(--zwart);
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2.25rem;
+    }
+
+    /* Kopbalk */
+    header {
+      border-bottom: 3px solid var(--meekrap);
+      padding-bottom: 1rem;
+    }
+
+    h1 {
+      margin: 0 0 0.35rem 0;
+      font-size: 1.75rem;
+      line-height: 1.25;
+      color: var(--meekrap);
+      letter-spacing: -0.01em;
+    }
+
+    .ondertitel {
+      margin: 0;
+      font-size: 0.98rem;
+      color: var(--subtekst);
+      font-style: italic;
+    }
+
+    /* Sectiekaarten */
+    section.kaart {
+      background-color: var(--wit);
+      border: 1.5px solid var(--kader-grijs);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.32rem;
+      color: var(--meekrap);
+      border-bottom: 1.5px solid var(--kader-grijs);
+      padding-bottom: 0.4rem;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .formule-balk {
+      background-color: var(--paneel-grijs);
+      border: 1px solid var(--kader-grijs);
+      border-left: 4px solid var(--meekrap);
+      border-radius: 6px;
+      padding: 0.7rem 1rem;
+      font-size: 1.02rem;
+      overflow-x: auto;
+    }
+
+    .math-var {
+      font-style: italic;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Bedieningspanelen */
+    .bediening-paneel {
+      background-color: var(--paneel-grijs);
+      border: 1px solid var(--kader-grijs);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.95rem;
+    }
+
+    .knoppen-rij {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: bold;
+      padding: 0.5rem 0.9rem;
+      border-radius: 7px;
+      border: 1.5px solid var(--zwart);
+      background-color: var(--wit);
+      color: var(--zwart);
+      cursor: pointer;
+      transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    button:hover,
+    button:focus-visible {
+      background-color: var(--meekrap-licht);
+      border-color: var(--meekrap);
+      color: var(--meekrap);
+      outline: 2px solid var(--zwart);
+      outline-offset: 2px;
+    }
+
+    button.actief,
+    button.primair {
+      background-color: var(--meekrap);
+      border-color: var(--meekrap);
+      color: var(--wit);
+    }
+
+    button.actief:hover,
+    button.primair:hover,
+    button.actief:focus-visible,
+    button.primair:focus-visible {
+      background-color: var(--meekrap-donker);
+      border-color: var(--meekrap-donker);
+      color: var(--wit);
+    }
+
+    /* Schuifregelaars */
+    .sliders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.9rem 1.4rem;
+    }
+
+    .slider-groep {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .slider-kop {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .slider-waarde {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: bold;
+      color: var(--meekrap);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      accent-color: var(--meekrap);
+      cursor: pointer;
+    }
+
+    /* Overlay-schakelaars */
+    .overlays-rij {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--kader-grijs);
+    }
+
+    .overlay-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.88rem;
+      cursor: pointer;
+      user-select: none;
+      padding: 0.35rem 0.65rem;
+      border: 1px solid var(--kader-grijs);
+      border-radius: 6px;
+      background-color: var(--wit);
+    }
+
+    .overlay-label:hover {
+      border-color: var(--meekrap);
+    }
+
+    .overlay-label input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--meekrap);
+      cursor: pointer;
+    }
+
+    /* Canvas-container */
+    .canvas-container {
+      width: 100%;
+      border: 1.5px solid var(--zwart);
+      border-radius: 8px;
+      background-color: var(--wit);
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Live meetwaarden onder de Saros-grafiek */
+    .metingen-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .meting-kaart {
+      background-color: var(--paneel-grijs);
+      border: 1px solid var(--kader-grijs);
+      border-top: 3px solid var(--zwart);
+      border-radius: 7px;
+      padding: 0.65rem 0.85rem;
+    }
+
+    .meting-kaart.accent {
+      border-top-color: var(--meekrap);
+      background-color: var(--meekrap-licht);
+    }
+
+    .meting-titel {
+      font-size: 0.82rem;
+      color: var(--subtekst);
+      margin-bottom: 0.2rem;
+    }
+
+    .meting-waarde {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 1.08rem;
+      font-weight: bold;
+      color: var(--zwart);
+    }
+
+    .meting-kaart.accent .meting-waarde {
+      color: var(--meekrap);
+    }
+
+    .meting-sub {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      color: var(--subtekst);
+      margin-top: 0.15rem;
+    }
+
+    /* Legenda */
+    .legenda {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem 1.2rem;
+      font-size: 0.84rem;
+      color: var(--subtekst);
+      align-items: center;
+    }
+
+    .legenda-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .lijn-staal {
+      display: inline-block;
+      width: 24px;
+      height: 3px;
+      border-radius: 2px;
+    }
+
+    /* Tabel (Sectie 3) */
+    .tabel-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--kader-grijs);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    thead th {
+      background-color: var(--meekrap);
+      color: var(--wit);
+      text-align: left;
+      padding: 0.7rem 0.85rem;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 0.65rem 0.85rem;
+      border-top: 1px solid var(--kader-grijs);
+      vertical-align: middle;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: var(--paneel-grijs);
+    }
+
+    .cel-num {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      white-space: nowrap;
+    }
+
+    .cel-accent {
+      color: var(--meekrap);
+      font-weight: bold;
+    }
+
+    /* Eigen getal controleren */
+    .controle-box {
+      background-color: var(--paneel-grijs);
+      border: 1.5px solid var(--meekrap);
+      border-radius: 8px;
+      padding: 1rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .controle-rij {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    input[type="text"] {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.95rem;
+      padding: 0.45rem 0.7rem;
+      width: 190px;
+      border: 1.5px solid var(--zwart);
+      border-radius: 7px;
+      background-color: var(--wit);
+      color: var(--zwart);
+    }
+
+    input[type="text"]:focus {
+      outline: 2px solid var(--meekrap);
+      outline-offset: 1px;
+    }
+
+    .controle-uitkomst {
+      border-top: 1px solid var(--kader-grijs);
+      padding-top: 0.75rem;
+      font-size: 0.92rem;
+    }
+
+    .foutmelding {
+      color: var(--meekrap);
+      font-weight: bold;
+    }
+
+    /* Mersenne-snelknoppen, detectiebadge & binaire weergave */
+    .mersenne-snelrij {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.86rem;
+    }
+
+    .mersenne-snelknop {
+      padding: 0.32rem 0.65rem;
+      font-size: 0.82rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .mersenne-paneel {
+      margin-top: 0.75rem;
+      padding: 0.7rem 0.9rem;
+      border-radius: 7px;
+      border: 1.5px solid var(--kader-grijs);
+      background-color: var(--wit);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .mersenne-paneel.is-priem {
+      border-color: var(--meekrap);
+      background-color: var(--meekrap-licht);
+    }
+
+    .mersenne-paneel.is-samengesteld {
+      border-color: var(--zwart);
+      background-color: var(--wit);
+    }
+
+    .mersenne-badge {
+      display: inline-block;
+      align-self: flex-start;
+      padding: 0.18rem 0.6rem;
+      border-radius: 5px;
+      font-size: 0.86rem;
+      font-weight: bold;
+      background-color: var(--meekrap);
+      color: var(--wit);
+    }
+
+    .mersenne-badge.neutraal {
+      background-color: var(--zwart);
+      color: var(--wit);
+    }
+
+    .mersenne-badge.geen {
+      background-color: var(--kader-grijs);
+      color: var(--zwart);
+    }
+
+    .binair-paneel {
+      margin-top: 0.7rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 7px;
+      border: 1px solid var(--kader-grijs);
+      background-color: var(--wit);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .binair-reeks {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 1.02rem;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+      color: var(--zwart);
+      word-break: break-all;
+    }
+
+    .binair-meta {
+      font-size: 0.84rem;
+      color: var(--subtekst);
+    }
+
+    /* Vergelijkingsraster (Sectie 4: Fourier vs. GUE) */
+    .vergelijk-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 0.9rem;
+    }
+
+    .vergelijk-kaart {
+      background-color: var(--paneel-grijs);
+      border: 1px solid var(--kader-grijs);
+      border-left: 4px solid var(--zwart);
+      border-radius: 7px;
+      padding: 0.85rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .vergelijk-kaart.accent {
+      border-left-color: var(--meekrap);
+      background-color: var(--meekrap-licht);
+    }
+
+    .vergelijk-kaart h3 {
+      margin: 0 0 0.35rem 0;
+      font-size: 1rem;
+      color: var(--meekrap);
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--subtekst);
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--kader-grijs);
+    }
+
+    @media (max-width: 640px) {
+      html {
+        font-size: 17px;
+      }
+      body {
+        padding: 1rem 0.75rem 2rem;
+      }
+      section.kaart {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- Kopbalk -->
+    <header>
+      <h1>Saros-resonantie (18 jaar), Riemann-interferentie &amp; Mersenne-detector</h1>
+      <p class="ondertitel">
+        Constructieve golfinterferentie in de hemelmechanica (3 maancycli), de analytische getaltheorie (20 nulpunten van ζ(s)) en Mersennegetallen 2ᵖ − 1
+      </p>
+    </header>
+
+    <!-- ======================================================================
+         SECTIE 1: SAROS-RESONANTIE (3 ASTRONOMISCHE GOLVEN)
+         ====================================================================== -->
+    <section class="kaart" aria-labelledby="kop-saros">
+      <h2 id="kop-saros">1. Saros-resonantie (3 astronomische golven)</h2>
+      <p>
+        Een Saros-cyclus van 18 jaar, 11 dagen en 8 uur (≈ 6585,32 dagen) ontstaat doordat de synodische (<span class="math-var">T</span><sub>S</sub> = 29,530589 d),
+        draconische (<span class="math-var">T</span><sub>D</sub> = 27,212221 d) en anomalistische (<span class="math-var">T</span><sub>A</sub> = 27,554550 d) maancycli vrijwel exact in fase terugkeren.
+      </p>
+
+      <div class="formule-balk">
+        <span class="math-var">S</span>(<span class="math-var">t</span>) =
+        (cos(2π<span class="math-var">t</span> / <span class="math-var">T</span><sub>S</sub>) +
+        cos(2π<span class="math-var">t</span> / <span class="math-var">T</span><sub>D</sub>) +
+        cos(2π<span class="math-var">t</span> / <span class="math-var">T</span><sub>A</sub>)) / 3
+      </div>
+
+      <div class="bediening-paneel">
+        <div class="knoppen-rij" role="group" aria-label="Snelknoppen Saros-tijdstip">
+          <button type="button" class="saros-preset" data-t="0" data-w="240">Start (t = 0)</button>
+          <button type="button" class="saros-preset" data-t="3292.66" data-w="240">Halve Saros (3292,7 d)</button>
+          <button type="button" class="saros-preset actief" data-t="6585.32" data-w="90">Lokale zoom (6540–6630 d)</button>
+          <button type="button" class="saros-preset" data-t="3500" data-w="7000">Macro (0–7000 d)</button>
+          <button type="button" class="saros-preset" data-t="19755.96" data-w="240">Exeligmos (19755,96 d)</button>
+        </div>
+
+        <div class="sliders-grid">
+          <div class="slider-groep">
+            <div class="slider-kop">
+              <label for="sarosT">Middelpunt tijdsvenster <span class="math-var">t</span></label>
+              <span class="slider-waarde" id="sarosTWaarde">6585,32 d</span>
+            </div>
+            <input type="range" id="sarosT" min="0" max="20000" step="0.01" value="6585.32" />
+          </div>
+
+          <div class="slider-groep">
+            <div class="slider-kop">
+              <label for="sarosBreedte">Vensterbreedte Δ<span class="math-var">t</span></label>
+              <span class="slider-waarde" id="sarosBreedteWaarde">90 d</span>
+            </div>
+            <input type="range" id="sarosBreedte" min="60" max="7000" step="10" value="90" />
+          </div>
+        </div>
+
+        <!-- Overlays strikt UIT bij opstarten -->
+        <div class="overlays-rij">
+          <label class="overlay-label" for="sarosOverlayGolven">
+            <input type="checkbox" id="sarosOverlayGolven" />
+            <span>Toon afzonderlijke maangolven</span>
+          </label>
+          <label class="overlay-label" for="sarosOverlayRaster">
+            <input type="checkbox" id="sarosOverlayRaster" />
+            <span>Toon Saros-markeringen (6585,32 d)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="canvas-container" id="sarosCanvasWrap">
+        <canvas id="sarosCanvas" aria-label="Grafiek van de Saros-interferentiegolf S(t)"></canvas>
+      </div>
+
+      <div class="legenda" id="sarosLegenda">
+        <span class="legenda-item">
+          <span class="lijn-staal" style="background:#A31C1C;"></span>
+          <span>Gecombineerde resonantie S(t)</span>
+        </span>
+        <span class="legenda-item">
+          <span class="lijn-staal" style="background:#111111; height:1.5px;"></span>
+          <span>Middelpunt t</span>
+        </span>
+      </div>
+
+      <!-- Live fase-waarden en resonantiescore op t -->
+      <div class="metingen-grid" id="sarosMetingen" aria-live="polite"></div>
+    </section>
+
+    <!-- ======================================================================
+         SECTIE 2: RIEMANN-HARMONISCHE INTERFERENTIE (ZÈTA-NULPUNTEN)
+         ====================================================================== -->
+    <section class="kaart" aria-labelledby="kop-riemann">
+      <h2 id="kop-riemann">2. Riemann-harmonische interferentie (zèta-nulpunten)</h2>
+      <p>
+        De eerste 20 niet-triviale nulpunten ζ(½ + i·γ<sub><span class="math-var">k</span></sub>) = 0 vormen een som van logaritmische cosinusgolven.
+        Waar deze golven constructief interfereren, ontstaan karakteristieke pieken op priemgetallen en priemmachten.
+      <div class="formule-balk" id="riemannFormuleBalk">
+        <span class="math-var">H</span><sub><span class="math-var">N</span></sub>(<span class="math-var">x</span>) =
+        −(1 / <span class="math-var">N</span>) · ∑<sub><span class="math-var">k</span>=1..<span class="math-var">N</span></sub>
+        cos(γ<sub><span class="math-var">k</span></sub> · ln(<span class="math-var">x</span>))
+      </div>
+
+      <div class="bediening-paneel">
+        <div class="knoppen-rij" role="group" aria-label="Bereik- en formulekeuze Riemann">
+          <button type="button" class="riemann-bereik actief" data-min="2" data-max="50">[2, 50]</button>
+          <button type="button" class="riemann-bereik" data-min="215" data-max="250">[215, 250]</button>
+          <button type="button" class="riemann-bereik" data-min="6165" data-max="6195">[6165, 6195]</button>
+          <button type="button" class="riemann-formule actief" data-mode="norm">Genormeerd H_N(x)</button>
+          <button type="button" class="riemann-formule" data-mode="expliciet">Expliciet Δ(x) = −∑ 2cos/√x</button>
+        </div>
+
+        <div class="sliders-grid">
+          <div class="slider-groep">
+            <div class="slider-kop">
+              <label for="riemannN">Aantal zèta-nulpunten <span class="math-var">N</span></label>
+              <span class="slider-waarde" id="riemannNWaarde">12 (γ₁ t/m γ₁₂)</span>
+            </div>
+            <input type="range" id="riemannN" min="1" max="20" step="1" value="12" />
+          </div>
+        </div>
+
+        <!-- Overlays strikt UIT bij opstarten -->
+        <div class="overlays-rij">
+          <label class="overlay-label" for="riemannOverlayPriem">
+            <input type="checkbox" id="riemannOverlayPriem" />
+            <span>Toon priemgetal-markeringen</span>
+          </label>
+          <label class="overlay-label" for="riemannOverlayPieken">
+            <input type="checkbox" id="riemannOverlayPieken" />
+            <span>Toon nul-as en piekwaarden</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="canvas-container" id="riemannCanvasWrap">
+        <canvas id="riemannCanvas" aria-label="Grafiek van de Riemann-harmonische som H_N(x)"></canvas>
+      </div>
+
+      <div class="legenda" id="riemannLegenda">
+        <span class="legenda-item">
+          <span class="lijn-staal" style="background:#A31C1C;"></span>
+          <span>Harmonische som H_N(x)</span>
+        </span>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SECTIE 3: GETALTHEORETISCHE TABEL (μ, Λ, φ) & MERSENNE-DETECTOR
+         ====================================================================== -->
+    <section class="kaart" aria-labelledby="kop-tabel">
+      <h2 id="kop-tabel">3. Getaltheoretische tabel (μ, Λ, φ) &amp; Mersenne-detector</h2>
+      <p>
+        Live berekende waarden van de Möbiusfunctie μ(<span class="math-var">n</span>), Von Mangoldt-functie Λ(<span class="math-var">n</span>) en
+        Euler-totientfunctie φ(<span class="math-var">n</span>) voor de Saros-kerngetallen, 6179 en M₅ = 31, met automatische Mersenne-detectie en binaire weergave.
+      </p>
+
+      <div class="tabel-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Grootheid</th>
+              <th>Getal n</th>
+              <th>Priemfactorisatie</th>
+              <th>μ(n)</th>
+              <th>Λ(n)</th>
+              <th>φ(n)</th>
+            </tr>
+          </thead>
+          <tbody id="kernTabelBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Eigen getal controleren (zonder innerHTML) -->
+      <div class="controle-box">
+        <div class="controle-rij">
+          <label for="eigenGetalInvoer"><strong>Controleer geheel getal n (1 t/m 10¹²):</strong></label>
+          <input type="text" id="eigenGetalInvoer" inputmode="numeric" autocomplete="off" value="31" />
+          <button type="button" id="eigenGetalKnop" class="primair">Bereken</button>
+          <button type="button" id="eigenGetalReset">Reset 6179</button>
+        </div>
+        <div class="mersenne-snelrij" role="group" aria-label="Snelkeuze Mersenne-tests">
+          <span><strong>Mersenne-tests:</strong></span>
+          <button type="button" class="mersenne-snelknop" data-n="31">31 (M₅)</button>
+          <button type="button" class="mersenne-snelknop" data-n="127">127 (M₇)</button>
+          <button type="button" class="mersenne-snelknop" data-n="2047">2047 (M₁₁)</button>
+          <button type="button" class="mersenne-snelknop" data-n="8191">8191 (M₁₃)</button>
+          <button type="button" class="mersenne-snelknop" data-n="2147483647">2147483647 (M₃₁)</button>
+        </div>
+        <div class="controle-uitkomst" id="eigenGetalUitkomst" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SECTIE 4: FOURIER-SPECTRUM (DIRAC-KAMMEN) VS. MONTGOMERY-ODLYZKO (GUE)
+         ====================================================================== -->
+    <section class="kaart" aria-labelledby="kop-fourier">
+      <h2 id="kop-fourier">4. Fourier-vermogensspectrum (Saros) vs. Montgomery–Odlyzko (Zèta-nulpunten)</h2>
+      <p>
+        De Fourier-transformatie van de samengestelde Saros-golf Ψ(<span class="math-var">t</span>) concentreert alle energie in drie discrete
+        spectraallijnen (Dirac-kammen bij <span class="math-var">f</span><sub>S</sub>, <span class="math-var">f</span><sub>A</sub> en <span class="math-var">f</span><sub>D</sub>).
+        Daartegenover vertonen de genormaliseerde afstanden tussen Riemann-zèta-nulpunten de continue paarcorrelatie van willekeurige Hermitische matrices (GUE) met duidelijke niveau-afstoting bij <span class="math-var">u</span> → 0.
+      </p>
+
+      <!-- Deel 4A: Vermogensspectrum van de Saros-golf -->
+      <div class="formule-balk">
+        |<span class="math-var">Ψ̂</span>(<span class="math-var">f</span>)|² =
+        |(1 / <span class="math-var">L</span>) · ∫<sub>0</sub><sup><span class="math-var">L</span></sup>
+        <span class="math-var">w</span>(<span class="math-var">t</span>) · Ψ(<span class="math-var">t</span>) · e<sup>−2πi<span class="math-var">ft</span></sup> d<span class="math-var">t</span>|²
+      </div>
+
+      <div class="bediening-paneel">
+        <div class="knoppen-rij" role="group" aria-label="Meetduur Fourier-spectrum">
+          <button type="button" class="fft-preset" data-l="600">Kort (600 d)</button>
+          <button type="button" class="fft-preset" data-l="2200">Scheidingsgrens (2200 d)</button>
+          <button type="button" class="fft-preset actief" data-l="6585">1 Saros (6585 d)</button>
+          <button type="button" class="fft-preset" data-l="13171">2 Saros (13171 d)</button>
+        </div>
+
+        <div class="sliders-grid">
+          <div class="slider-groep">
+            <div class="slider-kop">
+              <label for="fftDuur">Observatieduur <span class="math-var">L</span> (bepaalt resolutie Δ<span class="math-var">f</span> = 1/<span class="math-var">L</span>)</label>
+              <span class="slider-waarde" id="fftDuurWaarde">6585 d (Δf ≈ 0,000152 d⁻¹)</span>
+            </div>
+            <input type="range" id="fftDuur" min="300" max="15000" step="50" value="6585" />
+          </div>
+        </div>
+
+        <!-- Overlays strikt UIT bij opstarten -->
+        <div class="overlays-rij">
+          <label class="overlay-label" for="fftHann">
+            <input type="checkbox" id="fftHann" />
+            <span>Hann-venster (onderdrukt zijlobben)</span>
+          </label>
+          <label class="overlay-label" for="fftOverlayPieken">
+            <input type="checkbox" id="fftOverlayPieken" />
+            <span>Toon exacte frequenties (f_S, f_A, f_D)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="canvas-container" id="fftCanvasWrap">
+        <canvas id="fftCanvas" aria-label="Fourier-vermogensspectrum van de Saros-golf"></canvas>
+      </div>
+
+      <div class="legenda" id="fftLegenda"></div>
+      <div class="metingen-grid" id="fftMetingen" aria-live="polite"></div>
+
+      <!-- Deel 4B: Montgomery-Odlyzko Pair-Correlation (GUE) -->
+      <div class="formule-balk" style="margin-top:0.5rem;">
+        <span class="math-var">R</span><sub>2</sub>(<span class="math-var">u</span>) =
+        1 − (sin(π<span class="math-var">u</span>) / (π<span class="math-var">u</span>))²
+        &nbsp;·&nbsp; ontvouwing:
+        <span class="math-var">γ̃</span><sub><span class="math-var">n</span></sub> =
+        (<span class="math-var">γ</span><sub><span class="math-var">n</span></sub> / 2π) · ln(<span class="math-var">γ</span><sub><span class="math-var">n</span></sub> / 2πe) + 7/8
+      </div>
+
+      <div class="bediening-paneel">
+        <div class="sliders-grid">
+          <div class="slider-groep">
+            <div class="slider-kop">
+              <label for="gueM">Aantal zèta-nulpunten <span class="math-var">M</span> (empirisch histogram)</label>
+              <span class="slider-waarde" id="gueMWaarde">50 nulpunten (γ₁ t/m γ₅₀)</span>
+            </div>
+            <input type="range" id="gueM" min="15" max="50" step="1" value="50" />
+          </div>
+
+          <div class="slider-groep">
+            <div class="slider-kop">
+              <label for="gueBins">Aantal klassen (bins over u ∈ [0, 3])</label>
+              <span class="slider-waarde" id="gueBinsWaarde">18 bins (Δu = 0,167)</span>
+            </div>
+            <input type="range" id="gueBins" min="10" max="30" step="2" value="18" />
+          </div>
+        </div>
+
+        <!-- Overlays strikt UIT bij opstarten -->
+        <div class="overlays-rij">
+          <label class="overlay-label" for="gueOverlayPoisson">
+            <input type="checkbox" id="gueOverlayPoisson" />
+            <span>Toon Poisson-referentie (R₂(u) = 1, ongecorreleerd)</span>
+          </label>
+          <label class="overlay-label" for="gueOverlayAfstoting">
+            <input type="checkbox" id="gueOverlayAfstoting" />
+            <span>Toon afstotingszone (u → 0) &amp; pieken</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="canvas-container" id="gueCanvasWrap">
+        <canvas id="gueCanvas" aria-label="Montgomery-Odlyzko paarcorrelatie van Riemann-zèta-nulpunten"></canvas>
+      </div>
+
+      <div class="legenda" id="gueLegenda"></div>
+
+      <div class="vergelijk-grid">
+        <div class="vergelijk-kaart">
+          <h3>Saros-spectrum: Discrete Dirac-kammen</h3>
+          <p>
+            Quasi-periodiek signaal met exact 3 frequenties. De kleinste scheiding is
+            <span class="mono">f_D − f_A ≈ 0,000456 d⁻¹</span>; pas boven <span class="mono">L ≈ 2200 d</span>
+            scheidt de Fourier-transformatie beide lijnen scherp van elkaar.
+          </p>
+        </div>
+        <div class="vergelijk-kaart accent">
+          <h3>Zèta-nulpunten: GUE-afstoting (Montgomery–Odlyzko)</h3>
+          <p>
+            Geen periodiek rooster, maar kwantumchaotische stijfheid: twee nulpunten liggen vrijwel nooit
+            dicht op elkaar (<span class="mono">R₂(0) = 0</span>), in tegenstelling tot willekeurige Poisson-punten (<span class="mono">R₂ = 1</span>).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      100% zelfstandige HTML5-webapp &middot; Pure JavaScript &amp; Canvas &middot; Geen externe bibliotheken
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ======================================================================
+         CONSTANTEN — SAROS, RIEMANN & KLEUREN
+         ====================================================================== */
+      const T_S = 29.530589; // Synodische maand (dagen)
+      const T_D = 27.212221; // Draconische maand (dagen)
+      const T_A = 27.554550; // Anomalistische maand (dagen)
+      const SAROS_DAGEN = 223 * T_S; // 6585.321347 dagen
+
+      // Eerste 50 niet-triviale imaginaire delen gamma_k van zeta(1/2 + i*gamma_k)
+      const GAMMAS = [
+        14.134725, 21.022040, 25.010858, 30.424876, 32.935062,
+        37.586178, 40.918719, 43.327073, 48.005151, 49.773832,
+        52.970321, 56.446248, 59.347044, 60.831779, 65.112544,
+        67.079811, 69.546402, 72.067158, 75.704691, 77.144840,
+        79.337375, 82.910381, 84.735493, 87.425275, 88.809111,
+        92.491899, 94.651344, 95.870634, 98.831194, 101.317851,
+        103.725538, 105.446623, 107.168611, 111.029536, 111.874659,
+        114.320220, 116.226680, 118.790783, 121.370125, 122.946829,
+        124.256819, 127.516684, 129.578704, 131.087688, 133.497737,
+        134.756510, 138.116042, 139.736209, 141.123707, 143.111846
+      ];
+
+      const KERN_GETALLEN = [
+        { naam: 'Saros in jaren', n: 18 },
+        { naam: 'Synodische maanden', n: 223 },
+        { naam: 'Anomalistische maanden', n: 239 },
+        { naam: 'Draconische maanden', n: 242 },
+        { naam: 'Saros in hele dagen', n: 6585 },
+        { naam: 'Semipriemgetal', n: 6179 },
+        { naam: 'Mersennepriemgetal M₅', n: 31 }
+      ];
+
+      const MAX_N = 1000000000000; // 10^12
+
+      const KLEUR = {
+        wit: '#FFFFFF',
+        zwart: '#111111',
+        meekrap: '#A31C1C',
+        raster: '#E5E5E5',
+        as: '#555555',
+        golfS: '#2563EB',
+        golfD: '#15803D',
+        golfA: '#B45309'
+      };
+
+      /* ======================================================================
+         ALGEMENE HULPFUNCTIES
+         ====================================================================== */
+      function fmtNL(getal, dec) {
+        return getal.toFixed(dec).replace('.', ',');
+      }
+
+      // Formatteer BigInt met Nederlandse duizendtallen-punten
+      function fmtBigIntNL(waarde) {
+        return waarde.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      }
+
+      // Groepeer binaire tekenreeks per 4 bits vanaf rechts
+      function groepeerBinair(binStr) {
+        return binStr.replace(/\B(?=(\d{4})+(?!\d))/g, ' ');
+      }
+
+      // Bereid HiDPI-canvas voor op basis van containerbreedte
+      function bereidCanvasVoor(canvas, container, hoogteRatio, minH, maxH) {
+        const dpr = window.devicePixelRatio || 1;
+        const breedte = Math.max(280, container.clientWidth);
+        const hoogte = Math.round(Math.min(maxH, Math.max(minH, breedte * hoogteRatio)));
+
+        canvas.width = Math.round(breedte * dpr);
+        canvas.height = Math.round(hoogte * dpr);
+        canvas.style.width = breedte + 'px';
+        canvas.style.height = hoogte + 'px';
+
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { ctx, breedte, hoogte };
+      }
+
+      function maakLegendaItem(kleur, tekst, gestippeld) {
+        const item = document.createElement('span');
+        item.className = 'legenda-item';
+
+        const staal = document.createElement('span');
+        staal.className = 'lijn-staal';
+        if (gestippeld) {
+          staal.style.borderTop = '2.5px dashed ' + kleur;
+          staal.style.height = '0';
+          staal.style.background = 'transparent';
+        } else {
+          staal.style.background = kleur;
+        }
+
+        const label = document.createElement('span');
+        label.textContent = tekst;
+
+        item.appendChild(staal);
+        item.appendChild(label);
+        return item;
+      }
+
+      function maakMetingKaart(titelTekst, waardeTekst, subTekst, isAccent) {
+        const kaart = document.createElement('div');
+        kaart.className = isAccent ? 'meting-kaart accent' : 'meting-kaart';
+
+        const titel = document.createElement('div');
+        titel.className = 'meting-titel';
+        titel.textContent = titelTekst;
+
+        const waarde = document.createElement('div');
+        waarde.className = 'meting-waarde';
+        waarde.textContent = waardeTekst;
+
+        const sub = document.createElement('div');
+        sub.className = 'meting-sub';
+        sub.textContent = subTekst;
+
+        kaart.appendChild(titel);
+        kaart.appendChild(waarde);
+        kaart.appendChild(sub);
+        return kaart;
+      }
+
+      /* ======================================================================
+         SECTIE 1: SAROS-RESONANTIE
+         ====================================================================== */
+      const sarosState = {
+        tMidden: 6585.32,
+        breedte: 90,
+        overlayGolven: false, // STRIKT UIT bij opstarten
+        overlayRaster: false  // STRIKT UIT bij opstarten
+      };
+
+      const sarosCanvas = document.getElementById('sarosCanvas');
+      const sarosWrap = document.getElementById('sarosCanvasWrap');
+      const sarosTSlider = document.getElementById('sarosT');
+      const sarosTWaarde = document.getElementById('sarosTWaarde');
+      const sarosBreedteSlider = document.getElementById('sarosBreedte');
+      const sarosBreedteWaarde = document.getElementById('sarosBreedteWaarde');
+      const sarosOverlayGolven = document.getElementById('sarosOverlayGolven');
+      const sarosOverlayRaster = document.getElementById('sarosOverlayRaster');
+      const sarosLegenda = document.getElementById('sarosLegenda');
+      const sarosMetingen = document.getElementById('sarosMetingen');
+      const sarosPresetKnoppen = document.querySelectorAll('.saros-preset');
+
+      function sarosWaarde(t) {
+        const cS = Math.cos((2 * Math.PI * t) / T_S);
+        const cD = Math.cos((2 * Math.PI * t) / T_D);
+        const cA = Math.cos((2 * Math.PI * t) / T_A);
+        const S = (cS + cD + cA) / 3;
+        return { cS, cD, cA, S };
+      }
+
+      function updateSarosLegenda() {
+        sarosLegenda.textContent = '';
+        sarosLegenda.appendChild(maakLegendaItem(KLEUR.meekrap, 'Gecombineerde resonantie S(t)', false));
+        sarosLegenda.appendChild(maakLegendaItem(KLEUR.zwart, 'Middelpunt t', true));
+
+        if (sarosState.overlayGolven) {
+          sarosLegenda.appendChild(maakLegendaItem(KLEUR.golfS, 'Synodisch (T_S)', false));
+          sarosLegenda.appendChild(maakLegendaItem(KLEUR.golfD, 'Draconisch (T_D)', false));
+          sarosLegenda.appendChild(maakLegendaItem(KLEUR.golfA, 'Anomalistisch (T_A)', false));
+        }
+        if (sarosState.overlayRaster) {
+          sarosLegenda.appendChild(maakLegendaItem(KLEUR.meekrap, 'Saros-markeringen (6585,32 d) & grens 0,95', true));
+        }
+      }
+
+      function updateSarosMetingen() {
+        const t = sarosState.tMidden;
+        const { cS, cD, cA, S } = sarosWaarde(t);
+        const cycS = t / T_S;
+        const cycD = t / T_D;
+        const cycA = t / T_A;
+        const pct = ((S + 1) / 2) * 100;
+
+        sarosMetingen.textContent = '';
+        sarosMetingen.appendChild(
+          maakMetingKaart(
+            'Resonantie S(t)',
+            fmtNL(pct, 2) + '% (' + (S >= 0 ? '+' : '−') + fmtNL(Math.abs(S), 4) + ')',
+            't = ' + fmtNL(t, 2) + ' d (' + fmtNL(t / 365.2422, 2) + ' jr)',
+            true
+          )
+        );
+        sarosMetingen.appendChild(
+          maakMetingKaart(
+            'Synodische fase (T_S)',
+            (cS >= 0 ? '+' : '−') + fmtNL(Math.abs(cS), 4),
+            fmtNL(cycS, 3) + ' cycli',
+            false
+          )
+        );
+        sarosMetingen.appendChild(
+          maakMetingKaart(
+            'Draconische fase (T_D)',
+            (cD >= 0 ? '+' : '−') + fmtNL(Math.abs(cD), 4),
+            fmtNL(cycD, 3) + ' cycli',
+            false
+          )
+        );
+        sarosMetingen.appendChild(
+          maakMetingKaart(
+            'Anomalistische fase (T_A)',
+            (cA >= 0 ? '+' : '−') + fmtNL(Math.abs(cA), 4),
+            fmtNL(cycA, 3) + ' cycli',
+            false
+          )
+        );
+      }
+
+      function tekenSaros() {
+        const { ctx, breedte, hoogte } = bereidCanvasVoor(sarosCanvas, sarosWrap, 0.36, 250, 340);
+        const pad = { top: 24, right: 20, bottom: 38, left: 54 };
+        const plotW = breedte - pad.left - pad.right;
+        const plotH = hoogte - pad.top - pad.bottom;
+
+        const tMin = sarosState.tMidden - sarosState.breedte / 2;
+        const tMax = sarosState.tMidden + sarosState.breedte / 2;
+        const yMin = -1.12;
+        const yMax = 1.12;
+
+        const xNaarPx = (t) => pad.left + ((t - tMin) / (tMax - tMin)) * plotW;
+        const yNaarPx = (y) => pad.top + ((yMax - y) / (yMax - yMin)) * plotH;
+
+        ctx.fillStyle = KLEUR.wit;
+        ctx.fillRect(0, 0, breedte, hoogte);
+
+        // Horizontale rasterlijnen & y-labels
+        const yTicks = [-1, -0.5, 0, 0.5, 1];
+        ctx.font = '12px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+
+        yTicks.forEach((yv) => {
+          const py = yNaarPx(yv);
+          ctx.beginPath();
+          ctx.moveTo(pad.left, py);
+          ctx.lineTo(pad.left + plotW, py);
+          ctx.strokeStyle = yv === 0 ? '#BBBBBB' : KLEUR.raster;
+          ctx.lineWidth = yv === 0 ? 1.4 : 1;
+          ctx.stroke();
+
+          ctx.fillStyle = KLEUR.as;
+          ctx.fillText(fmtNL(yv, 1), pad.left - 8, py);
+        });
+
+        // Verticale rasterlijnen & x-labels
+        const xStappen = 6;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        for (let i = 0; i <= xStappen; i++) {
+          const tv = tMin + (i / xStappen) * (tMax - tMin);
+          const px = xNaarPx(tv);
+          ctx.beginPath();
+          ctx.moveTo(px, pad.top);
+          ctx.lineTo(px, pad.top + plotH);
+          ctx.strokeStyle = KLEUR.raster;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.fillStyle = KLEUR.as;
+          ctx.fillText(fmtNL(tv, 0) + ' d', px, pad.top + plotH + 8);
+        }
+
+        // Overlay 2: Saros-veelvouden & drempel 0,95
+        if (sarosState.overlayRaster) {
+          ctx.save();
+          // Horizontale drempel S(t) = 0,95
+          const pyGrens = yNaarPx(0.95);
+          ctx.beginPath();
+          ctx.setLineDash([6, 4]);
+          ctx.moveTo(pad.left, pyGrens);
+          ctx.lineTo(pad.left + plotW, pyGrens);
+          ctx.strokeStyle = KLEUR.meekrap;
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+
+          ctx.fillStyle = KLEUR.meekrap;
+          ctx.font = 'bold 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText('Resonantiegrens 0,95', pad.left + 6, pyGrens - 3);
+
+          // Verticale lijnen op k * SAROS_DAGEN binnen venster
+          const kStart = Math.max(0, Math.floor(tMin / SAROS_DAGEN));
+          const kEind = Math.ceil(tMax / SAROS_DAGEN);
+          for (let k = kStart; k <= kEind; k++) {
+            const tSaros = k * SAROS_DAGEN;
+            if (tSaros < tMin || tSaros > tMax) continue;
+            const px = xNaarPx(tSaros);
+            ctx.beginPath();
+            ctx.setLineDash([5, 4]);
+            ctx.moveTo(px, pad.top);
+            ctx.lineTo(px, pad.top + plotH);
+            ctx.strokeStyle = KLEUR.meekrap;
+            ctx.lineWidth = 1.6;
+            ctx.stroke();
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(k === 0 ? '0× Saros' : k + '× Saros', px, pad.top + 4);
+          }
+          ctx.restore();
+        }
+
+        // Monsters voor de golven
+        const samples = Math.max(500, Math.round(plotW * 1.8));
+        const punten = new Array(samples + 1);
+        for (let i = 0; i <= samples; i++) {
+          const t = tMin + (i / samples) * (tMax - tMin);
+          punten[i] = { t, ...sarosWaarde(t) };
+        }
+
+        // Overlay 1: Afzonderlijke maangolven
+        if (sarosState.overlayGolven) {
+          const tekenDeelgolf = (sleutel, kleur) => {
+            ctx.beginPath();
+            for (let i = 0; i < punten.length; i++) {
+              const px = xNaarPx(punten[i].t);
+              const py = yNaarPx(punten[i][sleutel]);
+              if (i === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            }
+            ctx.strokeStyle = kleur;
+            ctx.lineWidth = 1.3;
+            ctx.globalAlpha = 0.55;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          };
+          tekenDeelgolf('cS', KLEUR.golfS);
+          tekenDeelgolf('cD', KLEUR.golfD);
+          tekenDeelgolf('cA', KLEUR.golfA);
+        }
+
+        // Hoofdgolf S(t)
+        ctx.beginPath();
+        for (let i = 0; i < punten.length; i++) {
+          const px = xNaarPx(punten[i].t);
+          const py = yNaarPx(punten[i].S);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = KLEUR.meekrap;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Middelpunt-indicator op tMidden
+        const pxMid = xNaarPx(sarosState.tMidden);
+        const pyMid = yNaarPx(sarosWaarde(sarosState.tMidden).S);
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([4, 4]);
+        ctx.moveTo(pxMid, pad.top);
+        ctx.lineTo(pxMid, pad.top + plotH);
+        ctx.strokeStyle = KLEUR.zwart;
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.arc(pxMid, pyMid, 5, 0, Math.PI * 2);
+        ctx.fillStyle = KLEUR.meekrap;
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = KLEUR.wit;
+        ctx.stroke();
+
+        // Kader
+        ctx.strokeStyle = KLEUR.zwart;
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(pad.left, pad.top, plotW, plotH);
+      }
+
+      function verversSaros() {
+        sarosTWaarde.textContent = fmtNL(sarosState.tMidden, 2) + ' d';
+        sarosBreedteWaarde.textContent = sarosState.breedte + ' d';
+        updateSarosLegenda();
+        updateSarosMetingen();
+        tekenSaros();
+      }
+
+      /* ======================================================================
+         SECTIE 2: RIEMANN-HARMONISCHE INTERFERENTIE
+         ====================================================================== */
+      const riemannState = {
+        N: 12,
+        xMin: 2,
+        xMax: 50,
+        formuleMode: 'norm',  // 'norm' = H_N(x), 'expliciet' = -sum 2*cos(gamma_k ln x)/sqrt(x)
+        overlayPriem: false,  // STRIKT UIT bij opstarten
+        overlayPieken: false  // STRIKT UIT bij opstarten
+      };
+
+      const riemannCanvas = document.getElementById('riemannCanvas');
+      const riemannWrap = document.getElementById('riemannCanvasWrap');
+      const riemannNSlider = document.getElementById('riemannN');
+      const riemannNWaarde = document.getElementById('riemannNWaarde');
+      const riemannOverlayPriem = document.getElementById('riemannOverlayPriem');
+      const riemannOverlayPieken = document.getElementById('riemannOverlayPieken');
+      const riemannLegenda = document.getElementById('riemannLegenda');
+      const riemannFormuleBalk = document.getElementById('riemannFormuleBalk');
+      const riemannBereikKnoppen = document.querySelectorAll('.riemann-bereik');
+      const riemannFormuleKnoppen = document.querySelectorAll('.riemann-formule');
+
+      function riemannSom(x, N) {
+        const lnx = Math.log(x);
+        let som = 0;
+        for (let k = 0; k < N; k++) {
+          som += Math.cos(GAMMAS[k] * lnx);
+        }
+        if (riemannState.formuleMode === 'expliciet') {
+          return (-2 * som) / Math.sqrt(x);
+        }
+        return -som / N;
+      }
+
+      function updateRiemannLegenda() {
+        riemannLegenda.textContent = '';
+        const hoofdLabel = riemannState.formuleMode === 'expliciet'
+          ? 'Expliciete golfsom Δ(x) met ' + riemannState.N + ' nulpunten'
+          : 'Harmonische som H_' + riemannState.N + '(x)';
+        riemannLegenda.appendChild(maakLegendaItem(KLEUR.meekrap, hoofdLabel, false));
+        if (riemannState.overlayPriem) {
+          riemannLegenda.appendChild(maakLegendaItem(KLEUR.zwart, 'Priemgetal p', true));
+          riemannLegenda.appendChild(maakLegendaItem('#666666', 'Priemmacht p^k (k ≥ 2)', true));
+        }
+        if (riemannState.overlayPieken) {
+          riemannLegenda.appendChild(maakLegendaItem(KLEUR.zwart, 'Nul-as & hoogste pieken', false));
+        }
+      }
+
+      function tekenRiemann() {
+        const { ctx, breedte, hoogte } = bereidCanvasVoor(riemannCanvas, riemannWrap, 0.36, 250, 340);
+        const pad = { top: 24, right: 20, bottom: 38, left: 54 };
+        const plotW = breedte - pad.left - pad.right;
+        const plotH = hoogte - pad.top - pad.bottom;
+
+        const { xMin, xMax, N } = riemannState;
+
+        const samples = Math.max(600, Math.round(plotW * 2));
+        const punten = new Array(samples + 1);
+        let maxAbs = 0;
+        for (let i = 0; i <= samples; i++) {
+          const x = xMin + (i / samples) * (xMax - xMin);
+          const y = riemannSom(x, N);
+          punten[i] = { x, y };
+          if (Math.abs(y) > maxAbs) maxAbs = Math.abs(y);
+        }
+
+        const yLim = riemannState.formuleMode === 'expliciet'
+          ? Math.max(0.2, maxAbs * 1.12)
+          : 1.05;
+        const yMin = -yLim;
+        const yMax = yLim;
+
+        const xNaarPx = (x) => pad.left + ((x - xMin) / (xMax - xMin)) * plotW;
+        const yNaarPx = (y) => pad.top + ((yMax - y) / (yMax - yMin)) * plotH;
+
+        ctx.fillStyle = KLEUR.wit;
+        ctx.fillRect(0, 0, breedte, hoogte);
+
+        // Horizontale rasterlijnen & y-labels
+        const yTicks = [-yLim * 0.9, -yLim * 0.45, 0, yLim * 0.45, yLim * 0.9];
+        ctx.font = '12px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+
+        yTicks.forEach((yv) => {
+          const py = yNaarPx(yv);
+          ctx.beginPath();
+          ctx.moveTo(pad.left, py);
+          ctx.lineTo(pad.left + plotW, py);
+          ctx.strokeStyle = yv === 0 ? '#BBBBBB' : KLEUR.raster;
+          ctx.lineWidth = yv === 0 ? 1.4 : 1;
+          ctx.stroke();
+
+          ctx.fillStyle = KLEUR.as;
+          ctx.fillText(fmtNL(yv, yLim < 1 ? 2 : 1), pad.left - 8, py);
+        });
+
+        // Verticale rasterlijnen & x-labels
+        const xStappen = 6;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        for (let i = 0; i <= xStappen; i++) {
+          const xv = xMin + (i / xStappen) * (xMax - xMin);
+          const px = xNaarPx(xv);
+          ctx.beginPath();
+          ctx.moveTo(px, pad.top);
+          ctx.lineTo(px, pad.top + plotH);
+          ctx.strokeStyle = KLEUR.raster;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.fillStyle = KLEUR.as;
+          ctx.fillText(fmtNL(xv, 0), px, pad.top + plotH + 8);
+        }
+
+        // Overlay 1: Priemgetal- en priemmacht-markeringen
+        if (riemannState.overlayPriem) {
+          ctx.save();
+          const startInt = Math.ceil(xMin);
+          const eindInt = Math.floor(xMax);
+          ctx.font = 'bold 10px ui-monospace, SFMono-Regular, Menlo, monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+
+          for (let m = startInt; m <= eindInt; m++) {
+            const fac = factoriseer(m);
+            if (fac.size !== 1) continue;
+            const [[, exp]] = fac.entries();
+            const isPriem = exp === 1;
+            const px = xNaarPx(m);
+
+            ctx.beginPath();
+            ctx.setLineDash(isPriem ? [4, 3] : [2, 3]);
+            ctx.moveTo(px, pad.top);
+            ctx.lineTo(px, pad.top + plotH);
+            ctx.strokeStyle = isPriem ? KLEUR.zwart : '#777777';
+            ctx.lineWidth = isPriem ? 1.3 : 1;
+            ctx.stroke();
+
+            if (isPriem) {
+              ctx.fillStyle = KLEUR.zwart;
+              ctx.fillText(String(m), px, pad.top + 3);
+            }
+          }
+          ctx.restore();
+        }
+
+        // Overlay 2: Nul-as nadruk en hoogste piekwaarden (STRIKT UIT bij opstarten)
+        if (riemannState.overlayPieken) {
+          ctx.save();
+          const yNul = yNaarPx(0);
+          ctx.beginPath();
+          ctx.moveTo(pad.left, yNul);
+          ctx.lineTo(pad.left + plotW, yNul);
+          ctx.strokeStyle = KLEUR.zwart;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          ctx.fillStyle = KLEUR.zwart;
+          ctx.font = 'bold 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(riemannState.formuleMode === 'expliciet' ? 'Δ = 0' : 'H = 0', pad.left + 6, yNul - 3);
+
+          const drempel = yLim * 0.24;
+          const pieken = [];
+          for (let i = 1; i < punten.length - 1; i++) {
+            if (punten[i].y > punten[i - 1].y && punten[i].y >= punten[i + 1].y && punten[i].y > drempel) {
+              pieken.push(punten[i]);
+            }
+          }
+          pieken.sort((a, b) => b.y - a.y);
+
+          const gekozen = [];
+          for (let i = 0; i < pieken.length && gekozen.length < 6; i++) {
+            const px = xNaarPx(pieken[i].x);
+            const teDichtbij = gekozen.some((g) => Math.abs(xNaarPx(g.x) - px) < 54);
+            if (!teDichtbij) gekozen.push(pieken[i]);
+          }
+
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          gekozen.forEach((piek) => {
+            const px = xNaarPx(piek.x);
+            const py = yNaarPx(piek.y);
+
+            ctx.beginPath();
+            ctx.arc(px, py, 4, 0, Math.PI * 2);
+            ctx.fillStyle = KLEUR.zwart;
+            ctx.fill();
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = KLEUR.wit;
+            ctx.stroke();
+
+            const label = 'x≈' + fmtNL(piek.x, 1) + ' (' + fmtNL(piek.y, 2) + ')';
+            ctx.fillStyle = KLEUR.meekrap;
+            ctx.fillText(label, px, Math.max(pad.top + 12, py - 7));
+          });
+          ctx.restore();
+        }
+
+        // Hoofdgolf in meekrap-rood (#A31C1C)
+        ctx.beginPath();
+        for (let i = 0; i < punten.length; i++) {
+          const px = xNaarPx(punten[i].x);
+          const py = yNaarPx(punten[i].y);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = KLEUR.meekrap;
+        ctx.lineWidth = 2.4;
+        ctx.stroke();
+
+        // Kader rond het plotgebied
+        ctx.strokeStyle = KLEUR.zwart;
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(pad.left, pad.top, plotW, plotH);
+      }
+
+      function verversRiemann() {
+        riemannNWaarde.textContent = riemannState.N + ' (γ₁ t/m γ' + riemannState.N + ')';
+        if (riemannFormuleBalk) {
+          riemannFormuleBalk.textContent = riemannState.formuleMode === 'expliciet'
+            ? 'Δ(x) = −∑_{k=1..' + riemannState.N + '} [ 2·cos(γ_k · ln(x)) / √x ]'
+            : 'H_' + riemannState.N + '(x) = −(1 / ' + riemannState.N + ') · ∑_{k=1..' + riemannState.N + '} cos(γ_k · ln(x))';
+        }
+        updateRiemannLegenda();
+        tekenRiemann();
+      }
+
+      /* ======================================================================
+         SECTIE 3: GETALTHEORIE (μ, Λ, φ) & MERSENNE-DETECTOR
+         ====================================================================== */
+      function factoriseer(n) {
+        const factoren = new Map();
+        let rest = n;
+
+        while (rest % 2 === 0) {
+          factoren.set(2, (factoren.get(2) || 0) + 1);
+          rest = Math.floor(rest / 2);
+        }
+
+        for (let d = 3; d * d <= rest; d += 2) {
+          while (rest % d === 0) {
+            factoren.set(d, (factoren.get(d) || 0) + 1);
+            rest = Math.floor(rest / d);
+          }
+        }
+
+        if (rest > 1) {
+          factoren.set(rest, (factoren.get(rest) || 0) + 1);
+        }
+
+        return factoren;
+      }
+
+      function berekenGetaltheorie(n) {
+        const factoren = factoriseer(n);
+
+        // Möbius mu(n)
+        let mu = 1;
+        if (n > 1) {
+          let heeftKwadraat = false;
+          for (const exp of factoren.values()) {
+            if (exp > 1) {
+              heeftKwadraat = true;
+              break;
+            }
+          }
+          mu = heeftKwadraat ? 0 : (factoren.size % 2 === 0 ? 1 : -1);
+        }
+
+        // Von Mangoldt Lambda(n)
+        let lambdaTekst = '0';
+        if (factoren.size === 1) {
+          const [[p]] = factoren.entries();
+          lambdaTekst = 'ln(' + p + ') ≈ ' + fmtNL(Math.log(p), 3);
+        }
+
+        // Euler-totient phi(n)
+        let phi = n;
+        for (const p of factoren.keys()) {
+          phi = Math.floor(phi / p) * (p - 1);
+        }
+
+        return { factoren, mu, lambdaTekst, phi };
+      }
+
+      // Exacte Mersenne-detectie met BigInt: controleer of n = 2^p - 1
+      function analyseerMersenne(n, factoren) {
+        const bn = BigInt(n);
+        const isMersenneVorm = bn >= 1n && ((bn + 1n) & bn) === 0n;
+        const binStr = bn.toString(2);
+        const aantalBits = binStr.length;
+        let eenBits = 0;
+        for (let i = 0; i < binStr.length; i++) {
+          if (binStr[i] === '1') eenBits++;
+        }
+
+        if (!isMersenneVorm) {
+          return {
+            status: 'geen',
+            p: null,
+            perfectGetal: null,
+            binStr,
+            aantalBits,
+            eenBits
+          };
+        }
+
+        const p = aantalBits;
+        const isPriem = factoren.size === 1 && factoren.values().next().value === 1;
+
+        if (isPriem) {
+          // Even perfect getal volgens Euclides-Euler: 2^(p-1) * (2^p - 1)
+          const perfectGetal = (1n << BigInt(p - 1)) * bn;
+          return {
+            status: 'priem',
+            p,
+            perfectGetal,
+            binStr,
+            aantalBits,
+            eenBits
+          };
+        }
+
+        return {
+          status: 'samengesteld',
+          p,
+          perfectGetal: null,
+          binStr,
+          aantalBits,
+          eenBits
+        };
+      }
+
+      function vulFactorisatieFragment(container, factoren) {
+        if (factoren.size === 0) {
+          container.appendChild(document.createTextNode('1'));
+          return;
+        }
+        const isEnkelPriem = factoren.size === 1 && factoren.values().next().value === 1;
+        if (isEnkelPriem) {
+          const [p] = factoren.keys();
+          container.appendChild(document.createTextNode(p + ' (priem)'));
+          return;
+        }
+
+        let eerste = true;
+        for (const [priem, exp] of factoren.entries()) {
+          if (!eerste) {
+            container.appendChild(document.createTextNode(' × '));
+          }
+          container.appendChild(document.createTextNode(String(priem)));
+          if (exp > 1) {
+            const sup = document.createElement('sup');
+            sup.textContent = String(exp);
+            container.appendChild(sup);
+          }
+          eerste = false;
+        }
+      }
+
+      function vulKernTabel() {
+        const tbody = document.getElementById('kernTabelBody');
+        tbody.textContent = '';
+
+        KERN_GETALLEN.forEach((rij) => {
+          const res = berekenGetaltheorie(rij.n);
+          const tr = document.createElement('tr');
+
+          const tdNaam = document.createElement('td');
+          tdNaam.textContent = rij.naam;
+
+          const tdN = document.createElement('td');
+          tdN.className = 'cel-num cel-accent';
+          tdN.textContent = String(rij.n);
+
+          const tdFac = document.createElement('td');
+          tdFac.className = 'cel-num';
+          vulFactorisatieFragment(tdFac, res.factoren);
+
+          const tdMu = document.createElement('td');
+          tdMu.className = 'cel-num';
+          tdMu.textContent = res.mu > 0 ? '+1' : (res.mu < 0 ? '−1' : '0');
+
+          const tdLam = document.createElement('td');
+          tdLam.className = 'cel-num';
+          tdLam.textContent = res.lambdaTekst;
+
+          const tdPhi = document.createElement('td');
+          tdPhi.className = 'cel-num';
+          tdPhi.textContent = String(res.phi);
+
+          tr.appendChild(tdNaam);
+          tr.appendChild(tdN);
+          tr.appendChild(tdFac);
+          tr.appendChild(tdMu);
+          tr.appendChild(tdLam);
+          tr.appendChild(tdPhi);
+          tbody.appendChild(tr);
+        });
+      }
+
+      function controleerEigenGetal() {
+        const invoer = document.getElementById('eigenGetalInvoer');
+        const uitkomst = document.getElementById('eigenGetalUitkomst');
+        if (!invoer || !uitkomst) return;
+
+        const ruw = invoer.value.trim().replace(/\s+/g, '');
+        uitkomst.textContent = '';
+
+        if (!/^\d+$/.test(ruw)) {
+          const p = document.createElement('p');
+          p.className = 'foutmelding';
+          p.textContent = 'Voer uitsluitend cijfers in (een geheel getal vanaf 1).';
+          uitkomst.appendChild(p);
+          return;
+        }
+
+        const n = Number(ruw);
+        if (!Number.isSafeInteger(n) || n < 1 || n > MAX_N) {
+          const p = document.createElement('p');
+          p.className = 'foutmelding';
+          p.textContent = 'Voer een geheel getal in tussen 1 en 1.000.000.000.000 (10¹²).';
+          uitkomst.appendChild(p);
+          return;
+        }
+
+        const res = berekenGetaltheorie(n);
+        const muTekst = res.mu > 0 ? '+1' : (res.mu < 0 ? '−1' : '0');
+
+        // 1. Priemfactorisatie & rekenkundige functies
+        const pFac = document.createElement('p');
+        const bFac = document.createElement('strong');
+        bFac.textContent = 'Priemfactorisatie: ';
+        pFac.appendChild(bFac);
+        const spanFac = document.createElement('span');
+        spanFac.className = 'mono';
+        spanFac.appendChild(document.createTextNode(n + ' = '));
+        vulFactorisatieFragment(spanFac, res.factoren);
+        pFac.appendChild(spanFac);
+
+        const pWaarden = document.createElement('p');
+        pWaarden.style.marginTop = '0.35rem';
+
+        const voegPaarToe = (label, waarde, metScheiding) => {
+          const b = document.createElement('strong');
+          b.textContent = label + ' = ';
+          pWaarden.appendChild(b);
+
+          const v = document.createElement('span');
+          v.className = 'mono cel-accent';
+          v.textContent = waarde;
+          pWaarden.appendChild(v);
+
+          if (metScheiding) {
+            pWaarden.appendChild(document.createTextNode('  |  '));
+          }
+        };
+
+        voegPaarToe('μ(' + n + ')', muTekst, true);
+        voegPaarToe('Λ(' + n + ')', res.lambdaTekst, true);
+        voegPaarToe('φ(' + n + ')', String(res.phi), false);
+
+        uitkomst.appendChild(pFac);
+        uitkomst.appendChild(pWaarden);
+
+        // 2. Automatische Mersenne-detectie (exact via BigInt)
+        const mersenne = analyseerMersenne(n, res.factoren);
+        const mPaneel = document.createElement('div');
+        mPaneel.className = 'mersenne-paneel';
+
+        const mBadge = document.createElement('span');
+        mBadge.className = 'mersenne-badge';
+
+        if (mersenne.status === 'priem') {
+          mPaneel.classList.add('is-priem');
+          mBadge.appendChild(document.createTextNode('Mersennepriemgetal: M'));
+          const subP = document.createElement('sub');
+          subP.textContent = String(mersenne.p);
+          mBadge.appendChild(subP);
+          mBadge.appendChild(document.createTextNode(' = 2'));
+          const supP = document.createElement('sup');
+          supP.textContent = String(mersenne.p);
+          mBadge.appendChild(supP);
+          mBadge.appendChild(document.createTextNode(' − 1'));
+          mPaneel.appendChild(mBadge);
+
+          const pPerf = document.createElement('p');
+          const bPerf = document.createElement('strong');
+          bPerf.textContent = 'Bijbehorend even perfect getal (2';
+          const supPm1 = document.createElement('sup');
+          supPm1.textContent = String(mersenne.p - 1);
+          bPerf.appendChild(supPm1);
+          bPerf.appendChild(document.createTextNode(' × M'));
+          const subP2 = document.createElement('sub');
+          subP2.textContent = String(mersenne.p);
+          bPerf.appendChild(subP2);
+          bPerf.appendChild(document.createTextNode('): '));
+          pPerf.appendChild(bPerf);
+
+          const spanPerf = document.createElement('span');
+          spanPerf.className = 'mono cel-accent';
+          spanPerf.textContent = fmtBigIntNL(mersenne.perfectGetal);
+          pPerf.appendChild(spanPerf);
+          mPaneel.appendChild(pPerf);
+        } else if (mersenne.status === 'samengesteld') {
+          mPaneel.classList.add('is-samengesteld');
+          mBadge.classList.add('neutraal');
+          mBadge.appendChild(document.createTextNode('Samengesteld Mersennegetal: M'));
+          const subP = document.createElement('sub');
+          subP.textContent = String(mersenne.p);
+          mBadge.appendChild(subP);
+          mBadge.appendChild(document.createTextNode(' = 2'));
+          const supP = document.createElement('sup');
+          supP.textContent = String(mersenne.p);
+          mBadge.appendChild(supP);
+          mBadge.appendChild(document.createTextNode(' − 1 (geen priemgetal)'));
+          mPaneel.appendChild(mBadge);
+
+          const pUitleg = document.createElement('p');
+          pUitleg.textContent = n === 1
+            ? 'Hoewel 1 = 2¹ − 1, is 1 per definitie geen priemgetal.'
+            : 'Hoewel n + 1 = 2^' + mersenne.p + ' een macht van 2 is, is ' + n + ' ontbindbaar in kleinere priemfactoren.';
+          mPaneel.appendChild(pUitleg);
+        } else {
+          mBadge.classList.add('geen');
+          mBadge.textContent = 'Geen Mersennegetal (n + 1 is geen macht van 2)';
+          mPaneel.appendChild(mBadge);
+        }
+        uitkomst.appendChild(mPaneel);
+
+        // 3. Binaire weergave (gegroepeerd per 4 bits) + bitlengte & Hamming-gewicht
+        const bPaneel = document.createElement('div');
+        bPaneel.className = 'binair-paneel';
+
+        const pBin = document.createElement('p');
+        const bBin = document.createElement('strong');
+        bBin.textContent = 'Binaire weergave: ';
+        pBin.appendChild(bBin);
+
+        const spanBin = document.createElement('span');
+        spanBin.className = 'binair-reeks';
+        spanBin.textContent = groepeerBinair(mersenne.binStr);
+        const sub2 = document.createElement('sub');
+        sub2.textContent = '2';
+        spanBin.appendChild(sub2);
+        pBin.appendChild(spanBin);
+
+        const pMeta = document.createElement('p');
+        pMeta.className = 'binair-meta';
+        const alleEen = mersenne.eenBits === mersenne.aantalBits;
+        pMeta.textContent =
+          'Aantal bits: ' + mersenne.aantalBits +
+          ' · Aantal 1-bits (Hamming-gewicht): ' + mersenne.eenBits +
+          (alleEen ? ' — uitsluitend 1-bits (Mersenne-kenmerk)' : '');
+
+        bPaneel.appendChild(pBin);
+        bPaneel.appendChild(pMeta);
+        uitkomst.appendChild(bPaneel);
+      }
+
+      /* ======================================================================
+         SECTIE 4A: FOURIER-VERMOGENSSPECTRUM VAN DE SAROS-GOLF (DIRAC-KAMMEN)
+         ====================================================================== */
+      const F_S = 1 / T_S; // ~0.033863 d^-1
+      const F_A = 1 / T_A; // ~0.036292 d^-1
+      const F_D = 1 / T_D; // ~0.036748 d^-1
+
+      const fftState = {
+        duurL: 6585,
+        hann: false,          // STRIKT UIT bij opstarten
+        overlayPieken: false  // STRIKT UIT bij opstarten
+      };
+
+      const fftCanvas = document.getElementById('fftCanvas');
+      const fftWrap = document.getElementById('fftCanvasWrap');
+      const fftDuurSlider = document.getElementById('fftDuur');
+      const fftDuurWaarde = document.getElementById('fftDuurWaarde');
+      const fftHann = document.getElementById('fftHann');
+      const fftOverlayPieken = document.getElementById('fftOverlayPieken');
+      const fftLegenda = document.getElementById('fftLegenda');
+      const fftMetingen = document.getElementById('fftMetingen');
+      const fftPresetKnoppen = document.querySelectorAll('.fft-preset');
+
+      // Analytisch-exacte continue/discrete Fourier-transformatie van w(t)*Psi(t) op [0, L]
+      function berekenSarosSpectrum(L, gebruikHann, fMin, fMax, aantalPunten) {
+        const N = 640;
+        const dt = L / N;
+        const samples = new Float64Array(N);
+        let vensterSom = 0;
+
+        for (let i = 0; i < N; i++) {
+          const t = i * dt;
+          const w = gebruikHann ? 0.5 * (1 - Math.cos((2 * Math.PI * i) / (N - 1))) : 1;
+          samples[i] = w * sarosWaarde(t).S;
+          vensterSom += w;
+        }
+
+        const schaal = 2 / vensterSom;
+        const punten = new Array(aantalPunten);
+        let maxP = 0;
+
+        for (let k = 0; k < aantalPunten; k++) {
+          const f = fMin + (k / (aantalPunten - 1)) * (fMax - fMin);
+          const omega = 2 * Math.PI * f;
+          let re = 0;
+          let im = 0;
+          for (let i = 0; i < N; i++) {
+            const hoek = omega * i * dt;
+            const s = samples[i];
+            re += s * Math.cos(hoek);
+            im -= s * Math.sin(hoek);
+          }
+          const amp = Math.hypot(re, im) * schaal;
+          const power = amp * amp;
+          if (power > maxP) maxP = power;
+          punten[k] = { f, power };
+        }
+
+        return { punten, maxP: Math.max(maxP, 1e-9) };
+      }
+
+      function updateFftLegendaEnMetingen() {
+        const df = 1 / fftState.duurL;
+        fftDuurWaarde.textContent = fftState.duurL + ' d (Δf ≈ ' + fmtNL(df, 6) + ' d⁻¹)';
+
+        fftLegenda.textContent = '';
+        fftLegenda.appendChild(maakLegendaItem(KLEUR.meekrap, 'Genormaliseerd vermogensspectrum |Ψ̂(f)|²', false));
+        if (fftState.overlayPieken) {
+          fftLegenda.appendChild(maakLegendaItem(KLEUR.golfS, 'f_S = 1/T_S (synodisch)', true));
+          fftLegenda.appendChild(maakLegendaItem(KLEUR.golfA, 'f_A = 1/T_A (anomalistisch)', true));
+          fftLegenda.appendChild(maakLegendaItem(KLEUR.golfD, 'f_D = 1/T_D (draconisch)', true));
+        }
+
+        const gescheiden = df < (F_D - F_A);
+        fftMetingen.textContent = '';
+        fftMetingen.appendChild(
+          maakMetingKaart('Synodische lijn f_S', fmtNL(F_S, 6) + ' d⁻¹', 'T_S = 29,5306 d', false)
+        );
+        fftMetingen.appendChild(
+          maakMetingKaart('Anomalistische lijn f_A', fmtNL(F_A, 6) + ' d⁻¹', 'T_A = 27,5546 d', false)
+        );
+        fftMetingen.appendChild(
+          maakMetingKaart('Draconische lijn f_D', fmtNL(F_D, 6) + ' d⁻¹', 'T_D = 27,2122 d', false)
+        );
+        fftMetingen.appendChild(
+          maakMetingKaart(
+            'Scheiding f_D − f_A',
+            gescheiden ? 'Gescheiden' : 'Overlappend',
+            'Δf = ' + fmtNL(df, 6) + ' vs 0,000456 d⁻¹',
+            true
+          )
+        );
+      }
+
+      function tekenFft() {
+        const { ctx, breedte, hoogte } = bereidCanvasVoor(fftCanvas, fftWrap, 0.34, 240, 320);
+        const pad = { top: 26, right: 20, bottom: 38, left: 54 };
+        const plotW = breedte - pad.left - pad.right;
+        const plotH = hoogte - pad.top - pad.bottom;
+
+        const fMin = 0.0315;
+        const fMax = 0.0390;
+        const { punten, maxP } = berekenSarosSpectrum(fftState.duurL, fftState.hann, fMin, fMax, 420);
+
+        const xNaarPx = (f) => pad.left + ((f - fMin) / (fMax - fMin)) * plotW;
+        const yNaarPx = (v) => pad.top + (1 - v) * plotH;
+
+        ctx.fillStyle = KLEUR.wit;
+        ctx.fillRect(0, 0, breedte, hoogte);
+
+        // Horizontale rasterlijnen
+        ctx.font = '12px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        [0, 0.25, 0.5, 0.75, 1].forEach((yv) => {
+          const py = yNaarPx(yv);
+          ctx.beginPath();
+          ctx.moveTo(pad.left, py);
+          ctx.lineTo(pad.left + plotW, py);
+          ctx.strokeStyle = KLEUR.raster;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.fillStyle = KLEUR.as;
+          ctx.fillText(fmtNL(yv, 2), pad.left - 8, py);
+        });
+
+        // Verticale rasterlijnen (frequentie in d^-1)
+        const xStappen = 5;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        for (let i = 0; i <= xStappen; i++) {
+          const fv = fMin + (i / xStappen) * (fMax - fMin);
+          const px = xNaarPx(fv);
+          ctx.beginPath();
+          ctx.moveTo(px, pad.top);
+          ctx.lineTo(px, pad.top + plotH);
+          ctx.strokeStyle = KLEUR.raster;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.fillStyle = KLEUR.as;
+          ctx.fillText(fmtNL(fv, 4) + ' d⁻¹', px, pad.top + plotH + 8);
+        }
+
+        // Overlay: Exacte frequentielijnen f_S, f_A, f_D
+        if (fftState.overlayPieken) {
+          ctx.save();
+          const lijnen = [
+            { f: F_S, naam: 'f_S', kleur: KLEUR.golfS, yOff: 4 },
+            { f: F_A, naam: 'f_A', kleur: KLEUR.golfA, yOff: 4 },
+            { f: F_D, naam: 'f_D', kleur: KLEUR.golfD, yOff: 18 }
+          ];
+          ctx.font = 'bold 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+
+          lijnen.forEach((l) => {
+            const px = xNaarPx(l.f);
+            ctx.beginPath();
+            ctx.setLineDash([5, 3]);
+            ctx.moveTo(px, pad.top);
+            ctx.lineTo(px, pad.top + plotH);
+            ctx.strokeStyle = l.kleur;
+            ctx.lineWidth = 1.6;
+            ctx.stroke();
+
+            ctx.fillStyle = l.kleur;
+            ctx.fillText(l.naam, px, pad.top + l.yOff);
+          });
+          ctx.restore();
+        }
+
+        // Gevuld vermogensspectrum
+        ctx.beginPath();
+        ctx.moveTo(xNaarPx(punten[0].f), yNaarPx(0));
+        for (let i = 0; i < punten.length; i++) {
+          ctx.lineTo(xNaarPx(punten[i].f), yNaarPx(punten[i].power / maxP));
+        }
+        ctx.lineTo(xNaarPx(punten[punten.length - 1].f), yNaarPx(0));
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(163, 28, 28, 0.14)';
+        ctx.fill();
+
+        // Lijn van vermogensspectrum
+        ctx.beginPath();
+        for (let i = 0; i < punten.length; i++) {
+          const px = xNaarPx(punten[i].f);
+          const py = yNaarPx(punten[i].power / maxP);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = KLEUR.meekrap;
+        ctx.lineWidth = 2.3;
+        ctx.stroke();
+
+        // Kader
+        ctx.strokeStyle = KLEUR.zwart;
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(pad.left, pad.top, plotW, plotH);
+      }
+
+      function verversFft() {
+        updateFftLegendaEnMetingen();
+        tekenFft();
+      }
+
+      /* ======================================================================
+         SECTIE 4B: MONTGOMERY-ODLYZKO PAIR-CORRELATION (GUE)
+         ====================================================================== */
+      const gueState = {
+        M: 50,
+        bins: 18,
+        overlayPoisson: false,    // STRIKT UIT bij opstarten
+        overlayAfstoting: false   // STRIKT UIT bij opstarten
+      };
+
+      const gueCanvas = document.getElementById('gueCanvas');
+      const gueWrap = document.getElementById('gueCanvasWrap');
+      const gueMSlider = document.getElementById('gueM');
+      const gueMWaarde = document.getElementById('gueMWaarde');
+      const gueBinsSlider = document.getElementById('gueBins');
+      const gueBinsWaarde = document.getElementById('gueBinsWaarde');
+      const gueOverlayPoisson = document.getElementById('gueOverlayPoisson');
+      const gueOverlayAfstoting = document.getElementById('gueOverlayAfstoting');
+      const gueLegenda = document.getElementById('gueLegenda');
+
+      // Theoretische GUE pair-correlation: R_2(u) = 1 - (sin(pi*u)/(pi*u))^2
+      function gueR2(u) {
+        if (Math.abs(u) < 1e-6) return 0;
+        const s = Math.sin(Math.PI * u) / (Math.PI * u);
+        return 1 - s * s;
+      }
+
+      // Riemann-von Mangoldt ontvouwing naar gemiddelde dichtheid 1
+      function ontvouwGamma(g) {
+        const x = g / (2 * Math.PI);
+        return x * Math.log(x) - x + 0.875;
+      }
+
+      function berekenEmpirischHistogram(M, bins, uMax) {
+        const ontvouwen = new Array(M);
+        for (let i = 0; i < M; i++) {
+          ontvouwen[i] = ontvouwGamma(GAMMAS[i]);
+        }
+
+        const du = uMax / bins;
+        const tellingen = new Array(bins).fill(0);
+
+        for (let i = 0; i < M; i++) {
+          for (let j = i + 1; j < M; j++) {
+            const diff = ontvouwen[j] - ontvouwen[i];
+            if (diff > 0 && diff < uMax) {
+              const idx = Math.floor(diff / du);
+              if (idx >= 0 && idx < bins) tellingen[idx]++;
+            }
+          }
+        }
+
+        // Randcorrectie voor eindige steekproeflengte M
+        const dichtheden = new Array(bins);
+        for (let b = 0; b < bins; b++) {
+          const uMidden = (b + 0.5) * du;
+          const effectief = Math.max(1, M - uMidden);
+          dichtheden[b] = tellingen[b] / (effectief * du);
+        }
+        return dichtheden;
+      }
+
+      function updateGueLegenda() {
+        const du = 3 / gueState.bins;
+        gueMWaarde.textContent = gueState.M + ' nulpunten (γ₁ t/m γ' + gueState.M + ')';
+        gueBinsWaarde.textContent = gueState.bins + ' bins (Δu = ' + fmtNL(du, 3) + ')';
+
+        gueLegenda.textContent = '';
+        gueLegenda.appendChild(maakLegendaItem(KLEUR.meekrap, 'Theorie GUE: R₂(u) = 1 − sinc²(πu)', false));
+        gueLegenda.appendChild(maakLegendaItem('#888888', 'Empirisch histogram (γ₁ t/m γ_' + gueState.M + ')', false));
+        if (gueState.overlayPoisson) {
+          gueLegenda.appendChild(maakLegendaItem(KLEUR.zwart, 'Poisson-referentie (R₂ = 1)', true));
+        }
+        if (gueState.overlayAfstoting) {
+          gueLegenda.appendChild(maakLegendaItem(KLEUR.meekrap, 'Niveau-afstoting (u < 0,4) & piek u ≈ 1', true));
+        }
+      }
+
+      function tekenGue() {
+        const { ctx, breedte, hoogte } = bereidCanvasVoor(gueCanvas, gueWrap, 0.34, 240, 320);
+        const pad = { top: 24, right: 20, bottom: 38, left: 54 };
+        const plotW = breedte - pad.left - pad.right;
+        const plotH = hoogte - pad.top - pad.bottom;
+
+        const uMin = 0;
+        const uMax = 3.0;
+        const yMin = 0;
+        const yMax = 1.65;
+
+        const xNaarPx = (u) => pad.left + ((u - uMin) / (uMax - uMin)) * plotW;
+        const yNaarPx = (y) => pad.top + ((yMax - y) / (yMax - yMin)) * plotH;
+
+        ctx.fillStyle = KLEUR.wit;
+        ctx.fillRect(0, 0, breedte, hoogte);
+
+        // Horizontale rasterlijnen
+        ctx.font = '12px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        [0, 0.5, 1.0, 1.5].forEach((yv) => {
+          const py = yNaarPx(yv);
+          ctx.beginPath();
+          ctx.moveTo(pad.left, py);
+          ctx.lineTo(pad.left + plotW, py);
+          ctx.strokeStyle = yv === 1.0 ? '#CCCCCC' : KLEUR.raster;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.fillStyle = KLEUR.as;
+          ctx.fillText(fmtNL(yv, 1), pad.left - 8, py);
+        });
+
+        // Verticale rasterlijnen (u)
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        for (let u = 0; u <= 3; u += 0.5) {
+          const px = xNaarPx(u);
+          ctx.beginPath();
+          ctx.moveTo(px, pad.top);
+          ctx.lineTo(px, pad.top + plotH);
+          ctx.strokeStyle = KLEUR.raster;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.fillStyle = KLEUR.as;
+          ctx.fillText('u=' + fmtNL(u, 1), px, pad.top + plotH + 8);
+        }
+
+        // Overlay 2: Afstotingszone (u < 0,4)
+        if (gueState.overlayAfstoting) {
+          ctx.save();
+          const xAfst = xNaarPx(0.4);
+          ctx.fillStyle = 'rgba(163, 28, 28, 0.09)';
+          ctx.fillRect(pad.left, pad.top, xAfst - pad.left, plotH);
+
+          ctx.fillStyle = KLEUR.meekrap;
+          ctx.font = 'bold 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'top';
+          ctx.fillText('Afstoting (R₂→0)', pad.left + 5, pad.top + 5);
+
+          // Markeer eerste maximum bij u = 1
+          const px1 = xNaarPx(1.0);
+          ctx.beginPath();
+          ctx.setLineDash([4, 3]);
+          ctx.moveTo(px1, pad.top);
+          ctx.lineTo(px1, pad.top + plotH);
+          ctx.strokeStyle = KLEUR.meekrap;
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+          ctx.textAlign = 'center';
+          ctx.fillText('u = 1', px1, pad.top + 5);
+          ctx.restore();
+        }
+
+        // Empirisch histogram van de ontvouwen zèta-nulpunten
+        const dichtheden = berekenEmpirischHistogram(gueState.M, gueState.bins, uMax);
+        const du = uMax / gueState.bins;
+        for (let b = 0; b < gueState.bins; b++) {
+          const x0 = xNaarPx(b * du);
+          const x1 = xNaarPx((b + 1) * du);
+          const val = Math.min(yMax, dichtheden[b]);
+          const py = yNaarPx(val);
+          const barH = yNaarPx(0) - py;
+
+          ctx.fillStyle = 'rgba(17, 17, 17, 0.14)';
+          ctx.fillRect(x0 + 1, py, Math.max(1, x1 - x0 - 2), barH);
+          ctx.strokeStyle = 'rgba(17, 17, 17, 0.35)';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(x0 + 1, py, Math.max(1, x1 - x0 - 2), barH);
+        }
+
+        // Overlay 1: Poisson-referentie (R_2(u) = 1)
+        if (gueState.overlayPoisson) {
+          ctx.save();
+          const py1 = yNaarPx(1.0);
+          ctx.beginPath();
+          ctx.setLineDash([6, 4]);
+          ctx.moveTo(pad.left, py1);
+          ctx.lineTo(pad.left + plotW, py1);
+          ctx.strokeStyle = KLEUR.zwart;
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+
+          ctx.fillStyle = KLEUR.zwart;
+          ctx.font = 'bold 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText('Poisson: R₂(u) = 1', pad.left + plotW - 6, py1 - 4);
+          ctx.restore();
+        }
+
+        // Theoretische GUE-curve in meekrap-rood
+        const stappen = 360;
+        ctx.beginPath();
+        for (let i = 0; i <= stappen; i++) {
+          const u = uMin + (i / stappen) * (uMax - uMin);
+          const px = xNaarPx(u);
+          const py = yNaarPx(gueR2(u));
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = KLEUR.meekrap;
+        ctx.lineWidth = 2.6;
+        ctx.stroke();
+
+        // Kader
+        ctx.strokeStyle = KLEUR.zwart;
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(pad.left, pad.top, plotW, plotH);
+      }
+
+      function verversGue() {
+        updateGueLegenda();
+        tekenGue();
+      }
+
+      /* ======================================================================
+         GEBEURTENISSEN & INITIALISATIE
+         ====================================================================== */
+      document.addEventListener('DOMContentLoaded', function () {
+        // Alle grafiek-overlays STRIKT op UIT bij opstarten
+        sarosOverlayGolven.checked = false;
+        sarosOverlayRaster.checked = false;
+        riemannOverlayPriem.checked = false;
+        riemannOverlayPieken.checked = false;
+        fftHann.checked = false;
+        fftOverlayPieken.checked = false;
+        gueOverlayPoisson.checked = false;
+        gueOverlayAfstoting.checked = false;
+
+        // Saros-presets (inclusief lokale zoom 6540-6630 d en macro 0-7000 d)
+        sarosPresetKnoppen.forEach((knop) => {
+          knop.addEventListener('click', () => {
+            const valT = parseFloat(knop.getAttribute('data-t'));
+            const valW = parseInt(knop.getAttribute('data-w'), 10);
+            sarosState.tMidden = valT;
+            sarosTSlider.value = String(valT);
+            if (!Number.isNaN(valW)) {
+              sarosState.breedte = valW;
+              sarosBreedteSlider.value = String(valW);
+            }
+            sarosPresetKnoppen.forEach((k) => k.classList.remove('actief'));
+            knop.classList.add('actief');
+            verversSaros();
+          });
+        });
+
+        sarosTSlider.addEventListener('input', () => {
+          sarosState.tMidden = parseFloat(sarosTSlider.value);
+          sarosPresetKnoppen.forEach((k) => k.classList.remove('actief'));
+          verversSaros();
+        });
+
+        sarosBreedteSlider.addEventListener('input', () => {
+          sarosState.breedte = parseInt(sarosBreedteSlider.value, 10);
+          verversSaros();
+        });
+
+        sarosOverlayGolven.addEventListener('change', () => {
+        // Riemann-bereikknoppen, formuleknoppen & schuifregelaar
+        riemannBereikKnoppen.forEach((knop) => {
+          knop.addEventListener('click', () => {
+            riemannState.xMin = parseFloat(knop.getAttribute('data-min'));
+            riemannState.xMax = parseFloat(knop.getAttribute('data-max'));
+            riemannBereikKnoppen.forEach((k) => k.classList.remove('actief'));
+            knop.classList.add('actief');
+            verversRiemann();
+          });
+        });
+
+        riemannFormuleKnoppen.forEach((knop) => {
+          knop.addEventListener('click', () => {
+            riemannState.formuleMode = knop.getAttribute('data-mode');
+            riemannFormuleKnoppen.forEach((k) => k.classList.remove('actief'));
+            knop.classList.add('actief');
+            verversRiemann();
+          });
+        });
+
+        riemannNSlider.addEventListener('input', () => {
+          riemannState.N = parseInt(riemannNSlider.value, 10);
+          verversRiemann();
+        });
+
+        riemannOverlayPriem.addEventListener('change', () => {
+          riemannState.overlayPriem = riemannOverlayPriem.checked;
+          verversRiemann();
+        });
+
+        riemannOverlayPieken.addEventListener('change', () => {
+          riemannState.overlayPieken = riemannOverlayPieken.checked;
+          verversRiemann();
+        });
+
+        // Sectie 3: eigen getal & Mersenne-snelkeuzeknoppen
+        const eigenKnop = document.getElementById('eigenGetalKnop');
+        const eigenReset = document.getElementById('eigenGetalReset');
+        const eigenInvoer = document.getElementById('eigenGetalInvoer');
+        const mersenneKnoppen = document.querySelectorAll('.mersenne-snelknop');
+
+        eigenKnop.addEventListener('click', controleerEigenGetal);
+        eigenReset.addEventListener('click', () => {
+          eigenInvoer.value = '6179';
+          controleerEigenGetal();
+        });
+        mersenneKnoppen.forEach((knop) => {
+          knop.addEventListener('click', () => {
+            eigenInvoer.value = knop.getAttribute('data-n');
+            controleerEigenGetal();
+          });
+        });
+        eigenInvoer.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            controleerEigenGetal();
+          }
+        });
+
+        // Sectie 4A: Fourier-spectrum bediening
+        fftPresetKnoppen.forEach((knop) => {
+          knop.addEventListener('click', () => {
+            const valL = parseInt(knop.getAttribute('data-l'), 10);
+            fftState.duurL = valL;
+            fftDuurSlider.value = String(valL);
+            fftPresetKnoppen.forEach((k) => k.classList.remove('actief'));
+            knop.classList.add('actief');
+            verversFft();
+          });
+        });
+
+        fftDuurSlider.addEventListener('input', () => {
+          fftState.duurL = parseInt(fftDuurSlider.value, 10);
+          fftPresetKnoppen.forEach((k) => k.classList.remove('actief'));
+          verversFft();
+        });
+
+        fftHann.addEventListener('change', () => {
+          fftState.hann = fftHann.checked;
+          verversFft();
+        });
+
+        fftOverlayPieken.addEventListener('change', () => {
+          fftState.overlayPieken = fftOverlayPieken.checked;
+          verversFft();
+        });
+
+        // Sectie 4B: Montgomery-Odlyzko (GUE) bediening
+        gueMSlider.addEventListener('input', () => {
+          gueState.M = parseInt(gueMSlider.value, 10);
+          verversGue();
+        });
+
+        gueBinsSlider.addEventListener('input', () => {
+          gueState.bins = parseInt(gueBinsSlider.value, 10);
+          verversGue();
+        });
+
+        gueOverlayPoisson.addEventListener('change', () => {
+          gueState.overlayPoisson = gueOverlayPoisson.checked;
+          verversGue();
+        });
+
+        gueOverlayAfstoting.addEventListener('change', () => {
+          gueState.overlayAfstoting = gueOverlayAfstoting.checked;
+          verversGue();
+        });
+
+        // Responsief hertekenen bij vensterwijziging
+        window.addEventListener('resize', () => {
+          tekenSaros();
+          tekenRiemann();
+          tekenFft();
+          tekenGue();
+        });
+
+        // Initiële weergave
+        vulKernTabel();
+        controleerEigenGetal();
+        verversSaros();
+        verversRiemann();
+        verversFft();
+        verversGue();
+      });
+    })();
+  </script>
+</body>
+</html>
