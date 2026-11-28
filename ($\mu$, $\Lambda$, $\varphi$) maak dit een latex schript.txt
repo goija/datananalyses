@@ -1,0 +1,92 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[dutch]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[margin=2.5cm]{geometry}
+
+\definecolor{meekrap}{HTML}{A31C1C}
+
+\title{\textcolor{meekrap}{Rekenkundige Functies ($\mu$, $\Lambda$, $\varphi$) voor $n = 6179$}}
+\author{Analytische Getaltheorie --- Koppeling met $\zeta(s)$}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{1. Priemfactorisatie}
+Het getal $n = 6179$ is een kwadraatvrij semipriemgetal:
+\[
+6179 = 37 \times 167
+\]
+met exact twee verschillende priemfactoren ($p_1 = 37$, $p_2 = 167$).
+
+\section*{2. Definities en uitwerking voor $n = 6179$}
+
+\subsection*{Möbiusfunctie $\mu(n)$}
+\[
+\mu(n) =
+\begin{cases}
+1 & \text{als } n = 1, \\
+(-1)^k & \text{als } n \text{ het product is van } k \text{ verschillende priemgetallen}, \\
+0 & \text{als } n \text{ deelbaar is door een kwadraat } p^2 > 1.
+\end{cases}
+\]
+Koppeling met de Riemann-zètafunctie voor $\operatorname{Re}(s) > 1$:
+\[
+\frac{1}{\zeta(s)} = \sum_{n=1}^{\infty} \frac{\mu(n)}{n^s}
+\]
+Voor $n = 6179 = 37 \times 167$ geldt $k = 2$, dus:
+\[
+\mu(6179) = (-1)^2 = +1
+\]
+
+\subsection*{Von Mangoldt-functie $\Lambda(n)$}
+\[
+\Lambda(n) =
+\begin{cases}
+\ln p & \text{als } n = p^k \text{ voor een priemgetal } p \text{ en } k \ge 1, \\
+0 & \text{anders.}
+\end{cases}
+\]
+Koppeling met de logaritmische afgeleide van $\zeta(s)$ voor $\operatorname{Re}(s) > 1$:
+\[
+-\frac{\zeta'(s)}{\zeta(s)} = \sum_{n=1}^{\infty} \frac{\Lambda(n)}{n^s}
+\]
+Omdat $6179 = 37 \times 167$ geen priemgetal of priemmacht is, geldt:
+\[
+\Lambda(6179) = 0
+\]
+
+\subsection*{Euler-totientfunctie $\varphi(n)$}
+\[
+\varphi(n) = n \prod_{p \mid n} \left(1 - \frac{1}{p}\right)
+\]
+Koppeling met $\zeta(s)$ voor $\operatorname{Re}(s) > 2$:
+\[
+\frac{\zeta(s-1)}{\zeta(s)} = \sum_{n=1}^{\infty} \frac{\varphi(n)}{n^s}
+\]
+Voor $n = 6179 = 37 \times 167$ geldt:
+\[
+\varphi(6179) = (37 - 1)(167 - 1) = 36 \times 166 = 5976
+\]
+
+\section*{3. Samenvatting}
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Functie} & \textbf{Dirichletreeks via $\zeta(s)$} & \textbf{Waarde voor $n = 6179$} \\
+\midrule
+Möbius $\mu(n)$ & $1 / \zeta(s)$ & $+1$ \\
+Von Mangoldt $\Lambda(n)$ & $-\zeta'(s) / \zeta(s)$ & $0$ \\
+Euler-totient $\varphi(n)$ & $\zeta(s-1) / \zeta(s)$ & $5976$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}
