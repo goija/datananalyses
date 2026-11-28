@@ -1,445 +1,3 @@
- Conversation with Gemini
-
-24 nouter
-
-Op deze pagina (p. 266, Vorm en structuur — waar ga ik heen en hoe ben ik hier gekomen?) wordt muzikale vorm beschreven als een oriëntatiepatroon in de tijd:
-
-    Opbouw: een beginmotief, een contrasterend maar verbonden deel, en uiteindelijk aankomst of terugkeer (westerse muziek vaker lineair, oosterse muziek vaker cyclisch).
-
-    Storyboard (onderin): een visuele tijdlijn die in elkaar overlopende geometrische fasen laat zien — van diagonale arceerlijnen, via een gekanteld ruit- of dambordpatroon, naar spiralen/wervelingen en ten slotte waaierende booglijnen.
-
-Wat bedoel je precies met "24 nouter"? Is dat een typefout voor bijvoorbeeld 24 noten (zoals de 24 toonsoorten of een 24-toonsschaal), 24 ruiten in de tekening, 24 november, of iets anders waar je deze pagina aan wilt koppelen? Laat maar weten wat je ermee wilt doen (uitwerken, analyseren of omzetten in code/model), dan pak ik het direct op.
-
-24 ruiten in een kaartspel
-
-In een regulier kaartspel zitten standaard geen 24 ruiten, dus het hangt er even vanaf welk spel of welke telling je bedoelt:
-
-    Standaard spel (52 kaarten): 13 ruiten (A t/m 10, B, V, H) — bij een dubbel spel zijn het er 26.
-
-    Klaverjas- / piquetspel (32 kaarten): 8 ruiten (7 t/m A).
-
-    24-kaartspel (zoals zesenzestig / Schnapsen): 24 kaarten in totaal (9 t/m A in vier kleuren), waarvan 6 ruiten.
-
-    Dubbel 48-kaartspel (zoals Pinochle / Bezique): 12 ruiten per spel, dus 24 ruiten bij twee spellen (96 kaarten).
-
-    Aantal ruiten-symbolen (pips): op de getalkaarten A t/m 10 van een standaard spel staan in totaal 1+2+⋯+10=55
-    1+2+⋯+10=55 ruiten (los van de hoekindices en plaatjes).
-
-Koppeling met p. 266 (Vorm en structuur):
-In het storyboard onderaan de pagina zit in het middensegment precies zo’n gekanteld ruiten- of dambordpatroon — als overgang tussen de strakke diagonale lijnen links en de spiralen/waaiers rechts.
-
-Bedoel je dat je in die tekening 24 ruiten telt en dat wilt vergelijken met een kaartspel, of wil je een eigen structuur/rooster van 24 ruiten (bijv. 4×6
-4×6 of 3×8
-3×8, lineair of cyclisch zoals in de tekst) opzetten?
-
-maak zes ruiten in het rabit game
-
-Ik bouw nu het op zichzelf staande HTML5-spel Het Rabbit Game — Zes Ruiten, volledig in hoog contrast (Zeeuws meekrap-rood #A31C1C en helder wit) met een gekanteld 6×4-ruitenbord (24 ruiten), de 6 ruiten-kaarten (9♦ t/m A♦) en een Storyboard-overlay die bij opstarten strikt op UIT staat.
-Het Rabbit Game — 22 Ruiten & Zes Ruitenkaarten
-Nov 28, 10:11 AM
-
-Het spel Het Rabbit Game — Zes Ruiten (rabbit-zes-ruiten.html) staat klaar:
-
-    24 gekantelde ruiten (6×4) in hoog contrast (Zeeuws meekrap-rood #A31C1C en wit, basistekst 19px).
-
-    6 ruiten-kaarten (9♦, 10♦, B♦, V♦, H♦, A♦) met keuzeschakelaar tussen Vrije volgorde en Oplopend (9 → A).
-
-    Storyboard-overlay (ruitenraster & pad) staat bij opstarten strikt op UIT en toont bij inschakelen de coördinaten (A1–F4) en het afgelegde pad van het konijn.
-
-22
-
-Bedoel je dat je het Rabbit Game wilt aanpassen naar 22, en zo ja, op welke manier?
-
-    22 ruiten op het bord in plaats van 24 (bijv. het 6×4-bord met 2 geblokkeerde vakken, of een 11×2-strook)
-
-    Maximaal 22 zetten om de 6 ruiten-kaarten (9♦–A♦) te verzamelen
-
-    22 kaarten als uitgangspunt (zoals de 22 troefkaarten / Grote Arcana)
-
-    22 ruiten geteld in het storyboard op p. 266
-
-Laat even weten welke je bedoelt, dan pas ik het spel direct aan.
-
-ja
-
-Ik pas het spel nu aan naar Het Rabbit Game — 22 Ruiten & Zes Ruitenkaarten met exact 22 speelbare ruiten (6×4 min de twee tegengestelde hoeken), een optionele limiet van 22 zetten (standaard aan), diepzwart (#111111) voor maximaal contrast, storyboard-arcering op de tegels en een schakelbare Storyboard-overlay die bij opstarten strikt op UIT staat.
-Het Rabbit Game — 22 Ruiten & Zes Ruitenkaarten
-
-De aanpassingen in rabbit-zes-ruiten.html zijn doorgevoerd:
-
-    22 speelbare ruiten: het 6×4-rooster heeft de twee tegengestelde hoeken ([0,0] en [5,3]) uitgesneden, met afwisselend witte en diagonaal gearceerde tegels in storyboard-stijl.
-
-    Zes ruitenkaarten & 22-zettenlimiet: standaard staat Limiet: 22 zetten aan (Zetten: 0 / 22), met winst- of verliesmelding en een statusbalk met Verzameld: 0/6 en de huidige doelkaart in oplopende modus.
-
-    Storyboard-overlay: staat bij opstarten strikt op UIT en toont bij inschakelen de ruitnummers (1–22), coördinaten (A1–F4) en het rode pad met stapnummers.
-
-ontruiming
-
-De directe link tussen ontruiming en het getal 3296 op de afbeelding zit bij UN 3296: heptafluorpropaan (koelgas R-227 / FM-200), een niet-brandbaar samengeperst gas in ADR-klasse 2.   
-afbeelding.png
-
-Afhankelijk van de situatie gelden daar twee concrete ontruimingskaders voor:
-
-    Gasblusinstallaties (serverruimtes, archieven, schakelruimtes): Heptafluorpropaan (bekend als HFC-227ea of FM-200) wordt veel gebruikt als blusgas. Bij activatie volgt eerst een vooralarm met een vaste vertragingstijd (doorgaans 30 seconden) voor directe ontruiming van de ruimte voordat het gas vrijkomt.
-
-    Reden voor ontruiming: Het gas is zwaarder dan lucht en kan in besloten of laaggelegen ruimtes zuurstof verdringen (verstikkingsgevaar). Bij blootstelling aan open vuur of zeer hoge temperaturen ontleedt het bovendien in giftige en bijtende afbraakproducten (waaronder waterstoffluoride).
-
-    Incident of lekkage bij transport (ADR-klasse 2 / Gids 126): Bij een lekkage van UN 3296 geldt als standaardmaatregel het bovenwinds afzetten en ontruimen van de directe omgeving (richtlijn ca. 100 meter bij lekkage; bij brand rond een tank of cilinder tot 800 meter vanwege het risico op barsten door drukopbouw).
-
-Gaat het je om het veiligheids- en ontruimingsprotocol rond UN 3296, of kwam je het nummer 3296 in een andere context rond een ontruiming tegen (zoals een sms-melding van shortcode 3296 of een dossiernummer)?   
-afbeelding.png
-
-Dit is een ondertekende brief aan de heer Van Leeuwen waarin formeel toestemming wordt geweigerd voor de ontruiming van de onroerende zaken aan de Platteweg te Scherpenisse (nalatenschap van wijlen de heer H.G. Quaak):
-
-    Standpunt: Als mede-erfgenaam en wettelijk vereffenaar wordt geen enkele overeenkomst, offerte of opdracht tot ontruiming ondertekend en geen toestemming verleend voor ontruimingswerkzaamheden.
-
-    Grond 1 — Wettelijke vereffening (art. 4:222 BW): De nalatenschap is beneficiair aanvaard, waardoor de erfgenamen gezamenlijk vereffenaar zijn. Zolang de boedelschulden — waaronder een publiekrechtelijke Wbb-bodemsaneringslast (beschikking GS Zeeland, kenmerk 09028454) en een asbestverwijderingslast — niet integraal zijn vastgesteld en voldaan, mag niet worden vooruitgelopen op verdeling of verkoop.
-
-    Grond 2 — Kosten geen boedelschuld: In het proces-verbaal van de rechtbank Zeeland-West-Brabant van 8 januari 2026 (zaaknummer 11743076 \ OV VERZ 25-2775) zijn de boedelkosten limitatief beperkt tot de boedelnotaris en de taxateur, en punt 7 bepaalt dat partijen ieder de eigen proces- en advocaatkosten dragen. Een eenzijdige ontruimingsopdracht komt daarom volledig voor eigen rekening en risico van de opdrachtgever in privé.
-
-    Grond 3 — Behoud van boedel en bewijs: In de woning en schuren bevinden zich voertuigen, inboedelgoederen en administratieve bescheiden. Zonder een door alle erfgenamen geaccordeerde boedelbeschrijving met inventarisatie en fotoregistratie levert ontruimen risico op verduistering en bewijsvernietiging op.
-
-    Aansprakelijkstelling: Mocht de heer Van Leeuwen, mevrouw Sels of een derde toch tot ontruiming of het betreden van het terrein overgaan, dan worden zij nu voor alsdan hoofdelijk aansprakelijk gesteld voor alle schade.
-
-    Ondertekening: Ondertekend door M.J.M.M. Goijarts-Bout (mede-vereffenaar en erfgenaam).   
-    afbeelding.jpg
-
-Praktisch puntje: Op het gefotografeerde vel staat geen datum (dagtekening) of verzendwijze (per aangetekende post / per e-mail) vermeld. Voor de bewijskracht bij een aansprakelijkstelling is het verstandig om die nog toe te voegen voordat de brief de deur uit gaat.   
-afbeelding.jpg
-
-Wil je dat ik de brief letterlijk uittyp als schone digitale tekst, wil je de formulering nog ergens aanscherpen, of wil je er iets anders mee doen?
-
-Dit is een zwart-wit studioportret van een glimlachende man tegen een zwarte achtergrond, gekleed in een wit overhemd met een fijn gedessineerde stropdas en een donker gilet, poserend met zijn armen over elkaar geslagen.   
-afbeelding.png
-
-Op basis van alleen de foto kan ik niet vaststellen om wie het gaat. Wat wil je precies met deze afbeelding doen?
-
-is dit een photshop portret of ai portret
-
-In deze afbeelding zijn geen betrouwbare signalen aangetroffen die aantonen hoe het portret is gemaakt. Er is geen digitaal watermerk van Google AI gevonden en er zitten ook geen verifieerbare herkomst- of bewerkingsgegevens in het bestand. Op basis van deze afbeelding alleen is daarom niet vast te stellen of het om een bewerkte Photoshop-foto, een met andere AI-tools gegenereerd beeld of een reguliere opname gaat.   
-afbeelding.png
-
-Ik kan uitsluitend SynthID-watermerken van Google AI detecteren. Om te controleren op SynthID-watermerken van andere organisaties en partners kun je terecht op synthid.com.
-
-Voor meer zekerheid kun je het beste zoeken naar aanvullend bewijs uit betrouwbare bronnen — bijvoorbeeld de oorspronkelijke publicatieplek van het portret of het originele, onbewerkte bestand in hogere resolutie met bijbehorende metagegevens.
-
-riemann
-
-Bernhard Riemann (1826–1866) fundamentally reshaped modern mathematics by introducing topological and geometric frameworks that bridged number theory, complex analysis, and differential geometry. His core contributions center on three major pillars:
-
-    The Riemann Zeta Function and Hypothesis: Extended Euler's product formula to the complex plane via analytic continuation, defined by the Dirichlet series for Re(s)>1
-    Re(s)>1:
-    ζ(s)=∑n=1∞1ns=∏p prime11−p−s
-    ζ(s)=n=1∑∞​ns1​=p prime∏​1−p−s1​
-
-    His 1859 paper “Über die Anzahl der Primzahlen unter einer gegebenen Grösse” formulated the Riemann Hypothesis—conjecturing that all non-trivial zeros of ζ(s)
-    ζ(s) have a real part equal to 12
-    21​—which remains the central open problem governing the asymptotic distribution of prime numbers.
-
-    Riemannian Geometry: Laid the foundational differential-geometric framework for spaces of any dimension by replacing fixed Euclidean coordinates with abstract manifolds equipped with a smoothly varying inner product on the tangent space (the Riemannian metric tensor gij
-    gij​), defining curvature tensor fields independently of an external ambient space and providing the direct mathematical language used decades later by Einstein in General Relativity.
-
-    Riemann Surfaces: Invented multi-sheeted geometric surfaces to resolve the multi-valued ambiguity of complex functions (such as z
-    z​ or log⁡z
-    logz), allowing complex analysis to be studied topologically where functions behave as single-valued analytic mappings across interconnected sheets.
-
-getal 6179
-
-Het getal 6179 is een semipriemgetal (het product van exact twee priemgetallen):
-
-    Priemfactorisatie: 6179=37×167
-    6179=37×167
-
-    Delers (4): 1,37,167,6179
-    1,37,167,6179
-
-    Cijfersom: 6+1+7+9=23
-    6+1+7+9=23 (priem)
-
-    Kaprekar-routine (naar 6174): bereikt de constante in 3 stappen:
-
-        9761−1679=8082
-        9761−1679=8082
-
-        8820−0288=8532
-        8820−0288=8532
-
-        8532−2358=6174
-        8532−2358=6174
-
-    Talstelsels: binair 1100000100011 · hexadecimaal 0x1823
-
-Zoek je een specifieke wiskundige eigenschap (bijvoorbeeld in relatie tot Riemann / priemgetallen) of kwam je 6179 in een andere context tegen?
-
-ja
-
-Binnen de analytische getaltheorie van Riemann (priemgetallen en de zètafunctie ζ(s)
-ζ(s)) gedraagt het semipriemgetal 6179=37×167
-6179=37×167 zich als volgt:
-
-    Möbiusfunctie μ(6179)=+1
-    μ(6179)=+1: Omdat 6179
-    6179 het product is van exact twee verschillende priemgetallen (kwadraatvrij, met k=2
-    k=2 factoren), geldt μ(6179)=(−1)2=+1
-    μ(6179)=(−1)2=+1. De Möbiusfunctie is rechtstreeks gekoppeld aan de inverse van de Riemann-zètafunctie:
-    1ζ(s)=∑n=1∞μ(n)ns
-    ζ(s)1​=n=1∑∞​nsμ(n)​
-
-    Von Mangoldt-functie Λ(6179)=0
-    Λ(6179)=0: In Riemanns expliciete formule voor de priemgetalverdeling dragen alleen priemgetallen en priemmachten bij (Λ(pk)=ln⁡p
-    Λ(pk)=lnp). Omdat 6179
-    6179 een samengesteld product van twee verschillende priemgetallen is, levert het geen sprong op in de Chebyshev-functie ψ(x)
-    ψ(x).
-
-    Euler-totient φ(6179)=5976
-    φ(6179)=5976: Het aantal getallen kleiner dan 6179
-    6179 dat relatief priem is met 6179
-    6179 bedraagt (37−1)(167−1)=36×166=5976
-    (37−1)(167−1)=36×166=5976.
-
-    Priemgetalstelling rond x=6179
-    x=6179: Met ln⁡(6179)≈8,729
-    ln(6179)≈8,729 geeft de basisbenadering xln⁡x≈708
-    lnxx​≈708 priemgetallen onder 6179
-    6179 (de logaritmische integraal Li⁡(6179)
-    Li(6179), die nauwer aansluit bij Riemanns schatting, ligt daar iets boven).
-
-    Relatie met 6174
-    6174: Het getal ligt exact 5
-    5 eenheden boven de Kaprekar-constante 6174
-    6174 (6174=2×32×73
-    6174=2×32×73), wat een sterk samengesteld getal is met 24
-    24 delers, tegenover de slechts 4
-    4 delers van 6179
-    6179.
-
-Wil je dit verder doorrekenen (bijvoorbeeld de exacte π(6179)
-π(6179) en Li⁡(6179)
-Li(6179) of de zèta-nulpunten rond dit bereik in een R- of HTML-script), of bedoelde je een andere context voor 6179
-6179?
-
-ja
-
-Hier is een volledig op zichzelf staand Base R-script (zonder externe packages) dat de exacte waarden voor x=6179
-x=6179 doorrekent: de priemgetaltelfunctie π(6179)
-π(6179), de logaritmische integraal Li⁡(6179)
-Li(6179), Riemanns verfijnde benadering R(6179)
-R(6179), de rekenkundige functies (μ
-μ, Λ
-Λ, φ
-φ) en een directe vergelijking met 6174
-6174.
-R
-
-# ==============================================================================
-# Riemann & Priemgetal-analyse rond x = 6179 (puur Base R, geen packages)
-# ==============================================================================
-
-x <- 6179L
-
-# 1. Zeef van Eratosthenes voor exacte priemgetallen <= x
-zeef <- function(n) {
-  is_priem <- rep(TRUE, n)
-  is_priem[1] <- FALSE
-  lim <- floor(sqrt(n))
-  for (i in 2:lim) {
-    if (is_priem[i]) {
-      is_priem[seq.int(i * i, n, by = i)] <- FALSE
-    }
-  }
-  which(is_priem)
-}
-
-# 2. Möbiusfunctie mu(n)
-mobius <- function(n) {
-  if (n == 1L) return(1L)
-  k <- 0L
-  d <- 2L
-  tmp <- n
-  while (d * d <= tmp) {
-    if (tmp %% d == 0L) {
-      k <- k + 1L
-      tmp <- tmp %/% d
-      if (tmp %% d == 0L) return(0L)
-    }
-    d <- d + 1L
-  }
-  if (tmp > 1L) k <- k + 1L
-  if (k %% 2L == 0L) 1L else -1L
-}
-
-# 3. Logaritmische integraal Li(x) = integraal van 2 tot x van dt / ln(t)
-Li <- function(val) {
-  if (val <= 2) return(0)
-  integrate(function(t) 1 / log(t), lower = 2, upper = val, rel.tol = 1e-10)$value
-}
-
-# 4. Riemanns priemgetalbenadering R(x) = som_{k=1..K} (mu(k)/k) * Li(x^(1/k))
-riemann_R <- function(val, max_k = 20L) {
-  s <- 0
-  for (k in seq_len(max_k)) {
-    wortel <- val^(1 / k)
-    if (wortel < 2) break
-    m <- mobius(k)
-    if (m != 0L) s <- s + (m / k) * Li(wortel)
-  }
-  s
-}
-
-# 5. Berekeningen uitvoeren
-priemen   <- zeef(x)
-pi_x      <- length(priemen)
-pnt_x     <- x / log(x)
-li_x      <- Li(x)
-R_x       <- riemann_R(x)
-
-# Directe buren van 6179 in de priemgetallenrij
-priem_onder <- max(priemen[priemen < x])
-priem_boven <- min(zeef(x + 100L)[zeef(x + 100L) > x])
-
-# Overzichtstabel
-resultaten <- data.frame(
-  Grootheid = c(
-    "Exacte pi(6179)",
-    "Basisbenadering x / ln(x)",
-    "Logaritmische integraal Li(6179)",
-    "Riemann-functie R(6179)",
-    "Fout Li(6179) - pi(6179)",
-    "Fout R(6179)  - pi(6179)"
-  ),
-  Waarde = round(c(pi_x, pnt_x, li_x, R_x, li_x - pi_x, R_x - pi_x), 4)
-)
-
-print(resultaten, row.names = FALSE)
-cat(sprintf("\nMöbius mu(%d) = %+d\n", x, mobius(x)))
-cat(sprintf("Priemburen van %d: %d (verschil -%d) en %d (verschil +%d)\n",
-            x, priem_onder, x - priem_onder, priem_boven, priem_boven - x))
-
-# 6. Visuele vergelijking pi(t) vs Li(t) vs R(t) rond [5000, 6179]
-t_grid  <- seq(5000, x, by = 10)
-pi_grid <- sapply(t_grid, function(t) sum(priemen <= t))
-li_grid <- sapply(t_grid, Li)
-R_grid  <- sapply(t_grid, riemann_R)
-
-plot(t_grid, pi_grid, type = "s", lwd = 2, col = "#111111",
-     xlab = "x", ylab = "Aantal priemgetallen",
-     main = "Priemgetaltelfunctie pi(x) vs. Li(x) en Riemann R(x) tot 6179")
-lines(t_grid, li_grid, col = "#666666", lty = 2, lwd = 1.5)
-lines(t_grid, R_grid,  col = "#A31C1C", lwd = 2)
-abline(v = c(6174, 6179), col = c("#888888", "#A31C1C"), lty = 3)
-legend("topleft",
-       legend = c("Exact: pi(x)", "Li(x)", "Riemann R(x)", "x = 6179"),
-       col    = c("#111111", "#666666", "#A31C1C", "#A31C1C"),
-       lty    = c(1, 2, 1, 3), lwd = c(2, 1.5, 2, 1), bty = "n")
-
-Wil je dit ook nog uitbreiden met de expliciete bijdrage van de eerste paar niet-triviale zèta-nulpunten (ρn=12+iγn
-ρn​=21​+iγn​) aan de foutterm π(x)−R(x)
-π(x)−R(x)?
-
-($\mu$, $\Lambda$, $\varphi$) maak dit een latex schript
-Code snippet
-
-\documentclass[11pt,a4paper]{article}
-
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[dutch]{babel}
-\usepackage{amsmath,amssymb,amsthm}
-\usepackage{booktabs}
-\usepackage{xcolor}
-\usepackage[margin=2.5cm]{geometry}
-
-\definecolor{meekrap}{HTML}{A31C1C}
-
-\title{\textcolor{meekrap}{Rekenkundige Functies ($\mu$, $\Lambda$, $\varphi$) voor $n = 6179$}}
-\author{Analytische Getaltheorie --- Koppeling met $\zeta(s)$}
-\date{\today}
-
-\begin{document}
-
-\maketitle
-
-\section*{1. Priemfactorisatie}
-Het getal $n = 6179$ is een kwadraatvrij semipriemgetal:
-\[
-6179 = 37 \times 167
-\]
-met exact twee verschillende priemfactoren ($p_1 = 37$, $p_2 = 167$).
-
-\section*{2. Definities en uitwerking voor $n = 6179$}
-
-\subsection*{Möbiusfunctie $\mu(n)$}
-\[
-\mu(n) =
-\begin{cases}
-1 & \text{als } n = 1, \\
-(-1)^k & \text{als } n \text{ het product is van } k \text{ verschillende priemgetallen}, \\
-0 & \text{als } n \text{ deelbaar is door een kwadraat } p^2 > 1.
-\end{cases}
-\]
-Koppeling met de Riemann-zètafunctie voor $\operatorname{Re}(s) > 1$:
-\[
-\frac{1}{\zeta(s)} = \sum_{n=1}^{\infty} \frac{\mu(n)}{n^s}
-\]
-Voor $n = 6179 = 37 \times 167$ geldt $k = 2$, dus:
-\[
-\mu(6179) = (-1)^2 = +1
-\]
-
-\subsection*{Von Mangoldt-functie $\Lambda(n)$}
-\[
-\Lambda(n) =
-\begin{cases}
-\ln p & \text{als } n = p^k \text{ voor een priemgetal } p \text{ en } k \ge 1, \\
-0 & \text{anders.}
-\end{cases}
-\]
-Koppeling met de logaritmische afgeleide van $\zeta(s)$ voor $\operatorname{Re}(s) > 1$:
-\[
--\frac{\zeta'(s)}{\zeta(s)} = \sum_{n=1}^{\infty} \frac{\Lambda(n)}{n^s}
-\]
-Omdat $6179 = 37 \times 167$ geen priemgetal of priemmacht is, geldt:
-\[
-\Lambda(6179) = 0
-\]
-
-\subsection*{Euler-totientfunctie $\varphi(n)$}
-\[
-\varphi(n) = n \prod_{p \mid n} \left(1 - \frac{1}{p}\right)
-\]
-Koppeling met $\zeta(s)$ voor $\operatorname{Re}(s) > 2$:
-\[
-\frac{\zeta(s-1)}{\zeta(s)} = \sum_{n=1}^{\infty} \frac{\varphi(n)}{n^s}
-\]
-Voor $n = 6179 = 37 \times 167$ geldt:
-\[
-\varphi(6179) = (37 - 1)(167 - 1) = 36 \times 166 = 5976
-\]
-
-\section*{3. Samenvatting}
-\begin{table}[h!]
-\centering
-\begin{tabular}{@{}lll@{}}
-\toprule
-\textbf{Functie} & \textbf{Dirichletreeks via $\zeta(s)$} & \textbf{Waarde voor $n = 6179$} \\
-\midrule
-Möbius $\mu(n)$ & $1 / \zeta(s)$ & $+1$ \\
-Von Mangoldt $\Lambda(n)$ & $-\zeta'(s) / \zeta(s)$ & $0$ \\
-Euler-totient $\varphi(n)$ & $\zeta(s-1) / \zeta(s)$ & $5976$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\end{document}
-
-Je kunt dit opslaan als bijvoorbeeld functies_6179.tex en direct compileren met pdflatex functies_6179.tex.
-
-maak dit een html script
-
-Je HTML-bestand staat klaar:
-HTML icon
-functies_6179
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -457,7 +15,9 @@ functies_6179
       --lijn: #D4D4D4;
     }
 
-    * {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
     }
 
@@ -472,7 +32,7 @@ functies_6179
     }
 
     main {
-      max-width: 820px;
+      max-width: 840px;
       margin: 0 auto;
     }
 
@@ -516,7 +76,7 @@ functies_6179
       margin: 0.6rem 0 1rem 0;
     }
 
-    /* Wiskundige opmaak (100% offline, geen externe bibliotheken) */
+    /* Wiskundige blokken (100% offline, directe UTF-8 symbolen) */
     .formule {
       display: flex;
       justify-content: center;
@@ -524,10 +84,10 @@ functies_6179
       flex-wrap: wrap;
       gap: 0.35em;
       margin: 1.1rem 0;
-      padding: 0.9rem 1.2rem;
+      padding: 0.95rem 1.2rem;
       background: var(--paneel);
       border-left: 4px solid var(--meekrap);
-      font-size: 1.08rem;
+      font-size: 1.06rem;
       overflow-x: auto;
     }
 
@@ -546,14 +106,16 @@ functies_6179
 
     .breuk .teller {
       border-bottom: 1.5px solid var(--inkt);
-      padding: 0 0.25em 0.1em 0.25em;
+      padding: 0 0.25em 0.12em 0.25em;
+      white-space: nowrap;
     }
 
     .breuk .noemer {
-      padding: 0.1em 0.25em 0 0.25em;
+      padding: 0.12em 0.25em 0 0.25em;
+      white-space: nowrap;
     }
 
-    .som {
+    .operator-groot {
       display: inline-flex;
       flex-direction: column;
       align-items: center;
@@ -562,36 +124,48 @@ functies_6179
       line-height: 1.05;
     }
 
-    .som .boven,
-    .som .onder {
+    .operator-groot .boven,
+    .operator-groot .onder {
       font-size: 0.72em;
+      white-space: nowrap;
     }
 
-    .som .teken {
-      font-size: 1.6em;
+    .operator-groot .teken {
+      font-size: 1.65em;
       line-height: 0.95;
     }
 
+    /* Stuksgewijze definities met schaalbare SVG-accolade */
     .gevallen {
       display: inline-flex;
-      align-items: center;
-      gap: 0.45em;
+      align-items: stretch;
+      gap: 0.5rem;
     }
 
-    .accolade {
-      font-size: 3.1em;
-      font-weight: 300;
-      line-height: 1;
+    .gevallen-links {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .accolade-svg {
+      width: 14px;
+      flex-shrink: 0;
       color: var(--inkt);
-      user-select: none;
     }
 
     .gevallen-lijst {
       display: grid;
-      grid-template-columns: auto auto;
+      grid-template-columns: auto 1fr;
       column-gap: 1.2rem;
-      row-gap: 0.3rem;
+      row-gap: 0.35rem;
+      align-items: baseline;
       text-align: left;
+      padding: 0.15rem 0;
+    }
+
+    .gevallen-waarde {
+      white-space: nowrap;
     }
 
     .waarde-accent {
@@ -600,14 +174,19 @@ functies_6179
     }
 
     /* Tabel */
+    .tabel-wrapper {
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 1rem;
       font-size: 1rem;
     }
 
-    th, td {
+    th,
+    td {
       padding: 0.75rem 0.9rem;
       text-align: left;
       border-bottom: 1px solid var(--lijn);
@@ -624,12 +203,16 @@ functies_6179
       background-color: var(--paneel);
     }
 
-    /* Interactieve controlebalk */
+    /* Interactieve controlemodule */
     .controle-paneel {
       margin-top: 2.2rem;
-      padding: 1.2rem 1.3rem;
+      padding: 1.25rem 1.35rem;
       background-color: var(--paneel);
       border: 2px solid var(--meekrap);
+    }
+
+    .controle-paneel h2 {
+      margin-top: 0;
     }
 
     .controle-rij {
@@ -644,14 +227,19 @@ functies_6179
       font-weight: bold;
     }
 
-    input[type="number"] {
-      width: 140px;
-      padding: 0.45rem 0.6rem;
+    input[type="text"] {
+      width: 165px;
+      padding: 0.45rem 0.65rem;
       font-size: 19px;
       font-family: inherit;
       border: 2px solid var(--inkt);
       background: #FFFFFF;
       color: var(--inkt);
+    }
+
+    input[type="text"]:focus {
+      outline: 3px solid var(--meekrap);
+      outline-offset: 1px;
     }
 
     button {
@@ -666,7 +254,7 @@ functies_6179
     }
 
     button:hover,
-    button:focus {
+    button:focus-visible {
       background-color: var(--meekrap-donker);
       border-color: var(--meekrap-donker);
     }
@@ -677,19 +265,52 @@ functies_6179
     }
 
     button.secundair:hover,
-    button.secundair:focus {
+    button.secundair:focus-visible {
       background-color: #F4E6E6;
     }
 
     #uitkomst {
       margin-top: 1rem;
-      padding-top: 0.8rem;
+      padding-top: 0.9rem;
       border-top: 1px solid var(--lijn);
+    }
+
+    .uitkomst-raster {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.8rem;
+      margin-top: 0.75rem;
+    }
+
+    .uitkomst-kaart {
+      background: #FFFFFF;
+      border: 1px solid var(--lijn);
+      border-top: 3px solid var(--meekrap);
+      padding: 0.7rem 0.9rem;
+    }
+
+    .uitkomst-label {
+      font-size: 0.92rem;
+      color: var(--subtekst);
+      margin-bottom: 0.2rem;
+    }
+
+    .uitkomst-getal {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--meekrap);
+    }
+
+    .uitkomst-toelichting {
+      font-size: 0.88rem;
+      color: var(--subtekst);
+      margin-top: 0.25rem;
     }
 
     .fout {
       color: var(--meekrap);
       font-weight: bold;
+      margin: 0;
     }
 
     @media print {
@@ -706,15 +327,15 @@ functies_6179
 <body>
   <main>
     <header>
-      <h1>Rekenkundige Functies (&mu;, &Lambda;, &varphi;) voor <span class="math-var">n</span> = 6179</h1>
-      <p class="ondertitel">Analytische Getaltheorie &mdash; Koppeling met &zeta;(<span class="math-var">s</span>)</p>
+      <h1>Rekenkundige Functies (μ, Λ, φ) voor <span class="math-var">n</span> = 6179</h1>
+      <p class="ondertitel">Analytische Getaltheorie — Koppeling met ζ(<span class="math-var">s</span>)</p>
     </header>
 
     <section aria-labelledby="sec-factorisatie">
       <h2 id="sec-factorisatie">1. Priemfactorisatie</h2>
       <p>Het getal <span class="math-var">n</span> = 6179 is een kwadraatvrij semipriemgetal:</p>
       <div class="formule">
-        <span>6179 = 37 &times; 167</span>
+        <span>6179 = 37 × 167</span>
       </div>
       <p>met exact twee verschillende priemfactoren (<span class="math-var">p</span><sub>1</sub> = 37, <span class="math-var">p</span><sub>2</sub> = 167).</p>
     </section>
@@ -722,155 +343,166 @@ functies_6179
     <section aria-labelledby="sec-definities">
       <h2 id="sec-definities">2. Definities en uitwerking voor <span class="math-var">n</span> = 6179</h2>
 
-      <h3>M&ouml;biusfunctie &mu;(<span class="math-var">n</span>)</h3>
+      <h3>Möbiusfunctie μ(<span class="math-var">n</span>)</h3>
       <div class="formule">
         <div class="gevallen">
-          <span>&mu;(<span class="math-var">n</span>) =</span>
-          <span class="accolade" aria-hidden="true">{</span>
+          <div class="gevallen-links">μ(<span class="math-var">n</span>) =</div>
+          <svg class="accolade-svg" viewBox="0 0 14 100" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M 13 2 C 6 2, 7 8, 7 18 L 7 42 C 7 47, 5 50, 1 50 C 5 50, 7 53, 7 58 L 7 82 C 7 92, 6 98, 13 98"
+                  fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"/>
+          </svg>
           <div class="gevallen-lijst">
-            <span>1</span>
+            <span class="gevallen-waarde">1</span>
             <span>als <span class="math-var">n</span> = 1,</span>
-            <span>(&minus;1)<sup><span class="math-var">k</span></sup></span>
+            <span class="gevallen-waarde">(−1)<sup><span class="math-var">k</span></sup></span>
             <span>als <span class="math-var">n</span> het product is van <span class="math-var">k</span> verschillende priemgetallen,</span>
-            <span>0</span>
+            <span class="gevallen-waarde">0</span>
             <span>als <span class="math-var">n</span> deelbaar is door een kwadraat <span class="math-var">p</span><sup>2</sup> &gt; 1.</span>
           </div>
         </div>
       </div>
-      <p>Koppeling met de Riemann-z&egrave;tafunctie voor Re(<span class="math-var">s</span>) &gt; 1:</p>
+      <p>Koppeling met de Riemann-zètafunctie voor Re(<span class="math-var">s</span>) &gt; 1:</p>
       <div class="formule">
         <span class="breuk">
           <span class="teller">1</span>
-          <span class="noemer">&zeta;(<span class="math-var">s</span>)</span>
+          <span class="noemer">ζ(<span class="math-var">s</span>)</span>
         </span>
         <span>=</span>
-        <span class="som">
-          <span class="boven">&infin;</span>
-          <span class="teken">&sum;</span>
+        <span class="operator-groot">
+          <span class="boven">∞</span>
+          <span class="teken">∑</span>
           <span class="onder"><span class="math-var">n</span> = 1</span>
         </span>
         <span class="breuk">
-          <span class="teller">&mu;(<span class="math-var">n</span>)</span>
+          <span class="teller">μ(<span class="math-var">n</span>)</span>
           <span class="noemer"><span class="math-var">n</span><sup><span class="math-var">s</span></sup></span>
         </span>
       </div>
-      <p>Voor <span class="math-var">n</span> = 6179 = 37 &times; 167 geldt <span class="math-var">k</span> = 2, dus:</p>
+      <p>Voor <span class="math-var">n</span> = 6179 = 37 × 167 geldt <span class="math-var">k</span> = 2, dus:</p>
       <div class="formule">
-        <span>&mu;(6179) = (&minus;1)<sup>2</sup> = <span class="waarde-accent">+1</span></span>
+        <span>μ(6179) = (−1)<sup>2</sup> = <span class="waarde-accent">+1</span></span>
       </div>
 
-      <h3>Von Mangoldt-functie &Lambda;(<span class="math-var">n</span>)</h3>
+      <h3>Von Mangoldt-functie Λ(<span class="math-var">n</span>)</h3>
       <div class="formule">
         <div class="gevallen">
-          <span>&Lambda;(<span class="math-var">n</span>) =</span>
-          <span class="accolade" aria-hidden="true">{</span>
+          <div class="gevallen-links">Λ(<span class="math-var">n</span>) =</div>
+          <svg class="accolade-svg" viewBox="0 0 14 100" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M 13 2 C 6 2, 7 10, 7 22 L 7 40 C 7 46, 5 50, 1 50 C 5 50, 7 54, 7 60 L 7 78 C 7 90, 6 98, 13 98"
+                  fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"/>
+          </svg>
           <div class="gevallen-lijst">
-            <span>ln <span class="math-var">p</span></span>
-            <span>als <span class="math-var">n</span> = <span class="math-var">p</span><sup><span class="math-var">k</span></sup> voor een priemgetal <span class="math-var">p</span> en <span class="math-var">k</span> &ge; 1,</span>
-            <span>0</span>
+            <span class="gevallen-waarde">ln <span class="math-var">p</span></span>
+            <span>als <span class="math-var">n</span> = <span class="math-var">p</span><sup><span class="math-var">k</span></sup> voor een priemgetal <span class="math-var">p</span> en <span class="math-var">k</span> ≥ 1,</span>
+            <span class="gevallen-waarde">0</span>
             <span>anders.</span>
           </div>
         </div>
       </div>
-      <p>Koppeling met de logaritmische afgeleide van &zeta;(<span class="math-var">s</span>) voor Re(<span class="math-var">s</span>) &gt; 1:</p>
+      <p>Koppeling met de logaritmische afgeleide van ζ(<span class="math-var">s</span>) voor Re(<span class="math-var">s</span>) &gt; 1:</p>
       <div class="formule">
-        <span>&minus;</span>
+        <span>−</span>
         <span class="breuk">
-          <span class="teller">&zeta;&prime;(<span class="math-var">s</span>)</span>
-          <span class="noemer">&zeta;(<span class="math-var">s</span>)</span>
+          <span class="teller">ζ′(<span class="math-var">s</span>)</span>
+          <span class="noemer">ζ(<span class="math-var">s</span>)</span>
         </span>
         <span>=</span>
-        <span class="som">
-          <span class="boven">&infin;</span>
-          <span class="teken">&sum;</span>
+        <span class="operator-groot">
+          <span class="boven">∞</span>
+          <span class="teken">∑</span>
           <span class="onder"><span class="math-var">n</span> = 1</span>
         </span>
         <span class="breuk">
-          <span class="teller">&Lambda;(<span class="math-var">n</span>)</span>
+          <span class="teller">Λ(<span class="math-var">n</span>)</span>
           <span class="noemer"><span class="math-var">n</span><sup><span class="math-var">s</span></sup></span>
         </span>
       </div>
-      <p>Omdat 6179 = 37 &times; 167 geen priemgetal of priemmacht is, geldt:</p>
+      <p>Omdat 6179 = 37 × 167 geen priemgetal of priemmacht is, geldt:</p>
       <div class="formule">
-        <span>&Lambda;(6179) = <span class="waarde-accent">0</span></span>
+        <span>Λ(6179) = <span class="waarde-accent">0</span></span>
       </div>
 
-      <h3>Euler-totientfunctie &varphi;(<span class="math-var">n</span>)</h3>
+      <h3>Euler-totientfunctie φ(<span class="math-var">n</span>)</h3>
       <div class="formule">
-        <span>&varphi;(<span class="math-var">n</span>) = <span class="math-var">n</span></span>
-        <span class="som">
-          <span class="boven">&nbsp;</span>
-          <span class="teken">&prod;</span>
+        <span>φ(<span class="math-var">n</span>) = <span class="math-var">n</span></span>
+        <span class="operator-groot">
+          <span class="boven" aria-hidden="true">&nbsp;</span>
+          <span class="teken">∏</span>
           <span class="onder"><span class="math-var">p</span> | <span class="math-var">n</span></span>
         </span>
-        <span>( 1 &minus;</span>
+        <span>(1 −</span>
         <span class="breuk">
           <span class="teller">1</span>
           <span class="noemer"><span class="math-var">p</span></span>
         </span>
         <span>)</span>
       </div>
-      <p>Koppeling met &zeta;(<span class="math-var">s</span>) voor Re(<span class="math-var">s</span>) &gt; 2:</p>
+      <p>Koppeling met ζ(<span class="math-var">s</span>) voor Re(<span class="math-var">s</span>) &gt; 2:</p>
       <div class="formule">
         <span class="breuk">
-          <span class="teller">&zeta;(<span class="math-var">s</span> &minus; 1)</span>
-          <span class="noemer">&zeta;(<span class="math-var">s</span>)</span>
+          <span class="teller">ζ(<span class="math-var">s</span> − 1)</span>
+          <span class="noemer">ζ(<span class="math-var">s</span>)</span>
         </span>
         <span>=</span>
-        <span class="som">
-          <span class="boven">&infin;</span>
-          <span class="teken">&sum;</span>
+        <span class="operator-groot">
+          <span class="boven">∞</span>
+          <span class="teken">∑</span>
           <span class="onder"><span class="math-var">n</span> = 1</span>
         </span>
         <span class="breuk">
-          <span class="teller">&varphi;(<span class="math-var">n</span>)</span>
+          <span class="teller">φ(<span class="math-var">n</span>)</span>
           <span class="noemer"><span class="math-var">n</span><sup><span class="math-var">s</span></sup></span>
         </span>
       </div>
-      <p>Voor <span class="math-var">n</span> = 6179 = 37 &times; 167 geldt:</p>
+      <p>Voor <span class="math-var">n</span> = 6179 = 37 × 167 geldt:</p>
       <div class="formule">
-        <span>&varphi;(6179) = (37 &minus; 1)(167 &minus; 1) = 36 &times; 166 = <span class="waarde-accent">5976</span></span>
+        <span>φ(6179) = (37 − 1)(167 − 1) = 36 × 166 = <span class="waarde-accent">5976</span></span>
       </div>
     </section>
 
     <section aria-labelledby="sec-samenvatting">
       <h2 id="sec-samenvatting">3. Samenvatting</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Functie</th>
-            <th>Dirichletreeks via &zeta;(<span class="math-var">s</span>)</th>
-            <th>Waarde voor <span class="math-var">n</span> = 6179</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>M&ouml;bius &mu;(<span class="math-var">n</span>)</td>
-            <td>1 / &zeta;(<span class="math-var">s</span>)</td>
-            <td class="waarde-accent">+1</td>
-          </tr>
-          <tr>
-            <td>Von Mangoldt &Lambda;(<span class="math-var">n</span>)</td>
-            <td>&minus;&zeta;&prime;(<span class="math-var">s</span>) / &zeta;(<span class="math-var">s</span>)</td>
-            <td class="waarde-accent">0</td>
-          </tr>
-          <tr>
-            <td>Euler-totient &varphi;(<span class="math-var">n</span>)</td>
-            <td>&zeta;(<span class="math-var">s</span> &minus; 1) / &zeta;(<span class="math-var">s</span>)</td>
-            <td class="waarde-accent">5976</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="tabel-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Functie</th>
+              <th>Dirichletreeks via ζ(<span class="math-var">s</span>)</th>
+              <th>Waarde voor <span class="math-var">n</span> = 6179</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Möbius μ(<span class="math-var">n</span>)</td>
+              <td>1 / ζ(<span class="math-var">s</span>)</td>
+              <td class="waarde-accent">+1</td>
+            </tr>
+            <tr>
+              <td>Von Mangoldt Λ(<span class="math-var">n</span>)</td>
+              <td>−ζ′(<span class="math-var">s</span>) / ζ(<span class="math-var">s</span>)</td>
+              <td class="waarde-accent">0</td>
+            </tr>
+            <tr>
+              <td>Euler-totient φ(<span class="math-var">n</span>)</td>
+              <td>ζ(<span class="math-var">s</span> − 1) / ζ(<span class="math-var">s</span>)</td>
+              <td class="waarde-accent">5976</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section class="controle-paneel" aria-labelledby="sec-controle">
-      <h2 id="sec-controle" style="margin-top: 0;">4. Zelf narekenen (willekeurige <span class="math-var">n</span>)</h2>
+      <h2 id="sec-controle">4. Zelf narekenen (willekeurige <span class="math-var">n</span>)</h2>
       <div class="controle-rij">
         <label for="invoer-n">Getal <span class="math-var">n</span>:</label>
-        <input id="invoer-n" type="number" min="1" max="1000000000" step="1" value="6179">
+        <input id="invoer-n" type="text" inputmode="numeric" autocomplete="off" value="6179" aria-describedby="invoer-uitleg">
         <button id="knop-bereken" type="button">Bereken</button>
         <button id="knop-reset" type="button" class="secundair">Reset 6179</button>
       </div>
+      <p id="invoer-uitleg" style="font-size: 0.9rem; color: var(--subtekst); margin-bottom: 0;">
+        Geheel getal van 1 t/m 1.000.000.000.000 (10<sup>12</sup>).
+      </p>
       <div id="uitkomst" aria-live="polite"></div>
     </section>
   </main>
@@ -878,115 +510,193 @@ functies_6179
   <script>
     "use strict";
 
-    function factoriseer(n) {
-      const factoren = new Map();
-      let rest = n;
-      for (let d = 2; d * d <= rest; d++) {
-        while (rest % d === 0) {
-          factoren.set(d, (factoren.get(d) || 0) + 1);
-          rest = Math.floor(rest / d);
+    (function () {
+      const MAX_N = 1000000000000; // 10^12 (veilig binnen Number.MAX_SAFE_INTEGER en direct factoriseerbaar)
+
+      function factoriseer(n) {
+        const factoren = new Map();
+        let rest = n;
+
+        while (rest % 2 === 0) {
+          factoren.set(2, (factoren.get(2) || 0) + 1);
+          rest = Math.floor(rest / 2);
         }
-      }
-      if (rest > 1) {
-        factoren.set(rest, (factoren.get(rest) || 0) + 1);
-      }
-      return factoren;
-    }
 
-    function berekenFuncties(n) {
-      const factoren = factoriseer(n);
-
-      // Möbius mu(n)
-      let mu = 1;
-      if (n > 1) {
-        for (const exp of factoren.values()) {
-          if (exp > 1) {
-            mu = 0;
-            break;
+        for (let d = 3; d * d <= rest; d += 2) {
+          while (rest % d === 0) {
+            factoren.set(d, (factoren.get(d) || 0) + 1);
+            rest = Math.floor(rest / d);
           }
-          mu = -mu;
         }
+
+        if (rest > 1) {
+          factoren.set(rest, (factoren.get(rest) || 0) + 1);
+        }
+
+        return factoren;
       }
 
-      // Von Mangoldt Lambda(n)
-      let lambdaTekst = "0";
-      if (factoren.size === 1) {
-        const [p] = factoren.keys();
-        lambdaTekst = `ln(${p}) &approx; ${Math.log(p).toFixed(6)}`;
+      function berekenFuncties(n) {
+        const factoren = factoriseer(n);
+
+        // 1. Möbius mu(n)
+        let mu = 1;
+        let muUitleg = "n = 1 (leeg product)";
+        if (n > 1) {
+          let heeftKwadraat = false;
+          for (const exp of factoren.values()) {
+            if (exp > 1) {
+              heeftKwadraat = true;
+              break;
+            }
+          }
+          if (heeftKwadraat) {
+            mu = 0;
+            muUitleg = "deelbaar door een kwadraat p²";
+          } else {
+            const k = factoren.size;
+            mu = k % 2 === 0 ? 1 : -1;
+            muUitleg = `kwadraatvrij, k = ${k} priemfactor${k === 1 ? "" : "en"}`;
+          }
+        }
+
+        // 2. Von Mangoldt Lambda(n)
+        let lambdaWaarde = "0";
+        let lambdaUitleg = n === 1 ? "n = 1 is geen priemmacht" : "meerdere priemfactoren";
+        if (factoren.size === 1) {
+          const [[p, k]] = factoren.entries();
+          lambdaWaarde = `ln(${p}) ≈ ${Math.log(p).toFixed(6)}`;
+          lambdaUitleg = k === 1 ? `priemgetal p = ${p}` : `priemmacht ${p}^${k}`;
+        }
+
+        // 3. Euler-totient phi(n)
+        let phi = n;
+        for (const p of factoren.keys()) {
+          phi = Math.floor(phi / p) * (p - 1);
+        }
+        const phiUitleg = n === 1
+          ? "per definitie φ(1) = 1"
+          : `aantal getallen ≤ ${n} met ggd(m, ${n}) = 1`;
+
+        return { factoren, mu, muUitleg, lambdaWaarde, lambdaUitleg, phi, phiUitleg };
       }
 
-      // Euler-totient phi(n)
-      let phi = n;
-      for (const p of factoren.keys()) {
-        phi = (phi / p) * (p - 1);
+      function bouwFactorisatieElement(n, factoren) {
+        const p = document.createElement("p");
+        const label = document.createElement("strong");
+        label.textContent = "Priemfactorisatie: ";
+        p.appendChild(label);
+        p.appendChild(document.createTextNode(`${n} = `));
+
+        if (factoren.size === 0) {
+          p.appendChild(document.createTextNode("1"));
+          return p;
+        }
+
+        let eerste = true;
+        for (const [priem, exp] of factoren.entries()) {
+          if (!eerste) {
+            p.appendChild(document.createTextNode(" × "));
+          }
+          p.appendChild(document.createTextNode(String(priem)));
+          if (exp > 1) {
+            const sup = document.createElement("sup");
+            sup.textContent = String(exp);
+            p.appendChild(sup);
+          }
+          eerste = false;
+        }
+
+        return p;
       }
 
-      // Leesbare priemfactorisatie
-      let facTekst = "1";
-      if (factoren.size > 0) {
-        facTekst = Array.from(factoren.entries())
-          .map(([p, e]) => (e > 1 ? `${p}<sup>${e}</sup>` : `${p}`))
-          .join(" &times; ");
+      function maakKaart(labelTekst, waardeTekst, uitlegTekst) {
+        const kaart = document.createElement("div");
+        kaart.className = "uitkomst-kaart";
+
+        const label = document.createElement("div");
+        label.className = "uitkomst-label";
+        label.textContent = labelTekst;
+
+        const waarde = document.createElement("div");
+        waarde.className = "uitkomst-getal";
+        waarde.textContent = waardeTekst;
+
+        const uitleg = document.createElement("div");
+        uitleg.className = "uitkomst-toelichting";
+        uitleg.textContent = uitlegTekst;
+
+        kaart.appendChild(label);
+        kaart.appendChild(waarde);
+        kaart.appendChild(uitleg);
+        return kaart;
       }
 
-      return { facTekst, mu, lambdaTekst, phi };
-    }
+      function toonUitkomst() {
+        const invoer = document.getElementById("invoer-n");
+        const uitkomst = document.getElementById("uitkomst");
+        if (!invoer || !uitkomst) return;
 
-    function toonUitkomst() {
-      const invoer = document.getElementById("invoer-n");
-      const uitkomst = document.getElementById("uitkomst");
-      const n = Number(invoer.value);
+        const ruw = invoer.value.trim().replace(/\s+/g, "");
+        uitkomst.textContent = "";
 
-      if (!Number.isInteger(n) || n < 1 || n > 1000000000) {
-        uitkomst.innerHTML = '<p class="fout">Voer een geheel getal tussen 1 en 1.000.000.000 in.</p>';
-        return;
+        if (!/^\d+$/.test(ruw)) {
+          const fout = document.createElement("p");
+          fout.className = "fout";
+          fout.textContent = "Voer uitsluitend cijfers in (een geheel getal vanaf 1).";
+          uitkomst.appendChild(fout);
+          return;
+        }
+
+        const n = Number(ruw);
+        if (!Number.isSafeInteger(n) || n < 1 || n > MAX_N) {
+          const fout = document.createElement("p");
+          fout.className = "fout";
+          fout.textContent = "Voer een geheel getal in tussen 1 en 1.000.000.000.000.";
+          uitkomst.appendChild(fout);
+          return;
+        }
+
+        const res = berekenFuncties(n);
+        const muTekst = res.mu > 0 ? "+1" : String(res.mu);
+
+        uitkomst.appendChild(bouwFactorisatieElement(n, res.factoren));
+
+        const raster = document.createElement("div");
+        raster.className = "uitkomst-raster";
+        raster.appendChild(maakKaart(`Möbius μ(${n})`, muTekst, res.muUitleg));
+        raster.appendChild(maakKaart(`Von Mangoldt Λ(${n})`, res.lambdaWaarde, res.lambdaUitleg));
+        raster.appendChild(maakKaart(`Euler-totient φ(${n})`, String(res.phi), res.phiUitleg));
+
+        uitkomst.appendChild(raster);
       }
 
-      const { facTekst, mu, lambdaTekst, phi } = berekenFuncties(n);
-      const muTekst = mu > 0 ? "+1" : String(mu);
+      document.addEventListener("DOMContentLoaded", function () {
+        const knopBereken = document.getElementById("knop-bereken");
+        const knopReset = document.getElementById("knop-reset");
+        const invoer = document.getElementById("invoer-n");
 
-      uitkomst.innerHTML = `
-        <p><strong>Priemfactorisatie:</strong> ${n} = ${facTekst}</p>
-        <p>
-          <strong>&mu;(${n})</strong> = <span class="waarde-accent">${muTekst}</span> &nbsp;|&nbsp;
-          <strong>&Lambda;(${n})</strong> = <span class="waarde-accent">${lambdaTekst}</span> &nbsp;|&nbsp;
-          <strong>&varphi;(${n})</strong> = <span class="waarde-accent">${phi}</span>
-        </p>
-      `;
-    }
+        if (knopBereken) {
+          knopBereken.addEventListener("click", toonUitkomst);
+        }
+        if (knopReset && invoer) {
+          knopReset.addEventListener("click", function () {
+            invoer.value = "6179";
+            toonUitkomst();
+          });
+        }
+        if (invoer) {
+          invoer.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              toonUitkomst();
+            }
+          });
+        }
 
-    document.getElementById("knop-bereken").addEventListener("click", toonUitkomst);
-    document.getElementById("knop-reset").addEventListener("click", () => {
-      document.getElementById("invoer-n").value = "6179";
-      toonUitkomst();
-    });
-    document.getElementById("invoer-n").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") toonUitkomst();
-    });
-
-    toonUitkomst();
+        toonUitkomst();
+      });
+    })();
   </script>
 </body>
 </html>
-
-functies_6179.html is een volledig zelfstandig bestand (geen externe bibliotheken of CDN's nodig, direct lokaal te openen in de browser) met:
-
-    Volledige omzetting van het LaTeX-document: priemfactorisatie (6179=37×167
-    6179=37×167), definities en ζ(s)
-    ζ(s)-Dirichletreeksen voor μ(n)
-    μ(n), Λ(n)
-    Λ(n) en φ(n)
-    φ(n), plus de samenvattingstabel.
-
-    Offline wiskunde-opmaak & printweergave: breuken, sommaties, producten en accolades in pure HTML/CSS (19px basistekst, meekrap-rood #A31C1C op wit).
-
-    Lokale rekenmodule (sectie 4): ingebouwde JavaScript-functie waarmee je desgewenst ook elk ander geheel getal n
-    n direct kunt factoriseren en controleren op μ(n)
-    μ(n), Λ(n)
-    Λ(n) en φ(n)
-    φ(n).
-
-Gemini is AI and can make mistakes, including about people. Your privacy & Gemini Opens in a new window
-
-
-Generating file delivery confirmation in Dutch
