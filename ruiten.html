@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Het Rabbit Game — Zes Ruiten</title>
+  <style>
+    /* ==========================================================================
+       ONTWERPTOKENS — HOOG CONTRAST (MEEKRAP-ROOD & WIT, A+ 19PX)
+       ========================================================================== */
+    :root {
+      --meekrap: #A31C1C;
+      --meekrap-donker: #7D1313;
+      --meekrap-licht: #F9EDED;
+      --wit: #FFFFFF;
+      --zwart: #1A1A1A;
+      --grijs-rand: #D4D4D4;
+      --grijs-tekst: #4A4A4A;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 19px; /* A+ leesbaarheid */
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--wit);
+      color: var(--zwart);
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+
+    /* Hoofdcontainer */
+    .app {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Kopbalk */
+    header {
+      border-bottom: 3px solid var(--meekrap);
+      padding-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px 16px;
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--meekrap);
+      letter-spacing: -0.01em;
+    }
+
+    .ondertitel {
+      font-size: 0.9rem;
+      color: var(--grijs-tekst);
+    }
+
+    /* Voortgangsbalk & Bediening */
+    .hud {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--wit);
+      border: 2px solid var(--zwart);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .hud-rij {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    /* 6 Ruiten-kaarten voortgang */
+    .kaarten-balk {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .kaart-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 58px;
+      padding: 6px 10px;
+      border: 2px solid var(--grijs-rand);
+      border-radius: 8px;
+      background: var(--wit);
+      color: var(--grijs-tekst);
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+      user-select: none;
+    }
+
+    .kaart-chip.verzameld {
+      background: var(--meekrap);
+      border-color: var(--meekrap);
+      color: var(--wit);
+      transform: translateY(-1px);
+    }
+
+    .kaart-chip.volgende {
+      border-color: var(--meekrap);
+      color: var(--meekrap);
+      background: var(--meekrap-licht);
+    }
+
+    /* Stappenteller & Nieuw spel */
+    .status-groep {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .teller {
+      font-weight: 700;
+      padding: 6px 12px;
+      border: 2px solid var(--zwart);
+      border-radius: 8px;
+      background: var(--wit);
+    }
+
+    .teller span {
+      color: var(--meekrap);
+    }
+
+    /* Knoppen & Schakelaars */
+    button {
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 8px;
+      padding: 8px 16px;
+      border: 2px solid var(--meekrap);
+      background: var(--meekrap);
+      color: var(--wit);
+      transition: background-color 0.15s, color 0.15s, transform 0.1s;
+    }
+
+    button:hover,
+    button:focus-visible {
+      background: var(--meekrap-donker);
+      border-color: var(--meekrap-donker);
+      outline: 3px solid var(--zwart);
+      outline-offset: 2px;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .knop-secundair {
+      background: var(--wit);
+      color: var(--zwart);
+      border-color: var(--zwart);
+    }
+
+    .knop-secundair:hover,
+    .knop-secundair:focus-visible {
+      background: var(--meekrap-licht);
+      color: var(--meekrap);
+      border-color: var(--meekrap);
+    }
+
+    /* Keuzeschakelaar (Modus) & Overlay-schakelaar */
+    .schakelaars-rij {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--grijs-rand);
+    }
+
+    .modus-groep {
+      display: inline-flex;
+      border: 2px solid var(--zwart);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .modus-knop {
+      border: none;
+      border-radius: 0;
+      background: var(--wit);
+      color: var(--zwart);
+      padding: 7px 14px;
+      font-size: 0.88rem;
+    }
+
+    .modus-knop + .modus-knop {
+      border-left: 2px solid var(--zwart);
+    }
+
+    .modus-knop.actief {
+      background: var(--meekrap);
+      color: var(--wit);
+    }
+
+    .modus-knop:hover,
+    .modus-knop:focus-visible {
+      outline-offset: -3px;
+    }
+
+    .overlay-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      padding: 6px 10px;
+      border: 2px solid var(--zwart);
+      border-radius: 8px;
+      background: var(--wit);
+    }
+
+    .overlay-label input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--meekrap);
+      cursor: pointer;
+    }
+
+    /* Meldingenbalk (zonder alert) */
+    .melding-balk {
+      min-height: 1.5em;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--meekrap);
+      text-align: center;
+    }
+
+    /* Canvas-container */
+    .bord-container {
+      position: relative;
+      width: 100%;
+      background: var(--wit);
+      border: 2px solid var(--zwart);
+      border-radius: var(--radius);
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      cursor: pointer;
+    }
+
+    /* Touch-richtingsknoppen onder het bord */
+    .besturing-balk {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .uitleg {
+      font-size: 0.85rem;
+      color: var(--grijs-tekst);
+    }
+
+    .richting-knoppen {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .richting-knop {
+      min-width: 48px;
+      min-height: 44px;
+      padding: 6px 10px;
+      font-size: 1rem;
+      background: var(--wit);
+      color: var(--zwart);
+      border: 2px solid var(--zwart);
+    }
+
+    .richting-knop:hover {
+      background: var(--meekrap);
+      color: var(--wit);
+      border-color: var(--meekrap);
+    }
+
+    /* Overwinningsmelding (Modal) */
+    .modal-achtergrond {
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 26, 26, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .modal-achtergrond.zichtbaar {
+      display: flex;
+    }
+
+    .modal-kaart {
+      background: var(--wit);
+      border: 3px solid var(--meekrap);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-kaart h2 {
+      color: var(--meekrap);
+      font-size: 1.4rem;
+    }
+
+    .modal-stats {
+      font-size: 1rem;
+      color: var(--zwart);
+      background: var(--meekrap-licht);
+      border: 2px solid var(--meekrap);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    @media (max-width: 600px) {
+      html {
+        font-size: 17px;
+      }
+      .hud-rij,
+      .schakelaars-rij,
+      .besturing-balk {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <!-- Kopbalk -->
+    <header>
+      <h1>Het Rabbit Game — Zes Ruiten</h1>
+      <span class="ondertitel">24-ruitenbord &middot; 9&#9830; t/m A&#9830;</span>
+    </header>
+
+    <!-- HUD: Voortgang, Teller & Schakelaars -->
+    <section class="hud" aria-label="Spelstatus en instellingen">
+      <div class="hud-rij">
+        <div class="kaarten-balk" id="kaartenBalk" aria-label="Verzamelde ruiten"></div>
+        <div class="status-groep">
+          <div class="teller" aria-live="polite">Sprongen: <span id="sprongenTeller">0</span></div>
+          <button type="button" id="nieuwSpelKnop">Nieuw spel</button>
+        </div>
+      </div>
+
+      <div class="schakelaars-rij">
+        <div class="modus-groep" role="group" aria-label="Verzamelvolgorde">
+          <button type="button" class="modus-knop actief" id="modusVrij" aria-pressed="true">Vrije volgorde</button>
+          <button type="button" class="modus-knop" id="modusOplopend" aria-pressed="false">Oplopend (9 &rarr; A)</button>
+        </div>
+
+        <!-- Strikt UIT bij opstarten -->
+        <label class="overlay-label" for="storyboardToggle">
+          <input type="checkbox" id="storyboardToggle" />
+          <span>Storyboard-overlay (ruitenraster &amp; pad)</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Live feedbackbalk -->
+    <div class="melding-balk" id="meldingBalk" role="status" aria-live="polite"></div>
+
+    <!-- Gekanteld 6x4 ruiten-speelbord -->
+    <section class="bord-container" id="bordContainer" aria-label="Speelbord met 24 ruiten">
+      <canvas id="spelCanvas"></canvas>
+    </section>
+
+    <!-- Bedieningshulp -->
+    <section class="besturing-balk" aria-label="Besturing">
+      <p class="uitleg">
+        Besturing: <strong>pijltjestoetsen</strong>, <strong>WASD</strong>, of klik/tik op een aangrenzende ruit.
+      </p>
+      <div class="richting-knoppen" aria-label="Richtingsknoppen">
+        <button type="button" class="richting-knop" data-dir="up" aria-label="Omhoog (Noord-West)">&uarr;</button>
+        <button type="button" class="richting-knop" data-dir="left" aria-label="Links (Zuid-West)">&larr;</button>
+        <button type="button" class="richting-knop" data-dir="down" aria-label="Omlaag (Zuid-Oost)">&darr;</button>
+        <button type="button" class="richting-knop" data-dir="right" aria-label="Rechts (Noord-Oost)">&rarr;</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Overwinningsmelding -->
+  <div class="modal-achtergrond" id="winModal" role="dialog" aria-modal="true" aria-labelledby="winTitel">
+    <div class="modal-kaart">
+      <h2 id="winTitel">Alle zes ruiten verzameld!</h2>
+      <div class="modal-stats" id="winStats"></div>
+      <button type="button" id="opnieuwKnop">Opnieuw spelen</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ======================================================================
+         CONSTANTEN & CONFIGURATIE
+         ====================================================================== */
+      const COLS = 6; // 6 kolommen x 4 rijen = 24 ruiten
+      const ROWS = 4;
+      const KAARTEN = ['9♦', '10♦', 'B♦', 'V♦', 'H♦', 'A♦'];
+
+      const KLEUR = {
+        meekrap: '#A31C1C',
+        meekrapLicht: '#F9EDED',
+        meekrapDonker: '#7D1313',
+        wit: '#FFFFFF',
+        zwart: '#1A1A1A',
+        tegelLicht: '#FFFFFF',
+        tegelDonker: '#F2E6E6',
+        tegelRand: '#1A1A1A',
+        pad: '#A31C1C',
+        rasterTekst: '#4A4A4A'
+      };
+
+      /* ======================================================================
+         DOM-ELEMENTEN
+         ====================================================================== */
+      const canvas = document.getElementById('spelCanvas');
+      const ctx = canvas.getContext('2d');
+      const bordContainer = document.getElementById('bordContainer');
+      const kaartenBalk = document.getElementById('kaartenBalk');
+      const sprongenTeller = document.getElementById('sprongenTeller');
+      const meldingBalk = document.getElementById('meldingBalk');
+      const nieuwSpelKnop = document.getElementById('nieuwSpelKnop');
+      const modusVrijKnop = document.getElementById('modusVrij');
+      const modusOplopendKnop = document.getElementById('modusOplopend');
+      const storyboardToggle = document.getElementById('storyboardToggle');
+      const winModal = document.getElementById('winModal');
+      const winStats = document.getElementById('winStats');
+      const opnieuwKnop = document.getElementById('opnieuwKnop');
+
+      /* ======================================================================
+         SPELSTATUS
+         ====================================================================== */
+      let state = {
+        modus: 'vrij',            // 'vrij' | 'oplopend'
+        overlayAan: false,        // STRIKT UIT bij opstarten
+        konijn: { c: 0, r: 0 },
+        anim: {
+          actief: false,
+          vanC: 0,
+          vanR: 0,
+          naarC: 0,
+          naarR: 0,
+          startTijd: 0,
+          duur: 150
+        },
+        sprongen: 0,
+        kaartenOpBord: [],        // [{ label, index, c, r, verzameld }]
+        verzameldSet: new Set(),  // indices 0..5
+        pad: [],                  // [{ c, r }]
+        gewonnen: false
+      };
+
+      // Geometrie voor het gekantelde ruitenbord
+      let geom = {
+        breedte: 800,
+        hoogte: 460,
+        tileW: 110,
+        tileH: 82,
+        originX: 400,
+        originY: 60
+      };
+
+      /* ======================================================================
+         HULPFUNCTIES VOOR GEOMETRIE (GEKANTELD RUITENROOSTER)
+         ====================================================================== */
+      function berekenGeometrie() {
+        const dpr = window.devicePixelRatio || 1;
+        const containerBreedte = Math.max(300, bordContainer.clientWidth);
+        // Verhouding zodat 6x4 gekanteld ruim past
+        const containerHoogte = Math.round(Math.min(540, Math.max(320, containerBreedte * 0.56)));
+
+        canvas.width = Math.round(containerBreedte * dpr);
+        canvas.height = Math.round(containerHoogte * dpr);
+        canvas.style.width = containerBreedte + 'px';
+        canvas.style.height = containerHoogte + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        geom.breedte = containerBreedte;
+        geom.hoogte = containerHoogte;
+
+        // Totale spanwijdte van 6x4 ruiten:
+        // Horizontaal: (COLS + ROWS) / 2 = 5 tileW
+        // Verticaal:   (COLS + ROWS) / 2 = 5 tileH
+        const margeX = 28;
+        const margeY = 24;
+        const maxTileW = (geom.breedte - margeX * 2) / ((COLS + ROWS) / 2);
+        const maxTileH = (geom.hoogte - margeY * 2) / ((COLS + ROWS) / 2);
+
+        // Behoud een fraaie ruitverhouding (breedte : hoogte ≈ 1.32 : 1)
+        const ratio = 1.32;
+        if (maxTileW / ratio <= maxTileH) {
+          geom.tileW = maxTileW;
+          geom.tileH = maxTileW / ratio;
+        } else {
+          geom.tileH = maxTileH;
+          geom.tileW = maxTileH * ratio;
+        }
+
+        // Centreer het gehele 6x4 ruitenbord exact in het canvas
+        const minX = -(ROWS - 1) * (geom.tileW / 2) - geom.tileW / 2;
+        const maxX = (COLS - 1) * (geom.tileW / 2) + geom.tileW / 2;
+        const minY = -geom.tileH / 2;
+        const maxY = (COLS - 1 + ROWS - 1) * (geom.tileH / 2) + geom.tileH / 2;
+
+        geom.originX = geom.breedte / 2 - (minX + maxX) / 2;
+        geom.originY = geom.hoogte / 2 - (minY + maxY) / 2;
+      }
+
+      function tegelMiddelpunt(c, r) {
+        return {
+          x: geom.originX + (c - r) * (geom.tileW / 2),
+          y: geom.originY + (c + r) * (geom.tileH / 2)
+        };
+      }
+
+      function schermNaarTegel(px, py) {
+        const dx = (px - geom.originX) / (geom.tileW / 2);
+        const dy = (py - geom.originY) / (geom.tileH / 2);
+        const c = Math.round((dx + dy) / 2);
+        const r = Math.round((dy - dx) / 2);
+
+        if (c < 0 || c >= COLS || r < 0 || r >= ROWS) return null;
+
+        // Exacte ruit-hitcheck: |x - cx|/(W/2) + |y - cy|/(H/2) <= 1
+        const m = tegelMiddelpunt(c, r);
+        const norm = Math.abs(px - m.x) / (geom.tileW / 2) + Math.abs(py - m.y) / (geom.tileH / 2);
+        return norm <= 1.02 ? { c, r } : null;
+      }
+
+      /* ======================================================================
+         SPELINITIALISATIE
+         ====================================================================== */
+      function startNieuwSpel() {
+        // Alle 24 posities verzamelen en schudden (Fisher-Yates)
+        const cellen = [];
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            cellen.push({ c, r });
+          }
+        }
+        for (let i = cellen.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [cellen[i], cellen[j]] = [cellen[j], cellen[i]];
+        }
+
+        // Eerste vrije cel voor het konijn, volgende 6 voor de ruiten-kaarten
+        const startCel = cellen[0];
+        state.konijn = { c: startCel.c, r: startCel.r };
+        state.anim.actief = false;
+        state.sprongen = 0;
+        state.verzameldSet = new Set();
+        state.pad = [{ c: startCel.c, r: startCel.r }];
+        state.gewonnen = false;
+
+        state.kaartenOpBord = KAARTEN.map((label, idx) => ({
+          label,
+          index: idx,
+          c: cellen[idx + 1].c,
+          r: cellen[idx + 1].r,
+          verzameld: false
+        }));
+
+        winModal.classList.remove('zichtbaar');
+        toonMelding(
+          state.modus === 'oplopend'
+            ? 'Verzamel de zes ruiten in oplopende volgorde: begin bij 9♦.'
+            : 'Verzamel alle zes ruiten in vrije volgorde.'
+        );
+
+        updateHUD();
+        teken();
+      }
+
+      function toonMelding(tekst) {
+        meldingBalk.textContent = tekst;
+      }
+
+      /* ======================================================================
+         HUD BIJWERKEN
+         ====================================================================== */
+      function updateHUD() {
+        sprongenTeller.textContent = String(state.sprongen);
+        kaartenBalk.innerHTML = '';
+
+        const volgendeIndex = state.verzameldSet.size;
+
+        KAARTEN.forEach((label, idx) => {
+          const chip = document.createElement('span');
+          chip.className = 'kaart-chip';
+          chip.textContent = label;
+
+          if (state.verzameldSet.has(idx)) {
+            chip.classList.add('verzameld');
+            chip.setAttribute('aria-label', label + ' verzameld');
+          } else if (state.modus === 'oplopend' && idx === volgendeIndex) {
+            chip.classList.add('volgende');
+            chip.setAttribute('aria-label', label + ' volgende doel');
+          }
+
+          kaartenBalk.appendChild(chip);
+        });
+      }
+
+      /* ======================================================================
+         BEWEGING & SPELREGELS
+         ====================================================================== */
+      function probeerSprong(naarC, naarR) {
+        if (state.gewonnen) return;
+        if (naarC < 0 || naarC >= COLS || naarR < 0 || naarR >= ROWS) return;
+
+        // Alleen 1 stap orthogonaal op het ruitenrooster (aangrenzende ruit)
+        const dist = Math.abs(naarC - state.konijn.c) + Math.abs(naarR - state.konijn.r);
+        if (dist !== 1) {
+          toonMelding('Spring naar een aangrenzende ruit.');
+          return;
+        }
+
+        // Start korte spronganimatie
+        state.anim = {
+          actief: true,
+          vanC: state.konijn.c,
+          vanR: state.konijn.r,
+          naarC,
+          naarR,
+          startTijd: performance.now(),
+          duur: 140
+        };
+
+        state.konijn = { c: naarC, r: naarR };
+        state.sprongen += 1;
+        state.pad.push({ c: naarC, r: naarR });
+
+        // Controleer of er een ruiten-kaart op deze tegel ligt
+        const kaart = state.kaartenOpBord.find(
+          (k) => !k.verzameld && k.c === naarC && k.r === naarR
+        );
+
+        if (kaart) {
+          if (state.modus === 'vrij') {
+            kaart.verzameld = true;
+            state.verzameldSet.add(kaart.index);
+            toonMelding(`${kaart.label} verzameld!`);
+          } else {
+            const vereist = state.verzameldSet.size;
+            if (kaart.index === vereist) {
+              kaart.verzameld = true;
+              state.verzameldSet.add(kaart.index);
+              const volgende = KAARTEN[state.verzameldSet.size];
+              toonMelding(
+                volgende
+                  ? `${kaart.label} verzameld! Volgende: ${volgende}.`
+                  : `${kaart.label} verzameld!`
+              );
+            } else {
+              toonMelding(
+                `Oplopende modus: verzamel eerst ${KAARTEN[vereist]} (je staat op ${kaart.label}).`
+              );
+            }
+          }
+        } else {
+          toonMelding('');
+        }
+
+        updateHUD();
+
+        // Controleer overwinning
+        if (state.verzameldSet.size === KAARTEN.length) {
+          state.gewonnen = true;
+          const modusTekst = state.modus === 'oplopend' ? 'Oplopend (9 → A)' : 'Vrije volgorde';
+          winStats.innerHTML =
+            `Aantal sprongen: <strong>${state.sprongen}</strong><br>` +
+            `Modus: <strong>${modusTekst}</strong>`;
+          setTimeout(() => {
+            winModal.classList.add('zichtbaar');
+            opnieuwKnop.focus();
+          }, 180);
+        }
+
+        startAnimatieLus();
+      }
+
+      function startAnimatieLus() {
+        function stap(nu) {
+          teken(nu);
+          if (state.anim.actief) {
+            requestAnimationFrame(stap);
+          }
+        }
+        requestAnimationFrame(stap);
+      }
+
+      /* ======================================================================
+         TEKENEN OP CANVAS
+         ====================================================================== */
+      function tekenRuit(cx, cy, w, h, vulKleur, randKleur, lijnBreedte) {
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - h / 2);
+        ctx.lineTo(cx + w / 2, cy);
+        ctx.lineTo(cx, cy + h / 2);
+        ctx.lineTo(cx - w / 2, cy);
+        ctx.closePath();
+
+        if (vulKleur) {
+          ctx.fillStyle = vulKleur;
+          ctx.fill();
+        }
+        if (randKleur) {
+          ctx.strokeStyle = randKleur;
+          ctx.lineWidth = lijnBreedte || 1.5;
+          ctx.stroke();
+        }
+      }
+
+      function tekenKaartSymbool(cx, cy, kaart) {
+        const isVolgende =
+          state.modus === 'oplopend' && kaart.index === state.verzameldSet.size;
+
+        // Kleine witte kaartbadge binnen de ruit
+        const badgeW = geom.tileW * 0.44;
+        const badgeH = geom.tileH * 0.46;
+
+        ctx.save();
+        ctx.fillStyle = isVolgende ? KLEUR.meekrap : KLEUR.wit;
+        ctx.strokeStyle = KLEUR.meekrap;
+        ctx.lineWidth = isVolgende ? 2.5 : 2;
+
+        // Afgeronde rechthoek
+        const x = cx - badgeW / 2;
+        const y = cy - badgeH / 2;
+        const r = 6;
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + badgeW - r, y);
+        ctx.quadraticCurveTo(x + badgeW, y, x + badgeW, y + r);
+        ctx.lineTo(x + badgeW, y + badgeH - r);
+        ctx.quadraticCurveTo(x + badgeW, y + badgeH, x + badgeW - r, y + badgeH);
+        ctx.lineTo(x + r, y + badgeH);
+        ctx.quadraticCurveTo(x, y + badgeH, x, y + badgeH - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Kaartwaarde
+        const fontGrootte = Math.max(13, Math.round(geom.tileH * 0.27));
+        ctx.font = `800 ${fontGrootte}px system-ui, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = isVolgende ? KLEUR.wit : KLEUR.meekrap;
+        ctx.fillText(kaart.label, cx, cy + 1);
+        ctx.restore();
+      }
+
+      function tekenKonijn(cx, cy, sprongHoogte) {
+        const s = Math.min(geom.tileW, geom.tileH) * 0.34;
+        const y = cy - sprongHoogte;
+
+        ctx.save();
+
+        // Subtiele grondschaduw
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + s * 0.55, s * 0.55, s * 0.22, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(26, 26, 26, 0.18)';
+        ctx.fill();
+
+        // Oren (geometrisch, hoog contrast)
+        ctx.fillStyle = KLEUR.wit;
+        ctx.strokeStyle = KLEUR.zwart;
+        ctx.lineWidth = 2.2;
+
+        // Linkeroor
+        ctx.beginPath();
+        ctx.ellipse(cx - s * 0.26, y - s * 0.62, s * 0.16, s * 0.44, -0.14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Rechteroor
+        ctx.beginPath();
+        ctx.ellipse(cx + s * 0.26, y - s * 0.62, s * 0.16, s * 0.44, 0.14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Meekrap-rood binnenoor
+        ctx.fillStyle = KLEUR.meekrap;
+        ctx.beginPath();
+        ctx.ellipse(cx - s * 0.26, y - s * 0.62, s * 0.07, s * 0.25, -0.14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(cx + s * 0.26, y - s * 0.62, s * 0.07, s * 0.25, 0.14, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Kopje
+        ctx.beginPath();
+        ctx.arc(cx, y, s * 0.48, 0, Math.PI * 2);
+        ctx.fillStyle = KLEUR.wit;
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = KLEUR.zwart;
+        ctx.stroke();
+
+        // Ogen
+        ctx.fillStyle = KLEUR.zwart;
+        ctx.beginPath();
+        ctx.arc(cx - s * 0.17, y - s * 0.06, s * 0.075, 0, Math.PI * 2);
+        ctx.arc(cx + s * 0.17, y - s * 0.06, s * 0.075, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Neus (kleine meekrap-ruit)
+        tekenRuit(cx, y + s * 0.12, s * 0.18, s * 0.14, KLEUR.meekrap, null, 0);
+
+        ctx.restore();
+      }
+
+      function tekenStoryboardOverlay() {
+        ctx.save();
+
+        // 1. Coördinaten op alle 24 ruiten (A1..F4)
+        const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+        const coordFont = Math.max(10, Math.round(geom.tileH * 0.16));
+        ctx.font = `700 ${coordFont}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = KLEUR.rasterTekst;
+
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            const m = tegelMiddelpunt(c, r);
+            ctx.fillText(`${letters[c]}${r + 1}`, m.x, m.y + geom.tileH * 0.29);
+          }
+        }
+
+        // 2. Afgelegde pad van het konijn
+        if (state.pad.length > 1) {
+          ctx.beginPath();
+          const start = tegelMiddelpunt(state.pad[0].c, state.pad[0].r);
+          ctx.moveTo(start.x, start.y);
+
+          for (let i = 1; i < state.pad.length; i++) {
+            const p = tegelMiddelpunt(state.pad[i].c, state.pad[i].r);
+            ctx.lineTo(p.x, p.y);
+          }
+
+          ctx.strokeStyle = KLEUR.pad;
+          ctx.lineWidth = 3;
+          ctx.setLineDash([6, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Knooppunten met stapnummer
+          state.pad.forEach((stap, idx) => {
+            const p = tegelMiddelpunt(stap.c, stap.r);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+            ctx.fillStyle = idx === 0 ? KLEUR.zwart : KLEUR.meekrap;
+            ctx.fill();
+          });
+        }
+
+        ctx.restore();
+      }
+
+      function teken(nu = performance.now()) {
+        ctx.clearRect(0, 0, geom.breedte, geom.hoogte);
+
+        // 1. Teken alle 24 gekantelde ruiten (dambordpatroon)
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            const m = tegelMiddelpunt(c, r);
+            const isDonker = (c + r) % 2 === 1;
+            const isAangrenzend =
+              !state.gewonnen &&
+              Math.abs(c - state.konijn.c) + Math.abs(r - state.konijn.r) === 1;
+
+            let vul = isDonker ? KLEUR.tegelDonker : KLEUR.tegelLicht;
+            let rand = KLEUR.tegelRand;
+            let lijn = 1.5;
+
+            if (isAangrenzend) {
+              rand = KLEUR.meekrap;
+              lijn = 2.4;
+            }
+
+            tekenRuit(m.x, m.y, geom.tileW, geom.tileH, vul, rand, lijn);
+          }
+        }
+
+        // 2. Optionele Storyboard-overlay (UIT bij opstarten)
+        if (state.overlayAan) {
+          tekenStoryboardOverlay();
+        }
+
+        // 3. Teken de nog niet verzamelde ruiten-kaarten
+        state.kaartenOpBord.forEach((kaart) => {
+          if (!kaart.verzameld) {
+            const m = tegelMiddelpunt(kaart.c, kaart.r);
+            tekenKaartSymbool(m.x, m.y, kaart);
+          }
+        });
+
+        // 4. Teken het konijn (met vloeiende sprongboog)
+        let konijnX, konijnY, sprongHoogte = 0;
+        if (state.anim.actief) {
+          const t = Math.min(1, (nu - state.anim.startTijd) / state.anim.duur);
+          const van = tegelMiddelpunt(state.anim.vanC, state.anim.vanR);
+          const naar = tegelMiddelpunt(state.anim.naarC, state.anim.naarR);
+          konijnX = van.x + (naar.x - van.x) * t;
+          konijnY = van.y + (naar.y - van.y) * t;
+          sprongHoogte = Math.sin(t * Math.PI) * (geom.tileH * 0.32);
+
+          if (t >= 1) {
+            state.anim.actief = false;
+          }
+        } else {
+          const m = tegelMiddelpunt(state.konijn.c, state.konijn.r);
+          konijnX = m.x;
+          konijnY = m.y;
+        }
+
+        tekenKonijn(konijnX, konijnY, sprongHoogte);
+      }
+
+      /* ======================================================================
+         GEBEURTENISSEN (TOETSENBORD, MUIS, TOUCH, SCHAKELAARS)
+         ====================================================================== */
+      function beweegRichting(dir) {
+        const { c, r } = state.konijn;
+        if (dir === 'up') probeerSprong(c, r - 1);
+        else if (dir === 'down') probeerSprong(c, r + 1);
+        else if (dir === 'left') probeerSprong(c - 1, r);
+        else if (dir === 'right') probeerSprong(c + 1, r);
+      }
+
+      window.addEventListener('keydown', (e) => {
+        if (winModal.classList.contains('zichtbaar')) return;
+
+        const key = e.key.toLowerCase();
+        if (key === 'arrowup' || key === 'w') {
+          e.preventDefault();
+          beweegRichting('up');
+        } else if (key === 'arrowdown' || key === 's') {
+          e.preventDefault();
+          beweegRichting('down');
+        } else if (key === 'arrowleft' || key === 'a') {
+          e.preventDefault();
+          beweegRichting('left');
+        } else if (key === 'arrowright' || key === 'd') {
+          e.preventDefault();
+          beweegRichting('right');
+        }
+      });
+
+      function verwerkCanvasKlik(clientX, clientY) {
+        const rect = canvas.getBoundingClientRect();
+        const px = clientX - rect.left;
+        const py = clientY - rect.top;
+        const tegel = schermNaarTegel(px, py);
+        if (tegel) {
+          probeerSprong(tegel.c, tegel.r);
+        }
+      }
+
+      canvas.addEventListener('click', (e) => {
+        verwerkCanvasKlik(e.clientX, e.clientY);
+      });
+
+      document.querySelectorAll('.richting-knop').forEach((knop) => {
+        knop.addEventListener('click', () => {
+          beweegRichting(knop.getAttribute('data-dir'));
+        });
+      });
+
+      nieuwSpelKnop.addEventListener('click', startNieuwSpel);
+      opnieuwKnop.addEventListener('click', startNieuwSpel);
+
+      modusVrijKnop.addEventListener('click', () => {
+        if (state.modus === 'vrij') return;
+        state.modus = 'vrij';
+        modusVrijKnop.classList.add('actief');
+        modusVrijKnop.setAttribute('aria-pressed', 'true');
+        modusOplopendKnop.classList.remove('actief');
+        modusOplopendKnop.setAttribute('aria-pressed', 'false');
+        startNieuwSpel();
+      });
+
+      modusOplopendKnop.addEventListener('click', () => {
+        if (state.modus === 'oplopend') return;
+        state.modus = 'oplopend';
+        modusOplopendKnop.classList.add('actief');
+        modusOplopendKnop.setAttribute('aria-pressed', 'true');
+        modusVrijKnop.classList.remove('actief');
+        modusVrijKnop.setAttribute('aria-pressed', 'false');
+        startNieuwSpel();
+      });
+
+      // Storyboard-overlay strikt UIT bij laden
+      storyboardToggle.checked = false;
+      state.overlayAan = false;
+      storyboardToggle.addEventListener('change', () => {
+        state.overlayAan = storyboardToggle.checked;
+        teken();
+      });
+
+      window.addEventListener('resize', () => {
+        berekenGeometrie();
+        teken();
+      });
+
+      // Opstarten
+      berekenGeometrie();
+      startNieuwSpel();
+    })();
+  </script>
+</body>
+</html>
